@@ -146,7 +146,6 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
 		case 0x9C:
 		case 0x9D: return ItemActionHandler(pPacket, dwSize);
-		case 0xAE: if(!Vars.bLoadedWithCGuard) TerminateProcess(GetCurrentProcess(), 0); break;
 		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
 	}
 
