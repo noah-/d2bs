@@ -134,6 +134,10 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 {
 	switch(pPacket[0])
 	{
+		case 0xAE:
+			Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
+			TerminateProcess(GetCurrentProcess(), 0);
+		break;
 		case 0x15: return ReassignPlayerHandler(pPacket, dwSize);
 		case 0x26: return ChatEventHandler(pPacket, dwSize);
 		case 0x2A: return NPCTransactionHandler(pPacket, dwSize);
