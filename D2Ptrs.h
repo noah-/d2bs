@@ -135,7 +135,7 @@ VARPTR(D2CLIENT, StashLayout, InventoryLayout*, 0x1015E0)
 VARPTR(D2CLIENT, StoreLayout, InventoryLayout*, 0x1016C0)
 VARPTR(D2CLIENT, CubeLayout, InventoryLayout*, 0x1016D8)
 VARPTR(D2CLIENT, InventoryLayout, InventoryLayout*, 0x1016F0)
-VARPTR(D2CLIENT, MercLayout, InventoryLayout*, 0x11CCC0)
+VARPTR(D2CLIENT, MercLayout, InventoryLayout*, 0x11CC84)
 
 ASMPTR(D2CLIENT, clickParty_I, 0xA2250)
 

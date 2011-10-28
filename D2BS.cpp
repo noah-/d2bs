@@ -45,7 +45,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 				Vars.bLoadedWithCGuard = FALSE;
 			}
 
-#ifdef DEBUG
+#if 0
 			char errlog[516] = "";
 			sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
 			AllocConsole();
