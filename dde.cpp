@@ -22,9 +22,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1,
 			break;
 		case XTYP_EXECUTE:
 			DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
-			Script* script = ScriptEngine::CompileCommand(pszItem);
-			if(script)
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			ScriptEngine::RunCommand(pszItem);
 			break;
 	}
 	return (HDDEDATA)0;

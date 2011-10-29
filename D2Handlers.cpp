@@ -164,9 +164,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if(pCopy->dwData == 0x1337) // 0x1337 = Execute Script
 				{
-					Script* script = ScriptEngine::CompileCommand((char*)pCopy->lpData);
-					if(script)
-						CreateThread(0, 0, ScriptThread, script, 0, 0);
+					ScriptEngine::RunCommand((char*)pCopy->lpData);
 				}
 				else if(pCopy->dwData == 0x31337) // 0x31337 = Set Profile
 				{

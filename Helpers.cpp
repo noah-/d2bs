@@ -200,8 +200,8 @@ ScriptState GetStarterScriptState(void)
 
 bool ExecCommand(const char* command)
 {
-	Script* script = ScriptEngine::CompileCommand(command);
-	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
+	ScriptEngine::RunCommand(command);
+	return true;
 }
 
 bool StartScript(const char* scriptname, ScriptState state)

@@ -124,6 +124,15 @@ DWORD Script::GetThreadId(void)
 	return (threadHandle == NULL ? -1 : threadId);
 }
 
+void Script::RunCommand(const char* command)
+{
+	JS_SetContextThread(GetContext());
+	JS_BeginRequest(GetContext());
+	jsval rval;
+	JS_EvaluateScript(GetContext(), globalObject, command, strlen(command), "Command Line", 0, &rval);
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
+}
 void Script::Run(void)
 {
 	// only let the script run if it's not already running

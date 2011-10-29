@@ -62,6 +62,7 @@ public:
 	void Pause(void);
 	void Resume(void);
 	bool IsPaused(void);
+	void RunCommand(const char* command);
 	inline void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
 	inline bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);

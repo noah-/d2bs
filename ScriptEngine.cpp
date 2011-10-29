@@ -65,30 +65,20 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 	}
 }
 
-Script* ScriptEngine::CompileCommand(const char* command)
+void ScriptEngine::RunCommand(const char* command)
 {
 	if(GetState() != Running)
-		return NULL;
+		return;
 	try
 	{
 		EnterCriticalSection(&lock);
-		if(!Vars.bDisableCache)
-		{
-			if(scripts.count("Command Line") > 0)
-			{
-				DisposeScript(scripts["Command Line"]);
-			}
-		}
-		Script* script = new Script(command, Command);
-		scripts["Command Line"] = script;
+		scripts["Command Line"]->RunCommand(command);
 		LeaveCriticalSection(&lock);
-		return script;
 	}
 	catch(std::exception e)
 	{
 		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
-		return NULL;
 	}
 }
 
@@ -149,6 +139,7 @@ BOOL ScriptEngine::Startup(void)
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
+		scripts["Command Line"] = new Script("", Command);
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
