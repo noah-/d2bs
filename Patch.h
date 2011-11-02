@@ -19,7 +19,7 @@ PatchHook Patches[] = {
 //	{PatchCall,	GetDllOffset("D2Client.dll", 0xA7364),	(DWORD)AddUnit_Intercept,				5},
 //	{PatchCall,	GetDllOffset("D2Client.dll", 0xA6F25),	(DWORD)RemoveUnit_Intercept,			9},
 
-	{PatchCall,	GetDllOffset("D2Multi.dll", 0x142FC6f),	(DWORD)Whisper_Intercept,				7},//1.13d
+	{PatchCall,	GetDllOffset("D2Multi.dll", 0x142FC),	(DWORD)Whisper_Intercept,				7},//1.13d
 	{PatchCall, GetDllOffset("D2Multi.dll", 0x11D63),	(DWORD)ChannelInput_Intercept,			5},//1.13d
 	{PatchCall,	GetDllOffset("D2Multi.dll", 0x14A9A),	(DWORD)ChannelWhisper_Intercept,		5},//1.13d
 	{PatchJmp,	GetDllOffset("D2Multi.dll", 0x14BE0),	(DWORD)ChannelChat_Intercept,			6},//1.13d
