@@ -13,7 +13,7 @@
 #include "D2Ptrs.h"
 
 using namespace std;
-
+Script* ScriptEngine::console = NULL;
 JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
@@ -72,7 +72,7 @@ void ScriptEngine::RunCommand(const char* command)
 	try
 	{
 		EnterCriticalSection(&lock);
-		scripts["Command Line"]->RunCommand(command);
+		console->RunCommand(command); 
 		LeaveCriticalSection(&lock);
 	}
 	catch(std::exception e)
@@ -139,7 +139,8 @@ BOOL ScriptEngine::Startup(void)
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
-		scripts["Command Line"] = new Script("", Command);
+		console = new Script("", Command);
+
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
@@ -154,6 +155,7 @@ void ScriptEngine::Shutdown(void)
 		EnterCriticalSection(&lock);
 		state = Stopping;
 		StopAll(true);
+		console->Stop(true, true);
 
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);

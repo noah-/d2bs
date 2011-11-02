@@ -32,6 +32,7 @@ class ScriptEngine
 	static JSRuntime* runtime;
 	static JSContext* context;
 	static ScriptMap scripts;
+	static Script* console;
 	static EngineState state;
 	static CRITICAL_SECTION lock;
 
