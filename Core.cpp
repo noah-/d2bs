@@ -156,6 +156,7 @@ void Say(const char *szMessage)
 		pPacket[1] = 0x01;
 		memcpy(pPacket+3, szMessage, len-6);
 		D2CLIENT_SendGamePacket(len, pPacket);
+		delete [] pPacket;
 	}
 	// help button and ! ok msg for disconnected
 	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
