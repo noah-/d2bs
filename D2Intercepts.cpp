@@ -235,7 +235,7 @@ void __declspec(naked) ChannelChat_Intercept(void)
 		pop ecx
 
 		jz SkipChat
-		sub esp, 0x408
+		sub esp, 0x308
 		jmp D2MULTI_ChannelChat_I
 
 SkipChat:
