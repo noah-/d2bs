@@ -776,6 +776,8 @@ JSAPI_FUNC(unit_getStat)
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8);
 	else if(nStat == 13 || nStat == 29 || nStat == 30)
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
+	//else if (nStat == 36 || nStat == 37 || nStat == 39|| nStat == 41 || nStat == 43|| nStat == 45) // negitive resistance
+	//	*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
 	else if(nStat == 92)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 	else if(nStat == -1)
