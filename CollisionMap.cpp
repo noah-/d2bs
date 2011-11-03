@@ -712,7 +712,7 @@ int CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 		if(bAdded)
 			D2COMMON_RemoveRoomData(Me->pAct, pRoom->pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, Me->pPath->pRoom1);
 	}
-
+delete[] ptCenters;
 //	LeaveCriticalSection(&CriticalSection);
 
 	return nCurrentExit;

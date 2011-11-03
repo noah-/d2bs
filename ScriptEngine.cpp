@@ -16,7 +16,6 @@ using namespace std;
 Script* ScriptEngine::console = NULL;
 JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
-Script* ScriptEngine::console = NULL;
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 JSContext* ScriptEngine::context = NULL;
