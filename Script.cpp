@@ -130,6 +130,8 @@ void Script::RunCommand(const char* command)
 	JS_BeginRequest(GetContext());
 	jsval rval;
 	JS_EvaluateScript(GetContext(), globalObject, command, strlen(command), "Command Line", 0, &rval);
+	JS_ConvertValue(GetContext(), rval, JSTYPE_STRING, &rval);
+	Print(JS_GetStringBytes(JS_ValueToString(GetContext(), rval)));
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 }
@@ -154,16 +156,6 @@ void Script::Run(void)
 	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
-	}
-
-	if(GetState() == Command)
-	{
-		// if we just processed a command, print the results of the command
-		if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
-		{
-			JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
-			Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
-		}
 	}
 
 	JS_RemoveRoot(&main);

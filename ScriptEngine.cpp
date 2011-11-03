@@ -16,6 +16,7 @@ using namespace std;
 Script* ScriptEngine::console = NULL;
 JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
+Script* ScriptEngine::console = NULL;
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 JSContext* ScriptEngine::context = NULL;
@@ -72,7 +73,7 @@ void ScriptEngine::RunCommand(const char* command)
 	try
 	{
 		EnterCriticalSection(&lock);
-		console->RunCommand(command); 
+		console->RunCommand(command);
 		LeaveCriticalSection(&lock);
 	}
 	catch(std::exception e)
@@ -140,7 +141,6 @@ BOOL ScriptEngine::Startup(void)
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
 		console = new Script("", Command);
-
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
