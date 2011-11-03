@@ -15,6 +15,8 @@
 #include "D2Ptrs.h"
 #include "File.h"
 
+#include "JSScript.h"
+
 JSAPI_FUNC(my_print)
 {
 	for(uintN i = 0; i < argc; i++)
@@ -97,7 +99,8 @@ JSAPI_FUNC(my_load)
 	if(newScript)
 	{
 		CreateThread(0, 0, ScriptThread, newScript, 0, 0);
-		*rval = JSVAL_TRUE;
+		JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext());
+		*rval = OBJECT_TO_JSVAL(res);
 	}
 	else
 	{

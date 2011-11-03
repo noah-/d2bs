@@ -58,6 +58,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
 					ScriptEngine::ForEachScript(UpdatePlayerGid, NULL, 0);
+					ScriptEngine::UpdateConsole();
 
 					GameJoined();
 

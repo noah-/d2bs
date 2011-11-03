@@ -61,6 +61,7 @@ public:
 							 JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
 	static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
+	static void UpdateConsole();
 
 	friend JSBool gcCallback(JSContext* cx, JSGCStatus status);
 };

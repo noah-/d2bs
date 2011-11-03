@@ -188,6 +188,10 @@ void ScriptEngine::StopAll(bool forceStop)
 	LeaveCriticalSection(&lock);
 }
 
+void ScriptEngine::UpdateConsole()
+{
+	console->UpdatePlayerGid();
+}
 void ScriptEngine::FlushCache(void)
 {
 	if(GetState() != Running)
