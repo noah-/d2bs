@@ -427,8 +427,8 @@ VARPTR(D2MULTI, ChatInputBox, DWORD*, 0x3A0B0)
 VARPTR(BNCLIENT, ClassicKey, char*, 0x1E928)
 VARPTR(BNCLIENT, XPacKey, char*, 0x1E930)
 VARPTR(BNCLIENT, KeyOwner, char*, 0x1E934)
-FUNCPTR(BNCLIENT, DecodeAndLoadKeys, char __cdecl, (), 0x15D10)
-
+//FUNCPTR(BNCLIENT, DecodeAndLoadKeys, char __cdecl, (), 0x15D10)
+FUNCPTR(BNCLIENT, DecodeAndLoadKeys, char __cdecl, (), 0x10920)
 VARPTR(STORM, WindowHandlers, WindowHandlerHashTable, 0x55878)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
