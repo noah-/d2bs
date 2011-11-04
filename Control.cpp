@@ -561,15 +561,15 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 			switch(difficulty)
 			{
 				case 0: // normal button
-					if(normal->dwDisabled != 0x4 || !clickControl(normal))
+					if(normal->dwDisabled == 0x4 || !clickControl(normal))
 						return FALSE;
 					break;
 				case 1: // nightmare button
-					if(nightmare->dwDisabled != 0x4 || !clickControl(nightmare))
+					if(nightmare->dwDisabled == 0x4 || !clickControl(nightmare))
 						return FALSE;
 					break;
 				case 2: // hell button
-					if(hell->dwDisabled != 0x4 || !clickControl(hell))
+					if(hell->dwDisabled == 0x4 || !clickControl(hell))
 						return FALSE;
 					break;
 				case 3: //hardest difficulty available
