@@ -18,6 +18,7 @@ JSAPI_FUNC(unit_getSkill);
 JSAPI_FUNC(unit_getParent);
 JSAPI_FUNC(unit_setskill);
 JSAPI_FUNC(unit_getMerc);
+JSAPI_FUNC(unit_getMercHP);
 JSAPI_FUNC(unit_getItem);
 JSAPI_FUNC(unit_move);
 JSAPI_FUNC(item_getFlag);
@@ -240,6 +241,7 @@ static JSFunctionSpec unit_methods[] = {
 	{"getItem",			unit_getItem,		3},
 	{"getItems",		unit_getItems,		0},
 	{"getMerc",			unit_getMerc,		0},
+	{"getMercHP",		unit_getMercHP,		0},
 	{"getSkill",		unit_getSkill,		0},
 	{"getParent",		unit_getParent,		0},
 	{"overhead",		my_overhead,		0},

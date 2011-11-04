@@ -882,34 +882,6 @@ JSAPI_FUNC(my_checkCollision)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(my_getMercHP)
-{	
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
-	// TODO: Can we replace this with D2CLIENT_GetMercUnit()?
-	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
-	{
-		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
-		{
-			for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pRoomNext)
-			{
-				if(pUnit->dwType == UNIT_MONSTER &&
-					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
-					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)									
-
-				{
-					*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId)));
-					return JS_TRUE;
-				}
-			}
-		}
-	}
-
-	return JS_TRUE;
-}
-
 JSAPI_FUNC(my_getCursorType)
 {
 	jsint nType = NULL;
