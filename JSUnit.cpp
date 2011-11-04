@@ -369,7 +369,7 @@ JSAPI_PROP(unit_getProperty)
 				*vp = INT_TO_JSVAL(pUnit->pItemData->BodyLocation);
 			break;
 		case UNIT_OWNER:
-			*vp = INT_TO_JSVAL(pUnit->dwOwnerId);
+			JS_NewNumberValue(cx, (jsdouble)pUnit->dwOwnerId, vp);
 			break;
 		case UNIT_OWNERTYPE:
 			*vp = INT_TO_JSVAL(pUnit->dwOwnerType);
