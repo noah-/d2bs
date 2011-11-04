@@ -57,7 +57,7 @@ private:
 
 public:
 	friend class ScriptEngine;
-
+	
 	void Run(void);
 	void Pause(void);
 	void Resume(void);
@@ -94,5 +94,11 @@ public:
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 };
 
+struct RUNCOMMANDSTRUCT {
+	Script* script;
+	const char* command;
+};
+
+DWORD WINAPI RunCommandThread(void* data);
 DWORD WINAPI ScriptThread(void* data);
 DWORD WINAPI FuncThread(void* data);
