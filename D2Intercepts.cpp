@@ -209,14 +209,14 @@ void __declspec(naked) ChannelWhisper_Intercept(void)
 
 		call ChannelWhisperHandler
 
-		test eax, eax
+		//test eax, eax
 		pop edx
 		pop ecx
 
-		jz SkipWhisper
+		//jz SkipWhisper
 		jmp D2MULTI_ChannelWhisper_I
 
-SkipWhisper:
+//SkipWhisper:
 		ret 4
 	}
 }
@@ -232,15 +232,15 @@ void __declspec(naked) ChannelChat_Intercept(void)
 
 		call ChannelChatHandler
 
-		test eax, eax
+		//test eax, eax
 		pop edx
 		pop ecx
 
-		jz SkipChat
+		//jz SkipChat
 		sub esp, 0x308
 		jmp D2MULTI_ChannelChat_I
 
-SkipChat:
+//SkipChat:
 		ret 8
 	}
 }
@@ -256,11 +256,11 @@ void __declspec(naked) ChannelEmote_Intercept(void)
 
 		call ChannelChatHandler
 
-		test eax, eax
+		//test eax, eax
 		pop edx
 		pop ecx
 
-		jz SkipChat
+		//jz SkipChat
 		sub esp, 0x4F8
 		jmp D2MULTI_ChannelEmote_I
 
