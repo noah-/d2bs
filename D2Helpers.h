@@ -32,6 +32,7 @@ void	myDrawCenterText(const char* szwText, int x, int y, int color, int font, in
 UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location);
 BYTE	CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin = NULL);
 DWORD	GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo);
+UnitAny* GetMercUnit(UnitAny* pUnit);
 
 BOOL	ClickNPCMenu(DWORD NPCClassId, DWORD MenuId);
 int		GetItemLocation(UnitAny *pItem);

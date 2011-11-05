@@ -1474,8 +1474,6 @@ JSAPI_FUNC(unit_getParent)
 	return JS_TRUE;
 }
 
-UnitAny* GetMercUnit(UnitAny* pUnit);
-
 // Works only on players sinces monsters _CANT_ have mercs!
 JSAPI_FUNC(unit_getMerc)
 {	
@@ -1523,23 +1521,6 @@ JSAPI_FUNC(unit_getMercHP)
 	}
 
 	return JS_TRUE;
-}
-
-UnitAny* GetMercUnit(UnitAny* pUnit)
-{
-	// Wanted way of doing things, but D2CLIENT_GetMercUnit does some wierd internal things (drawing, causing screen flicker)
-	//for(UnitAny* pMerc = D2CLIENT_GetMercUnit(); pMerc; pMerc = pMerc->pRoomNext)
-	//	if (D2CLIENT_GetMonsterOwner(pMerc->dwUnitId) == pUnit->dwUnitId)
-	//		return pMerc;
-
-	for(Room1* pRoom = pUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
-		for(UnitAny* pMerc = pRoom->pUnitFirst; pMerc; pMerc = pMerc->pRoomNext)
-			if(pMerc->dwType == UNIT_MONSTER &&
-					(pMerc->dwTxtFileNo == MERC_A1 || pMerc->dwTxtFileNo == MERC_A2 ||
-					pMerc->dwTxtFileNo == MERC_A3 || pMerc->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pMerc->dwUnitId) == pUnit->dwUnitId)
-					return pMerc;
-	return NULL;
 }
 
 // unit.setSkill( int skillId OR String skillName, int hand [, int itemGlobalId] );
