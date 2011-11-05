@@ -25,7 +25,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, jsval* argv, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -50,7 +50,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, state);
+		Script* script = new Script(fileName, state, argc, argv);
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;

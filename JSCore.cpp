@@ -95,7 +95,7 @@ JSAPI_FUNC(my_load)
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
 	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
-	Script* newScript = ScriptEngine::CompileFile(buf, scriptState);
+	Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc-1, argv+1);
 	if(newScript)
 	{
 		CreateThread(0, 0, ScriptThread, newScript, 0, 0);

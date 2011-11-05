@@ -40,6 +40,8 @@ private:
 	JSContext* context;
 	JSScript* script;
 	myUnit* me;
+	uintN argc;
+	jsval* argv;
 
 	JSObject *globalObject, *scriptObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted;
@@ -50,7 +52,7 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
-	Script(const char* file, ScriptState state);
+	Script(const char* file, ScriptState state, uintN argc = 0, jsval* argv = NULL);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);

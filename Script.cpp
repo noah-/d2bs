@@ -12,10 +12,10 @@
 
 using namespace std;
 
-Script::Script(const char* file, ScriptState state) :
+Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
-			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
+			threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv)
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
@@ -156,7 +156,7 @@ void Script::Run(void)
 	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE &&
 	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
+		JS_CallFunctionValue(GetContext(), globalObject, main, this->argc, this->argv, &dummy);
 	}
 
 	JS_RemoveRoot(&main);
