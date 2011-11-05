@@ -445,9 +445,12 @@ DWORD WINAPI RunCommandThread(void* data)
 	JS_SetContextThread(rcs->script->GetContext());
 	JS_BeginRequest(rcs->script->GetContext());
 	jsval rval;
-	JS_EvaluateScript(rcs->script->GetContext(), rcs->script->GetGlobalObject(), rcs->command, 
-		strlen(rcs->command), "Command Line", 0, &rval);
-	JS_ConvertValue(rcs->script->GetContext(), rval, JSTYPE_STRING, &rval);
+	if (JS_EvaluateScript(rcs->script->GetContext(), rcs->script->GetGlobalObject(), 
+		rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
+	{
+		JS_ConvertValue(rcs->script->GetContext(), rval, JSTYPE_STRING, &rval);
+		Print(JS_GetStringBytes(JS_ValueToString(rcs->script->GetContext(), rval)));
+	}
 	JS_EndRequest(rcs->script->GetContext());
 	JS_ClearContextThread(rcs->script->GetContext());
 
