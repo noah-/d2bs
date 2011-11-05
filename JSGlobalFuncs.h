@@ -24,7 +24,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getUnit",				unit_getUnit,			1},
 	{"getPath",				my_getPath,				0},
 	{"getCollision",		my_getCollision,		0},
-	{"getMercHP",			my_getMercHP,			0},
+	{"getMercHP",			unit_getMercHP,			0},
 	{"getCursorType",		my_getCursorType,		0},
 	{"getSkillByName",		my_getSkillByName,		1},
 	{"getSkillById",		my_getSkillById,		1},

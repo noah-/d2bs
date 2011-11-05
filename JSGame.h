@@ -30,7 +30,7 @@ JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_getDistance);
 JSAPI_FUNC(my_getPath);
 JSAPI_FUNC(my_getCollision);
-JSAPI_FUNC(my_getMercHP);
+JSAPI_FUNC(unit_getMercHP);
 JSAPI_FUNC(my_getCursorType);
 JSAPI_FUNC(my_getSkillByName);
 JSAPI_FUNC(my_getSkillById);
