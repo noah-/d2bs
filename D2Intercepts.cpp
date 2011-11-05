@@ -264,7 +264,7 @@ void __declspec(naked) ChannelEmote_Intercept(void)
 		sub esp, 0x4F8
 		jmp D2MULTI_ChannelEmote_I
 
-SkipChat:
+//SkipChat:
 		ret 8
 	}
 }
