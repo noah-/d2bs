@@ -1484,32 +1484,25 @@ JSAPI_FUNC(unit_getMerc)
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
-	if(!lpUnit ||(lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-		return JS_TRUE;
-	
-	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-	
-	if(!pUnit || pUnit->dwType != UNIT_PLAYER)
-		return JS_TRUE;
+	if(lpUnit && (lpUnit->_dwPrivateType & PRIVATE_UNIT) == PRIVATE_UNIT) {
+		UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+		if(pUnit && pUnit->dwType == UNIT_PLAYER) {
+			UnitAny* pMerc = GetMercUnit(pUnit);
+			if (pMerc) {
+				myUnit* pmyUnit = new myUnit;
 
-	UnitAny* pMerc = GetMercUnit(pUnit);
+				pmyUnit->_dwPrivateType = PRIVATE_UNIT;
+				pmyUnit->dwUnitId = pMerc->dwUnitId;
+				pmyUnit->dwClassId = pMerc->dwTxtFileNo;
+				pmyUnit->dwMode = NULL;
+				pmyUnit->dwType = UNIT_MONSTER;
+				pmyUnit->szName[0] = NULL;
 
-	if (pMerc) {
-		myUnit* pmyUnit = new myUnit;
-
-		pmyUnit->_dwPrivateType = PRIVATE_UNIT;
-		pmyUnit->dwUnitId = pMerc->dwUnitId;
-		pmyUnit->dwClassId = pMerc->dwTxtFileNo;
-		pmyUnit->dwMode = NULL;
-		pmyUnit->dwType = UNIT_MONSTER;
-		pmyUnit->szName[0] = NULL;
-
-		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
-		if (!jsunit)
-			return JS_TRUE;
-
-		*rval = OBJECT_TO_JSVAL(jsunit);	
-		return JS_TRUE;
+				JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+				if (jsunit)
+					*rval = OBJECT_TO_JSVAL(jsunit);	
+			}
+		}
 	}
 	return JS_TRUE;
 }
@@ -1527,28 +1520,6 @@ JSAPI_FUNC(unit_getMercHP)
 		UnitAny* pMerc = GetMercUnit(pUnit);
 		if (pMerc)
 			*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pMerc->dwUnitId)));
-	}
-
-	return JS_TRUE;
-
-	// TODO: Can we replace this with D2CLIENT_GetMercUnit()?
-	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
-	{
-		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
-		{
-			for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pRoomNext)
-			{
-				if(pUnit->dwType == UNIT_MONSTER &&
-					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
-					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)									
-
-				{
-					*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId)));
-					return JS_TRUE;
-				}
-			}
-		}
 	}
 
 	return JS_TRUE;
