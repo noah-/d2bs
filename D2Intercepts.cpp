@@ -189,10 +189,12 @@ void __declspec(naked) ChannelInput_Intercept(void)
 		pop ecx
 
 		jz SkipInput
+		mov eax, dword ptr[esp+4]
+		push eax
 		call D2MULTI_ChannelInput_I
 
 SkipInput:
-		ret
+		ret 4
 	}
 }
 
