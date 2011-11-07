@@ -120,7 +120,7 @@ int __cdecl CArrayEx<TYPE, ARG_TYPE>::_CompareAscending(const void* p1, const vo
 {
 	TYPE* pElement1 = (TYPE*)p1;
 	TYPE* pElement2 = (TYPE*)p2;
-	ASSERT(pElement1 != NULL && pElement2 != NULL);
+	assert(pElement1 != NULL && pElement2 != NULL);
 
 	if (*pElement1 == *pElement2)
 		return 0;

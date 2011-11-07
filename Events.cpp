@@ -58,10 +58,10 @@ bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("melife"))
 	{
-		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		script->ExecEventAsync("melife", 1, argv);
+		AutoRoot** argv2 = new AutoRoot*[1];
+		argv2[0] = new AutoRoot();
+		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv2[0]->value());
+		script->ExecEventAsync("melife", 1, argv2);
 	}
 	return true;
 }

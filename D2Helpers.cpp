@@ -598,9 +598,9 @@ DWORD ReadFile(HANDLE hFile, void *buf, DWORD len)
 //NOTE :- validates len bytes of buf
 {
 	DWORD numdone = 0;
-	ReadFile(hFile, buf, len, &numdone, NULL);
-	return numdone;
+	return ::ReadFile(hFile, buf, len, &numdone, NULL) ? numdone : numdone;
 }
+
 void *memcpy2(void *dest, const void *src, size_t count)
 {
 	return (char *)memcpy(dest, src, count)+count;

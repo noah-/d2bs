@@ -255,8 +255,8 @@ void Console::Draw(void)
 			{
 				std::list<std::string> buf;
 				SplitLines(*it, linelen, ' ', buf);
-				for(std::list<std::string>::iterator it = buf.begin(); it != buf.end(); it++)
-					myDrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, 0);
+				for(std::list<std::string>::iterator it2 = buf.begin(); it2 != buf.end(); it2++)
+					myDrawText(it2->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, 0);
 			} else
 				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, 0);
 		}
@@ -277,8 +277,8 @@ void Console::Draw(void)
 					std::list<std::string> lines;
 					SplitLines(cmdstr, linelen, ' ', lines);
 					int i = 0;
-					for(std::list<std::string>::iterator it = lines.begin(); it != lines.end(); it++, i++)
-						myDrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, 0);
+					for(std::list<std::string>::iterator it2 = lines.begin(); it2 != lines.end(); it2++, i++)
+						myDrawText(it2->c_str(), charsize+5, height+(charheight*i)+1, 0, 0);
 				} else
 					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, 0);
 			}

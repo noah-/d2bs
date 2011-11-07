@@ -264,8 +264,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 				default:
 					if(isDown)
 					{
-						GetKeyboardState(layout);
-						if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
+						if(GetKeyboardState(layout) && ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
 						{
 							for(int i = 0; i < repeatCount; i++)
 								Console::AddKey(out[0]);
