@@ -239,7 +239,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 {
 	bool result = false;
 	char* buf = _strdup(command);
-	char* next_token1;
+	char* next_token1 = NULL;
 	char* argv = strtok_s(buf, " ", &next_token1);
 
 	// no command?
@@ -424,14 +424,14 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 		if(sym)
 		{
 			char msg[1024];
-			ULONG64 base = (sym->Address - sym->ModBase);
+			ULONG64 base2 = (sym->Address - sym->ModBase);
 
 			IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, stack.AddrPC.Offset);
 			if(line)
 				sprintf_s(msg, 1024, "\t%s+0x%08x, File: %s line %d\n",
-						sym->Name, base, strrchr(line->FileName, '\\')+1, line->LineNumber);
+						sym->Name, base2, strrchr(line->FileName, '\\')+1, line->LineNumber);
 			else
-				sprintf_s(msg, 1024, "\t%s+0x%08x\n", sym->Name, base);
+				sprintf_s(msg, 1024, "\t%s+0x%08x\n", sym->Name, base2);
 
 			trace.append(msg);
 			delete line;

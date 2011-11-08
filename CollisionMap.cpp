@@ -22,19 +22,6 @@ CCollisionMap::~CCollisionMap()
 {
 }
 
-void CCollisionMap::OnMapChanged(BYTE iNewMapID)
-{
-	if (iNewMapID != m_iCurMap)
-	{
-		m_iCurMap = iNewMapID;
-		//m_map.Lock();
-		m_map.Destroy();
-		//m_map.Unlock();
-		::memset(&m_ptLevelOrigin, 0, sizeof(POINT));
-		m_aCollisionTypes.RemoveAll();
-	}
-}
-
 void CCollisionMap::AddCollisionData(const CollMap* pCol)
 {
 	if (pCol == NULL)
@@ -504,6 +491,7 @@ int CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 	int nTotalPoints = 0, nCurrentExit = 0;
 	int nMaxExits = 0x40;
 	UnitAny* Me = D2CLIENT_GetPlayerUnit();
+
 	CriticalRoom myRoom;
 	myRoom.EnterSection();
 

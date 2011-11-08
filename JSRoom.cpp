@@ -1,10 +1,9 @@
 #include "JSRoom.h"
 #include "CriticalSections.h"
 #include "JSPresetUnit.h"
-//#include "JSUnit.h"
-//#include "D2Helpers.h"
+#include "D2Structs.h"
 #include "D2Ptrs.h"
-//#include "Room.h"
+
 
 EMPTY_CTOR(room)
 
@@ -104,7 +103,6 @@ JSAPI_FUNC(room_getPresetUnits)
 		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 	}
 
-
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	JS_AddRoot(&pReturnArray);
 	for(PresetUnit* pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext)
@@ -193,8 +191,7 @@ JSAPI_FUNC(room_getCollision)
 	{
 		JSObject* jsobjx = JS_NewArrayObject(cx, NULL, NULL);
 		
-		int nCurrentArrayX = NULL;
-
+		int nCurrentArrayX = 0;
 		for (int i = x; i < nLimitX; i++)
 		{
 			jsval nNode = INT_TO_JSVAL(*p);
@@ -207,7 +204,7 @@ JSAPI_FUNC(room_getCollision)
 				return JS_TRUE;
 			}
 
-			nCurrentArrayX ++;
+			nCurrentArrayX++;
 			p++;
 		}
 
@@ -244,19 +241,15 @@ JSAPI_FUNC(room_getNearby)
 	if(!jsobj)
 		return JS_TRUE;
 
-	DWORD dwArrayCount = NULL;
-
-	for(UINT i = 0; i < pRoom2->dwRoomsNear; i++)
+	for(DWORD i = 0; i < pRoom2->dwRoomsNear; ++i)
 	{
 		JSObject* jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom2->pRoom2Near[i]);
 		if(!jsroom)
 			return JS_TRUE;
 		jsval jsu = OBJECT_TO_JSVAL(jsroom);
 
-		if(!JS_SetElement(cx, jsobj, dwArrayCount, &jsu))
+		if(!JS_SetElement(cx, jsobj, i, &jsu))
 			return JS_TRUE;
-
-		dwArrayCount ++;
 	}
 
 	*rval = OBJECT_TO_JSVAL(jsobj);
@@ -378,13 +371,13 @@ JSAPI_FUNC(room_reveal)
 	if(!pRoom2)
 		return JS_TRUE;
 
-	CriticalMisc cMisc;
-	cMisc.EnterSection();
-	
 	BOOL bDrawPresets = false;
 	if (argc == 1 && JSVAL_IS_BOOLEAN(argv[0]))
 		bDrawPresets = !!JSVAL_TO_BOOLEAN(argv[0]);
 
+	CriticalMisc cMisc;
+	cMisc.EnterSection();
+	
 	*rval = BOOLEAN_TO_JSVAL(RevealRoom(pRoom2, bDrawPresets));
 
 	return JS_TRUE;

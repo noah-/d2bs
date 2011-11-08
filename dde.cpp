@@ -72,9 +72,10 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
 	HSZ hszTopic = DdeCreateStringHandle(pidInst, (strlen(pszTopic) == 0 ? "\"\"" : pszTopic), CP_WINANSI);
 	HSZ hszCommand = DdeCreateStringHandle(pidInst, (strlen(pszItem) == 0 ? "\"\"" : pszItem), CP_WINANSI);
 
-	if((!hszDDEServer || !hszTopic || !hszCommand) && DdeGetLastError(pidInst) != 0)
+	if(!(hszDDEServer && hszTopic && hszCommand))
 	{
-		Log("Error creating DDE Handles: %d", DdeGetLastError(pidInst));
+		UINT err = DdeGetLastError(pidInst);
+		Log("Error creating DDE Handles: %d", err);
 		return FALSE;
 	}
 

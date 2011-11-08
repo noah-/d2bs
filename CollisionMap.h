@@ -40,7 +40,7 @@ typedef struct LevelExit_t
 class CCollisionMap
 {
 public:		
-		
+	
 	////////////////////////////////////////////////////////////
 	// Constructor & Destructor
 	////////////////////////////////////////////////////////////
@@ -76,13 +76,6 @@ public:
 	static BOOL ThickenWalls(WordMatrix& rMatrix, int nThickenBy = 1);
 	BOOL IsGap(int x, int y);
 	BOOL CheckCollision(int x, int y);
-
-	////////////////////////////////////////////////////////////
-	// Only Used by D2Hackit! Do NOT Call It!!!
-	////////////////////////////////////////////////////////////
-	void OnMapChanged(BYTE iNewMapID); // Called by D2Hackit when map changes. Do not call this function manually!
-
-	DWORD dwLevelId;
 	
 private:	
 	
@@ -99,12 +92,12 @@ private:
 	////////////////////////////////////////////////////////////
 	// Member Data
 	////////////////////////////////////////////////////////////
-	
+
+	DWORD dwLevelId;
 	BYTE m_iCurMap; // Current map ID
 	POINT m_ptLevelOrigin; // level top-left
 	WordArray m_aCollisionTypes;
 	WordMatrix m_map; // The map
-	
 };
 
 #endif // __COLLISIONMAP_H__

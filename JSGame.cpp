@@ -15,6 +15,7 @@
 #include "JSGlobalClasses.h"
 #include "TimedAlloc.h"
 
+#include <cassert>
 #include <cmath>
 
 JSAPI_FUNC(my_copyUnit)
@@ -172,11 +173,11 @@ JSAPI_FUNC(my_acceptTrade)
 
 JSAPI_FUNC(my_getPath)
 {	
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
+
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
@@ -188,7 +189,12 @@ JSAPI_FUNC(my_getPath)
 	jsuint dwLength = 0;
 	DWORD Area = 0;
 
-	if (JSVAL_IS_OBJECT(argv[0])) {
+	if(JSVAL_IS_PRIMITIVE(argv[0]))
+	{
+		JS_ValueToECMAUint32(cx, argv[0], &Area);
+	}
+	else if (JSVAL_IS_OBJECT(argv[0]))
+	{
 		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);
 		JS_GetArrayLength(cx, pObject, &dwLength);
 		AreaIds = new DWORD[dwLength];
@@ -198,8 +204,6 @@ JSAPI_FUNC(my_getPath)
 			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
 		}
 		Area = AreaIds[0];
-	} else {
-		JS_ValueToECMAUint32(cx, argv[0], &Area);
 	}
 
 	uint32 x, y, x2, y2;
@@ -366,7 +370,9 @@ JSAPI_FUNC(my_getCollision)
 				bAdded = TRUE;
 			}
 
+			assert(room->pRoom1 && room->pRoom1->Coll);
 			CollMap* map = room->pRoom1->Coll;
+
 			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
@@ -390,13 +396,13 @@ JSAPI_FUNC(my_getCollision)
 
 JSAPI_FUNC(my_clickItem)
 {
-typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int loc);
-
-	CriticalMisc myMisc;
-	myMisc.EnterSection();
+	typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int loc);
 
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
+
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
@@ -979,15 +985,15 @@ JSAPI_FUNC(my_getTextSize)
 }
 
 JSAPI_FUNC(my_getTradeInfo)
-{	
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
+{
 	if(argc < 1)
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
+
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
 
 	jsint nMode = JSVAL_TO_INT(argv[0]);
 	
@@ -1017,14 +1023,14 @@ JSAPI_FUNC(my_getTradeInfo)
 
 JSAPI_FUNC(my_getUIFlag)
 {
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
 		*rval = JSVAL_VOID;
 		return JS_TRUE;
 	}
+
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
 
 	jsint nUIId = JSVAL_TO_INT(argv[0]);
 	*rval = BOOLEAN_TO_JSVAL(D2CLIENT_GetUIState(nUIId));
@@ -1034,14 +1040,14 @@ JSAPI_FUNC(my_getUIFlag)
 
 JSAPI_FUNC(my_getWaypoint)
 {	
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
+
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
 
 	jsint nWaypointId = JSVAL_TO_INT(argv[0]);
 
@@ -1120,14 +1126,14 @@ JSAPI_FUNC(my_say)
 
 JSAPI_FUNC(my_clickParty)
 {	
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
 	*rval = JSVAL_FALSE;
 
 	if(argc < 2 || !JSVAL_IS_OBJECT(argv[0]) || !JSVAL_IS_INT(argv[1]))
 		return JS_TRUE;
-	
+
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 	RosterUnit* mypUnit = *p_D2CLIENT_PlayerUnitList;
 
@@ -1180,6 +1186,9 @@ JSAPI_FUNC(my_clickParty)
 
 JSAPI_FUNC(my_useStatPoint)
 {
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
 	WORD stat = 0;
 	int32 count = 1;
 	if(!JS_ConvertArguments(cx, argc, argv, "c/u", &stat, &count))
@@ -1191,6 +1200,9 @@ JSAPI_FUNC(my_useStatPoint)
 
 JSAPI_FUNC(my_useSkillPoint)
 {
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
 	WORD skill = 0;
 	int32 count = 1;
 	if(!JS_ConvertArguments(cx, argc, argv, "c/u", &skill, &count))
@@ -1293,12 +1305,12 @@ JSAPI_FUNC(my_transmute)
 
 JSAPI_FUNC(my_getPlayerFlag)
 {
-	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
-
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
 		return JS_TRUE;
 	
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
 	uint32 nFirstUnitId = (uint32)-1;
 	uint32 nSecondUnitId = (uint32)-1;
 	
@@ -1381,6 +1393,9 @@ JSAPI_FUNC(my_submitItem)
 
 JSAPI_FUNC(my_getIsTalkingNPC)
 {
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
 	*rval = BOOLEAN_TO_JSVAL(IsScrollingText());
 	return JS_TRUE;
 }

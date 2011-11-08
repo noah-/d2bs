@@ -767,7 +767,9 @@ JSAPI_FUNC(unit_getStat)
 		return JS_TRUE;
 
 	jsint nStat = JSVAL_TO_INT(argv[0]);
-	jsint nSubIndex = NULL;
+	jsint nSubIndex = 0;
+	jsint nIndex = 0;
+	jsint nValue = 0;
 
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		nSubIndex = JSVAL_TO_INT(argv[1]);
@@ -800,9 +802,9 @@ JSAPI_FUNC(unit_getStat)
 				if(!pArrayInsert)
 					continue;
 
-				jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
-				jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
-				jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
+				nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
+				nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
+				nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
 
 				JS_SetElement(cx, pArrayInsert, 0, &nIndex);
 				JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
@@ -833,10 +835,7 @@ JSAPI_FUNC(unit_getStat)
 
 void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* cx, JSObject* pArray)
 {
-	Stat*	pStat;
-
-
-
+	Stat*	pStat = NULL;
 
 	//for(; pStatList; pStatList = pStatList->pPrevLink) // no need to jump lists
 	//{
@@ -1551,10 +1550,10 @@ JSAPI_FUNC(unit_setskill)
 
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[2]))
 	{
-		JSObject* obj = JSVAL_TO_OBJECT(argv[2]);
-		if(JS_InstanceOf(cx, obj, &unit_class_ex.base, argv))
+		JSObject* object = JSVAL_TO_OBJECT(argv[2]);
+		if(JS_InstanceOf(cx, object, &unit_class_ex.base, argv))
 		{
-			myUnit* unit = (myUnit*)JS_GetPrivate(cx, obj);
+			myUnit* unit = (myUnit*)JS_GetPrivate(cx, object);
 			if(unit->dwType == UNIT_ITEM)
 				itemId = unit->dwUnitId;
 		}
