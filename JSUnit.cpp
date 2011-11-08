@@ -81,7 +81,10 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(Vars.nChickenMP);
 			break;
 		case ME_DIFF:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetDifficulty());
+			*vp = INT_TO_JSVAL(pData->nDifficulty);
+			break;
+		case ME_MAXDIFF:
+			*vp = INT_TO_JSVAL(pData->nMaxDiff);
 			break;
 		case ME_GAMENAME:
 			if(!pInfo)
