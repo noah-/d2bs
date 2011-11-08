@@ -75,7 +75,7 @@ FUNCPTR(D2CLIENT, LeaveParty, void __fastcall, (void), 0xA26A0)
 FUNCPTR(D2CLIENT, AcceptTrade, void __fastcall, (void), 0x11F70)
 FUNCPTR(D2CLIENT, CancelTrade, void __fastcall, (void), 0x11F30)
 
-FUNCPTR(D2CLIENT, GetDifficulty, BYTE __stdcall, (void), 0x42990)
+FUNCPTR(D2CLIENT, GetDifficulty, BYTE __stdcall, (void), 0x42980)
 
 FUNCPTR(D2CLIENT, ExitGame, void __fastcall, (void), 0x43870)
 
