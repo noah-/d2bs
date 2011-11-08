@@ -125,11 +125,24 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 
 void Say(const char *szMessage) 
 {
-	Vars.bDontCatchNextMsg = TRUE;
+	 using namespace std;
 
-	if(D2CLIENT_GetPlayerUnit())
+        const char REPLACE_CHAR = (char)(unsigned char)0xFE;
+
+        va_list vaArgs;
+        va_start(vaArgs, szMessage);
+        int len = _vscprintf(szMessage, vaArgs);
+        char* szBuffer = new char[len+1];
+        vsprintf_s(szBuffer, len+1, szMessage, vaArgs);
+        va_end(vaArgs);
+
+        replace(szBuffer, szBuffer + len, REPLACE_CHAR, '%');
+
+        Vars.bDontCatchNextMsg = TRUE;
+
+	if(*p_D2CLIENT_PlayerUnit)
 	{
-		/*wchar_t* wBuffer = AnsiToUnicode(szMessage);
+		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
 		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
 		delete[] wBuffer;
 		wBuffer = NULL;
@@ -145,9 +158,10 @@ void Say(const char *szMessage)
 
 		Say_ASM((DWORD)&aMsg);
 		delete aMsg;
-		aMsg = NULL;*/
-		//Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
+		aMsg = NULL;
 
+		//Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
+/*
 		Vars.bDontCatchNextMsg = FALSE;
 		int len = 6+strlen(szMessage);
 		BYTE* pPacket = new BYTE[6+strlen(szMessage)];
@@ -157,6 +171,7 @@ void Say(const char *szMessage)
 		memcpy(pPacket+3, szMessage, len-6);
 		D2CLIENT_SendGamePacket(len, pPacket);
 		delete [] pPacket;
+	*/
 	}
 	// help button and ! ok msg for disconnected
 	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
