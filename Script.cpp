@@ -189,6 +189,7 @@ void Script::Join()
 {
 	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
 	WaitForSingleObject(hThread, INFINITE);
+	CloseHandle(hThread);
 }
 
 void Script::Resume(void)
