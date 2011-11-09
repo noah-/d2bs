@@ -49,7 +49,7 @@ JSAPI_PROP(area_getProperty)
 						return JS_TRUE;
 					}
 
-					LevelExit* ExitArray[255];
+					LevelExit* ExitArray[255] = { NULL };
 					int count = cMap.GetLevelExits(ExitArray);
 
 					for(int i = 0; i < count; i++)
