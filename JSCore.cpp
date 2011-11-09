@@ -98,7 +98,7 @@ JSAPI_FUNC(my_load)
 	Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc-1, argv+1);
 	if(newScript)
 	{
-		CreateThread(0, 0, ScriptThread, newScript, 0, 0);
+		newScript->BeginThread(ScriptThread);
 		JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext());
 		*rval = OBJECT_TO_JSVAL(res);
 	}

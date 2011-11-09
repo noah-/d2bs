@@ -15,6 +15,7 @@ JSAPI_FUNC(script_stop);
 JSAPI_FUNC(script_send);
 JSAPI_FUNC(script_pause);
 JSAPI_FUNC(script_resume);
+JSAPI_FUNC(script_join);
 JSAPI_FUNC(my_getScript);
 
 enum script_tinyid {
@@ -37,6 +38,7 @@ static JSFunctionSpec script_methods[] = {
 	{"pause",			script_pause,		0},
 	{"resume",			script_resume,		0},
 	{"stop",			script_stop,		0},
+	{"join",			script_join,		0},
 	{"send",			script_send,		1},
 	{0},
 };

@@ -107,6 +107,16 @@ JSAPI_FUNC(script_send)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(script_join)
+{
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
+	
+	script->Join();
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_getScript)
 {
 	JSContext* iterp = NULL;

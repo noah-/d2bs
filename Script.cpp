@@ -136,6 +136,12 @@ void Script::RunCommand(const char* command)
 
 	CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
 }
+
+void Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
+{
+	CreateThread(0, 0, ThreadFunc, this, 0, &threadId);
+}
+
 void Script::Run(void)
 {
 	// only let the script run if it's not already running
@@ -144,7 +150,6 @@ void Script::Run(void)
 
 	isAborted = false;
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(&main);
@@ -178,6 +183,12 @@ void Script::Pause(void)
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
 	//LeaveCriticalSection(&lock);
+}
+
+void Script::Join()
+{
+	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
+	WaitForSingleObject(hThread, INFINITE);
 }
 
 void Script::Resume(void)

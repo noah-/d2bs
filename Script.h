@@ -61,9 +61,11 @@ public:
 	friend class ScriptEngine;
 	
 	void Run(void);
+	void Join(void);
 	void Pause(void);
 	void Resume(void);
 	bool IsPaused(void);
+	void BeginThread(LPTHREAD_START_ROUTINE ThreadFunc);
 	void RunCommand(const char* command);
 	inline void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
 	inline bool IsReallyPaused(void) { return isReallyPaused; }
