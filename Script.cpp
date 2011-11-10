@@ -139,7 +139,13 @@ void Script::RunCommand(const char* command)
 
 void Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
 {
-	CreateThread(0, 0, ThreadFunc, this, 0, &threadId);
+	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
+	DWORD dwExitCode;
+	if (!GetExitCodeThread(hThread, &dwExitCode) || dwExitCode != STILL_ACTIVE)
+		CreateThread(0, 0, ThreadFunc, this, 0, &threadId);
+	
+	if (hThread)
+		CloseHandle(hThread);
 }
 
 void Script::Run(void)
