@@ -209,7 +209,7 @@ bool StartScript(const char* scriptname, ScriptState state)
 	char file[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(file, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, scriptname);
 	Script* script = ScriptEngine::CompileFile(file, state);
-	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
+	return (script && script->BeginThread(ScriptThread));
 }
 
 void Reload(void)

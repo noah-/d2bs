@@ -108,7 +108,7 @@ Script::~Script(void)
 	script = NULL;
 
 	includes.clear();
-	if(threadHandle)
+	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	LeaveCriticalSection(&lock);
 	DeleteCriticalSection(&lock);
@@ -121,7 +121,7 @@ int Script::GetExecutionCount(void)
 
 DWORD Script::GetThreadId(void)
 {
-	return (threadHandle == NULL ? -1 : threadId);
+	return (threadHandle == INVALID_HANDLE_VALUE ? -1 : threadId);
 }
 
 void Script::RunCommand(const char* command)
@@ -137,15 +137,21 @@ void Script::RunCommand(const char* command)
 	CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
 }
 
-void Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
-{
-	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
-	DWORD dwExitCode;
-	if (!GetExitCodeThread(hThread, &dwExitCode) || dwExitCode != STILL_ACTIVE)
-		CreateThread(0, 0, ThreadFunc, this, 0, &threadId);
+bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
+{	
+	EnterCriticalSection(&lock);
+	DWORD dwExitCode = STILL_ACTIVE;
 	
-	if (hThread)
-		CloseHandle(hThread);
+	if ((!GetExitCodeThread(threadHandle, &dwExitCode) || dwExitCode != STILL_ACTIVE) &&
+		(threadHandle = CreateThread(0, 0, ThreadFunc, this, 0, &threadId)) != NULL)
+	{
+		LeaveCriticalSection(&lock);
+		return true;
+	}
+
+	threadHandle = INVALID_HANDLE_VALUE;
+	LeaveCriticalSection(&lock);
+	return false;
 }
 
 void Script::Run(void)
@@ -155,7 +161,6 @@ void Script::Run(void)
 		return;
 
 	isAborted = false;
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(&main);
@@ -193,9 +198,12 @@ void Script::Pause(void)
 
 void Script::Join()
 {
-	HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
-	WaitForSingleObject(hThread, INFINITE);
-	CloseHandle(hThread);
+	EnterCriticalSection(&lock);
+	HANDLE hThread = threadHandle;
+	LeaveCriticalSection(&lock);
+
+	if (hThread != INVALID_HANDLE_VALUE)
+		WaitForSingleObject(hThread, INFINITE);
 }
 
 void Script::Resume(void)
@@ -248,9 +256,9 @@ void Script::Stop(bool force, bool reallyForce)
 		Sleep(10);
 	}
 
-	if(threadHandle)
+	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
-	threadHandle = NULL;
+	threadHandle = INVALID_HANDLE_VALUE;
 	LeaveCriticalSection(&lock);
 }
 

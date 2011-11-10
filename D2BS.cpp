@@ -101,7 +101,7 @@ BOOL Startup(void)
 	InstallPatches();
 	CreateDdeServer();
 
-	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == INVALID_HANDLE_VALUE)
+	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
 		return FALSE;
 
 	return TRUE;
