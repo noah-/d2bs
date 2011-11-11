@@ -927,7 +927,7 @@ public:
 	 */
 	int diff;
 
-	/** The maximum difficulty available. See diff for details.
+	/** The maximum difficulty available. See Me::diff for details.
 	 */
 	int maxdiff;
 
