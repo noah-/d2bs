@@ -1483,6 +1483,7 @@ JSAPI_FUNC(unit_getMerc)
 		THROW_WARNING(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+	*rval = JSVAL_NULL;
 
 	if(lpUnit && (lpUnit->_dwPrivateType & PRIVATE_UNIT) == PRIVATE_UNIT) {
 		UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);

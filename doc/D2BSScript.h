@@ -18,6 +18,10 @@ public:
 	 */
 	void resume();
 
+	/** Wait for other script to finish.
+	 */
+	void join();
+
 	/** Stop the script.
 	 */
 	void stop();

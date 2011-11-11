@@ -18,7 +18,7 @@ public:
 
 	/** The unique id of the RosterUnit.
 	 */
-	int gid;
+	double gid;
 
 	/** The life of the RosterUnit.
 	 *

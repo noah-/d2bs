@@ -1008,6 +1008,8 @@ JSAPI_FUNC(my_getTradeInfo)
 		//char* tmp = UnicodeToAnsi((wchar_t*)(*p_D2CLIENT_RecentTradeName));
 		//*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
 		//delete[] tmp;
+		//Temporary return value to keep it kosher
+		*rval = JSVAL_NULL;
 		
 		return JS_TRUE;
 	}

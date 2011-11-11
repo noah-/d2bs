@@ -454,7 +454,7 @@ bool getUIFlag(int nUIId);
  */
 int getTradeInfo(int nMode);
 
-/** Get the RecentTradeName.
+/** Get the RecentTradeName. Currently broken, returns null.
  *
  * \ingroup globalFunctions
  *
@@ -1031,7 +1031,7 @@ Control getControl(int32_t nType, int32_t nX, int32_t nY, int32_t nXSize,
  *
  * \return Whether or not the relationship is of the type specified.
  */
-int getPlayerFlag(int nFirstUnitId, int nSecondUnitId, int nFlag);
+bool getPlayerFlag(int nFirstUnitId, int nSecondUnitId, int nFlag);
 
 /** Get the tick count. Returns GetTickCount().
  *
@@ -1067,15 +1067,16 @@ void print(...);
 void delay(uint32_t nDelay);
 
 /** Load file and create a thread with it's main function. File taken from
- * scriptDir\\file.
+ * scriptDir\\file. All remaining parameters are passed to the script.
  *
  * \ingroup globalFunctions
  *
  * \param file The filename of the script.
  *
- * \return Whether or not the script was successfully loaded and started.
+ * \return If successful returns the new script object representing the thread
+ * of the thread. Otherwise it returns null.
  */
-bool load(String file);
+D2BSScript load(String file, ...);
 
 /** Determine whether a file has been included yet or not. File taken from
  * scriptDir\\libs\\file

@@ -183,24 +183,21 @@ public:
 	 */
 	Unit[] getItems();
 
-	/** Get whether this player has a merc.
-	 *
-	 * The unit being operated on should be a player.
-	 *
-	 * \param dummy Used to signify boolean result instead of object. Should
-	 * be true.
-	 *
-	 * \return true if the player has a live merc.
-	 */
-	bool getMerc(bool dummy);
-
 	/** Get a player's merc.
 	 *
 	 * The unit being operated on should be a player.
 	 *
-	 * \return The merc if there is one.
+	 * \return The merc if there is one, null otherwise.
 	 */
 	Unit getMerc();
+
+	/** Get the merc's HP.
+	 *
+	 * The reported HP is a percentage.
+	 *
+	 * \return The merc's HP percentage.
+	 */
+	int getMercHP();
 
 	/** Get skill name from hand.
 	 *
@@ -331,7 +328,7 @@ public:
 
 	/** Get a stat by stat id.
 	 *
-	 * Used for stat 13.
+	 * Used for every stat except 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
@@ -342,7 +339,7 @@ public:
 
 	/** Get a stat by stat id and sub index.
 	 *
-	 * Used for everything except stat 13.
+	 * Used for stats 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
@@ -353,7 +350,7 @@ public:
 
 	/** Get a stat by stat id and sub index.
 	 *
-	 * Used for stat 13.
+	 * Used for every stat except 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
@@ -367,7 +364,7 @@ public:
 
 	/** Get a stat by stat id and sub index.
 	 *
-	 * Used for everything except stat 13.
+	 * Used for stats 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
@@ -398,6 +395,9 @@ public:
 	 * are: 0 - nStat, 1 - nSubIndex, 2 - nValue.
 	 */
 	int[][] getStat(int nStat, int nSubIndex);
+
+	/** TODO: Handle getStat(-2);
+	 */
 
 	/** Return whether or not the unit has a given state.
 	 *
@@ -748,7 +748,7 @@ public:
 
 	/** The unit id of the owner of the unit.
 	 */
-	int owner;
+	double owner;
 
 	/** The type of owner.
 	 *
@@ -927,6 +927,10 @@ public:
 	 */
 	int diff;
 
+	/** The maximum difficulty available. See diff for details.
+	 */
+	int maxdiff;
+
 	/** The name of the game.
 	 */
 	String gamename;
@@ -1026,7 +1030,7 @@ public:
 
 	/** Whether the game is set to not pick up items or not.
 	 */
-	int nopickup;
+	bool nopickup;
 
 	/** The process id of Diablo II.
 	 */

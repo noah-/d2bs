@@ -106,7 +106,7 @@ JSAPI_FUNC(my_load)
 	{
 		// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
 		Print("File \"%s\" not found.", file);
-		*rval = JSVAL_FALSE;
+		*rval = JSVAL_NULL;
 	}
 
 	return JS_TRUE;
