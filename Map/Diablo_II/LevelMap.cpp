@@ -341,11 +341,25 @@ void LevelMap::GetExits(ExitArray& exits) const
 						if(SpaceIsWalkable(midpoint, true))
 						{
 							int k;
-							for (k = 1; k <= 3; k++) // trying to simulate character (3x3) staying in another room
+							for (k = -2; k <= 3; k++)
 							{
-								if (false == RoomSpaceIsWalkable(rooms[i]->pRoom1, Point(midpoint.first + offsetX * k, midpoint.second + offsetY * k), true))
+								if (k < 0)  // simulation of character (3x3) staying in our area's border
 								{
-									break;
+									if (false == SpaceIsWalkable(Point(midpoint.first + offsetX * k, midpoint.second + offsetY * k), true))
+									{
+										break;
+									}
+								}
+								else if (k == 0) // we already checked that out
+								{
+									continue;
+								}
+								else // simulation of character (3x3) staying in another area's room
+								{
+									if (false == RoomSpaceIsWalkable(rooms[i]->pRoom1, Point(midpoint.first + offsetX * k, midpoint.second + offsetY * k), true))
+									{
+										break;
+									}
 								}
 							}
 							if (k <= 3)
