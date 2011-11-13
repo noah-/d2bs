@@ -2,6 +2,7 @@
 #define D2HELPERS_H
 
 #include "D2Structs.h"
+#include "D2Ptrs.h"
 
 enum DistanceType
 {
@@ -65,6 +66,13 @@ BYTE *AllocReadFile(char *filename);
 CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height);
 CellFile *LoadBmpCellFile(char *filename);
 CellFile *myInitCellFile(CellFile *cf);
+
+static inline UnitAny* GetPlayerUnit() { return D2CLIENT_GetPlayerUnit(); }
+static inline void AddRoomData(Room2* room) { D2COMMON_AddRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+static inline void RemoveRoomData(Room2* room) { D2COMMON_RemoveRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+static inline char* __stdcall GetLevelName(const Level* level) { return D2COMMON_GetLevelText(level->dwLevelNo)->szName; }
+static inline char* __stdcall GetLevelIdName(DWORD level) { return D2COMMON_GetLevelText(level)->szName; }
+
 
 DWORD __fastcall D2CLIENT_GetUnitName_STUB(DWORD UnitAny);
 DWORD __fastcall D2CLIENT_GetUIVar_STUB(DWORD varno);

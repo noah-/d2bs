@@ -10,7 +10,6 @@
 #include "D2Intercepts.h"
 #include "D2BS.h"
 #include "stringhash.h"
-#include "D2Ptrs.h"
 
 void Log(char* szFormat, ...)
 {

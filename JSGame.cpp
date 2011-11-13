@@ -2,10 +2,6 @@
 #include "JSGame.h"
 #include "D2Helpers.h"
 #include "CriticalSections.h"
-#include "AreaLinker.h"
-#include "CollisionMap.h"
-#include "TeleportPath.h"
-#include "WalkPath.h"
 #include "D2Skills.h"
 #include "MPQStats.h"
 #include "Core.h"
@@ -14,6 +10,7 @@
 #include "JSArea.h"
 #include "JSGlobalClasses.h"
 #include "TimedAlloc.h"
+#include "MapHeader.h"
 
 #include <cassert>
 #include <cmath>
@@ -173,145 +170,82 @@ JSAPI_FUNC(my_acceptTrade)
 
 JSAPI_FUNC(my_getPath)
 {	
-	if(argc < 5)
-		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
-
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
+
+	if(argc < 5)
+		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	*rval = JSVAL_FALSE;
-	DWORD dwCount = NULL;
-	POINT lpBuffer[255] = {0};
-	DWORD *AreaIds = NULL;
-	jsuint dwLength = 0;
-	DWORD Area = 0;
+	uint lvl = 0, x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(JSVAL_IS_PRIMITIVE(argv[0]))
+	if(!JS_ConvertArguments(cx, argc, argv, "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
+		return JS_FALSE;
+
+	if(reductionType == 3 &&
+		!(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8]) && JSVAL_IS_FUNCTION(cx, argv[9])))
+		THROW_ERROR(cx, "Invalid function values for reduction type");
+
+	if (lvl == 0)
+		THROW_ERROR(cx, "Invalid level passed to getPath");
+	Level* level = GetLevel(lvl);
+	
+	LevelMap* map = LevelMap::GetMap(level);
+
+	Point start(x, y), end(dx, dy);
+
+	PathReducer* reducer = NULL;
+	switch(reductionType)
 	{
-		JS_ValueToECMAUint32(cx, argv[0], &Area);
+		case 0: reducer = new WalkPathReducer(map, DiagonalShortcut, radius); break;
+		case 1: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
+		case 2: reducer = new NoPathReducer(map); break;
+		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8], argv[9]); break;
+		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
-	else if (JSVAL_IS_OBJECT(argv[0]))
+
+	PointList list;
+#if defined(_TIME)
+	AStarPath<TimedAlloc<Node, std::allocator<Node> > > path(map, reducer);
+#else
+	AStarPath<> path(map, reducer);
+#endif
+	path.GetPath(start, end, list, true);
+#if defined(_TIME)
+	char p[510];
+	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);
+	FILE* f;
+	fopen_s(&f, p, "a+");
+	path.GetAllocator().DumpStats(f);
+	fclose(f);
+#endif
+
+	int count = list.size();
+
+	JS_EnterLocalRootScope(cx);
+
+	jsval* vec = new jsval[count];
+	for(int i = 0; i < count; i++)
 	{
-		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);
-		JS_GetArrayLength(cx, pObject, &dwLength);
-		AreaIds = new DWORD[dwLength];
-		jsval nVal;
-		for (int n = 0; n < (int)dwLength; n++) {
-			JS_GetElement(cx, pObject, n, &nVal);
-			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
-		}
-		Area = AreaIds[0];
+		jsval jx = INT_TO_JSVAL(list[i].first),
+			  jy = INT_TO_JSVAL(list[i].second);
+
+		JSObject* point = BuildObject(cx);
+		JS_SetProperty(cx, point, "x", &jx);
+		JS_SetProperty(cx, point, "y", &jy);
+
+		vec[i] = OBJECT_TO_JSVAL(point);
 	}
 
-	uint32 x, y, x2, y2;
-	JS_ValueToECMAUint32(cx, argv[1], &x);
-	JS_ValueToECMAUint32(cx, argv[2], &y);
-	JS_ValueToECMAUint32(cx, argv[3], &x2);
-	JS_ValueToECMAUint32(cx, argv[4], &y2);
+	JSObject* arr = JS_NewArrayObject(cx, count, vec);
+	*rval = OBJECT_TO_JSVAL(arr);
 
-	POINT ptStart = {x, y}, ptEnd = {x2, y2};
-	BOOL UseTele = !D2COMMON_IsTownByLevelNo(Area);
-	BOOL Reduction = true;
-	if(argc >= 6)
-		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
-	DWORD Radius = (!D2COMMON_IsTownByLevelNo(Area) && UseTele) ? 35 : 20;
-	if(argc >= 7)
-		JS_ValueToECMAUint32(cx, argv[6], &Radius);
-	if(argc == 8)
-		Reduction = !!JSVAL_TO_BOOLEAN(argv[7]);
+	JS_LeaveLocalRootScope(cx);
 
-	CCollisionMap g_collisionMap;
+	delete reducer;
 
-	DWORD nAreas[64] = {0};
-	int nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
-
-	if (JSVAL_IS_OBJECT(argv[0])) {
-		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
-			*rval = JSVAL_FALSE;
-			return JS_TRUE;
-		}
-	} else {
-		if(nLen)
-		{
-			if(!g_collisionMap.CreateMap(nAreas, nLen))
-			{
-				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
-			}			
-		}
-		else
-			if(!g_collisionMap.CreateMap(Area))
-			{
-				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
-			}
-	}
-
-	if (!g_collisionMap.IsValidAbsLocation(ptStart.x, ptStart.y) ||
-		!g_collisionMap.IsValidAbsLocation(ptEnd.x, ptEnd.y))
-		return JS_TRUE;
-
-	g_collisionMap.AbsToRelative(ptStart);
-	g_collisionMap.AbsToRelative(ptEnd);
-
-	WordMatrix matrix;
-	if(!g_collisionMap.CopyMapData(matrix))
-		return JS_TRUE;
-
-	g_collisionMap.MakeBlank(matrix, ptStart);
-	g_collisionMap.MakeBlank(matrix, ptEnd);
-
-	bool bFix = FALSE;
-
-	if(UseTele)
-	{
-		CTeleportPath tf(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
-		dwCount = tf.FindTeleportPath(ptStart, ptEnd, lpBuffer, 255, Radius);
-	}
-	else
-	{
-		g_collisionMap.ThickenWalls(matrix, 1);
-		CWalkPath wp(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
-
-		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius, !!Reduction);
-	}
-
-	if(dwCount > 1)
-		bFix = TRUE;
-	if(dwCount)
-	{
-		JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-		*rval = OBJECT_TO_JSVAL(pReturnArray); 
-		for(DWORD i = 0; i < dwCount; i++)
-			g_collisionMap.RelativeToAbs(lpBuffer[i]);
-		
-		DWORD dwArray = NULL;
-		DWORD i = 0;
-		if(bFix)
-			i++;
-
-		while(i < dwCount) 
-		{
-			JSObject* pObj = BuildObject(cx);
-			JS_AddRoot(&pObj);
-
-			jsval x = INT_TO_JSVAL(lpBuffer[i].x);
-			jsval y = INT_TO_JSVAL(lpBuffer[i].y);
-
-			JS_SetProperty(cx, pObj, "x", &x);
-			JS_SetProperty(cx, pObj, "y", &y);	
-
-			jsval aObj = OBJECT_TO_JSVAL(pObj);
-
-			JS_SetElement(cx, pReturnArray, dwArray, &aObj);
-			JS_RemoveRoot(&pObj);
-			dwArray++;
-			i++;
-		}
-	}
 	return JS_TRUE;
 }
 
@@ -322,14 +256,24 @@ JSAPI_FUNC(my_getCollision)
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
-	bool found = false;
-	JSBool cachedOnly = JS_FALSE;
+
 	uint32 nLevelId, nX, nY;
-	if(!JS_ConvertArguments(cx, argc, argv, "uuu/b", &nLevelId, &nX, &nY, &cachedOnly))
+	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
 		return JS_FALSE;
 
 	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
-	if(GetDistance(x, y, nX, nY) < 60) {  // look in near rooms first
+
+	
+		Point point(nX, nY);
+		Level* level = GetLevel(nLevelId);
+
+		LevelMap* map = LevelMap::GetMap(level);
+		if(!map->IsValidPoint(point))
+			THROW_ERROR(cx, "Invalid point!");
+
+		JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
+
+	if(GetDistance(x, y, nX, nY) < 60) {
 		Level* level = GetLevel(nLevelId);
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
 		int roomsNear = room->dwRoomsNear;
@@ -345,50 +289,18 @@ JSAPI_FUNC(my_getCollision)
 			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
-				found = true;
 				// this is the room				
 				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
 				//if(*(map->pMapStart + index) < *(map->pMapEnd))
-				JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
-				if(added)			
-					D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
-				break;
+					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
+					if(added)			
+						D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
+					break;
 			}
 			if(added)			
 				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);				
 			room = rooms[i++];
 		} while(room != NULL && i < roomsNear +1);
-	}
-	if(!found){ // if not found search all rooms
-		Level* level = GetLevel(nLevelId);
-		for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
-		{
-			bool bAdded = FALSE;
-			if(!room->pRoom1)
-			{
-				D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-				bAdded = TRUE;
-			}
-
-			assert(room->pRoom1 && room->pRoom1->Coll);
-			CollMap* map = room->pRoom1->Coll;
-
-			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
-				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
-			{
-				found = true;
-				// this is the room				
-				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
-				//if(*(map->pMapStart + index) < *(map->pMapEnd))
-				JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
-				if(bAdded)			
-					D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
-				break;
-			}
-
-			if(bAdded)
-				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-		}
 	}
 
 	return JS_TRUE;

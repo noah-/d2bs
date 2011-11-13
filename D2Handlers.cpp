@@ -13,6 +13,7 @@
 #include "ScriptEngine.h"
 #include "Console.h"
 #include "D2BS.h"
+#include "MapHeader.h"
 
 using namespace std;
 
@@ -453,7 +454,7 @@ void GameLeave(void)
 		Vars.bGameLoopEntered = true;
 
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
-//	LevelMap::ClearCache();
+	LevelMap::ClearCache();
 
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }

@@ -398,62 +398,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="CollisionMap"
-				>
-				<File
-					RelativePath=".\AreaLinker.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\AreaLinker.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ArrayEx.h"
-					>
-				</File>
-				<File
-					RelativePath=".\CollisionMap.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CollisionMap.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Common.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Common.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Matrix.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SyncObj.h"
-					>
-				</File>
-				<File
-					RelativePath=".\TeleportPath.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TeleportPath.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WalkPath.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WalkPath.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Misc"
@@ -496,6 +440,10 @@
 			</File>
 			<File
 				RelativePath=".\js32.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MapHeader.h"
 				>
 			</File>
 			<File
@@ -941,6 +889,66 @@
 				</File>
 				<File
 					RelativePath=".\ScriptEngine.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Map"
+			>
+			<File
+				RelativePath=".\Map\BlankMap.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Map\Map.h"
+				>
+			</File>
+			<Filter
+				Name="Path"
+				>
+				<File
+					RelativePath=".\Map\Path\AStarPath.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Map\Path\Path.h"
+					>
+				</File>
+				<Filter
+					Name="Reduction"
+					>
+					<File
+						RelativePath=".\Map\Path\Reduction\JSPathReducer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Map\Path\Reduction\NoPathReducer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Map\Path\Reduction\PathReducer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Map\Path\Reduction\TeleportPathReducer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Map\Path\Reduction\WalkPathReducer.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Diablo II"
+				>
+				<File
+					RelativePath=".\Map\Diablo_II\LevelMap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Map\Diablo_II\LevelMap.h"
 					>
 				</File>
 			</Filter>
