@@ -36,11 +36,11 @@ private:
 
 public:
 	Matrix() : width(0), height(0) {}
-	Matrix(int height, int width) {
+	Matrix(int height, int width, T fill) {
 		this->width = width; this->height = height;
 		points = std::vector<TList>(height);
 		for(int i = 0; i < height; i++)
-			points[i] = TList(width);
+			points[i] = TList(width, fill);
 	}
 	T __fastcall GetPoint(int x, int y) const {
 		assert(x < height && y < width);

@@ -71,7 +71,7 @@ void LevelMap::Build(void)
 {
 	EnterCriticalSection(lock);
 
-	mapPoints = Matrix<CollisionFlag>(height, width);
+	mapPoints = Matrix<CollisionFlag>(height, width, LevelMap::Avoid);
 
 	RoomList addedRooms;
 	UnitAny* player = GetPlayerUnit();
