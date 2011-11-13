@@ -306,9 +306,7 @@ void LevelMap::GetExits(ExitArray& exits) const
 					xstep = xstep > 0 ? 1 : (xstep < 0 ? -1 : 0);
 					ystep = ystep > 0 ? 1 : (ystep < 0 ? -1 : 0);
 
-					int spaces = 0;
 					Point midpoint(start.first, start.second);
-					bool found = false;
 					
 					// offset for neighbouring room's edge points
 					int offsetX = 0, offsetY = 0;
@@ -334,64 +332,27 @@ void LevelMap::GetExits(ExitArray& exits) const
 							offsetX++;
 						}
 					}
-
-					for(int x = 0, y = 0; !found && midpoint != end; x += xstep, y += ystep)
+					const Point offsetPoint(offsetX, offsetY);
+					
+					bool walkablePoint;
+					for(int spaces = 0, x = 0, y = 0; midpoint != end; x += xstep, y += ystep)
 					{
 						midpoint = Point(start.first + x, start.second + y);
-						if(SpaceIsWalkable(midpoint, true))
+						walkablePoint = EdgeIsWalkable(midpoint, offsetPoint, rooms[i]->pRoom1, true);
+						if (walkablePoint)
 						{
-							int k;
-							for (k = -2; k <= 3; k++)
-							{
-								if (k < 0)  // simulation of character (3x3) staying in our area's border
-								{
-									if (false == SpaceIsWalkable(Point(midpoint.first + offsetX * k, midpoint.second + offsetY * k), true))
-									{
-										break;
-									}
-								}
-								else if (k == 0) // we already checked that out
-								{
-									continue;
-								}
-								else // simulation of character (3x3) staying in another area's room
-								{
-									if (false == RoomSpaceIsWalkable(rooms[i]->pRoom1, Point(midpoint.first + offsetX * k, midpoint.second + offsetY * k), true))
-									{
-										break;
-									}
-								}
-							}
-							if (k <= 3)
-							{
-								if (spaces > 2)
-								{
-									midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
-									exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
-									spaces = 0;
-									break;
-								}
-								spaces = 0;
-								continue;
-							}
 							spaces++;
 						}
-						else if (spaces > 2)
+						if (false == walkablePoint || Point(midpoint.first + xstep, midpoint.second + ystep) == end)
 						{
-							midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
-							exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+							if (spaces > 2)
+							{
+								midpoint = Point(midpoint.first - xstep * spaces / 2, midpoint.second - ystep * spaces / 2);
+								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+								break;
+							}
 							spaces = 0;
-							break;
 						}
-						else
-						{
-							spaces = 0;
-						}
-					}
-					if (spaces > 2)
-					{
-						midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
-						exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 					}
 				}
 			}
@@ -431,6 +392,50 @@ void LevelMap::GetExits(ExitArray& exits) const
 		RemoveRoomData(*it);
 
 	LeaveCriticalSection(lock);
+}
+
+/**
+ *    This method will check six points - orthogonal to area-crossing-edge
+ *    * 3 points from local room
+ *    * 3 points from adjecent room (room behind area-crossing-edge)
+ *
+ *                            __                              
+ *    distanceLocal       -2    |                             i    3
+ *                        -1    +--- pRoom1Local              n    2
+ *    edgePoint           (0) __|                            -->   1
+ *                                                            o 
+ *    -------------[ area join edge ]----------------         r
+ *                            __                              d 
+ *                         1    |                             e    4
+ *                         2    +--- pRoom1Adjecent           r    5
+ *    distanceAdjecent     3  __|                                  6
+ */
+bool LevelMap::EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, Room1 *pRoom1Adjecent, bool abs) const
+{
+	int k;
+	const int distanceLocal    = -2;
+	const int distanceAdjecent = 3;
+	for (k = distanceLocal; k <= distanceAdjecent; k++)
+	{
+		if (k <= 0)  // simulation of character-size (3 point in width/height) staying in local room
+		{
+			if (false == SpaceIsWalkable(Point(edgePoint.first + offsetPoint.first * (distanceLocal-k), edgePoint.second + offsetPoint.second * (distanceLocal-k)), abs))
+			{
+				break;
+			}
+		}
+
+		// -------------[ area join edge ]---------------- 
+
+		else // simulation of character-size (3 point in width/height) staying in adjecent room
+		{
+			if (false == RoomSpaceIsWalkable(pRoom1Adjecent, Point(edgePoint.first + offsetPoint.first * k, edgePoint.second + offsetPoint.second * k), abs))
+			{
+				break;
+			}
+		}
+	}
+	return k > distanceAdjecent;
 }
 
 bool LevelMap::SpaceHasFlag(int flag, const Point& point, bool abs) const

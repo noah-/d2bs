@@ -123,6 +123,8 @@ public:
 	bool RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const;
 	bool ValueIsWalkable(const WORD *value) const;
 	bool ValueHasFlag(int flag, const WORD *value) const;
+
+	bool EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, Room1 *pRoom1Adjecent, bool abs) const;
 };
 
 }
