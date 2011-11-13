@@ -210,8 +210,8 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 		Vars.dwSelectedUnitType = pUnit->dwType;
 
 		Vars.bClickAction = TRUE;
-
-		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 0x08);
+		
+		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : (*p_D2CLIENT_AlwaysRun ? 0x08 : 0));
 		D2CLIENT_SetSelectedUnit(NULL);
 
 		Vars.bClickAction = FALSE;
@@ -224,7 +224,7 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 		Vars.dwSelectedUnitType = NULL;
 
 		Vars.bClickAction = TRUE;
-		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
+		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : (*p_D2CLIENT_AlwaysRun ? 0x08 : 0));
 		Vars.bClickAction = FALSE;
 	}
 
