@@ -364,6 +364,13 @@ void LevelMap::GetExits(ExitArray& exits) const
 							}
 							if (k <= 3)
 							{
+								if (spaces > 2)
+								{
+									midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
+									exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+									spaces = 0;
+									break;
+								}
 								spaces = 0;
 								continue;
 							}
@@ -373,12 +380,18 @@ void LevelMap::GetExits(ExitArray& exits) const
 						{
 							midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
 							exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
-							found = true;
+							spaces = 0;
+							break;
 						}
 						else
 						{
 							spaces = 0;
 						}
+					}
+					if (spaces > 2)
+					{
+						midpoint = Point((midpoint.first - xstep) - xstep * spaces / 2, (midpoint.second - ystep) - ystep * spaces / 2);
+						exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 					}
 				}
 			}
