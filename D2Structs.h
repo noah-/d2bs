@@ -484,10 +484,10 @@ struct ItemData {
 	Inventory *pOwnerInventory;		//0x5C
 	DWORD _10;						//0x60
 	UnitAny *pNextInvItem;			//0x64
-	BYTE _11;						//0x68
+	BYTE GameLocation;				//0x68 Location per docs.d2bs.org (unit.location)
 	BYTE NodePage;					//0x69 Actual location, this is the most reliable by far
-	WORD _12;						//0x6A
-	DWORD _13[6];					//0x6C
+	WORD _11;						//0x6A
+	DWORD _12[6];					//0x6C
 	UnitAny *pOwner;				//0x84
 };
 

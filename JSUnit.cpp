@@ -321,7 +321,7 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ITEM_LOC:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->ItemLocation);
+				*vp = INT_TO_JSVAL(pUnit->pItemData->GameLocation);
 			break;
 		case ITEM_SIZEX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
