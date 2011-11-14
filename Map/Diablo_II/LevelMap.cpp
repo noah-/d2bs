@@ -231,7 +231,6 @@ bool LevelMap::IsValidPoint(const Point& point, bool abs) const
 	if(abs) return IsValidPoint(AbsToRelative(point), false);
 	return !!(point.first >= 0 && point.second >= 0 && point.first < height && point.second < width);
 }
-
 void LevelMap::GetExits(ExitArray& exits) const
 {
 	static const Point empty(0,0);
@@ -250,11 +249,6 @@ void LevelMap::GetExits(ExitArray& exits) const
 		if(room->pLevel->dwLevelNo != level->dwLevelNo)
 			continue;
 
-		Point x1(room->dwPosX * 5, room->dwPosY * 5),
-			  x2(room->dwPosX * 5, room->dwPosY * 5 + room->dwSizeY * 5),
-			  x3(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5 + room->dwSizeY * 5),
-			  x4(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5);
-
 		Room2** rooms = room->pRoom2Near;
 		for(DWORD i = 0; i < room->dwRoomsNear; i++)
 		{
@@ -264,96 +258,115 @@ void LevelMap::GetExits(ExitArray& exits) const
 				added.push_back(rooms[i]);
 			}
 
-			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
+			if(rooms[i]->pLevel->dwLevelNo == level->dwLevelNo)
+				continue;
+
+			// does this link already exist?
+			bool exists = false;
+			ExitArray::iterator begin = exits.begin(), last = exits.end();
+			for(ExitArray::iterator it = begin; it != last; it++)
 			{
-				// does this link already exist?
-				bool exists = false;
-				ExitArray::iterator begin = exits.begin(), last = exits.end();
-				for(ExitArray::iterator it = begin; it != last; it++)
+				if(it->Target == rooms[i]->pLevel->dwLevelNo)
 				{
-					if(it->Target == rooms[i]->pLevel->dwLevelNo)
+					exists = true;
+					break;
+				}
+			}
+			if(exists)
+				continue;
+
+			// A -> origin of local room, B -> opposite corner from origin in local room ... X, Y -> like local but for adjecent room
+			Point A, B, X, Y, startPoint, edgeDirection, orthogonalDirection;
+			int overlappingX, overlappingY, edgeSize;
+			// this could be enum
+			bool startLeft = false, startRight = false, startTop = false, startBottom = false;
+
+			A = Point(room->dwPosX * 5, room->dwPosY * 5);
+			B = Point(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5 + room->dwSizeY * 5);
+
+			X = Point(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5);
+			Y = Point(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5);
+
+			overlappingX = min(B.first,  Y.first)  - max(A.first,  X.first);
+			overlappingY = min(B.second, Y.second) - max(A.second, X.second);
+	
+			if (overlappingX > 0) // top or bottom edge
+			{
+				if (A.second < X.second) // bottom edge
+				{
+					startPoint = Point(max(A.first, X.first), B.second-1);
+					startBottom = true;
+				}
+				else
+				{
+					startPoint = Point(max(A.first, X.first), A.second);
+					startTop = true;
+				}
+			}
+			else if (overlappingY > 0) // left or right edge
+			{
+				if (A.first < X.first) // right edge
+				{
+					startPoint = Point(B.first-1, max(A.second, X.second));
+					startRight = true;
+				}
+				else
+				{
+					startPoint = Point(A.first, max(A.second, X.second));
+					startLeft = true;
+				}
+			}
+	
+			if (overlappingX < 0 || overlappingY < 0)
+			{
+				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 adjecent room is out of reach - it's not even touching local room in corner!");
+				continue;
+			}
+			if (overlappingX > 0 && overlappingY > 0)
+			{
+				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				continue;             
+			}
+			if (overlappingX < 3 && overlappingY < 3)
+			{
+				// edge is not large enough to even bother to check for exit (exit should be at least 3 points wide)
+				continue;
+			}
+	
+			if (startLeft || startRight) // -> going down
+			{
+				edgeSize = overlappingY; // number of vertical touched points
+				edgeDirection = Point(0, 1); // down
+				orthogonalDirection = Point((startLeft ? -1 : 1), 0); // checking adjecent spaces -> left / right
+			}
+			else // startTop || startBottom -> going right
+			{
+				edgeSize = overlappingX; // number of horizontal touched points
+				edgeDirection = Point(1, 0); // right
+				orthogonalDirection = Point(0, (startTop ? -1 : 1)); // checking adjecent spaces -> up / down
+			}
+
+			Point currentPoint;
+			bool isPointWalkable = false;
+			int spaces = 0, j;
+			for (j = 0; j < edgeSize; j++)
+			{
+				// would be nice to convert this line to => currentPoint = startPoint + edgeDirection * j;
+				currentPoint = Point(startPoint.first + j * edgeDirection.first, startPoint.second + j * edgeDirection.second);
+				isPointWalkable = EdgeIsWalkable(currentPoint, orthogonalDirection, rooms[i]->pRoom1, true);
+				if (isPointWalkable)
+				{
+					spaces++;
+				}
+				if (false == isPointWalkable || j + 1 == edgeSize)
+				{
+					if (spaces > 2)
 					{
-						exists = true;
+						currentPoint = Point(currentPoint.first - edgeDirection.first * spaces / 2, currentPoint.second - edgeDirection.second * spaces / 2);
+						exits.push_back(Exit(currentPoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 						break;
 					}
-				}
-				if(exists)
-					continue;
-
-				// definitely a link, is it walkable?
-				// find the side most adjacent to this one
-				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
-					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
-					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
-					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
-
-				Point start(0,0), end(0,0);
-
-				if(x1 == y4 && x2 == y3)      { start = x1; end = x2; }
-				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
-				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
-				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
-
-				if(start != empty && end != empty)
-				{
-					if(start.first == GetMaxX())  start.first--;
-					if(start.second == GetMaxY()) start.second--;
-					if(end.first == GetMaxX())    end.first--;
-					if(end.second == GetMaxY())   end.second--;
-
-					int xstep = end.first - start.first,
-						ystep = end.second - start.second;
-					xstep = xstep > 0 ? 1 : (xstep < 0 ? -1 : 0);
-					ystep = ystep > 0 ? 1 : (ystep < 0 ? -1 : 0);
-
-					Point midpoint(start.first, start.second);
-					
-					// offset for neighbouring room's edge points
-					int offsetX = 0, offsetY = 0;
-					if (xstep != 0) // top or bottom edge
-					{
-						if (start.second == x1.second) // top
-						{
-							offsetY--;
-						}
-						else
-						{
-							offsetY++;
-						}
-					}
-					if (ystep != 0) // left or right edge
-					{
-						if (start.first == x1.first) // left
-						{
-							offsetX--;
-						}
-						else
-						{
-							offsetX++;
-						}
-					}
-					const Point offsetPoint(offsetX, offsetY);
-					
-					bool walkablePoint;
-					for(int spaces = 0, x = 0, y = 0; midpoint != end; x += xstep, y += ystep)
-					{
-						midpoint = Point(start.first + x, start.second + y);
-						walkablePoint = EdgeIsWalkable(midpoint, offsetPoint, rooms[i]->pRoom1, true);
-						if (walkablePoint)
-						{
-							spaces++;
-						}
-						if (false == walkablePoint || Point(midpoint.first + xstep, midpoint.second + ystep) == end)
-						{
-							if (spaces > 2)
-							{
-								midpoint = Point(midpoint.first - xstep * spaces / 2, midpoint.second - ystep * spaces / 2);
-								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
-								break;
-							}
-							spaces = 0;
-						}
-					}
+					spaces = 0;
 				}
 			}
 		}
