@@ -678,28 +678,38 @@ JSAPI_FUNC(my_getDistance)
 	jsint nY1 = NULL;
 	jsint nY2 = NULL;
 
-	if(argc == 2 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]))
+	if(argc == 1 && JSVAL_IS_OBJECT(argv[0])) 
 	{
-		myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
-		myUnit* pUnit2 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
-
-		if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-			return JS_TRUE;
-
-		if(!pUnit2 || (pUnit2->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-			return JS_TRUE;
-
-		UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
-		UnitAny* pUnitB = D2CLIENT_FindUnit(pUnit2->dwUnitId, pUnit2->dwType);
-
-		if(!pUnitA || !pUnitB)
-			return JS_TRUE;
-
-		nX1 = D2CLIENT_GetUnitX(pUnitA);
-		nY1 = D2CLIENT_GetUnitY(pUnitA);
-		nX2 = D2CLIENT_GetUnitX(pUnitB);
-		nY2 = D2CLIENT_GetUnitY(pUnitB);
-
+		jsval x1, y1;
+		if(JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[0]), "x", &x1) && JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[0]), "y", &y1))
+		{ 
+			nX1 = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit());
+			nY1 = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+			JS_ValueToECMAInt32(cx, x1, &nX2);
+			JS_ValueToECMAInt32(cx, y1, &nY2);
+		}
+	}
+	else if(argc == 2)
+	{ 
+		if (JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1])) 
+		{
+			nX1 = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit());
+			nY1 = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+			JS_ValueToECMAInt32(cx, argv[0], &nX2);
+			JS_ValueToECMAInt32(cx, argv[1], &nY2);
+		}
+		else if(JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1])) 
+		{
+			jsval x, y, x2, y2; 
+			if(JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[0]), "x", &x) && JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[0]), "y", &y) &&
+				JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[1]), "x", &x2) && JS_GetProperty(cx, JSVAL_TO_OBJECT(argv[1]), "y", &y2)) 
+			{ 
+				JS_ValueToECMAInt32(cx, x, &nX1);
+				JS_ValueToECMAInt32(cx, y, &nY1);
+				JS_ValueToECMAInt32(cx, x2, &nX2);
+				JS_ValueToECMAInt32(cx, y2, &nY2);
+			}
+		}
 	}
 	else if(argc == 3)
 	{
