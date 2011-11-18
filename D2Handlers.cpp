@@ -266,7 +266,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 					// Send the alt to the scripts to fix sticky alt. There may be a better way.
 					KeyDownUpEvent(wParam, isUp);
 					return CallNextHookEx(NULL, code, wParam, lParam);
-				break;
+					break;
 				default:
 					if(isDown)
 					{

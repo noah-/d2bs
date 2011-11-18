@@ -705,7 +705,7 @@ JSAPI_FUNC(unit_interact)
 			
 			BYTE aPacket[13] = {NULL};
 
-			if(nLocation == STORAGE_INVENTORY)
+			if(nLocation == LOCATION_INVENTORY)
 			{
 				aPacket[0] = 0x20;
 				*(DWORD*)&aPacket[1] = pUnit->dwUnitId;
@@ -714,7 +714,7 @@ JSAPI_FUNC(unit_interact)
 				D2NET_SendPacket(13, 1, aPacket);
 				return JS_TRUE;
 			}
-			else if(nLocation == STORAGE_BELT)
+			else if(nLocation == LOCATION_BELT)
 			{
 				aPacket[0] = 0x26;
 				*(DWORD*)&aPacket[1] = pUnit->dwUnitId;

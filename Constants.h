@@ -236,22 +236,22 @@ EQUIP_LEFT_SECONDARY,	// Left secondary slot
 // Storage Buffers
 ///////////////////////////////////////////////////
 // Constants pertaining to GameLocation
-#define STORAGE_GROUND		0
-#define STORAGE_EQUIP		1
-#define STORAGE_BELT		2
-#define STORAGE_INVENTORY	3
-#define STORAGE_STORE		4
-#define STORAGE_TRADE		5
-#define STORAGE_CUBE		6
-#define STORAGE_STASH		7
-#define STORAGE_NULL		255
+#define LOCATION_GROUND		0
+#define LOCATION_EQUIP		1
+#define LOCATION_BELT		2
+#define LOCATION_INVENTORY	3
+#define LOCATION_STORE		4
+#define LOCATION_TRADE		5
+#define LOCATION_CUBE		6
+#define LOCATION_STASH		7
+#define LOCATION_NULL		255
 
 // Constants pertaining to ItemLocation
-#define ITEMLOC_INVENTORY	0
-#define ITEMLOC_TRADE		2
-#define ITEMLOC_CUBE		3
-#define ITEMLOC_STASH		4
-#define ITEMLOC_BELT		5
+#define CLICKTARGET_INVENTORY	0
+#define CLICKTARGET_TRADE		2
+#define CLICKTARGET_CUBE		3
+#define CLICKTARGET_STASH		4
+#define CLICKTARGET_BELT		5
 
 ///////////////////////////////////////////////////
 // Item Quality

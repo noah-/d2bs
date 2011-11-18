@@ -509,6 +509,7 @@ JSAPI_FUNC(my_clickItem)
 			jsint nY = JSVAL_TO_INT(argv[2]);
 			jsint nLoc = JSVAL_TO_INT(argv[3]);
 
+			int itemLocation = STORAGE_NULL;
 			InventoryLayout* pLayout = NULL;
 
 			*p_D2CLIENT_CursorHoverX = nX;
@@ -532,8 +533,7 @@ JSAPI_FUNC(my_clickItem)
 					
 				}
 			}
-			int itemLocation = STORAGE_NULL;
-			//itemLocation is ItemLocation=: 0=inventory, 2=player trade, 3=cube, 4=stash, 5=belt
+			//nLoc is click target locations=: STORAGE_INVENTORY=inventory, STORAGE_TRADE=player trade, STORAGE_CUBE=cube, STORAGE_STASH=stash, STORAGE_BELT=belt
 			if(nLoc == STORAGE_INVENTORY || nLoc == STORAGE_TRADE || nLoc == STORAGE_CUBE || nLoc == STORAGE_STASH)
 			{
 				switch(nLoc)
