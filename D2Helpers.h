@@ -30,14 +30,14 @@ Level*	GetLevel(DWORD dwLevelNo);
 void	D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);
 void	myDrawText(const char* szwText, int x, int y, int color, int font);
 void	myDrawCenterText(const char* szwText, int x, int y, int color, int font, int div) ;
-UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location);
+//UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location);
 BYTE	CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin = NULL);
 DWORD	GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo);
 UnitAny* GetMercUnit(UnitAny* pUnit);
 
 BOOL	ClickNPCMenu(DWORD NPCClassId, DWORD MenuId);
 int		GetItemLocation(UnitAny *pItem);
-void	SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation);
+//void	SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation);
 
 int		GetSkill(WORD wSkillId);
 BOOL	SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId = 0xFFFFFFFF);

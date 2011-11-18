@@ -515,7 +515,7 @@ JSAPI_FUNC(my_clickItem)
 			*p_D2CLIENT_CursorHoverY = nY;
 
 			// Fixing the location - so Diablo can handle it!
-			if(nLoc != 5)
+			if(nLoc != STORAGE_BELT) 
 			{
 				UnitAny* pItem = D2CLIENT_GetCursorItem();
 				if(pItem)
@@ -532,23 +532,27 @@ JSAPI_FUNC(my_clickItem)
 					
 				}
 			}
-
-			//nLoc is location=: 0=inventory, 2=player trade, 3=cube, 4=stash, 5=belt
-			if(nLoc == 0 || nLoc == 2 || nLoc == 3 || nLoc == 4)
+			int itemLocation = STORAGE_NULL;
+			//itemLocation is ItemLocation=: 0=inventory, 2=player trade, 3=cube, 4=stash, 5=belt
+			if(nLoc == STORAGE_INVENTORY || nLoc == STORAGE_TRADE || nLoc == STORAGE_CUBE || nLoc == STORAGE_STASH)
 			{
 				switch(nLoc)
 				{
-					case 0:
+					case STORAGE_INVENTORY:
 						pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
+						itemLocation = ITEMLOC_INVENTORY;
 						break;
-					case 2:
+					case STORAGE_TRADE:
 						pLayout = (InventoryLayout*)p_D2CLIENT_TradeLayout;
+						itemLocation = ITEMLOC_TRADE;
 						break;
-					case 3:
+					case STORAGE_CUBE:
 						pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
+						itemLocation = ITEMLOC_CUBE;
 						break;
-					case 4:
+					case STORAGE_STASH:
 						pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
+						itemLocation = ITEMLOC_STASH;
 						break;
 				}
 
@@ -556,15 +560,15 @@ JSAPI_FUNC(my_clickItem)
 				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, itemLocation);
 				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x, y, nLoc, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+					D2CLIENT_RightClickItem(x, y, itemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, itemLocation);
 			
 				return JS_TRUE;
 			}
-			else if(nLoc == 5) // Belt
+			else if(nLoc == STORAGE_BELT) // Belt
 			{
 
 				int z = -1;

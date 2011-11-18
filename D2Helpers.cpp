@@ -105,18 +105,18 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 	return !!(x >= x2 && x < x2+sizex && y >= y2 && y < y2+sizey);
 }
 
-UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
+/*UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
 	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
 		if((DWORD)GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
 			return pItem;
 	}
 	return NULL;
-}
+}*/
 
-void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
+/*void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 {
 	*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
-}
+}*/
 
 ClientGameState ClientState(void)
 {
@@ -429,29 +429,7 @@ int GetItemLocation(UnitAny *pItem)
 	if(!pItem || !pItem->pItemData)
 		return -1;
 
-	switch(pItem->pItemData->ItemLocation)
-	{
-		case STORAGE_INVENTORY:
-			return STORAGE_INVENTORY;
-
-		case STORAGE_CUBE:
-			return STORAGE_CUBE;
-
-		case STORAGE_STASH:
-			return STORAGE_STASH;
-
-		case STORAGE_NULL:
-			switch(pItem->pItemData->NodePage)
-			{
-				case NODEPAGE_EQUIP:
-					return STORAGE_EQUIP;
-
-				case NODEPAGE_BELTSLOTS:
-					return STORAGE_BELT;
-			}
-	}
-
-	return STORAGE_NULL;
+	return (pItem->pItemData->GameLocation);
 }
 
 BYTE CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin)
