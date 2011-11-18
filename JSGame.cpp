@@ -442,17 +442,17 @@ JSAPI_FUNC(my_clickItem)
 
 			return JS_TRUE;
 		}
-		else if(InventoryLocation == STORAGE_INVENTORY || InventoryLocation == STORAGE_STASH || InventoryLocation == STORAGE_CUBE)
+		else if(InventoryLocation == LOCATION_INVENTORY || InventoryLocation == LOCATION_STASH || InventoryLocation == LOCATION_CUBE)
 		{
 			switch(InventoryLocation)
 			{
-				case STORAGE_INVENTORY:
+				case LOCATION_INVENTORY:
 					pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
 					break;
-				case STORAGE_STASH:
+				case LOCATION_STASH:
 					pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
 					break;
-				case STORAGE_CUBE:
+				case LOCATION_CUBE:
 					pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
 					break;
 			}
@@ -466,7 +466,7 @@ JSAPI_FUNC(my_clickItem)
 				D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 
 		}
-		else if(InventoryLocation == STORAGE_BELT)
+		else if(InventoryLocation == LOCATION_BELT)
 		{
 			int i = x;
 
@@ -509,14 +509,14 @@ JSAPI_FUNC(my_clickItem)
 			jsint nY = JSVAL_TO_INT(argv[2]);
 			jsint nLoc = JSVAL_TO_INT(argv[3]);
 
-			int itemLocation = STORAGE_NULL;
+			int clickTarget = LOCATION_NULL;
 			InventoryLayout* pLayout = NULL;
 
 			*p_D2CLIENT_CursorHoverX = nX;
 			*p_D2CLIENT_CursorHoverY = nY;
 
 			// Fixing the location - so Diablo can handle it!
-			if(nLoc != STORAGE_BELT) 
+			if(nLoc != LOCATION_BELT) 
 			{
 				UnitAny* pItem = D2CLIENT_GetCursorItem();
 				if(pItem)
@@ -533,26 +533,26 @@ JSAPI_FUNC(my_clickItem)
 					
 				}
 			}
-			//nLoc is click target locations=: STORAGE_INVENTORY=inventory, STORAGE_TRADE=player trade, STORAGE_CUBE=cube, STORAGE_STASH=stash, STORAGE_BELT=belt
-			if(nLoc == STORAGE_INVENTORY || nLoc == STORAGE_TRADE || nLoc == STORAGE_CUBE || nLoc == STORAGE_STASH)
+			//nLoc is click target locations=: LOCATION_INVENTORY=inventory, LOCATION_TRADE=player trade, LOCATION_CUBE=cube, LOCATION_STASH=stash, LOCATION_BELT=belt
+			if(nLoc == LOCATION_INVENTORY || nLoc == LOCATION_TRADE || nLoc == LOCATION_CUBE || nLoc == LOCATION_STASH)
 			{
 				switch(nLoc)
 				{
-					case STORAGE_INVENTORY:
+					case LOCATION_INVENTORY:
 						pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
-						itemLocation = ITEMLOC_INVENTORY;
+						clickTarget = CLICKTARGET_INVENTORY;
 						break;
-					case STORAGE_TRADE:
+					case LOCATION_TRADE:
 						pLayout = (InventoryLayout*)p_D2CLIENT_TradeLayout;
-						itemLocation = ITEMLOC_TRADE;
+						clickTarget = CLICKTARGET_TRADE;
 						break;
-					case STORAGE_CUBE:
+					case LOCATION_CUBE:
 						pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
-						itemLocation = ITEMLOC_CUBE;
+						clickTarget = CLICKTARGET_CUBE;
 						break;
-					case STORAGE_STASH:
+					case LOCATION_STASH:
 						pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
-						itemLocation = ITEMLOC_STASH;
+						clickTarget = CLICKTARGET_STASH;
 						break;
 				}
 
@@ -560,15 +560,15 @@ JSAPI_FUNC(my_clickItem)
 				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, itemLocation);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, clickTarget);
 				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x, y, itemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+					D2CLIENT_RightClickItem(x, y, clickTarget, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, itemLocation);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, clickTarget);
 			
 				return JS_TRUE;
 			}
-			else if(nLoc == STORAGE_BELT) // Belt
+			else if(nLoc == LOCATION_BELT) // Belt
 			{
 
 				int z = -1;
