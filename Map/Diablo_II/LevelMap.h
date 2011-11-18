@@ -84,6 +84,17 @@ private:
 	void ShrinkMap(void);
 	void ThickenWalls(void);
 
+	bool RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const;
+	bool ValueIsWalkable(const WORD *value) const;
+	bool ValueHasFlag(int flag, const WORD *value) const;
+
+	bool EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, Room1 *pRoom1Adjecent, bool abs) const;
+
+	void FindRoomTileExits(Room2* room, ExitArray& exits) const;
+	void FindRoomLinkageExits(Room2* room, ExitArray& exits, RoomList& added) const;
+	bool ExitExists(Point loc, ExitArray& exits) const;
+	bool ExitExists(DWORD dwLevelNo, ExitArray& exits) const;
+
 	LevelMap(const Level* level);
 	~LevelMap(void);
 
@@ -119,12 +130,6 @@ public:
 
 	bool PathIsWalkable(const PointList& points, bool abs = true) const;
 	bool PathHasLineOfSight(const PointList& points, bool abs = true) const;
-
-	bool RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const;
-	bool ValueIsWalkable(const WORD *value) const;
-	bool ValueHasFlag(int flag, const WORD *value) const;
-
-	bool EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, Room1 *pRoom1Adjecent, bool abs) const;
 };
 
 }
