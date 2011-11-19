@@ -106,7 +106,7 @@ Unit getUnit(int type, char* name, uint32_t mode, uint32_t nUnitId);
  */
 Unit getUnit(int type, uint32_t classId, uint32_t mode, uint32_t nUnitId);
 
-/** Creates a path (walking or teleporting) from the source to the destination.
+/** Creates a path walking from the source to the destination.
  * Returns an array of points that form a path from the source to the
  * destination. Takes Area ID, source and destination points as parameters.
  *
@@ -144,12 +144,15 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param UseTele Whether or not the path can do things like jump walls.
+ * \param reductionType The type of reduction.
+ * 	0 - walking
+ * 	1 - teleport
+ * 	2 - none
  *
  * \return The path as an array of objects with x and y properties.
  */
 object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele);
+	int dstY, uint32_t reductionType);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
@@ -168,14 +171,17 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param UseTele Whether or not the path can do things like jump walls.
+ * \param reductionType The type of reduction.
+ * 	0 - walking
+ * 	1 - teleport
+ * 	2 - none
  *
  * \param Radius The distance between each point.
  *
  * \return The path as an array of objects with x and y properties.
  */
 object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele, uint32_t Radius);
+	int dstY, uint32_t reductionType, uint32_t Radius);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
@@ -194,116 +200,29 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param UseTele Whether or not the path can do things like jump walls.
+ * \param reductionType The type of reduction.
+ * 	0 - walking
+ * 	1 - teleport
+ * 	2 - none
+ * 	3 - user specified
  *
  * \param Radius The distance between each point.
  *
- * \param Reduction Whether or not to reduce the path.
+ * \param reject Called on start and end to determine if point is valid.
+ *
+ * \param reduce Function to determine whether to keep point. Returns true if
+ * 	point should be kept, false if point should be eliminated.
+ *
+ * \param mutate Called on the start/end if it isn't/is rejected respectively.
+ * 	This is done before path generation.
  *
  * \return The path as an array of objects with x and y properties.
  */
 object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele, uint32_t Radius, bool Reduction);
-
-/** Creates a path (walking or teleporting) from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area IDs, source and destination points as parameters.
- * Assumes teleporting unless in town.
- *
- * \ingroup globalFunctions
- *
- * \param AreaIds An array of Area IDs to possibly path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
-	uint32_t dstX, int dstY);
-
-/** Creates a path (walking or teleporting) from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area IDs, source and destination points, and walking or
- * teleporting as parameters.
- *
- * \ingroup globalFunctions
- *
- * \param AreaIds An array of Area IDs to possibly path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \param UseTele Whether or not the path can do things like jump walls.
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
-	uint32_t dstX, int dstY, bool UseTele);
-
-/** Creates a path (walking or teleporting) from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area IDs, source and destination points, walking or
- * teleporting, and range as parameters.
- *
- * \ingroup globalFunctions
- *
- * \param AreaIds An array of Area IDs to possibly path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \param UseTele Whether or not the path can do things like jump walls.
- *
- * \param Radius The distance between each point.
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
-	uint32_t dstX, int dstY, bool UseTele, uint32_t Radius);
-
-/** Creates a path (walking or teleporting) from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area IDs, source and destination points, walking or
- * teleporting, range and reduction or not as parameters.
- *
- * \ingroup globalFunctions
- *
- * \param AreaIds An array of Area IDs to possibly path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \param UseTele Whether or not the path can do things like jump walls.
- *
- * \param Radius The distance between each point.
- *
- * \param Reduction Whether or not to reduce the path.
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
-	uint32_t dstX, int dstY, bool UseTele, uint32_t Radius, bool Reduction);
+	int dstY, uint32_t reductionType, uint32_t Radius,
+	bool (*reject)(int32_t x, int32_t y),
+	bool (*reduce)(object curPt, int i, object[] pts),
+	int32_t[] (*mutate)(int32_t x, int32_t y));
 
 /** Get the collision flags at a given point in a given area.
  *
@@ -1893,6 +1812,16 @@ void clickItem(int nClickType, Unit item);
  */
 void clickItem(int nButton, nX, nY, nLoc);
 
+/** Get the euclidean distance from me to a.
+ *
+ * \ingroup globalFunctions
+ *
+ * \param a The second Unit.
+ *
+ * \return The euclidean distance from a.
+ */
+double getDistance(Unit a);
+
 /** Get the euclidean distance from a to b.
  *
  * \ingroup globalFunctions
@@ -1918,6 +1847,18 @@ double getDistance(Unit a, Unit b);
  * \return The euclidean distance from a to b.
  */
 double getDistance(Unit a, int32_t bx, int32_t by);
+
+/** Get the euclidean distance from me to a.
+ *
+ * \ingroup globalFunctions
+ *
+ * \param ax The x coordinate of point a.
+ *
+ * \param ay The y coordinate of point a.
+ *
+ * \return The euclidean distance from me to a.
+ */
+double getDistance(int32_t ax, int32_t ay);
 
 /** Get the euclidean distance from a to b.
  *
