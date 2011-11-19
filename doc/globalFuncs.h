@@ -144,10 +144,8 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param reductionType The type of reduction.
- * 	0 - walking
- * 	1 - teleport
- * 	2 - none
+ * \param reductionType The type of reduction: {0 - walking, 1 - teleport,
+ * 	2 - none}
  *
  * \return The path as an array of objects with x and y properties.
  */
@@ -171,10 +169,8 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param reductionType The type of reduction.
- * 	0 - walking
- * 	1 - teleport
- * 	2 - none
+ * \param reductionType The type of reduction: {0 - walking, 1 - teleport,
+ * 	2 - none}
  *
  * \param Radius The distance between each point.
  *
@@ -200,11 +196,8 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \param reductionType The type of reduction.
- * 	0 - walking
- * 	1 - teleport
- * 	2 - none
- * 	3 - user specified
+ * \param reductionType The type of reduction: {0 - walking, 1 - teleport,
+ * 	2 - none, 3 - user specified}
  *
  * \param Radius The distance between each point.
  *
