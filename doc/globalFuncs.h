@@ -1803,7 +1803,7 @@ void clickItem(int nClickType, Unit item);
  *
  * 5 - Belt
  */
-void clickItem(int nButton, nX, nY, nLoc);
+void clickItem(int nButton, int nX, int nY, int nLoc);
 
 /** Get the euclidean distance from me to a.
  *
