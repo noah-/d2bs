@@ -1782,7 +1782,10 @@ void clickItem(int nClickType, Unit item);
 
 /** Click an item location with the given click type.
  *
- * \param nClickType The click type. 4 for merc locations.
+ * \ingroup globalFunctions
+ *
+ * \param nClickType The click type. {0 - left click, 1 - right click,
+ * 	2 - shift left click, 4 - left click merc location}
  *
  * \param nX The x coordinate of the location to click.
  *
@@ -1800,7 +1803,7 @@ void clickItem(int nClickType, Unit item);
  *
  * 7 - Stash
  */
-void clickItem(int nButton, int nX, int nY, int nLoc);
+void clickItem(int nClickType, int nX, int nY, int nLoc);
 
 /** Get the euclidean distance from me to a.
  *
