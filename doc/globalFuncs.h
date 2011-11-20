@@ -1735,9 +1735,7 @@ void clickItem(Unit item);
  *
  * \ingroup globalFunctions
  *
- * \todo Determine values for nClickType
- *
- * \param nClickType The click type. 4 for merc locations.
+ * \param nClickType The click type. {0 - left click, 4 - left click merc body locations}
  *
  * \param nBodyLoc The body location.
  *
@@ -1773,9 +1771,8 @@ void clickItem(int nClickType, int nBodyLoc);
  *
  * \ingroup globalFunctions
  *
- * \todo Determine values for nClickType
- *
- * \param nClickType The click type. 4 for merc locations.
+ * \param nClickType The click type. {0 - left click, 1 - right click,
+ * 	4 - left click merc location}
  *
  * \param item The item to click.
  *
