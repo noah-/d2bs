@@ -1791,17 +1791,17 @@ void clickItem(int nClickType, Unit item);
  *
  * \param nY The y coordinate of the location to click.
  *
- * \param nLoc The location of the item.
+ * \param nLoc The game location of the item.
  *
- * 0 - Inventory
+ * 2 - Belt
  *
- * 2 - Player trade
+ * 3 - Inventory
  *
- * 3 - Cube
+ * 4 - Player trade
  *
- * 4 - Stash
+ * 6 - Cube
  *
- * 5 - Belt
+ * 7 - Stash
  */
 void clickItem(int nButton, int nX, int nY, int nLoc);
 
