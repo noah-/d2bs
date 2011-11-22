@@ -420,6 +420,7 @@ JSAPI_FUNC(my_clickItem)
 			THROW_ERROR(cx, "Object is not an item!");
 
 		int InventoryLocation = GetItemLocation(pUnit);
+		int ClickLocation;
 		
 		int x = pUnit->pItemPath->dwPosX;
 		int y = pUnit->pItemPath->dwPosY;
@@ -448,12 +449,15 @@ JSAPI_FUNC(my_clickItem)
 			{
 				case LOCATION_INVENTORY:
 					pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
+					ClickLocation = CLICKTARGET_INVENTORY;
 					break;
 				case LOCATION_STASH:
 					pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
+					ClickLocation = CLICKTARGET_STASH;
 					break;
 				case LOCATION_CUBE:
 					pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
+					ClickLocation = CLICKTARGET_CUBE;
 					break;
 			}
 
@@ -461,9 +465,11 @@ JSAPI_FUNC(my_clickItem)
 			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
 
 			if(nClickType == NULL)
-				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
+				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, ClickLocation);
+				//D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
 			else
-				D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+				D2CLIENT_RightClickItem(x,y, ClickLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+				//D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 
 		}
 		else if(InventoryLocation == LOCATION_BELT)
@@ -515,7 +521,7 @@ JSAPI_FUNC(my_clickItem)
 			*p_D2CLIENT_CursorHoverX = nX;
 			*p_D2CLIENT_CursorHoverY = nY;
 
-			// Fixing the location - so Diablo can handle it!
+			// Fixing the x/y click spot for items taking more than one inventory square- so Diablo can handle it!
 			if(nLoc != LOCATION_BELT) 
 			{
 				UnitAny* pItem = D2CLIENT_GetCursorItem();
