@@ -420,7 +420,7 @@ JSAPI_FUNC(my_clickItem)
 			THROW_ERROR(cx, "Object is not an item!");
 
 		int InventoryLocation = GetItemLocation(pUnit);
-		int ClickLocation;
+		int ClickLocation = LOCATION_NULL;
 		
 		int x = pUnit->pItemPath->dwPosX;
 		int y = pUnit->pItemPath->dwPosY;
