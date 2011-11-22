@@ -123,7 +123,7 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 	}
 }
 
-void Say(const char *szMessage) 
+void __fastcall Say(const char *szMessage) 
 {
 	 using namespace std;
 
