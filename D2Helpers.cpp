@@ -317,10 +317,20 @@ void ScreenToWorld( POINT *pPos)
 	pPos->y += D2CLIENT_GetMouseYOffset();
 }
 
-void ScreenToAutomap(POINT* pPos)
+POINT ScreenToAutomap(int x, int y)
 {
-	pPos->x = (pPos->x / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->x + 8;
-	pPos->y = (pPos->y / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->y - 8;
+	POINT result = {0,0};
+	x *= 32;
+	y *= 32;
+	result.x = ((x - y) / 2 / (*p_D2CLIENT_Divisor)) - (*p_D2CLIENT_Offset).x + 8;
+	result.y = ((x + y) / 4 / (*p_D2CLIENT_Divisor)) - (*p_D2CLIENT_Offset).y - 8;
+
+	if (D2CLIENT_GetAutomapSize())
+	{
+		--result.x;
+		result.y += 5;
+	}
+	return result;
 }
 
 void AutomapToScreen(POINT* pPos)

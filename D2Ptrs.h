@@ -185,6 +185,8 @@ VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11D574) // unused but I want to add it
 //VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
 
 VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11D650)
+VARPTR(D2CLIENT, OrificeId, DWORD, 0x11C9B8)
+VARPTR(D2CLIENT, CursorItemMode, DWORD, 0x11C9B0)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

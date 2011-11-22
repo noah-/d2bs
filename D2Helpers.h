@@ -24,7 +24,7 @@ void	SendMouseClick(int x, int y, int clicktype);
 POINT	CalculateTextLen(const char* szwText, int Font);
 void	WorldToScreen(POINT* pPos);
 void	ScreenToWorld(POINT *ptPos);
-void	ScreenToAutomap(POINT* pPos);
+POINT	ScreenToAutomap(int x, int y);
 void	AutomapToScreen(POINT* pPos);
 Level*	GetLevel(DWORD dwLevelNo);
 void	D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);

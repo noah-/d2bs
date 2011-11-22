@@ -1316,8 +1316,35 @@ JSAPI_FUNC(my_submitItem)
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
-		D2CLIENT_SubmitItem(pUnit->dwUnitId);
-		*rval = JSVAL_TRUE;
+		if(D2CLIENT_GetPlayerUnit()->dwAct == 1)
+		{
+			if(GetPlayerArea() == D2CLIENT_GetPlayerUnit()->pAct->pMisc->dwStaffTombLevel)
+			{
+				*p_D2CLIENT_CursorItemMode = 3;
+				BYTE aPacket[17] = { NULL };
+				aPacket[0] = 0x44;
+				*(DWORD*)&aPacket[1] = D2CLIENT_GetPlayerUnit()->dwUnitId;
+				*(DWORD*)&aPacket[5] = *p_D2CLIENT_OrificeId;
+				*(DWORD*)&aPacket[9] = pUnit->dwUnitId;
+				*(DWORD*)&aPacket[13] = 3;
+				D2NET_SendPacket(17, 1, aPacket);
+				*rval = JSVAL_TRUE;
+			}
+			else
+				*rval = JSVAL_FALSE;
+		}
+		else if(D2CLIENT_GetPlayerUnit()->dwAct == 1 || D2CLIENT_GetPlayerUnit()->dwAct == 5)
+		{
+			if(*p_D2CLIENT_RecentInteractId && D2COMMON_IsTownByLevelNo(GetPlayerArea()))
+			{
+				D2CLIENT_SubmitItem(pUnit->dwUnitId);
+				*rval = JSVAL_TRUE;
+			}
+			else
+				*rval = JSVAL_FALSE;
+		}
+		else
+			*rval = JSVAL_FALSE;
 	}
 	else
 		*rval = JSVAL_FALSE;

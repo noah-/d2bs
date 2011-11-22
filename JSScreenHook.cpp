@@ -751,8 +751,7 @@ JSAPI_FUNC(screenToAutomap)
 			if(JS_ValueToInt32(cx, x, &ix) == JS_FALSE || JS_ValueToInt32(cx, y, &iy))
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
-			POINT result = {ix * 32, iy * 32};
-			ScreenToAutomap(&result);
+			POINT result = ScreenToAutomap(ix, iy);
 			x = INT_TO_JSVAL(result.x);
 			y = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
@@ -772,8 +771,7 @@ JSAPI_FUNC(screenToAutomap)
 			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
-			POINT result = {ix * 32, iy * 32};
-			ScreenToAutomap(&result);
+			POINT result = ScreenToAutomap(ix, iy);
 			argv[0] = INT_TO_JSVAL(result.x);
 			argv[1] = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
