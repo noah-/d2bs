@@ -482,10 +482,10 @@ bool LevelMap::PathHasFlag(int flag, const PointList& points, bool abs) const
 
 bool LevelMap::SpaceIsWalkable(const Point& point, bool abs) const
 {
-	return !SpaceHasFlag(LevelMap::Avoid, point, abs)		  &&
-		   !(SpaceHasFlag(LevelMap::BlockWalk, point, abs) || SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  ||
-		     SpaceHasFlag(LevelMap::ClosedDoor, point, abs) || SpaceHasFlag(LevelMap::NPCCollision, point, abs) ||
-		     SpaceHasFlag(LevelMap::Object, point, abs));
+	// ignore closed doors here, because we want to path through them
+	 return !SpaceIsInvalid(point, abs) && !(SpaceHasFlag(LevelMap::BlockWalk, point, abs) ||
+                    SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  || SpaceHasFlag(LevelMap::NPCCollision, point, abs) ||
+                    SpaceHasFlag(LevelMap::Object, point, abs) || SpaceHasFlag(LevelMap::Avoid, point, abs)	);	
 }
 
 bool LevelMap::RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const
