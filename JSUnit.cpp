@@ -110,14 +110,14 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_PLAYERTYPE:
 			if(pData)
-				*vp = INT_TO_JSVAL(((pData->nCharFlags & PLAYER_TYPE_HARDCORE) == TRUE));
+				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_HARDCORE));
 			break;
 		case ME_ITEMONCURSOR:
 			*vp = BOOLEAN_TO_JSVAL(!!D2CLIENT_GetCursorItem());
 			break;
 		case ME_LADDER:
 			if(pData)
-				*vp = BOOLEAN_TO_JSVAL(((pData->nCharFlags & PLAYER_TYPE_LADDER) == TRUE));
+				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
 			break;
 		case ME_QUITONHOSTILE:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnHostile);
