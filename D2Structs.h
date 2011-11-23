@@ -16,6 +16,7 @@ struct Act;
 struct ActMisc;
 struct RosterUnit;
 struct OverheadMsg;
+struct Skill;
 
 struct SplitText
 {
