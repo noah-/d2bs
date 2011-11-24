@@ -18,6 +18,7 @@ void hook_finalize(JSContext *cx, JSObject *obj)
 
 JSAPI_FUNC(hook_remove)
 {
+	Genhook::EnterGlobalSection();
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
 	{
@@ -28,6 +29,7 @@ JSAPI_FUNC(hook_remove)
 	JS_SetPrivate(cx, obj, NULL);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
+	Genhook::LeaveGlobalSection();
 
 	return JS_TRUE;
 }

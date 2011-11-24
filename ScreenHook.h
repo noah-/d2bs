@@ -123,6 +123,9 @@ public:
 	jsval GetClickHandler(void) { return clicked; }
 	jsval GetHoverHandler(void) { return hovered; }
 
+	static void EnterGlobalSection() { EnterCriticalSection(&globalSection); }
+	static void LeaveGlobalSection() { LeaveCriticalSection(&globalSection); }
+
 	void Lock() { /*EnterCriticalSection(&hookSection); isLocked = true;*/ }
 	void Unlock() { /*if(!IsLocked()) return; LeaveCriticalSection(&hookSection); isLocked = false;*/ }
 };
