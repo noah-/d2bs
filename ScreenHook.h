@@ -126,8 +126,8 @@ public:
 	static void EnterGlobalSection() { EnterCriticalSection(&globalSection); }
 	static void LeaveGlobalSection() { LeaveCriticalSection(&globalSection); }
 
-	void Lock() { /*EnterCriticalSection(&hookSection); isLocked = true;*/ }
-	void Unlock() { /*if(!IsLocked()) return; LeaveCriticalSection(&hookSection); isLocked = false;*/ }
+	void Lock() { EnterCriticalSection(&hookSection);}
+	void Unlock() {LeaveCriticalSection(&hookSection);}
 };
 
 class TextHook : public Genhook

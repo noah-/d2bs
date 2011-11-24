@@ -76,8 +76,15 @@ void Genhook::DrawAll(ScreenhookState type)
 
 bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc)
 {
+	if(!ForEachVisibleHook(proc, argv, argc))
+		return false;
+
+	if(!ForEachInvisibleHook(proc, argv, argc))
+		return false;
+
+	return true;
 	// iterate the visible ones, then the invisible ones
-	EnterCriticalSection(&globalSection);
+	/*EnterCriticalSection(&globalSection);
 
 	bool result = false;
 	std::vector<Genhook*> list;
@@ -102,7 +109,7 @@ bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc)
 	}
 
 	LeaveCriticalSection(&globalSection);
-	return result;
+	return result;*/
 }
 
 bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
