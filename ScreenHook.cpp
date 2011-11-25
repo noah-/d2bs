@@ -76,17 +76,11 @@ void Genhook::DrawAll(ScreenhookState type)
 
 bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc)
 {
-	if(!ForEachVisibleHook(proc, argv, argc))
-		return false;
-
-	if(!ForEachInvisibleHook(proc, argv, argc))
-		return false;
-
-	return true;
 	// iterate the visible ones, then the invisible ones
-	/*EnterCriticalSection(&globalSection);
+	EnterCriticalSection(&globalSection);
 
 	bool result = false;
+	bool result2= false;
 	std::vector<Genhook*> list;
 	for(HookIterator it = visible.begin(); it != visible.end(); it++)
 		list.push_back(*it);
@@ -96,25 +90,25 @@ bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc)
 		if(proc(list[i], argv, argc))
 			result = true;
 
-	if(!result)
-	{
+	//if(!result)
+	//{
 		list.clear();
-		for(HookIterator it = visible.begin(); it != visible.end(); it++)
+		for(HookIterator it = invisible.begin(); it != invisible.end(); it++)
 			list.push_back(*it);
 		count = list.size();
 
 		for(int i = 0; i < count; i++)
 			if(proc(list[i], argv, argc))
-				result = true;
-	}
+				result2 = true;
+	//}
 
 	LeaveCriticalSection(&globalSection);
-	return result;*/
+	return (result ? true : (result2 ? true : false));
 }
 
 bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 {
-	// iterate the visible ones, then the invisible ones
+	// iterate the visible hooks
 	EnterCriticalSection(&globalSection);
 
 	bool result = false;
@@ -133,7 +127,7 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 
 bool Genhook::ForEachInvisibleHook(HookCallback proc, void* argv, uint argc)
 {
-	// iterate the visible ones, then the invisible ones
+	// iterate the invisible hooks
 	EnterCriticalSection(&globalSection);
 
 	bool result = false;
