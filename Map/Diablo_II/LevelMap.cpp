@@ -3,6 +3,7 @@
 
 #include "LevelMap.h"
 #include "D2Structs.h"
+#include <map>
 
 namespace Mapping
 {
@@ -79,6 +80,7 @@ void LevelMap::Build(void)
 
 	FillGaps();
 	ThickenWalls();
+	DrillExits();
 
 	LeaveCriticalSection(lock);
 }
@@ -104,7 +106,7 @@ void LevelMap::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
 
 	// add the collision data to the map
 	if(room->pRoom1)
-		AddCollisionMap(room->pRoom1->Coll);
+		AddCollisionMap(room->pRoom1);
 
 	// now do the same to every room near this one
 	Room2** pRooms = room->pRoom2Near;
@@ -115,8 +117,10 @@ void LevelMap::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
 	if(added)
 		RemoveRoomData(room);
 }
-void LevelMap::AddCollisionMap(const CollMap* const map)
+
+void LevelMap::AddCollisionMap(Room1* pRoom1)
 {
+	CollMap* map = pRoom1->Coll;
 	if(map == NULL)
 		return;
 
@@ -126,8 +130,54 @@ void LevelMap::AddCollisionMap(const CollMap* const map)
 	WORD* p = map->pMapStart;
 
 	for(int i = y; i < width && p != map->pMapEnd; i++)
+	{
 		for(int j = x; j < height && p != map->pMapEnd; j++, p++)
-			SetCollisionData(j, i, *p);
+		{
+			if ((*p & LevelMap::ClosedDoor) == LevelMap::ClosedDoor || (*p & LevelMap::Player) == LevelMap::Player)
+			{
+				SetCollisionData(j, i, 0);
+			}
+			else if
+			(
+				(
+					(*p & LevelMap::FriendlyNPC)  == LevelMap::FriendlyNPC ||
+					(*p & LevelMap::NPCCollision) == LevelMap::NPCCollision ||
+					(*p & LevelMap::NPCLocation)  == LevelMap::NPCLocation ||
+					(*p & LevelMap::DeadBody)     == LevelMap::DeadBody ||
+					(*p & LevelMap::Item)         == LevelMap::Item ||
+					((*p & LevelMap::AlternateTile) == LevelMap::AlternateTile  && (*p & LevelMap::Object) == LevelMap::Object)
+
+				)
+				&&	
+				(*p & LevelMap::BlockWalk) != LevelMap::BlockWalk &&
+				(*p & LevelMap::Wall)      != LevelMap::Wall &&
+				(*p & LevelMap::Object)    != LevelMap::Object
+			)
+			{
+				SetCollisionData(j, i, 0);
+			}
+			else
+			{
+				SetCollisionData(j, i, *p);
+			}
+		}
+	}
+
+	for(UnitAny* pUnit = pRoom1->pUnitFirst; pUnit; pUnit = pUnit->pRoomNext)
+	{
+		char tmp[128] = "";
+		GetUnitName(pUnit, tmp, 128);
+		if (
+			pUnit->dwType == 2 && (
+				0 == strcmp(tmp, "Barrel") ||
+				0 == strcmp(tmp, "Door")
+			)
+		)
+		{
+			Point loc(D2CLIENT_GetUnitX(pUnit),D2CLIENT_GetUnitY(pUnit));
+			SetCollisionData(loc.first - posX, loc.second - posY, 0);
+		}
+	}
 }
 void LevelMap::SetCollisionData(int x, int y, int value)
 {
@@ -192,10 +242,13 @@ void LevelMap::ThickenWalls(void)
 			if(SpaceIsWalkable(pt, false) || GetMapData(pt, false) == LevelMap::ThickenedWall)
 				continue;
 
-			for(int x = i-ThickenAmount; x <= i+ThickenAmount; x++)
+			for(int k=-1, x = i-ThickenAmount; x <= i+ThickenAmount; k++, x++)
 			{
-				for(int y = j-ThickenAmount; y <= j+ThickenAmount; y++)
+				for(int l=-1, y = j-ThickenAmount; y <= j+ThickenAmount; l++, y++)
 				{
+					if ((k == 0 && l == 0) || (k != 0 && l != 0))
+						continue;
+
 					Point point(x, y);
 					if(IsValidPoint(point, false) && SpaceIsWalkable(point, false))
 						SetCollisionData(x, y, LevelMap::ThickenedWall);
@@ -251,14 +304,77 @@ void LevelMap::GetExits(ExitArray& exits) const
 
 		FindRoomTileExits(room, exits);
 
-		FindRoomLinkageExits(room, exits, added);
 	}
+	FindRoomLinkageExits(exits, added);
 
 	RoomList::iterator start = added.begin(), last = added.end();
 	for(RoomList::iterator it = start; it != last; it++)
 		RemoveRoomData(*it);
 
 	LeaveCriticalSection(lock);
+}
+
+void LevelMap::DrillExits()
+{
+	ExitArray exits;
+	GetExits(exits);
+	ExitArray::iterator begin = exits.begin(), last = exits.end();
+	for(ExitArray::iterator it = begin; it != last; it++)
+	{
+		SetCollisionData(it->Position.first - posX, it->Position.second - posY, 0);
+		bool blind = true;
+		for(int x = -1; x <= 1; x++)
+		{
+			for (int y = -1; y <= 1; y++)
+			{
+				if (x == 0 && y == 0)
+				{
+					continue;
+				}
+				if (IsValidPoint(Point(it->Position.first + x, it->Position.second + y), true) && SpaceIsWalkable(Point(it->Position.first + x, it->Position.second + y), true))
+				{
+					blind = false;
+					break;
+				}
+			}
+			if (blind == false)
+			{
+				break;
+			}
+		}
+		if (blind == false)
+		{
+			continue;
+		}
+		for(int x = -1; x <= 1; x++)
+		{
+			for (int y = -1; y <= 1; y++)
+			{
+				if ((x != 0 && y != 0) || (x == 0 && y == 0))
+				{
+					continue;
+				}
+				if (IsValidPoint(Point(it->Position.first + x, it->Position.second + y), true))
+				{
+					SetCollisionData(it->Position.first + x - posX, it->Position.second + y - posY, 0);
+				}
+			}
+		}
+		for(int x = -2; x <= 2; x++)
+		{
+			for (int y = -2; y <= 2; y++)
+			{
+				if (((x < -1 || x > 1)  && (y < -1 || y > 1)) || (x == 0 && y == 0))
+				{
+					continue;
+				}
+				if (IsValidPoint(Point(it->Position.first + x, it->Position.second + y), true) && SpaceHasFlag(LevelMap::ThickenedWall, Point(it->Position.first + x, it->Position.second + y), true))
+				{
+					SetCollisionData(it->Position.first + x - posX, it->Position.second + y - posY, 0);
+				}
+			}
+		}
+	}
 }
 
 bool LevelMap::ExitExists(Point loc, ExitArray& exits) const
@@ -287,120 +403,205 @@ bool LevelMap::ExitExists(DWORD dwLevelNo, ExitArray& exits) const
 	return false;
 }
 
-void LevelMap::FindRoomLinkageExits(Room2* room, ExitArray& exits, RoomList& added) const
+void LevelMap::FindRoomLinkageExits(ExitArray& exits, RoomList& added) const
 {
-	Room2** rooms = room->pRoom2Near;
-	for(DWORD i = 0; i < room->dwRoomsNear; i++)
+	using namespace std;
+	static const Point empty(0,0);
+
+	UnitAny* player = GetPlayerUnit();
+	const Point playerOrigin(player->pPath->xPos - posX, player->pPath->yPos - posY);
+
+	multimap<int, std::pair<Point, std::pair<Point, int>>> exitMap; // <level, <rooms[i], <middlepoint, size> > >
+	
+	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
 	{
-		if(!rooms[i]->pRoom1)
+		Room2** rooms = room->pRoom2Near;
+		for(DWORD i = 0; i < room->dwRoomsNear; i++)
 		{
-			AddRoomData(rooms[i]);
-			added.push_back(rooms[i]);
-		}
-
-		if(rooms[i]->pLevel->dwLevelNo == level->dwLevelNo)
-			continue;
-
-		// does this link already exist?
-		
-		if(ExitExists(rooms[i]->pLevel->dwLevelNo, exits))
-			continue;
-
-		// A -> origin of local room, B -> opposite corner from origin in local room ... X, Y -> like local but for adjecent room
-		Point A, B, X, Y, startPoint, edgeDirection, orthogonalDirection;
-		int overlappingX, overlappingY, edgeSize;
-		// this could be enum
-		bool startLeft = false, startRight = false, startTop = false, startBottom = false;
-
-		A = Point(room->dwPosX * 5, room->dwPosY * 5);
-		B = Point(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5 + room->dwSizeY * 5);
-
-		X = Point(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5);
-		Y = Point(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5);
-
-		overlappingX = min(B.first,  Y.first)  - max(A.first,  X.first);
-		overlappingY = min(B.second, Y.second) - max(A.second, X.second);
-
-		if (overlappingX > 0) // top or bottom edge
-		{
-			if (A.second < X.second) // bottom edge
+			if(!rooms[i]->pRoom1)
 			{
-				startPoint = Point(max(A.first, X.first), B.second-1);
-				startBottom = true;
+				AddRoomData(rooms[i]);
+				added.push_back(rooms[i]);
 			}
-			else
-			{
-				startPoint = Point(max(A.first, X.first), A.second);
-				startTop = true;
-			}
-		}
-		else if (overlappingY > 0) // left or right edge
-		{
-			if (A.first < X.first) // right edge
-			{
-				startPoint = Point(B.first-1, max(A.second, X.second));
-				startRight = true;
-			}
-			else
-			{
-				startPoint = Point(A.first, max(A.second, X.second));
-				startLeft = true;
-			}
-		}
 
-		if (overlappingX < 0 || overlappingY < 0)
-		{
-			// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 adjecent room is out of reach - it's not even touching local room in corner!");
-			continue;
-		}
-		if (overlappingX > 0 && overlappingY > 0)
-		{
-			// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
-			continue;             
-		}
-		if (overlappingX < 3 && overlappingY < 3)
-		{
-			// edge is not large enough to even bother to check for exit (exit should be at least 3 points wide)
-			continue;
-		}
+			if(rooms[i]->pLevel->dwLevelNo == level->dwLevelNo)
+				continue;
 
-		if (startLeft || startRight) // -> going down
-		{
-			edgeSize = overlappingY; // number of vertical touched points
-			edgeDirection = Point(0, 1); // down
-			orthogonalDirection = Point((startLeft ? -1 : 1), 0); // checking adjecent spaces -> left / right
-		}
-		else // startTop || startBottom -> going right
-		{
-			edgeSize = overlappingX; // number of horizontal touched points
-			edgeDirection = Point(1, 0); // right
-			orthogonalDirection = Point(0, (startTop ? -1 : 1)); // checking adjecent spaces -> up / down
-		}
-
-		Point currentPoint;
-		bool isPointWalkable = false;
-		int spaces = 0, j;
-		for (j = 0; j < edgeSize; j++)
-		{
-			// would be nice to convert this line to => currentPoint = startPoint + edgeDirection * j;
-			currentPoint = Point(startPoint.first + j * edgeDirection.first, startPoint.second + j * edgeDirection.second);
-			isPointWalkable = EdgeIsWalkable(currentPoint, orthogonalDirection, rooms[i]->pRoom1, true);
-			if (isPointWalkable)
+			// does this link already exist?
+			bool exists = false;
+			ExitArray::iterator begin = exits.begin(), last = exits.end();
+			for(ExitArray::iterator it = begin; it != last; it++)
 			{
-				spaces++;
-			}
-			if (false == isPointWalkable || j + 1 == edgeSize)
-			{
-				if (spaces > 2)
+				if(it->Target == rooms[i]->pLevel->dwLevelNo)
 				{
-					currentPoint = Point(currentPoint.first - edgeDirection.first * spaces / 2, currentPoint.second - edgeDirection.second * spaces / 2);
-					exits.push_back(Exit(currentPoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+					exists = true;
 					break;
 				}
-				spaces = 0;
+			}
+			if(exists)
+				continue;
+
+			// A -> origin of local room, B -> opposite corner from origin in local room ... X, Y -> like local but for adjecent room
+			Point A, B, X, Y, startPoint, edgeDirection, orthogonalDirection;
+			int overlappingX, overlappingY, edgeSize;
+			// this could be enum
+			bool startLeft = false, startRight = false, startTop = false, startBottom = false;
+
+			A = Point(room->dwPosX * 5, room->dwPosY * 5);
+			B = Point(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5 + room->dwSizeY * 5);
+
+			X = Point(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5);
+			Y = Point(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5);
+
+			overlappingX = min(B.first,  Y.first)  - max(A.first,  X.first);
+			overlappingY = min(B.second, Y.second) - max(A.second, X.second);
+	
+			if (overlappingX > 0) // top or bottom edge
+			{
+				if (A.second < X.second) // bottom edge
+				{
+					startPoint = Point(max(A.first, X.first), B.second-1);
+					startBottom = true;
+				}
+				else
+				{
+					startPoint = Point(max(A.first, X.first), A.second);
+					startTop = true;
+				}
+			}
+			else if (overlappingY > 0) // left or right edge
+			{
+				if (A.first < X.first) // right edge
+				{
+					startPoint = Point(B.first-1, max(A.second, X.second));
+					startRight = true;
+				}
+				else
+				{
+					startPoint = Point(A.first, max(A.second, X.second));
+					startLeft = true;
+				}
+			}
+	
+			if (overlappingX < 0 || overlappingY < 0)
+			{
+				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 adjecent room is out of reach - it's not even touching local room in corner!");
+				continue;
+			}
+			if (overlappingX > 0 && overlappingY > 0)
+			{
+				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				continue;             
+			}
+			if (overlappingX < 3 && overlappingY < 3)
+			{
+				// edge is not large enough to even bother to check for exit (exit should be at least 3 points wide)
+				continue;
+			}
+	
+			if (startLeft || startRight) // -> going down
+			{
+				edgeSize = overlappingY; // number of vertical touched points
+				edgeDirection = Point(0, 1); // down
+				orthogonalDirection = Point((startLeft ? -1 : 1), 0); // checking adjecent spaces -> left / right
+			}
+			else // startTop || startBottom -> going right
+			{
+				edgeSize = overlappingX; // number of horizontal touched points
+				edgeDirection = Point(1, 0); // right
+				orthogonalDirection = Point(0, (startTop ? -1 : 1)); // checking adjecent spaces -> up / down
+			}
+
+			Point currentPoint, lastWalkablePoint;
+			bool isPointWalkable = false;
+			int spaces = 0, j;
+			for (j = 0; j < edgeSize; j++)
+			{
+				// would be nice to convert this line to => currentPoint = startPoint + edgeDirection * j;
+				currentPoint = Point(startPoint.first + j * edgeDirection.first, startPoint.second + j * edgeDirection.second);
+				isPointWalkable = EdgeIsWalkable(currentPoint, orthogonalDirection, rooms[i]->pRoom1, true);
+				if (isPointWalkable)
+				{
+					lastWalkablePoint = currentPoint;
+					spaces++;
+				}
+				if (false == isPointWalkable || j + 1 == edgeSize)
+				{
+					if (spaces > 2)
+					{
+						Point centerEdgePoint = GetEdgeCenterPoint(currentPoint, edgeDirection);
+						currentPoint = Point(lastWalkablePoint.first - edgeDirection.first * spaces / 2, lastWalkablePoint.second - edgeDirection.second * spaces / 2);
+						exitMap.insert(make_pair(rooms[i]->pLevel->dwLevelNo, make_pair(centerEdgePoint, make_pair(currentPoint, spaces))));
+					}
+					spaces = 0;
+				}
 			}
 		}
 	}
+
+	std::pair<Point, std::pair<Point, int>> currentExit;
+	std::multimap<int, std::pair<Point, std::pair<Point, int>>>::iterator it = exitMap.begin();
+	int level = 0, minDistance = -1, tmpDistance;
+	bool lastExit = false;
+	do
+	{
+		if (level == 0 && it == exitMap.end())
+		{
+			break;
+		}
+		if (level == 0)
+		{
+			level = it->first;
+			currentExit = it->second;
+		}
+		if (it == exitMap.end() || level != it->first)
+		{
+			exits.push_back(Exit(currentExit.second.first, level, Linkage, 0));
+			if (it == exitMap.end())
+			{
+				break;
+			}
+			level = it->first;
+			currentExit = it->second;
+			minDistance = -1;
+		}
+
+		tmpDistance = GetDistance(
+				it->second.first.first,
+				it->second.first.second,
+				it->second.second.first.first,
+				it->second.second.first.second
+		);
+		if (minDistance == -1 || minDistance > tmpDistance)
+		{
+			currentExit = it->second;
+			minDistance = tmpDistance;
+		}
+	} while(it++ != exitMap.end());
+}
+
+Point LevelMap::GetEdgeCenterPoint(const Point &currentPoint, const Point &edgeDirection) const
+{
+	Point startPoint = Point(currentPoint.first, currentPoint.second);
+	Point left = startPoint, right = startPoint;
+	for (int i = -1; IsValidPoint(startPoint, true); i--)
+	{
+		if (SpaceIsWalkableForExit(startPoint, true))
+		{
+			left = startPoint;
+		}
+		startPoint = Point(currentPoint.first + edgeDirection.first * i, currentPoint.second + edgeDirection.second * i);
+	}
+	startPoint = Point(currentPoint.first, currentPoint.second);
+	for (int i = 1; IsValidPoint(startPoint, true); i++)
+	{
+		if (SpaceIsWalkableForExit(startPoint, true))
+		{
+			right = startPoint;
+		}
+		startPoint = Point(currentPoint.first + edgeDirection.first * i, currentPoint.second + edgeDirection.second * i);
+	}
+	return Point((left.first + right.first) / 2, (left.second + right.second) / 2);
 }
 
 void LevelMap::FindRoomTileExits(Room2* room, ExitArray& exits) const
@@ -443,12 +644,13 @@ bool LevelMap::EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, 
 {
 	int k;
 	const int distanceLocal    = -2;
-	const int distanceAdjecent = 3;
+	const int distanceAdjecent =  3;
 	for (k = distanceLocal; k <= distanceAdjecent; k++)
 	{
 		if (k <= 0)  // simulation of character-size (3 point in width/height) staying in local room
 		{
-			if (false == SpaceIsWalkable(Point(edgePoint.first + offsetPoint.first * (distanceLocal-k), edgePoint.second + offsetPoint.second * (distanceLocal-k)), abs))
+			const Point currentPoint = Point(edgePoint.first + offsetPoint.first * (distanceLocal-k), edgePoint.second + offsetPoint.second * (distanceLocal-k));
+			if (false == SpaceIsWalkableForExit(currentPoint, abs))
 			{
 				break;
 			}
@@ -458,7 +660,8 @@ bool LevelMap::EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, 
 
 		else // simulation of character-size (3 point in width/height) staying in adjecent room
 		{
-			if (false == RoomSpaceIsWalkable(pRoom1Adjecent, Point(edgePoint.first + offsetPoint.first * k, edgePoint.second + offsetPoint.second * k), abs))
+			const Point currentPoint = Point(edgePoint.first + offsetPoint.first * k, edgePoint.second + offsetPoint.second * k);
+			if (false == RoomSpaceIsWalkable(pRoom1Adjecent, currentPoint, abs))
 			{
 				break;
 			}
@@ -482,14 +685,28 @@ bool LevelMap::PathHasFlag(int flag, const PointList& points, bool abs) const
 
 bool LevelMap::SpaceIsWalkable(const Point& point, bool abs) const
 {
-	if(abs) return SpaceIsWalkable(AbsToRelative(point), false);	
 	// ignore closed doors here, because we want to path through them
-	 return IsValidPoint(point, abs) && !(SpaceHasFlag(LevelMap::BlockWalk, point, abs) ||
-                    SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  || SpaceHasFlag(LevelMap::NPCCollision, point, abs) ||
-                    SpaceHasFlag(LevelMap::Object, point, abs) || SpaceHasFlag(LevelMap::Avoid, point, abs)	);	
+	return !(!IsValidPoint(point, abs)                        ||
+			 SpaceHasFlag(LevelMap::Avoid, point, abs)        ||
+		     SpaceHasFlag(LevelMap::BlockWalk, point, abs)    ||
+			 SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  ||
+			 SpaceHasFlag(LevelMap::NPCCollision, point, abs) ||
+		     SpaceHasFlag(LevelMap::Object, point, abs)       ||
+			 SpaceHasFlag(LevelMap::ThickenedWall, point, abs)
+			 );
 }
 
-bool LevelMap::RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const
+bool LevelMap::SpaceIsWalkableForExit(const Point& point, bool abs) const
+{
+	// ignore almost everything
+	return !(!IsValidPoint(point, abs)                        ||
+		     SpaceHasFlag(LevelMap::Avoid, point, abs)        ||
+			 SpaceHasFlag(LevelMap::BlockWalk, point,  abs)   ||
+		     SpaceHasFlag(LevelMap::BlockPlayer, point, abs)
+			);
+}
+
+bool LevelMap::RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs)const
 {
 	unsigned int x = point.first, y = point.second;
 	if (abs)
@@ -504,12 +721,10 @@ bool LevelMap::RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) 
 		return false;
 	}
 	// p = pointer to space in room1 - by relative coords
-	EnterCriticalSection(lock);
 	WORD *p = pRoom1->Coll->pMapStart // origin
 	        + x // x
 			+ pRoom1->Coll->dwSizeGameX * y; // y
 	bool output = ValueIsWalkable(p);
-	LeaveCriticalSection(lock);
 	return output;
 }
 
@@ -518,8 +733,6 @@ bool LevelMap::ValueIsWalkable(const WORD *value) const
 	return !(
 		ValueHasFlag(LevelMap::BlockWalk, value) ||
 		ValueHasFlag(LevelMap::BlockPlayer, value) ||
-		ValueHasFlag(LevelMap::ClosedDoor, value) ||
-		ValueHasFlag(LevelMap::NPCCollision, value) ||
 		ValueHasFlag(LevelMap::Object, value)
 	);
 }

@@ -22,6 +22,7 @@ private:
 
 	inline void swap(int* x, int* y) { int t = *x; *x = *y; *y = t; }
 
+	/*
 	void Line(Point start, Point end, PointList& list, bool absolute)
 	{
 		int x0 = start.first, y0 = start.second,
@@ -63,12 +64,14 @@ private:
 			}
 		}
 	}
+	*/
 
 public:
 	WalkPathReducer(const WalkPathReducer&);
 	WalkPathReducer& operator=(const WalkPathReducer&);
 	WalkPathReducer(LevelMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
+	/*
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
 		PointList::const_iterator it = in.begin(), end = in.end();
@@ -91,12 +94,74 @@ public:
 			it++;
 		}
 	}
+	*/
+
+	void Reduce(PointList const & in, PointList& out, bool abs)
+	{
+		PointList::const_iterator it = in.begin(), end = in.end();
+		out.push_back(*it);
+		Point lineStartStep;
+		Point lineStartPoint;
+		Point currentStep;
+		Point previousPoint;
+		Point secondStep;
+		int differentStepCount = 0;
+		int lineLength = 0;
+		bool first = true;
+		while(it != end)
+		{
+			if (first)
+			{
+				lineStartPoint = *it;
+				it++;
+				lineLength++;
+				first = false;
+				if (it != end)
+				{
+					lineStartStep = Point(lineStartPoint.first - (*it).first, lineStartPoint.second - (*it).second);
+					secondStep = lineStartStep;
+				}
+				continue;
+			}
+			previousPoint = *it;
+			it++;
+			lineLength++;
+			if (it == end)
+			{
+				out.push_back(previousPoint);
+				break;
+			}
+			currentStep = Point(previousPoint.first - (*it).first, previousPoint.second - (*it).second);
+			if (currentStep != lineStartStep)
+			{
+				if (lineStartStep == secondStep)
+				{
+					secondStep = currentStep;
+				}
+				differentStepCount++;
+			}
+			else if (differentStepCount == 1)
+			{
+				differentStepCount = 0;
+			}
+			if (lineLength > 5 && ((currentStep != lineStartStep && currentStep != secondStep) || differentStepCount > 1 || lineLength > 20))
+			{
+				out.push_back(previousPoint);
+				lineStartStep = Point(currentStep);
+				secondStep = lineStartStep;
+				lineLength = 1;
+				differentStepCount = 0;
+			}
+		}
+	}
+
 	bool Reject(Point const & pt, bool abs)
 	{
 		return !map->IsValidPoint(pt, abs) ||
 			   map->SpaceHasFlag(LevelMap::Avoid, pt, abs) ||
 			   map->SpaceHasFlag(LevelMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockPlayer, pt, abs);
+			   map->SpaceHasFlag(LevelMap::BlockPlayer, pt, abs) ||
+			   map->SpaceHasFlag(LevelMap::ThickenedWall, pt, abs);
 	}
 	void MutatePoint(Point & pt, bool abs)
 	{

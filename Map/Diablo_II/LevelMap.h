@@ -77,7 +77,7 @@ private:
 	static inline int GetLevelNo(Room2* room, DWORD tile) { return GetTileLevelNo(room, tile); }
 
 	void AddRoom(Room2* const room, RoomList& rooms, UnitAny* player);
-	void AddCollisionMap(const CollMap* const map);
+	void LevelMap::AddCollisionMap(Room1* pRoom1);
 	void SetCollisionData(int x, int y, int value);
 	bool IsGap(int x, int y, bool abs) const;
 	void FillGaps(void);
@@ -91,9 +91,12 @@ private:
 	bool EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, Room1 *pRoom1Adjecent, bool abs) const;
 
 	void FindRoomTileExits(Room2* room, ExitArray& exits) const;
-	void FindRoomLinkageExits(Room2* room, ExitArray& exits, RoomList& added) const;
+	void FindRoomLinkageExits(ExitArray& exits, RoomList& added) const;
+	Point GetEdgeCenterPoint(const Point &currentPoint, const Point &edgeDirection) const;
 	bool ExitExists(Point loc, ExitArray& exits) const;
 	bool ExitExists(DWORD dwLevelNo, ExitArray& exits) const;
+	
+	void LevelMap::DrillExits();
 
 	LevelMap(const Level* level);
 	~LevelMap(void);
@@ -124,6 +127,7 @@ public:
 	bool PathHasFlag(int flag, const PointList& points, bool abs = true) const;
 
 	bool SpaceIsWalkable(const Point& point, bool abs = true) const;
+	bool SpaceIsWalkableForExit(const Point& point, bool abs = true) const;
 	bool SpaceHasLineOfSight(const Point& point, bool abs = true) const;
 	bool SpaceIsInvalid(const Point& point, bool abs = true) const;
 	bool SpaceIsThickenedWall(const Point& point, bool abs = true) const;
