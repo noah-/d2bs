@@ -144,14 +144,21 @@ void LevelMap::AddCollisionMap(Room1* pRoom1)
 					(*p & LevelMap::NPCCollision) == LevelMap::NPCCollision ||
 					(*p & LevelMap::NPCLocation)  == LevelMap::NPCLocation ||
 					(*p & LevelMap::DeadBody)     == LevelMap::DeadBody ||
-					(*p & LevelMap::Item)         == LevelMap::Item ||
-					((*p & LevelMap::AlternateTile) == LevelMap::AlternateTile  && (*p & LevelMap::Object) == LevelMap::Object)
+					(*p & LevelMap::Item)         == LevelMap::Item
 
 				)
 				&&	
 				(*p & LevelMap::BlockWalk) != LevelMap::BlockWalk &&
 				(*p & LevelMap::Wall)      != LevelMap::Wall &&
 				(*p & LevelMap::Object)    != LevelMap::Object
+			)
+			{
+				SetCollisionData(j, i, 0);
+			}
+			else if (
+					(*p & LevelMap::AlternateTile) == LevelMap::AlternateTile  &&
+					(*p & LevelMap::BlockWalk) != LevelMap::BlockWalk &&
+					(*p & LevelMap::Wall)      != LevelMap::Wall
 			)
 			{
 				SetCollisionData(j, i, 0);
@@ -170,7 +177,10 @@ void LevelMap::AddCollisionMap(Room1* pRoom1)
 		if (
 			pUnit->dwType == 2 && (
 				0 == strcmp(tmp, "Barrel") ||
-				0 == strcmp(tmp, "Door")
+				0 == strcmp(tmp, "Door") ||
+				0 == strcmp(tmp, "door") ||
+				0 == strcmp(tmp, "Urn") ||
+				0 == strcmp(tmp, "LargeUrn")
 			)
 		)
 		{
@@ -541,8 +551,8 @@ void LevelMap::FindRoomLinkageExits(ExitArray& exits, RoomList& added) const
 
 	std::pair<Point, std::pair<Point, int>> currentExit;
 	std::multimap<int, std::pair<Point, std::pair<Point, int>>>::iterator it = exitMap.begin();
-	int level = 0, minDistance = -1, tmpDistance;
-	bool lastExit = false;
+	int level = 0;
+	double minDistance = -1, tmpDistance;
 	do
 	{
 		if (level == 0 && it == exitMap.end())

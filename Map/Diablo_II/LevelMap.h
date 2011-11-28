@@ -77,7 +77,7 @@ private:
 	static inline int GetLevelNo(Room2* room, DWORD tile) { return GetTileLevelNo(room, tile); }
 
 	void AddRoom(Room2* const room, RoomList& rooms, UnitAny* player);
-	void LevelMap::AddCollisionMap(Room1* pRoom1);
+	void AddCollisionMap(Room1* pRoom1);
 	void SetCollisionData(int x, int y, int value);
 	bool IsGap(int x, int y, bool abs) const;
 	void FillGaps(void);
@@ -96,7 +96,7 @@ private:
 	bool ExitExists(Point loc, ExitArray& exits) const;
 	bool ExitExists(DWORD dwLevelNo, ExitArray& exits) const;
 	
-	void LevelMap::DrillExits();
+	void DrillExits();
 
 	LevelMap(const Level* level);
 	~LevelMap(void);

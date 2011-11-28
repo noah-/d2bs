@@ -165,16 +165,22 @@ public:
 	}
 	void MutatePoint(Point & pt, bool abs)
 	{
+		bool mutated = false;
 		// find the nearest walkable space
-		if(Reject(pt, abs)) {
-			for(int i = 0; i < 3; i++) {
-				for(int j = 0; j < 3; j++) {
+		if(Reject(pt, abs))
+		{
+			for(int i = -2; !mutated && i <= 2; i++)
+			{
+				for(int j = -2; !mutated && j <= 2; j++)
+				{
 					if(i == 0 && j == 0)
 						continue;
 					Point ptN(pt.first+i, pt.second+j);
-					if(!Reject(ptN, abs)) {
+					if(!Reject(ptN, abs))
+					{
 						pt.first = ptN.first;
 						pt.second = ptN.second;
+						mutated = true;
 					}
 				}
 			}

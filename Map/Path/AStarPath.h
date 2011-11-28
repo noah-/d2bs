@@ -133,7 +133,7 @@ public:
 		Point start = _start, end = _end;
 
 		// if we don't have a valid start and end, try mutating the points
-		if(!reducer->Reject(start, abs))
+		if(reducer->Reject(start, abs))
 			reducer->MutatePoint(start, abs);
 		if(reducer->Reject(end, abs))
 			reducer->MutatePoint(end, abs);
