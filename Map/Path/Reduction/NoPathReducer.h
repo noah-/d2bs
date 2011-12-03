@@ -12,19 +12,19 @@ namespace Reducing
 class NoPathReducer : public PathReducer
 {
 private:
-	LevelMap* map;
+	ActMap* map;
 public:
 	NoPathReducer(const NoPathReducer&);
 	NoPathReducer& operator=(const NoPathReducer&);
-	NoPathReducer(LevelMap* map_) : map(map_) {}
+	NoPathReducer(ActMap* map_) : map(map_) {}
 	// the path is not reduced at all
 	inline void Reduce(PointList const & in, PointList& out, bool abs) { out = in; }
 	// accept only walkable nodes
 	inline bool Reject(Point const & pt, bool abs) {
-		return !map->IsValidPoint(pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::Avoid, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockPlayer, pt, abs);
+		// !map->IsValidPoint(pt, abs) ||
+		return map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
+			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
+			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
 	inline void MutatePoint(Point & pt, bool abs){
 		// find the nearest walkable space

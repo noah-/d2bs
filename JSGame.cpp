@@ -192,7 +192,7 @@ JSAPI_FUNC(my_getPath)
 		THROW_ERROR(cx, "Invalid level passed to getPath");
 	Level* level = GetLevel(lvl);
 	
-	LevelMap* map = LevelMap::GetMap(level);
+	ActMap* map = ActMap::GetMap(level);
 
 	Point start(x, y), end(dx, dy);
 
@@ -213,6 +213,7 @@ JSAPI_FUNC(my_getPath)
 	AStarPath<> path(map, reducer);
 #endif
 	path.GetPath(start, end, list, true);
+	map->CleanUp();
 #if defined(_TIME)
 	char p[510];
 	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);
@@ -267,7 +268,7 @@ JSAPI_FUNC(my_getCollision)
 		Point point(nX, nY);
 		Level* level = GetLevel(nLevelId);
 
-		LevelMap* map = LevelMap::GetMap(level);
+		ActMap* map = ActMap::GetMap(level);
 		if(!map->IsValidPoint(point))
 			THROW_ERROR(cx, "Invalid point!");
 

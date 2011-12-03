@@ -2,7 +2,7 @@
 
 #include "PathReducer.h"
 #include "../Path.h"
-#include "../../Diablo_II/LevelMap.h"
+#include "../../Diablo_II/ActMap.h"
 
 namespace Mapping
 {
@@ -16,7 +16,7 @@ namespace Reducing
 class WalkPathReducer : public PathReducer
 {
 private:
-	LevelMap* map;
+	ActMap* map;
 	Distance distance;
 	int range;
 
@@ -69,7 +69,7 @@ private:
 public:
 	WalkPathReducer(const WalkPathReducer&);
 	WalkPathReducer& operator=(const WalkPathReducer&);
-	WalkPathReducer(LevelMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
+	WalkPathReducer(ActMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	/*
 	void Reduce(PointList const & in, PointList& out, bool abs)
@@ -157,11 +157,9 @@ public:
 
 	bool Reject(Point const & pt, bool abs)
 	{
-		return !map->IsValidPoint(pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::Avoid, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockPlayer, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::ThickenedWall, pt, abs);
+		return map->SpaceHasFlag(ActMap::Avoid, pt, abs)     ||
+			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
+			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
 	void MutatePoint(Point & pt, bool abs)
 	{

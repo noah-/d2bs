@@ -103,8 +103,11 @@ private:
 					if(i == 0 && j == 0) continue;
 
 					Point point(current->point.first + i, current->point.second + j);
-					if(!map->IsValidPoint(point, abs) || (reducer->Reject(point, abs) && point != end)) continue;
-
+					if (reducer->Reject(point, abs) && point != end)
+					{
+						closed.insert(point);				
+						continue;
+					}
 					Node* next = alloc.allocate(1);
 					// if we don't get a valid node, just return
 					if(!next) return;
@@ -139,7 +142,7 @@ public:
 			reducer->MutatePoint(end, abs);
 
 		// if they still get rejected, forget it
-		if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs)) return;
+		//if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs)) return;
 
 		std::vector<Node*> nodes;
 		FindPath(start, end, &result, nodes, abs);

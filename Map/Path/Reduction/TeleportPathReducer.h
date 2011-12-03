@@ -2,7 +2,7 @@
 
 #include "PathReducer.h"
 #include "../Path.h"
-#include "../../Diablo_II/LevelMap.h"
+#include "../../Diablo_II/ActMap.h"
 
 namespace Mapping
 {
@@ -16,14 +16,14 @@ namespace Reducing
 class TeleportPathReducer : public PathReducer
 {
 private:
-	LevelMap* map;
+	ActMap* map;
 	Distance distance;
 	int range;
 
 public:
 	TeleportPathReducer(const TeleportPathReducer&);
 	TeleportPathReducer& operator=(const TeleportPathReducer&);
-	TeleportPathReducer(LevelMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
+	TeleportPathReducer(ActMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
@@ -40,10 +40,10 @@ public:
 	}
 	bool Reject(Point const & pt, bool abs)
 	{
-		return !map->IsValidPoint(pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::Avoid, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(LevelMap::BlockPlayer, pt, abs);
+		// !map->IsValidPoint(pt, abs) ||
+		return	   map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
+			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
+			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
 	void MutatePoint(Point & pt, bool abs)
 	{
