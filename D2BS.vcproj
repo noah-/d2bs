@@ -951,6 +951,14 @@
 					RelativePath=".\Map\Diablo_II\LevelMap.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Map\Diablo_II\ActMap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Map\Diablo_II\ACtMap.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<File
