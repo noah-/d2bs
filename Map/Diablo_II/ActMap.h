@@ -4,6 +4,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 
 #include "D2Structs.h"
 #include "D2Ptrs.h"
@@ -36,6 +37,10 @@ typedef std::vector<Exit> ExitArray;
 typedef std::map<DWORD, ActMap*> ActMapList;
 typedef std::list<Room2*> RoomList;
 typedef std::list<Level*> LevelList;
+typedef std::set<Point> PointSet;
+typedef std::map<Room2*, PointSet> RoomPointSet;
+
+static RoomPointSet avoidRoomPointSet;
 static RoomList RoomsAdded;
 static RoomList roomCache;
 static LevelList levelCache;
@@ -101,6 +106,8 @@ private:
 	bool ExitExists(DWORD dwLevelNo, ExitArray& exits) const;
 	bool isPointInRoom(const Room2* room, const Point& pt) const;
 	bool isPointInLevel(const Level* level, const Point& pt) const;
+
+	WORD getAvoidLayerPoint(Room2* room, const Point& pt) const;
 	WORD getCollFromRoom(Room2* room, const Point& pt) const;
 	
 	ActMap(const Level* level);

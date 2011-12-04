@@ -160,6 +160,31 @@ DWORD y = pt.second;
 
 }
 
+WORD ActMap::getAvoidLayerPoint(Room2* room, const Point& pt) const
+{
+	RoomPointSet::iterator it;
+	it = avoidRoomPointSet.find(room); 
+	if (it == avoidRoomPointSet.end())
+	{
+		PointSet pointSet;
+		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
+		{
+			Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);
+			if (preset->dwTxtFileNo == 435) // barricade tower
+			{
+				pointSet.insert(loc);
+			}
+		}
+		avoidRoomPointSet[room] = pointSet;
+		it = avoidRoomPointSet.find(room);
+	}
+	if (it->second.find(pt) == it->second.end())
+	{
+		return 0;
+	}
+	return ActMap::Avoid;
+}
+
 WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 {
 	if(!room->pRoom1)
@@ -169,6 +194,13 @@ WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 	}
 	CollMap* map = room->pRoom1->Coll;
 	WORD val = *(map->pMapStart+(pt.second - map->dwPosGameY) * (map->dwSizeGameX) + (pt.first - map->dwPosGameX));
+
+	// todo: avoid layer could be used in every area, we can add unwalkable objects like torches, chests etc
+	// but for now, just try it with barricade wall in Frigid Highlands (111), Arreat Plateau (112) and Frozen Tundra (117)
+	if (room->pLevel->dwLevelNo == 111 || room->pLevel->dwLevelNo == 112 || room->pLevel->dwLevelNo == 117)
+	{
+		val |= getAvoidLayerPoint(room, pt);
+	}
 	return val;
 }
 
@@ -179,6 +211,7 @@ void ActMap::CleanUp(void){
 	RoomsAdded.clear();
 	levelCache.clear();
 	roomCache.clear();
+	avoidRoomPointSet.clear();
 
 }
 
