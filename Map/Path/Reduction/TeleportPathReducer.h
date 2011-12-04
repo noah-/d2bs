@@ -44,6 +44,10 @@ public:
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
+	int GetPenalty(Point const & pt, bool abs)
+	{
+		return 0;
+	}
 	void MutatePoint(Point & pt, bool abs)
 	{
 		// find the nearest walkable space

@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 #include "Core.h"
+#include "MPQStats.h"
+#include "Helpers.h"
 
 namespace Mapping
 {
@@ -615,64 +617,78 @@ bool ActMap::PathHasLineOfSight(const PointList& points, bool abs) const
 
 void ActMap::Dump(const char* file, const PointList& points) const
 {
+	
+	EnterCriticalSection(lock);
 	FILE* f = NULL;
 	fopen_s(&f, file, "wt+");
 	if(!f) return;
 	fprintf(f, "Map (%d x %d) at (%d, %d) for area %s (id %d):\n", width, height, posX, posY, GetLevelName(level), level->dwLevelNo);
-
-	fprintf(f, "Exits:\n");
-
-	ExitArray exits;
-	GetExits(exits);
-	int i = 1;
-	for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
-	{
-		Point rel = AbsToRelative(it->Position);
-		fprintf(f, "Exit %d: at (%d, %d, relative: %d, %d) of type %s linkage to area %s (id: %d, tile id: %d)\n", i++,
-						it->Position.first, it->Position.second, rel.first, rel.second,
-						it->Type == Linkage ? "Area" : "Tile", GetLevelIdName(it->Target), it->Target, it->TileId);
-	}
-
 	fprintf(f, "\n");
-
-	PointList::const_iterator begin = points.begin(), end = points.end();
-	Point first, last;
-	if(points.size() == 0)
+	typedef std::map<Point, char> PointMap;
+	PointMap pathMap;
+	if (points.size() > 0)
 	{
-		first = Point(-1, -1);
-		last = Point(-1, -1);
-	}
-	else
-	{
-		first = *begin;
-		last = *(end-1);
-	}
-
-	for(int i = 0; i < height; i++)
-	{
-		for(int j = 0; j < width; j++)
+		PointList::const_iterator it = points.begin(), end = points.end(), end1 = points.end()-1;
+		int i = 0;
+		while(it != end)
 		{
+			if (i == 0)
+				pathMap.insert(std::pair<Point, char>(*it, 'S')); // start
+			else if (it == end1)
+				pathMap.insert(std::pair<Point, char>(*it, 'E')); // end
+			else
+				pathMap.insert(std::pair<Point, char>(*it, 49 + (i % 9))); // 1 - 9 (0 is too close to O)
+			i++;
+			it++;
+		}
+	}
+	for(int j = 0; j < width; j++)
+	{
+		for(int i = 0; i < height; i++)
+		{
+				// skipping group of Avoid points at the end of row
+				bool onlyAvoid = true;
+				int k;
+				for (k = i; k < height; k++)
+				{
+					Point pt(k, j);
+					if (!OneSpaceHasFlag(ActMap::Avoid, pt, false))
+					{
+						onlyAvoid = false;
+						break;
+					}
+				}
+				if (onlyAvoid)
+				{
+					break;
+				}
+				for (; i < k; i++)
+				{
+					fprintf(f, "A");
+				}
+
 			Point pt(i, j);
 			char c = '.';
-			if(SpaceHasFlag(ActMap::Avoid, pt, false))
-				c = 'A';
-			else if(pt == first)
-				c = 'S';
-			else if(pt == last)
-				c = 'E';
-			else if(std::find(begin, end, pt) != end)
+			if (OneSpaceHasFlag(ActMap::ClosedDoor, pt, false))
+				c = 'D';
+			if (OneSpaceHasFlag(ActMap::Object, pt, false))
+				c = 'O';
+			if (OneSpaceHasFlag(ActMap::NPCCollision, pt, false))
+				c = 'N';
+			if (OneSpaceHasFlag(ActMap::BlockPlayer, pt, false))
 				c = 'P';
-			else if(SpaceIsInvalid(pt, false))
-				c = '?';
-			else if(GetMapData(pt, false) == ActMap::ThickenedWall)
-				c = 'T';
-			else if(!SpaceIsWalkable(pt, false))
-				c = 'X';
+			if (OneSpaceHasFlag(ActMap::BlockWalk, pt, false))
+				c = 'W';
+			if(OneSpaceHasFlag(ActMap::Avoid, pt, false))
+				c = 'A';
+			if(pathMap.find(RelativeToAbs(pt)) != pathMap.end())
+				c = pathMap.find(RelativeToAbs(pt))->second;
 			fprintf(f, "%c", c);
 		}
 		fprintf(f, "\n");
 	}
 	fclose(f);
+	LeaveCriticalSection(lock);
 }
 
 
@@ -694,8 +710,17 @@ void ActMap::DumpLevel(const char* file) const
 		{
 			Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);
 			Point rel = AbsToRelative(loc);
-			fprintf(f, "Preset %d: at (%d, %d, relative: %d, %d) of type %d, txtFile %d, _1 %d, _3 %d, room (%d, %d)\n",
-			i++, loc.first, loc.second, rel.first, rel.second, preset->dwType, preset->dwTxtFileNo, preset->_1, preset->_3, room->dwPosX, room->dwPosY);
+			char *wName = "";
+			if (preset->dwType == 2 && preset->dwTxtFileNo <= 574)
+			{
+				ObjectTxt *obj = D2COMMON_GetObjectText(preset->dwTxtFileNo);
+				if (obj != NULL)
+				{
+					wName = obj->szName;
+				}
+			}
+			fprintf(f, "Preset %d: at (%d, %d, relative: %d, %d) of type %d, txtFile %d, _1 %d, _3 %d, room (%d, %d) %s\n",
+			i++, loc.first, loc.second, rel.first, rel.second, preset->dwType, preset->dwTxtFileNo, preset->_1, preset->_3, room->dwPosX, room->dwPosY, wName);
 		}
 	}
 
@@ -717,6 +742,7 @@ void ActMap::DumpLevel(const char* file) const
 			char tmp[128] = "";
 			GetUnitName(pUnit, tmp, 128);
 			fprintf(f, "Unit %d: at (%d, %d, relative: %d, %d) of type %d, txtFile %d, %s, %d, %d\n", 
+
 			i++, loc.first, loc.second, rel.first, rel.second, pUnit->dwType, pUnit->dwTxtFileNo, tmp, pUnit->wX, pUnit->wY);
 		}
 	}

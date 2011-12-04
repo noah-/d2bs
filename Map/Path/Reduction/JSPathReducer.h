@@ -70,6 +70,10 @@ public:
 		JS_CallFunctionValue(cx, obj, reject, 2, argv, &rval);
 		return !!JSVAL_TO_BOOLEAN(rval);
 	}
+	int GetPenalty(Point const & pt, bool abs)
+	{
+		return 0;
+	}
 	void MutatePoint(Point & pt, bool abs)
 	{
 		jsval rval = JSVAL_FALSE;

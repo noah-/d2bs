@@ -153,6 +153,13 @@ public:
 				differentStepCount = 0;
 			}
 		}
+		/*
+		char mapFileName[200];
+		sprintf_s(mapFileName, "b:\\maps-pathing\\%03d %s in.txt", map->GetLevel()->dwLevelNo, GetLevelName(map->GetLevel()));
+		map->Dump(mapFileName, in);
+		sprintf_s(mapFileName, "b:\\maps-pathing\\%03d %s out.txt", map->GetLevel()->dwLevelNo, GetLevelName(map->GetLevel()));
+		map->Dump(mapFileName, out);
+		*/
 	}
 
 	bool Reject(Point const & pt, bool abs)
@@ -161,6 +168,12 @@ public:
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
+
+	int GetPenalty(Point const & pt, bool abs)
+	{
+		return map->SpaceHasFlag(ActMap::Object, pt, abs) ? 60 : (map->SpaceHasFlag(ActMap::ClosedDoor, pt, abs) ? 80 : 0);
+	}
+
 	void MutatePoint(Point & pt, bool abs)
 	{
 		bool mutated = false;

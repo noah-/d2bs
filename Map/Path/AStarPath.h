@@ -111,7 +111,8 @@ private:
 					Node* next = alloc.allocate(1);
 					// if we don't get a valid node, just return
 					if(!next) return;
-					alloc.construct(next, Node(point, current, current->g + distance(current->point, point),
+					int pointPenalty = reducer->GetPenalty(point, abs);
+					alloc.construct(next, Node(point, current, current->g + distance(current->point, point) + pointPenalty,
 												estimate(map, point, end)));
 					nodes.push_back(next);
 					open.push(next);
@@ -154,7 +155,7 @@ public:
 		}
 		else
 			list = PointList();
-		
+
 		std::vector<Node*>::iterator lbegin = nodes.begin(), lend = nodes.end();
 		for(std::vector<Node*>::iterator it = lbegin; it != lend; it++)
 		{

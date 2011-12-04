@@ -123,6 +123,7 @@ public:
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
 	
+	inline const Level* GetLevel(void) const { return level; }
 	inline int GetWidth(void) const { return width; }
 	inline int GetHeight(void) const { return height; }
 	inline int GetPosX(void) const { return posX; }
