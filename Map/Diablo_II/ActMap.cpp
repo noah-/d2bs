@@ -37,6 +37,7 @@ void ActMap::ClearCache(void)
 	for(ActMapList::iterator it = cache.begin(); it != end; it++)
 		delete it->second;
 	cache.clear();
+	ActMap::previousLevelNo = 0;
 }
 
 ActMap::ActMap(const Level* level)
