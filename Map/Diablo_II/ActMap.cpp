@@ -1,13 +1,9 @@
 #include <algorithm>
 #include <assert.h>
-#include <cmath>
 #include "ActMap.h"
 #include "D2Structs.h"
-#include <map>
-#include <set>
 #include "Core.h"
 #include "MPQStats.h"
-#include "Helpers.h"
 
 namespace Mapping
 {
