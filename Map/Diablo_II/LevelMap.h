@@ -34,35 +34,42 @@ class LevelMap;
 
 typedef std::vector<Exit> ExitArray;
 typedef std::map<DWORD, LevelMap*> LevelMapList;
-
+typedef std::list<Room2*> RoomList;
+typedef std::list<Level*> LevelList;
+static RoomList RoomsAdded;
+static RoomList roomCache;
+static LevelList levelCache;
 class LevelMap : public Map
 {
 public:
+	void LevelMap::CleanUp(void);
+		
 	enum CollisionFlag {
-		None				= 0x00000,
-		BlockWalk			= 0x00001,
-		BlockLineOfSight	= 0x00002,
-		Wall				= 0x00004,
-		BlockPlayer			= 0x00008,
-		AlternateTile		= 0x00010,
-		Blank				= 0x00020,
-		Missile				= 0x00040,
-		Player				= 0x00080,
-		NPCLocation			= 0x00100,
-		Item				= 0x00200,
-		Object				= 0x00400,
-		ClosedDoor			= 0x00800,
-		NPCCollision		= 0x01000,
-		FriendlyNPC			= 0x02000,
-		Unknown				= 0x04000,
-		DeadBody			= 0x08000, // also portal
-		ThickenedWall		= 0x10000,
-		Avoid				= 0x20000
+		None				= 0x0000,
+		BlockWalk			= 0x0001,
+		BlockLineOfSight	= 0x0002,
+		Wall				= 0x0004,
+		BlockPlayer			= 0x0008,
+		AlternateTile		= 0x0010,
+		Blank				= 0x0020,
+		Missile				= 0x0040,
+		Player				= 0x0080,
+		NPCLocation			= 0x0100,
+		Item				= 0x0200,
+		Object				= 0x0400,
+		ClosedDoor			= 0x0800,
+		NPCCollision		= 0x1000,
+		FriendlyNPC			= 0x2000,
+		Unknown				= 0x4000,
+		DeadBody			= 0x8000, // also portal
+		ThickenedWall		= 0xfefe,
+		Avoid				= 0xffff
 	};
 
 private:
-	typedef std::list<Room2*> RoomList;
-
+	
+	
+	
 	static LevelMapList cache;
 
 	Act* act;
@@ -70,6 +77,10 @@ private:
 	int width, height;
 	int posX, posY;
 	Matrix<CollisionFlag> mapPoints;
+	RoomList addedRooms;
+	
+	
+	Level* cachedLevel;
 	CRITICAL_SECTION* lock;
 
 	void Build(void);
@@ -83,7 +94,7 @@ private:
 	void FillGaps(void);
 	void ShrinkMap(void);
 	void ThickenWalls(void);
-
+	
 	bool RoomSpaceIsWalkable(Room1 *pRoom1, const Point& point, bool abs) const;
 	bool ValueIsWalkable(const WORD *value) const;
 	bool ValueHasFlag(int flag, const WORD *value) const;
@@ -95,9 +106,12 @@ private:
 	Point GetEdgeCenterPoint(const Point &currentPoint, const Point &edgeDirection) const;
 	bool ExitExists(Point loc, ExitArray& exits) const;
 	bool ExitExists(DWORD dwLevelNo, ExitArray& exits) const;
+	bool isPointInRoom(Room2* room, const Point& pt) const;
+	bool isPointInLevel(Level* level, const Point& pt) const;
+	WORD getCollFromRoom(Room2* room, const Point& pt) const;
 	
 	void DrillExits();
-
+	
 	LevelMap(const Level* level);
 	~LevelMap(void);
 
@@ -109,7 +123,7 @@ public:
 
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
-
+	
 	inline int GetWidth(void) const { return width; }
 	inline int GetHeight(void) const { return height; }
 	inline int GetPosX(void) const { return posX; }
@@ -120,7 +134,7 @@ public:
 
 	int GetMapData(const Point& point, bool abs = true) const;
 	bool IsValidPoint(const Point& point, bool abs = true) const;
-
+	
 	void GetExits(ExitArray&) const;
 
 	bool SpaceHasFlag(int flag, const Point& point, bool abs = true) const;

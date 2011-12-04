@@ -40,7 +40,6 @@ public:
 	}
 	bool Reject(Point const & pt, bool abs)
 	{
-		// !map->IsValidPoint(pt, abs) ||
 		return	   map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);

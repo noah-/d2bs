@@ -234,6 +234,12 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, c
 			return TRUE;
 
 		case FIELDTYPE_DATA_DWORD:
+			if(!FillBaseStat(table, row, column, &dwBuffer, sizeof(DWORD)))
+				(*argv) = JSVAL_VOID;
+			else
+				JS_NewNumberValue(cx, (jsdouble)dwBuffer, argv);
+			return TRUE;
+
 		case FIELDTYPE_CALC_TO_DWORD:
 		case FIELDTYPE_NAME_TO_DWORD:
 		case FIELDTYPE_DATA_DWORD_2:
@@ -241,7 +247,7 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, c
 			if(!FillBaseStat(table, row, column, &dwBuffer, sizeof(DWORD)))
 				(*argv) = JSVAL_VOID;
 			else
-				JS_NewNumberValue(cx, (jsdouble)dwBuffer, argv);
+				JS_NewNumberValue(cx, (long)dwBuffer, argv);
 			return TRUE;
 
 		case FIELDTYPE_NAME_TO_INDEX_2:
@@ -270,7 +276,8 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, c
 			if(!FillBaseStat(table, row, column, &dwBuffer, sizeof(DWORD)))
 				(*argv) = JSVAL_VOID;
 			else
-				(*argv) = BOOLEAN_TO_JSVAL(!!dwBuffer);
+				(*argv) = INT_TO_JSVAL(dwBuffer);
+				//(*argv) = (BOOLEAN_TO_JSVAL(!!dwBuffer) ? 1 : 0);
 			return TRUE;
 
 		case FIELDTYPE_ASCII_TO_CODE:

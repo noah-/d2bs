@@ -42,9 +42,9 @@ JSAPI_PROP(area_getProperty)
 					cRoom.EnterSection();
 
 					ActMap* map = ActMap::GetMap(pLevel);
+					
 					ExitArray exits;
 					map->GetExits(exits);
-
 					map->CleanUp();
 					int count = exits.size();
 					for(int i = 0; i < count; i++)

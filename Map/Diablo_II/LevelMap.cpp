@@ -1,9 +1,7 @@
 #include <algorithm>
 #include <assert.h>
-
 #include "LevelMap.h"
 #include "D2Structs.h"
-#include <map>
 
 namespace Mapping
 {
@@ -34,18 +32,20 @@ LevelMap::LevelMap(const Level* level)
 
 	assert(act != NULL);
 	assert(level != NULL);
-
+	
 	this->level = level;
 	this->act = level->pMisc->pAct;
+	RoomList roomsAdded ;
 
 	// get the map size
 	height = level->dwSizeX * 5;
 	width  = level->dwSizeY * 5;
-	posX   = level->dwPosX * 5;
-	posY   = level->dwPosY * 5;
+	posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
+	posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);
 
 	bool added = false;
 	Room2* room = level->pRoom2First;
+	cachedLevel = room->pLevel;
 	if(!level->pRoom2First->pRoom1)
 	{
 		AddRoomData(room);
@@ -56,9 +56,6 @@ LevelMap::LevelMap(const Level* level)
 
 	if(added)
 		RemoveRoomData(room);
-
-	posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
-	posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);
 }
 
 LevelMap::~LevelMap(void)
@@ -70,19 +67,19 @@ LevelMap::~LevelMap(void)
 
 void LevelMap::Build(void)
 {
-	EnterCriticalSection(lock);
+		/*EnterCriticalSection(lock);
 
 	mapPoints = Matrix<CollisionFlag>(height, width, LevelMap::Avoid);
 
 	RoomList addedRooms;
 	UnitAny* player = GetPlayerUnit();
 	AddRoom(level->pRoom2First, addedRooms, player);
-
+	
 	FillGaps();
 	ThickenWalls();
 	DrillExits();
 
-	LeaveCriticalSection(lock);
+	LeaveCriticalSection(lock);*/
 }
 
 void LevelMap::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
@@ -105,13 +102,16 @@ void LevelMap::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
 	}
 
 	// add the collision data to the map
-	if(room->pRoom1)
-		AddCollisionMap(room->pRoom1);
+	//if(room->pRoom1)
+	//	AddCollisionMap(room->pRoom1);
 
-	// now do the same to every room near this one
-	Room2** pRooms = room->pRoom2Near;
+	for(Room2* pRooms = level->pRoom2First; pRooms; pRooms = pRooms->pRoom2Next)
+		AddRoom(pRooms, rooms, player);
+
+
+	/*Room2** pRooms = room->pRoom2Near;
 	for(DWORD i = 0; i < room->dwRoomsNear; i++)
-		AddRoom(pRooms[i], rooms, player);
+		AddRoom(pRooms[i], rooms, player);*/
 
 	// and remove the room afterwards if we added it
 	if(added)
@@ -124,8 +124,10 @@ void LevelMap::AddCollisionMap(Room1* pRoom1)
 	if(map == NULL)
 		return;
 
-	int	x = map->dwPosGameX - posX, y = map->dwPosGameY - posY,
-		height = map->dwPosGameX + map->dwSizeGameX - posX, width = map->dwPosGameY + map->dwSizeGameY - posY;
+	int	x = map->dwPosGameX - posX, 
+		y = map->dwPosGameY - posY,
+		height = map->dwPosGameX + map->dwSizeGameX - posX, 
+		width = map->dwPosGameY + map->dwSizeGameY - posY;
 
 	WORD* p = map->pMapStart;
 
@@ -189,6 +191,7 @@ void LevelMap::AddCollisionMap(Room1* pRoom1)
 		}
 	}
 }
+
 void LevelMap::SetCollisionData(int x, int y, int value)
 {
 	// sync this to ensure that we don't try to add to a dead map or something
@@ -229,6 +232,7 @@ bool LevelMap::IsGap(int x, int y, bool abs) const
 
 	return spaces < gapSize;
 }
+
 void LevelMap::FillGaps(void)
 {
 	EnterCriticalSection(lock);
@@ -240,6 +244,7 @@ void LevelMap::FillGaps(void)
 
 	LeaveCriticalSection(lock);
 }
+
 void LevelMap::ThickenWalls(void)
 {
 	const int ThickenAmount = 1;
@@ -289,11 +294,13 @@ int LevelMap::GetMapData(const Point& point, bool abs) const
 
 	return value;
 }
+
 bool LevelMap::IsValidPoint(const Point& point, bool abs) const
 {
 	if(abs) return IsValidPoint(AbsToRelative(point), false);
 	return !!(point.first >= 0 && point.second >= 0 && point.first < height && point.second < width);
 }
+
 void LevelMap::GetExits(ExitArray& exits) const
 {
 	static const Point empty(0,0);
@@ -682,7 +689,12 @@ bool LevelMap::EdgeIsWalkable(const Point& edgePoint, const Point& offsetPoint, 
 
 bool LevelMap::SpaceHasFlag(int flag, const Point& point, bool abs) const
 {
-	return ((GetMapData(point, abs) & flag) == flag);
+	int val = 	GetMapData(point, abs) |  
+				GetMapData(Point(point.first-1,point.second), abs) | 
+				GetMapData(Point(point.first+1,point.second), abs) |
+				GetMapData(Point(point.first,point.second-1), abs) | 
+				GetMapData(Point(point.first,point.second+1), abs);
+	return ((val & flag) == flag);
 }
 bool LevelMap::PathHasFlag(int flag, const PointList& points, bool abs) const
 {
@@ -696,8 +708,7 @@ bool LevelMap::PathHasFlag(int flag, const PointList& points, bool abs) const
 bool LevelMap::SpaceIsWalkable(const Point& point, bool abs) const
 {
 	// ignore closed doors here, because we want to path through them
-	return !(!IsValidPoint(point, abs)                        ||
-			 SpaceHasFlag(LevelMap::Avoid, point, abs)        ||
+	return !(SpaceHasFlag(LevelMap::Avoid, point, abs)        ||
 		     SpaceHasFlag(LevelMap::BlockWalk, point, abs)    ||
 			 SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  ||
 			 SpaceHasFlag(LevelMap::NPCCollision, point, abs) ||

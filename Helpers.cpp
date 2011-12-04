@@ -153,7 +153,8 @@ bool InitHooks(void)
 
 		if(D2GFX_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
 		{
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			if(!Vars.oldWNDPROC)
+				Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 			if(!Vars.oldWNDPROC)
 				continue;
 

@@ -154,7 +154,7 @@ public:
 		}
 		else
 			list = PointList();
-
+		
 		std::vector<Node*>::iterator lbegin = nodes.begin(), lend = nodes.end();
 		for(std::vector<Node*>::iterator it = lbegin; it != lend; it++)
 		{
