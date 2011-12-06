@@ -192,7 +192,7 @@ struct BnetData {
 	BYTE nCharFlags;			//0x1EB
 	BYTE nMaxDiff;				//0x1EC
 	BYTE _9[0x1F];				//0x1ED
-	BYTE nDifficulty;			//0x20C
+	BYTE CreatedGameDifficulty;	//0x20C
 	void *_10;					//0x20D
 	BYTE _11[0x15];				//0x211
 	WORD _12;					//0x226
