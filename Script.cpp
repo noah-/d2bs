@@ -476,7 +476,10 @@ DWORD WINAPI RunCommandThread(void* data)
 		if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
 		{
 			JS_ConvertValue(rcs->script->GetContext(), rval, JSTYPE_STRING, &rval);
-			Print(JS_GetStringBytes(JS_ValueToString(rcs->script->GetContext(), rval)));
+			char* text =_strdup( JS_GetStringBytes(JS_ValueToString(rcs->script->GetContext(), rval)));
+			std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
+			Print(text);
+			free(text);
 		}
 	}
 	JS_EndRequest(rcs->script->GetContext());
