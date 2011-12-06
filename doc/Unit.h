@@ -641,7 +641,7 @@ public:
 	 *
 	 * http://forums.d2botnet.org/viewtopic.php?f=18&t=985
 	 */
-	int classId;
+	int classid;
 
 	/** The mode of the unit.
 	 *
