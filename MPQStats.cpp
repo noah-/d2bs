@@ -14,18 +14,18 @@ MPQTable BaseStatTable[] = {
 	{0xBCC,			0xBD4,		itemstatcostTable,	"itemstatcost",	ARRAYSIZE(itemstatcostTable),	0xFFFF},
 	{0xC58,			0xC5C,		levelsTable,		"levels",		ARRAYSIZE(levelsTable),			0xFFFF},
 	{0xC60,			0x00,		leveldefsTable,		"leveldefs",	ARRAYSIZE(leveldefsTable),		0xFFFF},
-	{0x6FDF654C,	0x6FDF6540,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
+	{0x6FDF652C,	0x6FDF6530,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
 	{0x6FDF6534,	0x6FDF6538,	lvlsubTable,		"lvlsub",		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
-	{0x6FDF652C,	0x6FDF6530,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
+	{0x6FDF6524,	0x6FDF6528,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
 	{0xC64,			0xC68,		lvlprestTable,		"lvlprest",		ARRAYSIZE(lvlprestTable),		0xFFFF},
-	{0x6FDF141C,	0x6FDF1428,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
+	{0x6FDF6514,	0x6FDF6520,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
 	{0xBC4,			0xBC8,		charstatsTable,		"charstats",	ARRAYSIZE(charstatsTable),		0xFFFF},
 	{0xC18,			0xC1C,		setitemsTable,		"setitems",		ARRAYSIZE(setitemsTable),		0xFFFF},
 	{0xC24,			0xC28,		uniqueitemsTable,	"uniqueitems",	ARRAYSIZE(uniqueitemsTable),	0xFFFF},
 	{0xC0C,			0xC10,		setsTable,			"sets",			ARRAYSIZE(setsTable),			0xFFFF},
 	{0xBF8,			0xBFC,		itemtypesTable,		"itemtypes",	ARRAYSIZE(itemtypesTable),		0xFFFF},
 	{0x6FDF4CF4,	0x6FDF4CF0,	runesTable,			"runes",		ARRAYSIZE(runesTable),			0xFFFF}, // v
-	{0x6FDF652C,	0x6FDF6530,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
+	{0x6FDF64EC,	0x6FDF64F0,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
 	{0x6FDF4CEC,	0x6FDF4CE8,	gemsTable,			"gems",			ARRAYSIZE(gemsTable),			0xFFFF},
 	{0x6FDF64D0,	0x0,		experienceTable,	"experience",	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
 	{0xBE8,			0xBF0,		pettypeTable,		"pettable",		ARRAYSIZE(pettypeTable),		0xFFFF},
