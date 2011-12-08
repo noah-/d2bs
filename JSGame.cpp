@@ -1089,10 +1089,6 @@ JSAPI_FUNC(my_clickParty)
 
 	BnetData* pData = (*p_D2LAUNCH_BnData);
 
-	// Trying to click self
-	if (pUnit->dwUnitId == myUnit->dwUnitId)
-		return JS_TRUE;
-
 	// Attempt to loot player, check first if it's hardcore
 	if(nMode == 0 && pData && !(pData->nCharFlags & PLAYER_TYPE_HARDCORE))
 		return JS_TRUE;
@@ -1112,7 +1108,10 @@ JSAPI_FUNC(my_clickParty)
 
 	if(nMode < 0 || nMode > 3)
 		return JS_TRUE;
-
+	
+	// Trying to click self
+	if (pUnit->dwUnitId == myUnit->dwUnitId)
+		return JS_TRUE;
 
 	if(nMode == 1)
 		D2CLIENT_HostilePartyUnit(pUnit, 1);
