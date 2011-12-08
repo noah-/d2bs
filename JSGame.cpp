@@ -1069,6 +1069,7 @@ JSAPI_FUNC(my_clickParty)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+	UnitAny* myUnit = D2CLIENT_GetPlayerUnit();
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 	RosterUnit* mypUnit = *p_D2CLIENT_PlayerUnitList;
 
@@ -1087,6 +1088,10 @@ JSAPI_FUNC(my_clickParty)
 	jsint nMode = JSVAL_TO_INT(argv[1]);
 
 	BnetData* pData = (*p_D2LAUNCH_BnData);
+
+	// Trying to click self
+	if (pUnit->dwUnitId == myUnit->dwUnitId)
+		return JS_TRUE;
 
 	// Attempt to loot player, check first if it's hardcore
 	if(nMode == 0 && pData && !(pData->nCharFlags & PLAYER_TYPE_HARDCORE))
