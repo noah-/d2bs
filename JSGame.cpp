@@ -255,55 +255,20 @@ JSAPI_FUNC(my_getCollision)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
-
 	uint32 nLevelId, nX, nY;
 	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
 		return JS_FALSE;
 
-	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+	Point point(nX, nY);
+	Level* level = GetLevel(nLevelId);
 
+	ActMap* map = ActMap::GetMap(level);
+	if(!map->IsValidPoint(point))
+		THROW_ERROR(cx, "Invalid point!");
+
+	JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
+	map->CleanUp();
 	
-		Point point(nX, nY);
-		Level* level = GetLevel(nLevelId);
-
-		ActMap* map = ActMap::GetMap(level);
-		if(!map->IsValidPoint(point))
-			THROW_ERROR(cx, "Invalid point!");
-
-		JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
-
-	if(GetDistance(x, y, nX, nY) < 60) {
-		Level* level = GetLevel(nLevelId);
-		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
-		int roomsNear = room->dwRoomsNear;
-		Room2** rooms = room->pRoom2Near;
-		int i = 0;
-		do {
-			bool added = false;
-			if(!room->pRoom1) {
-				added = true;
-				D2COMMON_AddRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
-			} 
-			CollMap* map = room->pRoom1->Coll;
-			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
-				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
-			{
-				// this is the room				
-				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
-				//if(*(map->pMapStart + index) < *(map->pMapEnd))
-					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
-					if(added)			
-						D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
-					break;
-			}
-			if(added)			
-				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);				
-			room = rooms[i++];
-		} while(room != NULL && i < roomsNear +1);
-	}
-
 	return JS_TRUE;
 }
 
