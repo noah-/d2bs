@@ -19,7 +19,6 @@ ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 JSContext* ScriptEngine::context = NULL;
-
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
@@ -292,9 +291,14 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
+	static int callBackCount = 0;
+	callBackCount ++;
+	if (callBackCount % 3000 == 0){
+		JS_MaybeGC(cx);
+		callBackCount = 0;
+	}
 	jsrefcount depth = JS_SuspendRequest(cx);
-
+	
 	bool pause = script->IsPaused();
 
 	if(pause)
