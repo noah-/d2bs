@@ -103,7 +103,6 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_GAMESTARTTIME:
 			JS_NewNumberValue(cx, (jsdouble)Vars.dwGameTime, vp);
-			//*vp = INT_TO_JSVAL(Vars.dwGameTime);
 			break;
 		case ME_GAMETYPE:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_ExpCharFlag);
@@ -1420,8 +1419,6 @@ JSAPI_FUNC(unit_getParent)
 			return JS_TRUE;
 
 		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
-//		if (!pMonster)
-//			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
 		if (!pMonster)
 			return JS_TRUE;
 

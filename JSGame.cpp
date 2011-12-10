@@ -884,40 +884,42 @@ JSAPI_FUNC(my_getTextSize)
 
 JSAPI_FUNC(my_getTradeInfo)
 {
+	// set default return value to false 
+	*rval = JSVAL_FALSE;
+
 	if(argc < 1)
-	{
-		*rval = JSVAL_FALSE;
 		return JS_TRUE;
-	}
 
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+	if(!JSVAL_IS_INT(argv[0]))
+		return JS_TRUE;
+
 	jsint nMode = JSVAL_TO_INT(argv[0]);
 	
-	if(nMode == 0)
+	switch( nMode )
 	{
-		*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
-		return JS_TRUE;
+		case 0:
+			*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
+			break;
+		case 1:
+			{
+			//FIXME
+			//char* tmp = UnicodeToAnsi((wchar_t*)(*p_D2CLIENT_RecentTradeName));
+			//*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
+			//delete[] tmp;
+			//Temporary return value to keep it kosher
+			*rval = JSVAL_NULL;
+			}
+			break;
+		case 2:
+			*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
+			break;
+		default:
+			*rval = JSVAL_FALSE;
+			break;
 	}
-	else if(nMode == 1)
-	{
-		//FIXME
-		//char* tmp = UnicodeToAnsi((wchar_t*)(*p_D2CLIENT_RecentTradeName));
-		//*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
-		//delete[] tmp;
-		//Temporary return value to keep it kosher
-		*rval = JSVAL_NULL;
-		
-		return JS_TRUE;
-	}
-	else if(nMode == 2)
-	{
-		*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
-		return JS_TRUE;
-	}
-	*rval = JSVAL_FALSE;
-
 	return JS_TRUE;
 }
 

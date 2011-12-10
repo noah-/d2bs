@@ -2,6 +2,7 @@
 #include "D2Structs.h"
 #include "D2Helpers.h"
 #include "D2Ptrs.h"
+#include "JSUnit.h"
 #include "JSGlobalClasses.h"
 
 EMPTY_CTOR(party)
@@ -29,7 +30,6 @@ JSAPI_PROP(party_getProperty)
 			break;
 		case PARTY_GID:
 			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
-			//*vp = INT_TO_JSVAL(pUnit->dwUnitId);
 			break;
 		case PARTY_LIFE:
 			*vp = INT_TO_JSVAL(pUnit->dwPartyLife);
@@ -92,6 +92,65 @@ JSAPI_FUNC(my_getParty)
 	if(!pUnit)
 		return JS_TRUE;
 
+	if(argc == 1)
+	{
+		UnitAny* inUnit = NULL;
+		char* nPlayerName = "";
+		uint32 nPlayerId = NULL;
+
+		if(JSVAL_IS_STRING(argv[0]))
+		{
+			if(!JS_ConvertArguments(cx, argc, argv, "s", &nPlayerName))
+				THROW_ERROR(cx, "Unable to get Name");
+		}
+		else if(JSVAL_IS_INT(argv[0]))
+		{
+			if(!JS_ConvertArguments(cx, argc, argv, "u", &nPlayerId))
+				THROW_ERROR(cx, "Unable to get ID");
+		}
+		else if(JSVAL_IS_OBJECT(argv[0]))
+		{
+			myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+
+			if(!lpUnit)
+				return JS_TRUE;
+
+			inUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+			if(!inUnit)
+				THROW_ERROR(cx, "Unable to get Unit");
+		}
+
+		if(!nPlayerName && !nPlayerId && !inUnit)
+			return JS_TRUE;
+
+		BOOL bFound = FALSE;
+
+		for(RosterUnit* pScan = pUnit; pScan; pScan = pScan->pNext)
+		{
+			if(inUnit && pScan->dwUnitId == inUnit->dwUnitId)
+			{
+				bFound = TRUE;
+				pUnit = pScan;
+				break;
+			}
+			if(nPlayerId && pScan->dwUnitId == nPlayerId)
+			{
+				bFound = TRUE;
+				pUnit = pScan;
+				break;
+			}
+			if(nPlayerName && _stricmp( pScan->szName, nPlayerName) == 0)
+			{
+				bFound = TRUE;
+				pUnit = pScan;
+				break;
+			}
+		}
+
+		if(!bFound)
+			return JS_TRUE;
+
+	}
 	JSObject* jsUnit = BuildObject(cx, &party_class, party_methods, party_props, pUnit);
 	if(!jsUnit)
 		return JS_TRUE;
