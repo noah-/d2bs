@@ -258,6 +258,10 @@ JSAPI_FUNC(my_getCollision)
 	uint32 nLevelId, nX, nY;
 	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
 		return JS_FALSE;
+	
+	CriticalRoom myMisc;
+	myMisc.EnterSection();
+
 
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
