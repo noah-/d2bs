@@ -504,7 +504,7 @@ Party getParty(uint32_t playerId);
  *
  * \ingroup globalFunctions
  *
- * \param Player Unit
+ * \param player Unit
  *
  * \return The party line
  */
