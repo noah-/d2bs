@@ -94,6 +94,7 @@ JSAPI_FUNC(my_getParty)
 
 	if(argc == 1)
 	{
+		UnitAny* inUnit = NULL;
 		char* nPlayerName = "";
 		uint32 nPlayerId = NULL;
 
