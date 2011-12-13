@@ -94,7 +94,6 @@ JSAPI_FUNC(my_getParty)
 
 	if(argc == 1)
 	{
-		UnitAny* inUnit = NULL;
 		char* nPlayerName = "";
 		uint32 nPlayerId = NULL;
 
@@ -118,21 +117,17 @@ JSAPI_FUNC(my_getParty)
 			inUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 			if(!inUnit)
 				THROW_ERROR(cx, "Unable to get Unit");
+
+			nPlayerId = inUnit->dwUnitId;
 		}
 
-		if(!nPlayerName && !nPlayerId && !inUnit)
+		if(!nPlayerName && !nPlayerId)
 			return JS_TRUE;
 
 		BOOL bFound = FALSE;
 
 		for(RosterUnit* pScan = pUnit; pScan; pScan = pScan->pNext)
 		{
-			if(inUnit && pScan->dwUnitId == inUnit->dwUnitId)
-			{
-				bFound = TRUE;
-				pUnit = pScan;
-				break;
-			}
 			if(nPlayerId && pScan->dwUnitId == nPlayerId)
 			{
 				bFound = TRUE;
