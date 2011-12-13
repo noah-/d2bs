@@ -318,7 +318,7 @@ int[] getTextSize(String string, int font);
  *
  * \return The width and height of the text. 0 - width, 1 - height.
  */
-int[] getTextWidthHeight(String string, int font, bool asObject);
+int[] getTextSize(String string, int font, bool asObject);
 
 /** Get the width and height of the given text in the given font.
  *
@@ -332,7 +332,7 @@ int[] getTextWidthHeight(String string, int font, bool asObject);
  *
  * \return The width and height of the text. Has properties .width and .height.
  */
-Object getTextWidthHeight(String string, int font, bool asObject);
+Object getTextSize(String string, int font, bool asObject);
 
 /** Get the priority of the current thread.
  *
@@ -479,6 +479,36 @@ Room getRoom();
  * \return The first party.
  */
 Party getParty();
+
+/** Get the party line for the player with the given name
+ *
+ * \ingroup globalFunctions
+ *
+ * \param name The name of the player to search for
+ *
+ * \return The party line
+ */
+Party getParty(String name);
+
+/** Get the party line for the player with the given player id
+ *
+ * \ingroup globalFunctions
+ *
+ * \param playerId
+ *
+ * \return The party line
+ */
+Party getParty(uint32_t playerId);
+
+/** Get the party line that corresponds to the given unit
+ *
+ * \ingroup globalFunctions
+ *
+ * \param Player Unit
+ *
+ * \return The party line
+ */
+Party getParty(Unit player);
 
 /** Get the first PresetUnit in the given level.
  *
