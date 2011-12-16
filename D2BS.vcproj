@@ -48,7 +48,7 @@
 				UseUnicodeResponseFiles="false"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;DEBUG;_MSVC_DEBUG;WIN32_LEAN_AND_MEAN"
+				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;_MSVC_DEBUG;WIN32_LEAN_AND_MEAN;_SECURE_SCL#0;_SECURE_SCL_THROWS#0;_HAS_ITERATOR_DEBUGGING#0"
 				StringPooling="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -944,19 +944,19 @@
 				Name="Diablo II"
 				>
 				<File
-					RelativePath=".\Map\Diablo_II\LevelMap.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Map\Diablo_II\LevelMap.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Map\Diablo_II\ActMap.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Map\Diablo_II\ACtMap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Map\Diablo_II\LevelMap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Map\Diablo_II\LevelMap.h"
 					>
 				</File>
 			</Filter>
