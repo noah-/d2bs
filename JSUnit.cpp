@@ -726,8 +726,18 @@ JSAPI_FUNC(unit_interact)
 
 	if(pUnit->dwType == UNIT_OBJECT && argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
-		// TODO: check the range on argv[0] to make sure it won't crash the game
-		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
+		// TODO: check the range on argv[0] to make sure it won't crash the game - Done! TechnoHunter
+		jsint nWaypointID;
+		if(!JS_ValueToECMAInt32(cx, argv[0], &nWaypointID))
+			return JS_TRUE;
+
+		int retVal = 0;
+		if(FillBaseStat("levels", nWaypointID, "Waypoint", &retVal, sizeof(int)))
+			if(retVal == 255)
+				return JS_TRUE;
+		
+		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, nWaypointID);
+		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
 		
@@ -768,20 +778,21 @@ JSAPI_FUNC(unit_getStat)
 	if(!pUnit)
 		return JS_TRUE;
 
-	jsint nStat = JSVAL_TO_INT(argv[0]);
+	jsint nStat = 0;//JSVAL_TO_INT(argv[0]);
 	jsint nSubIndex = 0;
 	jsint nIndex = 0;
 	jsint nValue = 0;
 
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		nSubIndex = JSVAL_TO_INT(argv[1]);
+	if(!JS_ConvertArguments(cx, argc, argv, "i/i", &nStat, &nSubIndex))
+		return JS_TRUE;
+
+	//if(argc > 1 && JSVAL_IS_INT(argv[1]))
+	//	nSubIndex = JSVAL_TO_INT(argv[1]);
 	
 	if(nStat >= 6 && nStat <= 11)
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8);
 	else if(nStat == 13 || nStat == 29 || nStat == 30)
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
-	//else if (nStat == 36 || nStat == 37 || nStat == 39|| nStat == 41 || nStat == 43|| nStat == 45) // negitive resistance
-	//	*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
 	else if(nStat == 92)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 	else if(nStat == -1)
@@ -1098,13 +1109,16 @@ JSAPI_FUNC(item_getItemCost)
 	if(!pUnit || pUnit->dwType != UNIT_ITEM)
 		return JS_TRUE;
 
-	nMode = JSVAL_TO_INT(argv[0]);
+	if(!JS_ConvertArguments(cx, argc, argv, "i/ii", &nMode, &nNpcClassId, &nDifficulty))
+		return JS_TRUE;
 
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		nNpcClassId = JSVAL_TO_INT(argv[1]);
+	//nMode = JSVAL_TO_INT(argv[0]);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		nDifficulty = JSVAL_TO_INT(argv[2]);
+	//if(argc > 1 && JSVAL_IS_INT(argv[1]))
+	//	nNpcClassId = JSVAL_TO_INT(argv[1]);
+
+	//if(argc > 2 && JSVAL_IS_INT(argv[2]))
+	//	nDifficulty = JSVAL_TO_INT(argv[2]);
 
 	switch(nMode)
 	{
