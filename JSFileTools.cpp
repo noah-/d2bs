@@ -168,20 +168,22 @@ JSAPI_FUNC(filetools_readText)
 		THROW_ERROR(cx, "File not found");
 
 	FILE* fptr = NULL;
+	uint size, readCount;
 	fopen_s(&fptr, porig, "r");
 	fseek(fptr, 0, SEEK_END);
-	uint size = ftell(fptr);
-	fseek(fptr, 0, SEEK_SET);
-	char* contents = new char[size];
-	memset(contents, 0, size);
-	if(fread(contents, 1, size, fptr) != size && ferror(fptr))
+	size = ftell(fptr);
+	rewind(fptr);
+	char* contents = new char[size+1];
+	memset(contents, 0, size+1);
+	readCount = fread(contents, sizeof(char), size, fptr);
+	if( readCount != size && ferror(fptr))
 	{
 		delete[] contents;
 		THROW_ERROR(cx, _strerror("Read failed"));
 	}
 	fclose(fptr);
 
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents)));
 	delete[] contents;
 	return JS_TRUE;
 }
