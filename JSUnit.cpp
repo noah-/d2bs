@@ -704,7 +704,7 @@ JSAPI_FUNC(unit_interact)
 			
 			BYTE aPacket[13] = {NULL};
 
-			if(nLocation == LOCATION_INVENTORY)
+			if(nLocation == LOCATION_INVENTORY || nLocation == LOCATION_STASH)
 			{
 				aPacket[0] = 0x20;
 				*(DWORD*)&aPacket[1] = pUnit->dwUnitId;
@@ -779,9 +779,7 @@ JSAPI_FUNC(unit_getStat)
 		return JS_TRUE;
 
 	jsint nStat = 0;//JSVAL_TO_INT(argv[0]);
-	jsint nSubIndex = 0;
-	jsint nIndex = 0;
-	jsint nValue = 0;
+	jsint nSubIndex = NULL;
 
 	if(!JS_ConvertArguments(cx, argc, argv, "i/i", &nStat, &nSubIndex))
 		return JS_TRUE;
@@ -795,6 +793,21 @@ JSAPI_FUNC(unit_getStat)
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
 	else if(nStat == 92)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
+	else if(nStat == 16)
+	{
+		StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
+		Stat aStatList[256] = { NULL };
+		if(pStatList)
+		{
+			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
+
+			for(UINT i = 0; i < dwStats; i++)
+			{
+				if (nStat == aStatList[i].wStatIndex && nSubIndex == aStatList[i].wSubIndex)	
+					*rval = INT_TO_JSVAL(aStatList[i].dwStatValue);
+			}
+		}
+	}
 	else if(nStat == -1)
 	{
 		Stat aStatList[256] = { NULL };
@@ -803,10 +816,28 @@ JSAPI_FUNC(unit_getStat)
 		if(pStatList)
 		{
 			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
-
+			
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 			*rval = OBJECT_TO_JSVAL(pReturnArray);
+				
+				for (int j = 0 ; j < pUnit->pStats->wStatCount1; j++)
+				{
+					bool inListAlready = false;
+					for(DWORD k = 0; k < dwStats; k++){
+						if( aStatList[k].dwStatValue == pUnit->pStats->pStat[j].dwStatValue &&
+							aStatList[k].wStatIndex == pUnit->pStats->pStat[j].wStatIndex &&
+							aStatList[k].wSubIndex == pUnit->pStats->pStat[j].wSubIndex)
+							inListAlready = true;
+					}
+					if(!inListAlready){
+						
+						aStatList[dwStats].dwStatValue = pUnit->pStats->pStat[j].dwStatValue;
+						aStatList[dwStats].wStatIndex = pUnit->pStats->pStat[j].wStatIndex;
+						aStatList[dwStats].wSubIndex = pUnit->pStats->pStat[j].wSubIndex;
+						dwStats++;	
+					}
 
+				}
 			for(UINT i = 0; i < dwStats; i++)
 			{
 				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
@@ -814,10 +845,10 @@ JSAPI_FUNC(unit_getStat)
 
 				if(!pArrayInsert)
 					continue;
-
-				nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
-				nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
-				nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
+				
+				jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
+				jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
+				jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
 
 				JS_SetElement(cx, pArrayInsert, 0, &nIndex);
 				JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
@@ -836,13 +867,32 @@ JSAPI_FUNC(unit_getStat)
 		*rval = OBJECT_TO_JSVAL(pArray);
 
 		InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
+		//StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
+		InsertStatsToGenericObject(pUnit, D2COMMON_GetStatList(pUnit, NULL, 0x40), cx, pArray);
 	//InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);  // only check the current unit stats!
-	//	InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
+		//InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
 	}
 	else
-		JS_NewNumberValue(cx, D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
-		//*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
-
+	{
+		long result = D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex);
+		if (result == 0) // if stat isnt found look up preset list
+		{			
+			StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
+			Stat aStatList[256] = { NULL };
+			if(pStatList)
+			{
+				DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
+				for(UINT i = 0; i < dwStats; i++)
+				{
+					if (nStat == aStatList[i].wStatIndex && nSubIndex == aStatList[i].wSubIndex)	
+						result = (aStatList[i].dwStatValue);
+				}
+			}	
+		}
+		JS_NewNumberValue(cx, result, rval);
+	}
+	
+		
 	return JS_TRUE;
 }
 
