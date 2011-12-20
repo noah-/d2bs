@@ -70,7 +70,7 @@ private:
 	{
 		std::priority_queue<Node*, std::vector<Node*>, NodeComparer> open;
 		std::set<Point> closed;
-
+		PointList newNodes;
 		Node* begin = alloc.allocate(1);
 		// if we don't get a valid node, just return
 		if(!begin) return;
@@ -78,7 +78,7 @@ private:
 		alloc.construct(begin, Node(start, NULL, 0, estimate(map, start, end)));
 		nodes.push_back(begin);
 		open.push(begin);
-
+		
 		while(!open.empty())
 		{
 			Node* current = open.top();
@@ -96,13 +96,13 @@ private:
 			assert(result == true);
 			(void)(result); // shut up compiler about unused variable warning
 
-			for(int i = 1; i >= -1; i--)
+			// getOpenNodes should be in map along with a filter
+			reducer->GetOpenNodes(current->point,newNodes);
+			while (!newNodes.empty())
 			{
-				for(int j = 1; j >= -1; j--)
-				{
-					if(i == 0 && j == 0) continue;
-
-					Point point(current->point.first + i, current->point.second + j);
+				Point point = newNodes.back();
+				newNodes.pop_back();
+					//Point point(current->point.first + i, current->point.second + j);
 					if (reducer->Reject(point, abs) && point != end)
 					{
 						closed.insert(point);				
@@ -116,7 +116,6 @@ private:
 												estimate(map, point, end)));
 					nodes.push_back(next);
 					open.push(next);
-				}
 			}
 		}
 	}

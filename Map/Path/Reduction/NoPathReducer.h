@@ -25,6 +25,18 @@ public:
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
+	void GetOpenNodes(Point const & center, PointList& out)
+	{
+		for(int i = 1; i >= -1; i--)
+		{
+			for(int j = 1; j >= -1; j--)
+			{
+				if( i == 0 && j == 0)
+					continue;
+				out.push_back(Point(center.first+i, center.second+j));
+			}
+		}		
+	}
 	int GetPenalty(Point const & pt, bool abs)
 	{
 		return 0;

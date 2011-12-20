@@ -38,6 +38,32 @@ public:
 			it++;
 		}
 	}
+	// this should be in actMap with a filter setting
+	// put it here because expanding telport nodes is diffrent for teleport
+	void GetOpenNodes(Point const & center, PointList& out)
+	{
+		for(int i = 1; i >= -1; i--)
+		{
+			for(int j = 1; j >= -1; j--)
+			{
+				if( i == 0 && j == 0)
+					continue;
+				out.push_back(Point(center.first+i, center.second+j));
+			}
+		}
+		if(map->GetLevel()->dwLevelNo != 74)
+			return;
+		for(int i = range/10; i >= range/10*-1; i =i-4)
+		{
+			for(int j = range/10; j >= range/10*-1; j = j-4)
+			{
+			if( i == 0 && j == 0)
+				continue;
+			if(distance(Point(center.first+i, center.second+j), center) < range)
+				out.push_back(Point(center.first+i, center.second+j));
+			}
+		}		
+	}
 	bool Reject(Point const & pt, bool abs)
 	{
 		return	   map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
