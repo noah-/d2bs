@@ -737,7 +737,6 @@ JSAPI_FUNC(unit_interact)
 				return JS_TRUE;
 		
 		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, nWaypointID);
-		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
 		
@@ -778,22 +777,19 @@ JSAPI_FUNC(unit_getStat)
 	if(!pUnit)
 		return JS_TRUE;
 
-	jsint nStat = 0;//JSVAL_TO_INT(argv[0]);
-	jsint nSubIndex = NULL;
+	jsint nStat = 0;
+	jsint nSubIndex = 0;
 
 	if(!JS_ConvertArguments(cx, argc, argv, "i/i", &nStat, &nSubIndex))
 		return JS_TRUE;
 
-	//if(argc > 1 && JSVAL_IS_INT(argv[1]))
-	//	nSubIndex = JSVAL_TO_INT(argv[1]);
-	
-	if(nStat >= 6 && nStat <= 11)
+	if(nStat >= STAT_HP && nStat <= STAT_MAXSTAMINA)
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8);
-	else if(nStat == 13 || nStat == 29 || nStat == 30)
+	else if(nStat == STAT_EXP || nStat == STAT_LASTEXP || nStat == STAT_NEXTEXP)
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
-	else if(nStat == 92)
+	else if(nStat == STAT_ITEMLEVELREQ)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
-	else if(nStat == 16)
+	else if(nStat == STAT_ENHANCEDDEFENSE ||nStat == STAT_ENHANCEDDAMAGEMIN ||nStat == STAT_ENHANCEDDAMAGEMAX)
 	{
 		StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
 		Stat aStatList[256] = { NULL };
@@ -816,10 +812,10 @@ JSAPI_FUNC(unit_getStat)
 		if(pStatList)
 		{
 			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
-			
+
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 			*rval = OBJECT_TO_JSVAL(pReturnArray);
-				
+
 				for (int j = 0 ; j < pUnit->pStats->wStatCount1; j++)
 				{
 					bool inListAlready = false;
@@ -845,7 +841,7 @@ JSAPI_FUNC(unit_getStat)
 
 				if(!pArrayInsert)
 					continue;
-				
+
 				jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
 				jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
 				jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
@@ -867,10 +863,9 @@ JSAPI_FUNC(unit_getStat)
 		*rval = OBJECT_TO_JSVAL(pArray);
 
 		InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
-		//StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
 		InsertStatsToGenericObject(pUnit, D2COMMON_GetStatList(pUnit, NULL, 0x40), cx, pArray);
 	//InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);  // only check the current unit stats!
-		//InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
+	//	InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
 	}
 	else
 	{
@@ -892,7 +887,7 @@ JSAPI_FUNC(unit_getStat)
 		JS_NewNumberValue(cx, result, rval);
 	}
 	
-		
+
 	return JS_TRUE;
 }
 
@@ -900,29 +895,26 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 {
 	Stat*	pStat = NULL;
 
-	//for(; pStatList; pStatList = pStatList->pPrevLink) // no need to jump lists
-	//{
-		if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
-		{
-			pStat = pStatList->pStat;
+	if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
+	{
+		pStat = pStatList->pStat;
 
-			if(pStatList->wStatCount1)
-				for(int nStat = 0; nStat < pStatList->wStatCount1; nStat++)
-				{
-					InsertStatsNow(pStat, nStat, cx, pArray);
-				}
-		}
-		if((pStatList->dwFlags >> 24 & 0x80))
-		{
-			pStat = pStatList->pSetStat;
+		if(pStatList->wStatCount1)
+			for(int nStat = 0; nStat < pStatList->wStatCount1; nStat++)
+			{
+				InsertStatsNow(pStat, nStat, cx, pArray);
+			}
+	}
+	if((pStatList->dwFlags >> 24 & 0x80))
+	{
+		pStat = pStatList->pSetStat;
 
-			if(pStatList->wSetStatCount)
-				for(int nStat = 0; nStat < pStatList->wSetStatCount; nStat++)
-				{
-					InsertStatsNow(pStat, nStat, cx, pArray);
-				}
-		}
-	//}
+		if(pStatList->wSetStatCount)
+			for(int nStat = 0; nStat < pStatList->wSetStatCount; nStat++)
+			{
+				InsertStatsNow(pStat, nStat, cx, pArray);
+			}
+	}
 }
 
 void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
