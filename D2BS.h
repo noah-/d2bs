@@ -6,7 +6,7 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#define D2BS_VERSION "1.4.1642"
+#define D2BS_VERSION "1.4.1645"
 
 #include <windows.h>
 #include <vector>

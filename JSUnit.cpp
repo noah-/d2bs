@@ -789,21 +789,6 @@ JSAPI_FUNC(unit_getStat)
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
 	else if(nStat == STAT_ITEMLEVELREQ)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
-	else if(nStat == STAT_ENHANCEDDEFENSE ||nStat == STAT_ENHANCEDDAMAGEMIN ||nStat == STAT_ENHANCEDDAMAGEMAX)
-	{
-		StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
-		Stat aStatList[256] = { NULL };
-		if(pStatList)
-		{
-			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
-
-			for(UINT i = 0; i < dwStats; i++)
-			{
-				if (nStat == aStatList[i].wStatIndex && nSubIndex == aStatList[i].wSubIndex)	
-					*rval = INT_TO_JSVAL(aStatList[i].dwStatValue);
-			}
-		}
-	}
 	else if(nStat == -1)
 	{
 		Stat aStatList[256] = { NULL };
@@ -886,15 +871,14 @@ JSAPI_FUNC(unit_getStat)
 		}
 		JS_NewNumberValue(cx, result, rval);
 	}
-	
-
 	return JS_TRUE;
 }
 
 void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* cx, JSObject* pArray)
 {
 	Stat*	pStat = NULL;
-
+	if(!pStatList)
+		return;
 	if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
 	{
 		pStat = pStatList->pStat;
