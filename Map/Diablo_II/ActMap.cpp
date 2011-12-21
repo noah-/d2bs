@@ -57,8 +57,11 @@ ActMap::ActMap(const Level* level)
 	width  = level->dwSizeY * 5;
 	posX   = level->dwPosX * 5;
 	posY   = level->dwPosY * 5;
+	
+	if(!level->pRoom2First)
+		D2COMMON_InitLevel(const_cast<Level *> (level));
 
-	Room2* room = level->pRoom2First;
+	Room2* room = level->pRoom2First;	
 	cachedLevel = room->pLevel;
 
 	posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
@@ -111,6 +114,8 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 		for(Level* lvl = this->act->pMisc->pLevelFirst; lvl; lvl = lvl->pNextLevel)
 		{
 			if(isPointInLevel(lvl, point)){
+				if(!lvl->pRoom2First)      
+					D2COMMON_InitLevel(lvl);
 				levelCache.push_front(lvl);
 				currLevel = lvl;
 			}
