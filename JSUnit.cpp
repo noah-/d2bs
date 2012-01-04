@@ -1135,16 +1135,32 @@ JSAPI_FUNC(item_getItemCost)
 	if(!pUnit || pUnit->dwType != UNIT_ITEM)
 		return JS_TRUE;
 
-	if(!JS_ConvertArguments(cx, argc, argv, "i/ii", &nMode, &nNpcClassId, &nDifficulty))
-		return JS_TRUE;
+	nMode = JSVAL_TO_INT(argv[0]);
 
-	//nMode = JSVAL_TO_INT(argv[0]);
+	if(argc > 1)
+	{
+		if(JSVAL_IS_OBJECT(argv[1]))
+		{
+			myUnit* pmyNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
+			
+			if(!pmyNpc || (pmyNpc->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+				return JS_TRUE;
 
-	//if(argc > 1 && JSVAL_IS_INT(argv[1]))
-	//	nNpcClassId = JSVAL_TO_INT(argv[1]);
+			UnitAny* pNpc = D2CLIENT_FindUnit(pmyNpc->dwUnitId, pmyNpc->dwType);
 
-	//if(argc > 2 && JSVAL_IS_INT(argv[2]))
-	//	nDifficulty = JSVAL_TO_INT(argv[2]);
+			if(!pNpc)
+				return JS_TRUE;
+			nNpcClassId = pNpc->dwTxtFileNo;
+		}
+		else if	(JSVAL_IS_INT(argv[1]))
+			nNpcClassId = JSVAL_TO_INT(argv[1]);
+	}
+
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		nDifficulty = JSVAL_TO_INT(argv[2]);
+
+//	if(!JS_ConvertArguments(cx, argc, argv, "i/ii", &nMode, &nNpcClassId, &nDifficulty))
+//		return JS_TRUE;
 
 	switch(nMode)
 	{

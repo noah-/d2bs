@@ -102,20 +102,20 @@ private:
 			{
 				Point point = newNodes.back();
 				newNodes.pop_back();
-					//Point point(current->point.first + i, current->point.second + j);
-					if (reducer->Reject(point, abs) && point != end)
-					{
-						closed.insert(point);				
-						continue;
-					}
-					Node* next = alloc.allocate(1);
-					// if we don't get a valid node, just return
-					if(!next) return;
-					int pointPenalty = reducer->GetPenalty(point, abs);
-					alloc.construct(next, Node(point, current, current->g + distance(current->point, point) + pointPenalty,
-												estimate(map, point, end)));
-					nodes.push_back(next);
-					open.push(next);
+				//Point point(current->point.first + i, current->point.second + j);
+				if (reducer->Reject(point, abs) && point != end)
+				{
+					closed.insert(point);				
+					continue;
+				}
+				Node* next = alloc.allocate(1);
+				// if we don't get a valid node, just return
+				if(!next) return;
+				int pointPenalty = reducer->GetPenalty(point, abs);
+				alloc.construct(next, Node(point, current, current->g + distance(current->point, point) + pointPenalty,
+											estimate(map, point, end)));
+				nodes.push_back(next);
+				open.push(next);
 			}
 		}
 	}

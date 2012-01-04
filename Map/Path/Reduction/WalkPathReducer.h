@@ -168,6 +168,7 @@ public:
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
+
 	void GetOpenNodes(Point const & center, PointList& out)
 	{
 		for(int i = 1; i >= -1; i--)
@@ -180,6 +181,7 @@ public:
 			}
 		}		
 	}
+
 	int GetPenalty(Point const & pt, bool abs)
 	{
 		return map->SpaceHasFlag(ActMap::Object, pt, abs) ? 60 : (map->SpaceHasFlag(ActMap::ClosedDoor, pt, abs) ? 80 : 0);
