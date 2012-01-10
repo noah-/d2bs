@@ -23,7 +23,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 {
 	bool beginStarter = true;
 	bool bInGame = false;
-
+	POINT pMouse = {0,0};
+	int mouseEventMod = 0;
 	InitSettings();
 	if(InitHooks())
 	{
@@ -83,6 +84,18 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				break;
 		}
 		Sleep(50);
+		mouseEventMod ++; // only call mouse events every 500 ms and if the coords changed
+		if (mouseEventMod == 10)
+		{
+			mouseEventMod=0;
+			if (Vars.pMouseCoords.x != pMouse.x || Vars.pMouseCoords.y != pMouse.y)
+			{
+				pMouse=Vars.pMouseCoords;
+				HookClickHelper helper = {-1, {pMouse.x, pMouse.y}};
+				MouseMoveEvent(pMouse);
+				Genhook::ForEachVisibleHook(HoverHook, &helper, 1);
+			}
+		}
 	}
 
 	ScriptEngine::Shutdown();
@@ -281,7 +294,8 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 			return 1;
 		}
 		else if(code == HC_ACTION && !isRepeat && !(chatBoxOpen || escMenuOpen))
-			KeyDownUpEvent(wParam, isUp);
+			if(KeyDownUpEvent(wParam, isUp))
+				return 1;
 	}
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
@@ -291,11 +305,11 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
 	POINT pt = mouse->pt;
 	ScreenToClient(mouse->hwnd, &pt);
-
+	
 	// filter out clicks on the window border
 	if(code == HC_ACTION && (pt.x < 0 || pt.y < 0))
 		return CallNextHookEx(NULL, code, wParam, lParam);
-
+	Vars.pMouseCoords = pt;
 	if(Vars.bBlockMouse)
 		return 1;
 

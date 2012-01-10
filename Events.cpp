@@ -46,6 +46,10 @@ struct TripleArgHelper
 {
 	DWORD arg1, arg2, arg3;
 };
+struct QuadArgHelper
+{
+	DWORD arg1, arg2, arg3, arg4;
+};
 
 struct BCastEventHelper
 {
@@ -102,13 +106,24 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
 		script->ExecEventAsync(event, 1, argv);
 	}
-	return true;
+	bool block = false;
+	event = (helper->up ? "keyupblocker" : "keydownblocker");
+	if(script->IsRunning() && script->IsListenerRegistered(event))
+	{
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot();
+		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
+		if(script->ExecEvent(event, 1, argv))
+			block = true;
+	}
+
+	return block;
 }
 
-void KeyDownUpEvent(WPARAM key, BYTE bUp)
+bool KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
 	KeyEventHelper helper = {bUp, key};
-	ScriptEngine::ForEachScript(KeyEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(KeyEventCallback, &helper, 1);
 }
 
 bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
@@ -132,21 +147,23 @@ void PlayerAssignEvent(DWORD dwUnitId)
 
 bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
 {
-	TripleArgHelper* helper = (TripleArgHelper*)argv;
+	QuadArgHelper* helper = (QuadArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("mouseclick"))
 	{
-		AutoRoot** argv = new AutoRoot*[3];
+		AutoRoot** argv = new AutoRoot*[4];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
 		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->arg3));
-		script->ExecEventAsync("mouseclick", 3, argv);
+		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->arg4));
+	
+		script->ExecEventAsync("mouseclick", 4, argv);
 	}
 	return true;
 }
 
 void MouseClickEvent(int button, POINT pt, bool bUp)
 {
-	TripleArgHelper helper = {button, pt.x, pt.y};
+	QuadArgHelper helper = {button, pt.x, pt.y, bUp};
 	ScriptEngine::ForEachScript(MouseClickCallback, &helper, 1);
 }
 
@@ -167,6 +184,8 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
 
 void MouseMoveEvent(POINT pt)
 {
+	if (pt.x < 1 || pt.y < 1)
+		return;
 	DoubleArgHelper helper = {pt.x, pt.y};
 	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 1);
 }
@@ -223,19 +242,33 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync(helper->event, 2, argv);
 	}
-	return true;
+	std::string evt = helper->event;
+	evt = evt + "blocker";
+	bool block = false;
+
+	if(script->IsRunning() && script->IsListenerRegistered(evt.c_str()))
+	{
+		AutoRoot** argv = new AutoRoot*[2];
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+		if (script->ExecEvent(const_cast<char*>(evt.c_str()), 2, argv))
+			block = true;
+	}
+	return block;
 }
 
-void ChatEvent(char* lpszNick, char* lpszMsg)
+bool ChatEvent(char* lpszNick, char* lpszMsg)
 {
 	ChatEventHelper helper = {"chatmsg", lpszNick, lpszMsg};
-	ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
 }
 
-void WhisperEvent(char* lpszNick, char* lpszMsg)
+bool WhisperEvent(char* lpszNick, char* lpszMsg)
 {
 	ChatEventHelper helper = {"whispermsg", lpszNick, lpszMsg};
-	ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
 }
 
 bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)

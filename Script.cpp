@@ -434,7 +434,39 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	evt->argv = argv;
 	evt->object = globalObject;
 
-	CreateThread(0, 0, FuncThread, evt, 0, 0);
+	HANDLE hThread;
+	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+	CloseHandle(hThread);
+}
+bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
+{
+	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	{
+		// no event will happen, clean up the roots
+		for(uintN i = 0; i < argc; i++)
+			delete argv[i];
+		delete[] argv;
+		return false;
+	}
+
+	for(uintN i = 0; i < argc; i++)
+		argv[i]->Take();
+
+	Event* evt = new Event;
+	evt->owner = this;
+	evt->functions = functions[evtName];
+	evt->argc = argc;
+	evt->argv = argv;
+	evt->object = globalObject;
+	
+	HANDLE hThread;
+	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+	WaitForSingleObject(hThread, 1000);
+	DWORD ExitCode = 0;
+	GetExitCodeThread( hThread, &ExitCode);
+	CloseHandle(hThread);
+	
+	return (ExitCode == 1);
 }
 
 #ifdef DEBUG
@@ -515,7 +547,7 @@ DWORD WINAPI FuncThread(void* data)
 	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 	JS_SetContextPrivate(cx, evt->owner);
 	JS_BeginRequest(cx);
-
+	bool block =false;
 	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
 	{
 		jsval* args = new jsval[evt->argc];
@@ -530,11 +562,12 @@ DWORD WINAPI FuncThread(void* data)
 				return NULL;
 			}
 		}
-		jsval dummy = JSVAL_VOID;
+		jsval rval = JSVAL_VOID;
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_CallFunctionValue(cx, evt->object, *(*it)->value(), evt->argc, args, &dummy);
+			JS_CallFunctionValue(cx, evt->object, *(*it)->value(), evt->argc, args, &rval);
+			block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
@@ -554,5 +587,5 @@ DWORD WINAPI FuncThread(void* data)
 		delete[] evt->argv;
 	delete evt;
 	
-	return 0;
+	return block;
 }

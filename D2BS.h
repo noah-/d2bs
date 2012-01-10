@@ -6,7 +6,7 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#define D2BS_VERSION "1.4.1652"
+#define D2BS_VERSION "1.4.1654"
 
 #include <windows.h>
 #include <vector>
@@ -95,6 +95,7 @@ struct Variables
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;
+	POINT pMouseCoords;
 };
 
 extern Variables Vars;

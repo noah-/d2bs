@@ -49,7 +49,7 @@ public:
 	static void RunCommand(const char* command);
 	static void DisposeScript(Script* script);
 
-	static void ForEachScript(ScriptCallback callback, void* argv, uint argc);
+	static bool ForEachScript(ScriptCallback callback, void* argv, uint argc);
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }

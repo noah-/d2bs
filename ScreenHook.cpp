@@ -195,28 +195,30 @@ bool Genhook::Click(int button, POINT* loc)
 		return false;
 
 	bool result = false;
-
+	DWORD ExitCode = 0;
 	JSContext* cx = ScriptEngine::GetGlobalContext();
-	JS_SetContextThread(cx);
-	JS_BeginRequest(cx);
+	
 	if(owner && JSVAL_IS_FUNCTION(cx, clicked))
 	{
-		Lock();
-
-		JS_EnterLocalRootScope(cx);
-		jsval rval = JSVAL_VOID;
-		jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-
-		JS_CallFunctionValue(cx, self, clicked, 3, args, &rval);
-
-		result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
-		JS_LeaveLocalRootScope(cx);
-
-		Unlock();
+		Event* evt = new Event;
+		evt->owner= owner;
+		evt->argc=3;
+		AutoRoot** argv = new AutoRoot*[3];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->x));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(loc->y));
+ 
+		evt->argv=argv;
+		evt->object=self;
+		evt->functions.push_back( new AutoRoot((clicked)));
+		
+		HANDLE hThread;
+		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+		WaitForSingleObject(hThread, 1000);
+		GetExitCodeThread( hThread, &ExitCode);
+		CloseHandle(hThread);
+		result = (ExitCode == 1);
 	}
-	JS_EndRequest(cx);
-	JS_ClearContextThread(cx);
-
 	return result;
 }
 
@@ -226,24 +228,24 @@ void Genhook::Hover(POINT* loc)
 		return;
 
 	JSContext* cx = ScriptEngine::GetGlobalContext();
-	JS_SetContextThread(cx);
-	JS_BeginRequest(cx);
-	if(owner && (JSVAL_IS_FUNCTION(cx, hovered)))
+	
+	if(owner && JSVAL_IS_FUNCTION(cx, hovered))
 	{
-		Lock();
-
-		JS_EnterLocalRootScope(cx);
-		jsval rval = JSVAL_VOID;
-		jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-
-		JS_CallFunctionValue(cx, self, hovered, 2, args, &rval);
-
-		JS_LeaveLocalRootScope(cx);
-
-		Unlock();
+		Event* evt = new Event;
+		evt->owner= owner;
+		evt->argc=2;
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(loc->x));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->y));
+		 
+		evt->argv=argv;
+		evt->object=self;
+		evt->functions.push_back(new AutoRoot((hovered)));
+		
+		HANDLE hThread;
+		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+		CloseHandle(hThread);
 	}
-	JS_EndRequest(cx);
-	JS_ClearContextThread(cx);
 }
 
 void Genhook::SetClickHandler(jsval handler)

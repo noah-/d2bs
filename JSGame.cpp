@@ -212,8 +212,13 @@ JSAPI_FUNC(my_getPath)
 #else
 	AStarPath<> path(map, reducer);
 #endif
+
+	jsrefcount depth = JS_SuspendRequest(cx);
+	
 	path.GetPath(start, end, list, true);
 	map->CleanUp();
+	
+	JS_ResumeRequest(cx, depth);
 #if defined(_TIME)
 	char p[510];
 	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);

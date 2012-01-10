@@ -65,7 +65,8 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 	char* pMessage = (char*)pPacket + strlen(pName) + 11;
 
 	if(!Vars.bDontCatchNextMsg)
-		ChatEvent(pName, pMessage);
+		if (ChatEvent(pName, pMessage))
+			return FALSE;
 	else
 		Vars.bDontCatchNextMsg = FALSE;
 

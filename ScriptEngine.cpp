@@ -215,11 +215,11 @@ void ScriptEngine::FlushCache(void)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
+bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
 	if(callback == NULL || scripts.size() < 1)
-		return;
-
+		return false;
+	bool block = false;
 	EnterCriticalSection(&lock);
 
 	// damn std::list not supporting operator[]...
@@ -230,11 +230,12 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	// damn std::iterator not supporting manipulating the list...
 	for(int i = 0; i < count; i++)
 	{
-		if(!callback(list[i], argv, argc))
-			break;
+		if(callback(list[i], argv, argc))
+			block = true;
 	}
 
 	LeaveCriticalSection(&lock);
+	return block;
 }
 
 void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)

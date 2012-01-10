@@ -96,6 +96,7 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+	bool ExecEvent(char* evtName, uintN argc, AutoRoot** argv);
 };
 
 struct RUNCOMMANDSTRUCT {
