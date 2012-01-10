@@ -26,8 +26,8 @@ void DrawLogo(void)
 	int dx = (GetScreenSize().x/2);
 	if(!Console::IsVisible())
 	{
-		myDrawAutomapCell(vimg, dx, 10, 0);
-		myDrawText(version, dx-x, 13, 4, 0);
+		myDrawAutomapCell(vimg, dx, 9, 0);
+		myDrawText(version, dx-x, 14, 4, 0);
 	} else {
 		myDrawAutomapCell(vimg, dx, Console::GetHeight()+9, 0);
 		myDrawText(version, dx-x, Console::GetHeight()+14, 4, 0);
@@ -115,8 +115,9 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 	std::vector<Genhook*> list;
 	for(HookIterator it = visible.begin(); it != visible.end(); it++)
 		list.push_back(*it);
+	
+	std::sort(list.begin(), list.end(), zOrderSort);
 	int count = list.size();
-
 	for(int i = 0; i < count; i++)
 		if(proc(list[i], argv, argc))
 			result = true;
