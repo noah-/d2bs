@@ -64,13 +64,11 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 	char* pName = (char*)pPacket+10;
 	char* pMessage = (char*)pPacket + strlen(pName) + 11;
 
-	if(!Vars.bDontCatchNextMsg)
-		if (ChatEvent(pName, pMessage))
-			return FALSE;
-	else
+	if(Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = FALSE;
-
-	return TRUE;
+	
+	return !(ChatEvent(pName, pMessage));
+		
 }
 
 DWORD NPCTransactionHandler(BYTE* pPacket, DWORD dwSize)
