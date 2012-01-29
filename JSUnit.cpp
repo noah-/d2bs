@@ -1119,7 +1119,7 @@ JSAPI_FUNC(item_getItemCost)
 
 	jsint nMode;
 	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
-	jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A);
+	jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A); // defaults to Charsi's NPC id
 	jsint nDifficulty = D2CLIENT_GetDifficulty();
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
@@ -1152,15 +1152,19 @@ JSAPI_FUNC(item_getItemCost)
 				return JS_TRUE;
 			nNpcClassId = pNpc->dwTxtFileNo;
 		}
-		else if	(JSVAL_IS_INT(argv[1]))
-			nNpcClassId = JSVAL_TO_INT(argv[1]);
+		else if(JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+		{
+			if(!JS_ValueToECMAInt32(cx, argv[1], &nNpcClassId))
+				return JS_TRUE;
+		}
+		//TODO:: validate the base stat table sizes to make sure the game doesn't crash with checking values past the end of the table
+		int retVal = 0;
+		if(FillBaseStat("monstats", nNpcClassId, "inventory", &retVal, sizeof(int))&& retVal == 0)
+			nNpcClassId = 0x9A; // invalid npcid incoming! default to charsi to allow the game to continue
 	}
 
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
 		nDifficulty = JSVAL_TO_INT(argv[2]);
-
-//	if(!JS_ConvertArguments(cx, argc, argv, "i/ii", &nMode, &nNpcClassId, &nDifficulty))
-//		return JS_TRUE;
 
 	switch(nMode)
 	{
