@@ -106,18 +106,19 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 }
 
 /*UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
-	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
-		if((DWORD)GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
-			return pItem;
-	}
-	return NULL;
+for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
+if((DWORD)GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
+return pItem;
+}
+return NULL;
 }*/
 
 /*void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 {
-	*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
+*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
 }*/
 
+// Do not edit without the express consent of bsdunx or lord2800
 ClientGameState ClientState(void)
 {
 	ClientGameState state = ClientStateNull;
@@ -126,7 +127,12 @@ ClientGameState ClientState(void)
 
 	if(player && !firstControl)
 	{
-		if(	player->pInventory &&
+		if(player && player->pUpdateUnit)
+		{
+			state = ClientStateBusy;
+			return state;
+		}
+		if(player->pInventory &&
 			player->pPath &&
 			//player->pPath->xPos &&
 			player->pPath->pRoom1 &&
@@ -157,8 +163,8 @@ bool WaitForGameReady(void)
 	{
 		switch(ClientState())
 		{
-			case ClientStateNull: case ClientStateMenu: return false;
-			case ClientStateInGame: return true;
+		case ClientStateNull: case ClientStateMenu: return false;
+		case ClientStateInGame: return true;
 		}
 		Sleep(10);
 	} while((Vars.dwGameTimeout == 0 ) || (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
@@ -179,7 +185,7 @@ Level* GetLevel(DWORD dwLevelNo)
 			return pLevel;
 		}
 
-	return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
+		return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 }
 
 // TODO: make this use SIZE for clarity
@@ -248,7 +254,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 			return TRUE;
 		Sleep(100);
 	}
-	
+
 	return FALSE;
 }
 
@@ -370,7 +376,7 @@ void myDrawCenterText(const char* szText, int x, int y, int color, int font, int
 }
 
 void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
-	
+
 	if(!pUnit)
 		return;
 
@@ -403,33 +409,33 @@ BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 			if(pMenu->wEntryId1 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc1;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId2 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc2;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId3 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc3;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId4 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc4;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else return FALSE;
 				return TRUE;
 			}
 		}
@@ -476,10 +482,10 @@ UnitAny* GetMercUnit(UnitAny* pUnit)
 	for(Room1* pRoom = pUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 		for(UnitAny* pMerc = pRoom->pUnitFirst; pMerc; pMerc = pMerc->pRoomNext)
 			if(pMerc->dwType == UNIT_MONSTER &&
-					(pMerc->dwTxtFileNo == MERC_A1 || pMerc->dwTxtFileNo == MERC_A2 ||
-					pMerc->dwTxtFileNo == MERC_A3 || pMerc->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pMerc->dwUnitId) == pUnit->dwUnitId)
-					return pMerc;
+				(pMerc->dwTxtFileNo == MERC_A1 || pMerc->dwTxtFileNo == MERC_A2 ||
+				pMerc->dwTxtFileNo == MERC_A3 || pMerc->dwTxtFileNo == MERC_A5) &&
+				D2CLIENT_GetMonsterOwner(pMerc->dwUnitId) == pUnit->dwUnitId)
+				return pMerc;
 	return NULL;
 
 #if 0
@@ -549,8 +555,8 @@ POINT GetScreenSize()
 {
 	// HACK: p_D2CLIENT_ScreenSize is wrong for out of game, which is hardcoded to 800x600
 	POINT ingame = {*p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY},
-		  oog = {800, 600},
-		  p = {0};
+		oog = {800, 600},
+		p = {0};
 	if(ClientState() == ClientStateMenu) p = oog;
 	else p = ingame;
 	return p;
@@ -637,14 +643,14 @@ CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height)
 	BYTE *ret = new BYTE[dc6head[13]];
 	memset(memcpy2(memcpy2(ret, dc6head, sizeof(dc6head)), buf2, dc6head[14]), 0xee, 3);
 	delete[] buf2;
-	
+
 	return (CellFile *)ret;
 }
 
 CellFile *LoadBmpCellFile(char *filename)
 {
 	BYTE *ret = 0;
-		
+
 	BYTE *buf1 = AllocReadFile(filename);
 	BITMAPFILEHEADER *bmphead1 = (BITMAPFILEHEADER *)buf1;
 	BITMAPINFOHEADER *bmphead2 = (BITMAPINFOHEADER *)(buf1+sizeof(BITMAPFILEHEADER));
@@ -674,7 +680,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_GetUnitName_STUB(DWORD UnitAny)
 	__asm
 	{
 		mov eax, ecx
-		jmp D2CLIENT_GetUnitName_I
+			jmp D2CLIENT_GetUnitName_I
 	}
 }
 
@@ -692,16 +698,16 @@ void __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny)
 	__asm
 	{
 		mov eax, ecx
-		jmp D2CLIENT_SetSelectedUnit_I
+			jmp D2CLIENT_SetSelectedUnit_I
 	}
 }
 DWORD __declspec(naked) __fastcall D2CLIENT_LoadUIImage_ASM(char* Path) 
 {
 	__asm {
 		mov eax, ecx
-		push 0
-		call D2CLIENT_LoadUIImage_I
-		retn
+			push 0
+			call D2CLIENT_LoadUIImage_I
+			retn
 	}
 }
 
@@ -709,7 +715,7 @@ void __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
 {
 	__asm {
 		mov esi, ecx
-		jmp D2CLIENT_Interact_I
+			jmp D2CLIENT_Interact_I
 	}
 }
 
@@ -718,7 +724,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_ClickParty_ASM(DWORD RosterUnit, DWO
 	__asm
 	{
 		mov eax, ecx
-		jmp D2CLIENT_ClickParty_I
+			jmp D2CLIENT_ClickParty_I
 	}
 }
 
@@ -729,13 +735,13 @@ void __declspec(naked) __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, D
 	__asm
 	{
 		mov esi, ecx
-		mov edi, edx
-		pop eax // Save return address to eax
-		pop ecx // Buy or sell to ecx
-		push ecx
-		push 1
-		push eax
-		jmp D2CLIENT_ClickShopItem_I
+			mov edi, edx
+			pop eax // Save return address to eax
+			pop ecx // Buy or sell to ecx
+			push ecx
+			push 1
+			push eax
+			jmp D2CLIENT_ClickShopItem_I
 	}
 }
 
@@ -750,7 +756,7 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory
 {
 	__asm {
 		mov eax, edx
-		jmp D2CLIENT_ClickBelt_I
+			jmp D2CLIENT_ClickBelt_I
 	}
 }
 
@@ -760,14 +766,14 @@ void __declspec(naked) __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, 
 	{
 		// ECX = y, EDX = x - Blizzard is weird :D
 		MOV EAX, ECX
-		MOV ECX, EDX
-		MOV EDX, EAX
+			MOV ECX, EDX
+			MOV EDX, EAX
 
-		POP EAX
-		MOV EBX,EAX
-		POP EAX
-		PUSH EBX
-		jmp D2CLIENT_ClickItemRight_I
+			POP EAX
+			MOV EBX,EAX
+			POP EAX
+			PUSH EBX
+			jmp D2CLIENT_ClickItemRight_I
 	}
 }
 
@@ -776,10 +782,10 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, 
 	__asm
 	{
 		POP EAX
-		MOV EBX,EAX
-		POP EAX
-		PUSH EBX
-		JMP D2CLIENT_ClickBeltRight_I
+			MOV EBX,EAX
+			POP EAX
+			PUSH EBX
+			JMP D2CLIENT_ClickBeltRight_I
 	}
 }
 
@@ -788,13 +794,13 @@ void __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t*
 	__asm 
 	{
 		PUSH EDI
-		MOV EDI, EDX
-		PUSH NULL
-		PUSH 1		// TRUE = New lines, FALSE = Comma between each stat value
-		PUSH ECX
-		CALL D2CLIENT_GetItemDesc_I
-		POP EDI
-		RETN
+			MOV EDI, EDX
+			PUSH NULL
+			PUSH 1		// TRUE = New lines, FALSE = Comma between each stat value
+			PUSH ECX
+			CALL D2CLIENT_GetItemDesc_I
+			POP EDI
+			RETN
 	}
 }
 
@@ -806,10 +812,10 @@ void __declspec(naked) __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit)
 		MOV EAX, [ECX+0xA4]
 
 		PUSH EAX
-		PUSH 0
-		call D2COMMON_DisplayOverheadMsg_I
+			PUSH 0
+			call D2COMMON_DisplayOverheadMsg_I
 
-		RETN
+			RETN
 	}
 }
 
@@ -818,8 +824,8 @@ void __declspec(naked) __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType,
 	__asm 
 	{
 		mov eax, ecx
-		mov ecx, edx
-		jmp D2CLIENT_MercItemAction_I
+			mov ecx, edx
+			jmp D2CLIENT_MercItemAction_I
 	}
 }
 
@@ -828,15 +834,15 @@ void __declspec(naked) __fastcall D2CLIENT_PlaySound(DWORD dwSoundId)
 	__asm
 	{
 		MOV EBX, ECX
-		PUSH NULL
-		PUSH NULL
-		PUSH NULL
-		MOV EAX, p_D2CLIENT_PlayerUnit
-		MOV EAX, [EAX]
+			PUSH NULL
+			PUSH NULL
+			PUSH NULL
+			MOV EAX, p_D2CLIENT_PlayerUnit
+			MOV EAX, [EAX]
 		MOV ECX, EAX
-		MOV EDX, EBX
-		//CALL D2CLIENT_PlaySound_I
-		RETN
+			MOV EDX, EBX
+			//CALL D2CLIENT_PlaySound_I
+			RETN
 	}
 }
 
@@ -845,24 +851,24 @@ __declspec(naked) void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD
 	__asm
 	{
 		PUSH EBP
-		MOV EBP, ESP
-		SUB ESP, 0x20
-		PUSH EBX
-		PUSH ESI
-		PUSH EDI
-		AND DWORD PTR SS:[EBP-0x20],0
-		PUSH 0
-		CALL _TakeWaypoint
-		JMP _Exit
+			MOV EBP, ESP
+			SUB ESP, 0x20
+			PUSH EBX
+			PUSH ESI
+			PUSH EDI
+			AND DWORD PTR SS:[EBP-0x20],0
+			PUSH 0
+			CALL _TakeWaypoint
+			JMP _Exit
 
 _TakeWaypoint:
 		PUSH EBP
-		PUSH ESI
-		PUSH EDI
-		PUSH EBX
-		XOR EDI, EDI
-		MOV EBX, 1
-		MOV ECX,DWORD PTR SS:[EBP+8]
+			PUSH ESI
+			PUSH EDI
+			PUSH EBX
+			XOR EDI, EDI
+			MOV EBX, 1
+			MOV ECX,DWORD PTR SS:[EBP+8]
 		MOV EDX,DWORD PTR SS:[EBP+0xC]
 		LEA EBP,DWORD PTR SS:[EBP-0x20]
 		JMP [D2CLIENT_TakeWaypoint_I]
@@ -870,10 +876,10 @@ _TakeWaypoint:
 
 _Exit:
 		POP EDI
-		POP ESI
-		POP EBX
-		LEAVE
-		RETN 8
+			POP ESI
+			POP EBX
+			LEAVE
+			RETN 8
 	}
 }
 DWORD __declspec(naked) __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
@@ -906,13 +912,13 @@ DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 	__asm
 	{
 		push eax
-		push esi
-		mov eax, pUnit
-		mov esi, dwType
-		call D2CLIENT_GetMinionCount_I
-		mov [dwResult], eax
-		pop esi
-		pop eax
+			push esi
+			mov eax, pUnit
+			mov esi, dwType
+			call D2CLIENT_GetMinionCount_I
+			mov [dwResult], eax
+			pop esi
+			pop eax
 	}
 
 	return dwResult;
@@ -923,7 +929,7 @@ __declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, D
 	__asm
 	{
 		mov eax, edx
-		jmp [D2CLIENT_ClickParty_II]
+			jmp [D2CLIENT_ClickParty_II]
 	}
 }
 
@@ -932,11 +938,11 @@ __declspec(naked) DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE
 	__asm
 	{
 		push ebx
-		mov ebx, ecx
-		push edx
-		call D2CLIENT_SendGamePacket_I
-		pop ebx
-		ret
+			mov ebx, ecx
+			push edx
+			call D2CLIENT_SendGamePacket_I
+			pop ebx
+			ret
 	}
 }
 
@@ -945,38 +951,38 @@ double GetDistance(long x1, long y1, long x2, long y2, DistanceType type)
 	double dist = 0;
 	switch(type)
 	{
-		case Euclidean:
-			{
-				double dx = (double)(x2 - x1);
-				double dy = (double)(y2 - y1);
-				dx = pow(dx, 2);
-				dy = pow(dy, 2);
-				dist = sqrt(dx + dy); 
-			}
-			break;
-		case Chebyshev:
-			{
-				long dx = (x2 - x1);
-				long dy = (y2 - y1);
-				dx = abs(dx);
-				dy = abs(dy);
-				dist = max(dx, dy); 
-			}
-			break;
-		case Manhattan:
-			{
-				long dx = (x2 - x1);
-				long dy = (y2 - y1);
-				dx = abs(dx);
-				dy = abs(dy);
-				dist = (dx + dy);
-			}
-			break;
-		default: 
-			dist = -1; 
-			break;
+	case Euclidean:
+		{
+			double dx = (double)(x2 - x1);
+			double dy = (double)(y2 - y1);
+			dx = pow(dx, 2);
+			dy = pow(dy, 2);
+			dist = sqrt(dx + dy); 
+		}
+		break;
+	case Chebyshev:
+		{
+			long dx = (x2 - x1);
+			long dy = (y2 - y1);
+			dx = abs(dx);
+			dy = abs(dy);
+			dist = max(dx, dy); 
+		}
+		break;
+	case Manhattan:
+		{
+			long dx = (x2 - x1);
+			long dy = (y2 - y1);
+			dx = abs(dx);
+			dy = abs(dy);
+			dist = (dx + dy);
+		}
+		break;
+	default: 
+		dist = -1; 
+		break;
 	}
- 	return dist;
+	return dist;
 }
 
 bool IsScrollingText()
