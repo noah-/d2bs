@@ -627,7 +627,15 @@ struct UnitAny {
 	StatList *pStats;				//0x5C
 	Inventory *pInventory;			//0x60
 	Light *ptLight;					//0x64
-	DWORD _6[9];					//0x68
+	DWORD dwStartLightRadius;               //0x68
+	WORD nPl2ShiftIdx;                              //0x6C
+	WORD nUpdateType;                               //0x6E
+	UnitAny* pUpdateUnit;                           //0x70 - Used when updating unit.
+	DWORD* pQuestRecord;                    //0x74
+	DWORD bSparklyChest;                    //0x78 bool
+	DWORD* pTimerArgs;                              //0x7C
+	DWORD dwSoundSync;                              //0x80
+	DWORD _6[2];                                    //0x84
 	WORD wX;						//0x8C
 	WORD wY;						//0x8E
 	DWORD _7;						//0x90

@@ -121,23 +121,25 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 ClientGameState ClientState(void)
 {
 	ClientGameState state = ClientStateNull;
+	UnitAny* player = D2CLIENT_GetPlayerUnit();
+	Control *firstControl = *p_D2WIN_FirstControl;
 
-	if(D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
+	if(player && !firstControl)
 	{
-		if(D2CLIENT_GetPlayerUnit()->pInventory &&
-		   D2CLIENT_GetPlayerUnit()->pPath &&
-		   D2CLIENT_GetPlayerUnit()->pPath->xPos &&
-		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1 &&
-		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2 &&
-		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel &&
-		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
+		if(	player->pInventory &&
+			player->pPath &&
+			//player->pPath->xPos &&
+			player->pPath->pRoom1 &&
+			player->pPath->pRoom1->pRoom2 &&
+			player->pPath->pRoom1->pRoom2->pLevel &&
+			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
 			state = ClientStateInGame;
 		else
 			state = ClientStateBusy;
 	}
-	else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
+	else if(!player && firstControl)
 		state = ClientStateMenu;
-	else if(!D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
+	else if(!player && !firstControl)
 		state = ClientStateNull;
 
 	return state;
