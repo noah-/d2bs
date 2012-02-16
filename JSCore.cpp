@@ -245,7 +245,36 @@ JSAPI_FUNC(my_debugLog)
 
 	return JS_TRUE;
 }
+JSAPI_FUNC(my_copy)
+{
+	char  *data = NULL;
+	if(!JS_ConvertArguments(cx, argc, argv, "s", &data))
+		return JS_FALSE;
 
+	HGLOBAL hText;
+	char *pText;
+	hText = GlobalAlloc(GMEM_DDESHARE|GMEM_MOVEABLE, strlen(data)+1);
+	pText = (char*)GlobalLock(hText);
+	strcpy_s(pText,strlen(data)+1, data);
+	GlobalUnlock(hText);
+
+	OpenClipboard(NULL);
+	EmptyClipboard();
+	SetClipboardData(CF_TEXT, hText);
+	CloseClipboard();
+	return JS_TRUE;
+}
+JSAPI_FUNC(my_paste)
+{
+	OpenClipboard(NULL);
+	HANDLE foo = GetClipboardData(CF_TEXT);
+	CloseClipboard();
+	LPVOID lptstr = GlobalLock(foo);
+	(char *)lptstr;
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)lptstr));
+	return JS_TRUE;
+}
 JSAPI_FUNC(my_sendCopyData)
 {
 	if(argc < 4)

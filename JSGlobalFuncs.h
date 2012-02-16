@@ -55,6 +55,8 @@ static JSFunctionSpec global_funcs[] = {
 	{"include",				my_include,				1},
 	{"stop",				my_stop,				0},
 	{"rand",				my_rand,				0},
+	{"copy",				my_copy,				0},
+	{"paste",				my_paste,				0},
 	{"sendCopyData",		my_sendCopyData,		4},
 	{"sendDDE",				my_sendDDE,				0},
 	{"keystate",			my_keystate,			0},

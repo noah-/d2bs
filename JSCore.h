@@ -11,6 +11,8 @@ JSAPI_FUNC(my_include);
 JSAPI_FUNC(my_isIncluded);
 JSAPI_FUNC(my_stop);
 JSAPI_FUNC(my_beep);
+JSAPI_FUNC(my_copy);
+JSAPI_FUNC(my_paste);
 JSAPI_FUNC(my_sendCopyData);
 JSAPI_FUNC(my_sendDDE);
 JSAPI_FUNC(my_keystate);
