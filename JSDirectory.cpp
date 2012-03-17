@@ -151,6 +151,8 @@ JSAPI_FUNC(dir_create)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char path[_MAX_PATH];
+	if (!JSVAL_IS_STRING(argv[0]))
+		THROW_ERROR(cx, "No path passed to dir.create()");
 	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 
 	if(!isValidPath(name))

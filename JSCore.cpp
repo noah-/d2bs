@@ -170,7 +170,7 @@ JSAPI_FUNC(my_beep)
 
 JSAPI_FUNC(my_getTickCount)
 {
-	*rval = INT_TO_JSVAL(GetTickCount());
+	JS_NewNumberValue(cx, (jsdouble)GetTickCount(), rval);
 	return JS_TRUE;
 }
 
@@ -307,7 +307,7 @@ JSAPI_FUNC(my_sendCopyData)
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
 	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy));
-
+	
 	return JS_TRUE;
 }
 
