@@ -500,23 +500,27 @@ DWORD WINAPI RunCommandThread(void* data)
 {
 	RUNCOMMANDSTRUCT* rcs = (RUNCOMMANDSTRUCT*) data;
 	
-	JS_SetContextThread(rcs->script->GetContext());
-	JS_BeginRequest(rcs->script->GetContext());
+	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+	JS_SetContextPrivate(cx, rcs->script);
+
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
 	jsval rval;
-	if(JS_EvaluateScript(rcs->script->GetContext(), rcs->script->GetGlobalObject(), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
+	
+	if(JS_EvaluateScript(cx, rcs->script->GetGlobalObject(), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
 	{
 		if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
 		{
-			JS_ConvertValue(rcs->script->GetContext(), rval, JSTYPE_STRING, &rval);
-			char* text =_strdup( JS_GetStringBytes(JS_ValueToString(rcs->script->GetContext(), rval)));
+			JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
+			char* text =_strdup( JS_GetStringBytes(JS_ValueToString(cx, rval)));
 			std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
 			Print(text);
 			free(text);
 		}
 	}
-	JS_EndRequest(rcs->script->GetContext());
-	JS_ClearContextThread(rcs->script->GetContext());
-
+	JS_EndRequest(cx);
+	JS_ClearContextThread(cx);
+	JS_DestroyContextNoGC(cx);
 	delete rcs->command;
 	delete rcs;
 
