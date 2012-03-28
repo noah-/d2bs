@@ -49,8 +49,7 @@ static LevelList levelCache;
 class ActMap : public Map
 {
 public:
-	void ActMap::CleanUp(void);
-		
+	
 	enum CollisionFlag {
 		None				= 0x0000,
 		BlockWalk			= 0x0001,
@@ -114,7 +113,8 @@ private:
 	~ActMap(void);
 
 public:
-
+	void CleanUp(void) const;
+		
 	static ActMap* GetMap(Level* level);
 	static void ClearCache(void);
 	void Dump(const char* file, const PointList& points) const;

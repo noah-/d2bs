@@ -78,7 +78,7 @@ private:
 		alloc.construct(begin, Node(start, NULL, 0, estimate(map, start, end)));
 		nodes.push_back(begin);
 		open.push(begin);
-		
+		DWORD ticks = GetTickCount();
 		while(!open.empty())
 		{
 			Node* current = open.top();
@@ -91,7 +91,16 @@ private:
 				*result = current;
 				return;
 			}
-
+			// this is to make d2 not completly freeze on long paths. 
+			if (GetTickCount() - ticks > 500){
+				map->CleanUp();
+				LeaveCriticalSection(&Vars.cGameLoopSection);
+				InterlockedDecrement(&Vars.SectionCount);
+					Sleep(1);
+				InterlockedIncrement(&Vars.SectionCount);
+				EnterCriticalSection(&Vars.cGameLoopSection);
+				ticks=GetTickCount();
+			}
 			bool result = closed.insert(current->point).second;
 			assert(result == true);
 			(void)(result); // shut up compiler about unused variable warning
@@ -134,7 +143,7 @@ public:
 	{
 		Node* result = NULL;
 		Point start = _start, end = _end;
-
+		
 		// if we don't have a valid start and end, try mutating the points
 		if(reducer->Reject(start, abs))
 			reducer->MutatePoint(start, abs);

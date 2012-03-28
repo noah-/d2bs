@@ -433,10 +433,24 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	evt->argc = argc;
 	evt->argv = argv;
 	evt->object = globalObject;
+	
+	int timeout = 0;
+	while(! TryEnterCriticalSection(&Vars.cEventSection) )
+	{
+		timeout++ ;
+		if(timeout > 3)
+		{
+			HANDLE hThread;
+			hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+			CloseHandle(hThread);
+			return;
+		}
+		Sleep(10);
+	}
 
-	HANDLE hThread;
-	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-	CloseHandle(hThread);
+	Vars.EventList.push_front(evt);
+	LeaveCriticalSection(&Vars.cEventSection);
+
 }
 bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 {
@@ -592,4 +606,91 @@ DWORD WINAPI FuncThread(void* data)
 	delete evt;
 	
 	return block;
+}
+DWORD WINAPI EventThread(LPVOID lpParam)
+{
+
+	while(Vars.bNeedShutdown)
+	{
+		Sleep(10);
+		while(Vars.EventList.size() > 0)
+		{
+			EnterCriticalSection(&Vars.cEventSection);
+				Event* evt = Vars.EventList.back();
+				Vars.EventList.pop_back();
+			LeaveCriticalSection(&Vars.cEventSection);
+			
+			JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+			JS_SetContextPrivate(cx, evt->owner);
+			JS_BeginRequest(cx);
+
+				callEventFunction(cx,evt); // call the first event
+			bool match = false;  // vars to keep event list unlocked dont want the list locked while in event call
+			bool fullSearch = false; 
+			while (!fullSearch)
+			{
+				match = false;
+				EnterCriticalSection(&Vars.cEventSection); // call any other events on the que with the same script
+				for(list<Event*>::iterator it = Vars.EventList.begin(); it != Vars.EventList.end(); it++)
+				{					
+					if((*it)->owner->GetThreadId() == evt->owner->GetThreadId())
+					{
+						match = true;
+						evt=(*it);
+						Vars.EventList.erase(it);
+						break;
+					}			
+				}
+				LeaveCriticalSection(&Vars.cEventSection);
+				if(match)				
+					callEventFunction(cx,evt);
+				else
+					fullSearch = true; 
+			}
+
+			JS_DestroyContextNoGC(cx);
+			// we have to clean up the event
+			for(uintN i = 0; i < evt->argc; i++)
+			{
+				evt->argv[i]->Release();
+				if(evt->argv[i])
+					delete evt->argv[i];
+			}
+			if(evt->argv)
+				delete[] evt->argv;
+			delete evt;
+		}		
+	}			
+	return true;
+}
+bool callEventFunction(JSContext* cx ,Event* evt)
+{
+	bool block =false;
+	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
+	{
+		jsval* args = new jsval[evt->argc];
+		for(uintN i = 0; i < evt->argc; i++)
+		{
+			args[i] = *evt->argv[i]->value();
+			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			{
+				if(evt->argv)
+					delete[] evt->argv;
+				delete evt;
+				return false;
+			}
+		}
+		jsval rval = JSVAL_VOID;
+
+		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+		{
+			JS_CallFunctionValue(cx, evt->object, *(*it)->value(), evt->argc, args, &rval);
+			block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
+		}
+
+		for(uintN i = 0; i < evt->argc; i++)
+			JS_RemoveRoot(&args[i]);
+		delete[] args;
+	}
+return block;
 }

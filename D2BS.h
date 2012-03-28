@@ -6,7 +6,7 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#define D2BS_VERSION "1.4.1688"
+#define D2BS_VERSION "1.4.1689"
 
 #include <windows.h>
 #include <vector>
@@ -78,7 +78,8 @@ struct Variables
 
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 	std::vector<std::pair<DWORD, DWORD> > vUnitList;
-
+	std::list<Event*> EventList;
+	CRITICAL_SECTION	cEventSection;
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;
 	CRITICAL_SECTION	cScreenhookSection;

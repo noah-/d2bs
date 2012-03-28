@@ -349,7 +349,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 				break;
 			case WM_MOUSEMOVE:
 				// would be nice to enable these events but they bog down too much
-				//MouseMoveEvent(pt);
+				MouseMoveEvent(pt);
 				//Genhook::ForEachVisibleHook(HoverHook, &helper, 1);
 				break;
 		}

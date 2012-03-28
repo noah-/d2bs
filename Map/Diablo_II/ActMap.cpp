@@ -208,7 +208,8 @@ WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 	return val;
 }
 
-void ActMap::CleanUp(void){
+void ActMap::CleanUp(void) const
+{
 	
 	for(RoomList::iterator it = RoomsAdded.begin(); it != RoomsAdded.end(); it++)
 		RemoveRoomData(*it);

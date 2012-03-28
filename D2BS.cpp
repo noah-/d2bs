@@ -18,7 +18,7 @@
 #endif
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
-
+static HANDLE hEventThread = INVALID_HANDLE_VALUE;
 BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason)
@@ -76,6 +76,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 
 BOOL Startup(void)
 {
+	InitializeCriticalSection(&Vars.cEventSection);
 	InitializeCriticalSection(&Vars.cRoomSection);
 	InitializeCriticalSection(&Vars.cMiscSection);
 	InitializeCriticalSection(&Vars.cScreenhookSection);
@@ -103,7 +104,7 @@ BOOL Startup(void)
 
 	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
 		return FALSE;
-
+	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
 	return TRUE;
 }
 

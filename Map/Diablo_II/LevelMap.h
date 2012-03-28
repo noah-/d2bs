@@ -42,7 +42,7 @@ static LevelList levelCache;
 class LevelMap : public Map
 {
 public:
-	void LevelMap::CleanUp(void);
+	
 		
 	enum CollisionFlag {
 		None				= 0x0000,
@@ -116,11 +116,11 @@ private:
 	~LevelMap(void);
 
 public:
-
+	
 	static LevelMap* GetMap(Level* level);
 	static void ClearCache(void);
 	void Dump(const char* file, const PointList& points) const;
-
+	void CleanUp(void) const;
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
 	

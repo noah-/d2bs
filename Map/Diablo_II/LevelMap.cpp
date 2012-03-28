@@ -16,7 +16,10 @@ LevelMap* LevelMap::GetMap(Level* level)
 	cache[level->dwLevelNo] = map;
 	return map;
 }
-
+void LevelMap::CleanUp(void) const
+{
+	//Dummy Sub here because act map has it
+}
 void LevelMap::ClearCache(void)
 {
 	LevelMapList::iterator end = cache.end();

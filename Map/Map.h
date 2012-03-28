@@ -14,7 +14,7 @@ class Map
 {
 public:
 	virtual void Dump(const char* file, const PointList& points) const = 0;
-
+	virtual void CleanUp(void) const = 0;
 	virtual int GetWidth(void) const = 0;
 	virtual int GetHeight(void) const = 0;
 
