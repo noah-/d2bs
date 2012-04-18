@@ -81,7 +81,9 @@ public:
 	DWORD GetThreadId(void);
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
 	void UpdatePlayerGid(void);
-
+	// Hack. Include from console needs to run on the RunCommandThread / cx. 
+	//		 a better solution may be to keep a list of threadId / cx and have a GetCurrentThreadCX()   
+	inline void SetContext(JSContext* cx) { context = cx;}
 	bool IsRunning(void);
 	bool IsAborted(void);
 

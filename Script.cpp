@@ -520,7 +520,8 @@ DWORD WINAPI RunCommandThread(void* data)
 	JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	jsval rval;
-	
+	JSContext* orignalCx = rcs->script->GetContext();
+	rcs->script->SetContext(cx);
 	if(JS_EvaluateScript(cx, rcs->script->GetGlobalObject(), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
 	{
 		if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
@@ -534,6 +535,7 @@ DWORD WINAPI RunCommandThread(void* data)
 	}
 	JS_EndRequest(cx);
 	JS_ClearContextThread(cx);
+	rcs->script->SetContext(orignalCx);
 	JS_DestroyContextNoGC(cx);
 	delete rcs->command;
 	delete rcs;
