@@ -105,7 +105,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"useStatPoint",		my_useStatPoint,		1},
 	{"useSkillPoint",		my_useSkillPoint,		1},
 	{"takeScreenshot",		my_takeScreenshot,		0},
-
+	{"moveNPC",             my_moveNPC,             0},
 	// drawing functions
 	{"screenToAutomap",		screenToAutomap,		1},
 	{"automapToScreen",		automapToScreen,		1},

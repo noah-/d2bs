@@ -1379,3 +1379,41 @@ JSAPI_FUNC(my_takeScreenshot)
 	D2WIN_TakeScreenshot();
 	return JS_TRUE;
 }
+JSAPI_FUNC(my_moveNPC)
+{   
+	if(!WaitForGameReady())
+        THROW_WARNING(cx, "Game not ready");
+
+	if(!Vars.bEnableUnsupported)
+	{
+		THROW_WARNING(cx, "moveNPC requires EnableUnsupported = true in d2bs.ini");
+		return JS_TRUE;
+	}
+
+    if(argc   < 2)
+        THROW_ERROR(cx, "Not enough parameters were passed to moveNPC!");
+
+    *rval = JSVAL_FALSE;
+
+    myUnit* pNpc =   (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+ 
+    if(!pNpc || pNpc->dwType !=1)
+        THROW_ERROR(cx, "Invalid NPC passed to moveNPC!");
+
+    DWORD dwX = JSVAL_TO_INT(argv[1]);
+    DWORD dwY = JSVAL_TO_INT(argv[2]);
+
+    if(!WaitForGameReady())
+        THROW_WARNING(cx, "Game not ready");
+
+    BYTE aPacket[17];
+    aPacket[0] = 0x59;
+    *(DWORD*)&aPacket[1] =  pNpc->dwType;  
+    *(DWORD*)&aPacket[5] =   pNpc->dwUnitId;
+    *(DWORD*)&aPacket[9] =  dwX;
+    *(DWORD*)&aPacket[13] = dwY;
+
+    D2NET_SendPacket(sizeof(aPacket), 1, aPacket);
+    *rval = JSVAL_TRUE;
+    return JS_TRUE;
+}

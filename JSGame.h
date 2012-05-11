@@ -41,5 +41,5 @@ JSAPI_FUNC(my_getTradeInfo);
 JSAPI_FUNC(my_getWaypoint);
 JSAPI_FUNC(my_getBaseStat);
 JSAPI_FUNC(my_getPlayerFlag);
-
+JSAPI_FUNC(my_moveNPC);
 #endif
