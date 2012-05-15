@@ -282,9 +282,12 @@ JSAPI_FUNC(my_sendCopyData)
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
-
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
 	jsint nModeId = NULL;
+	HWND hWnd = NULL;
+		
+	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+		JS_ValueToECMAUint32(cx, argv[1], (uint32*)&hWnd);
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
 		return JS_FALSE;
@@ -293,14 +296,15 @@ JSAPI_FUNC(my_sendCopyData)
 		windowClassName = NULL;
 	if(_strcmpi(windowName, "null") == 0)
 		windowName = NULL;
-
-	HWND hWnd = FindWindow(windowClassName, windowName);
-	if(!hWnd)
+	if(hWnd == NULL)
 	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
+		hWnd = FindWindow(windowClassName, windowName);
+		if(!hWnd)
+		{
+			*rval = JSVAL_FALSE;
+			return JS_TRUE;
+		}
 	}
-
 	// if data is NULL, strlen crashes
 	if(data == NULL)
 		data = "";
