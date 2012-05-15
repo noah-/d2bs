@@ -452,3 +452,53 @@ JSAPI_FUNC(my_loadMpq)
 
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_sendPacket)
+{
+
+	if(!Vars.bEnableUnsupported)
+	{
+		THROW_WARNING(cx, "sendPacket requires EnableUnsupported = true in d2bs.ini");
+		return JS_TRUE;
+	}
+	
+	BYTE* aPacket = new BYTE[20];
+	BYTE* pPacket = aPacket;
+	uint type = 1;
+	for(uint i = 0; i < argc; i++){
+		if(i%2 == 0){ 
+			JS_ValueToECMAUint32(cx, argv[i], (uint32*)&type); ++i;
+		}
+		JS_ValueToECMAUint32(cx, argv[i], (uint32*)aPacket);
+		aPacket += type; 
+	}
+	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
+	delete[] aPacket;
+	*rval = JSVAL_TRUE;
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_getPacket)
+{
+
+	if(!Vars.bEnableUnsupported)
+	{
+		THROW_WARNING(cx, "getPacket requires EnableUnsupported = true in d2bs.ini");
+		return JS_TRUE;
+	}
+	
+	BYTE* aPacket = new BYTE[20];
+	BYTE* pPacket = aPacket;
+	uint type = 1;
+	for(uint i = 0; i < argc; i++){
+		if(i%2 == 0){ 
+			JS_ValueToECMAUint32(cx, argv[i], (uint32*)&type); ++i;
+		}
+		JS_ValueToECMAUint32(cx, argv[i], (uint32*)aPacket);
+		aPacket += type; 
+	}
+	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
+	delete[] aPacket;
+	*rval = JSVAL_TRUE;
+	return JS_TRUE;
+}

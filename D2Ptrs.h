@@ -316,6 +316,7 @@ ASMPTR(D2COMMON, GetLevelIdFromRoom_I, 0x23B80)
 
 FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), 0x6F20)
 FUNCPTR(D2NET, ReceivePacket_I, void __stdcall, (BYTE *aPacket, DWORD aLen), 0x6020)
+FUNCPTR(D2NET, ReceivePacket, void __stdcall, (BYTE *aPacket, DWORD aLen), 0x64A0)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
