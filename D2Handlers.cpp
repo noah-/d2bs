@@ -70,6 +70,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			}
 			case ClientStateMenu:
 			{
+				while(Vars.bUseProfileScript){
+					Sleep(100);
+				}
 				MenuEntered(beginStarter);
 				beginStarter = false;
 				if(bInGame)

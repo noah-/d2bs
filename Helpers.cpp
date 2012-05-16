@@ -70,7 +70,7 @@ bool SwitchToProfile(const char* profile)
 		strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
 
 	Vars.bUseProfileScript = FALSE;
-	Reload();
+	//Reload();
 	return true;
 }
 
