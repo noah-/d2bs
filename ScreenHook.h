@@ -45,7 +45,7 @@ protected:
 	bool isAutomap, isVisible;
 	ushort opacity, zorder;
 	POINT location;
-	CRITICAL_SECTION hookSection;
+	//CRITICAL_SECTION hookSection;
 
 	Genhook(const Genhook&);
 	Genhook& operator=(const Genhook&);
