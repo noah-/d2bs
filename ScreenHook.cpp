@@ -65,6 +65,7 @@ bool __fastcall CleanHook(Genhook* hook, void* argv, uint argc)
 	if(hook->owner == (Script*)argv)
 		hook->SetIsVisible(false);
 	return true;
+	
 }
 
 void Genhook::DrawAll(ScreenhookState type)
@@ -151,13 +152,31 @@ void Genhook::Clean(Script* owner)
 	if(!init)
 		return;
 
-	ForEachHook(CleanHook, owner, 1);
+//ForEachHook(CleanHook, owner, 1);
+EnterCriticalSection(&globalSection);
+
+for(HookIterator it = visible.begin(); it != visible.end(); it++)
+		if((*it)->owner == owner)
+		{
+			visible.erase(it);
+			it = visible.begin();
+		}
+
+for(HookIterator it = invisible.begin(); it != invisible.end(); it++)
+	if((*it)->owner == owner)
+	{
+		invisible.erase(it);
+		it = invisible.begin();
+	}
+		
+LeaveCriticalSection(&globalSection);
+
 }
 
 Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
 	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState), zorder(1)
 {
-	InitializeCriticalSection(&hookSection);
+	//InitializeCriticalSection(&hookSection);
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
 	JS_AddRoot(&self);
@@ -187,7 +206,7 @@ Genhook::~Genhook(void) {
 	LeaveCriticalSection(&globalSection);
 
 	Unlock();
-	DeleteCriticalSection(&hookSection);
+	//DeleteCriticalSection(&hookSection);
 }
 
 bool Genhook::Click(int button, POINT* loc)
@@ -253,10 +272,13 @@ void Genhook::SetClickHandler(jsval handler)
 {
 	if(!owner)
 		return;
+	
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(&clicked);
 	JSContext* cx = ScriptEngine::GetGlobalContext();
+	
+	
 	JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	if(JSVAL_IS_FUNCTION(cx, handler))
