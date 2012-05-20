@@ -18,6 +18,7 @@ void hook_finalize(JSContext *cx, JSObject *obj)
 
 JSAPI_FUNC(hook_remove)
 {
+	JSObject* obj = JS_THIS_OBJECT(cx, vp);
 	Genhook::EnterGlobalSection();
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
@@ -45,22 +46,22 @@ JSAPI_FUNC(frame_ctor)
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		x = JSVAL_TO_INT(argv[0]);
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		y = JSVAL_TO_INT(argv[1]);
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		x2 = JSVAL_TO_INT(argv[2]);
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		y2 = JSVAL_TO_INT(argv[3]);
-	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		align = (Align)JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
-		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
-	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
-		click = argv[6];
-	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		hover = argv[7];
+	if(argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+		x = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
+	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
+		y = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
+	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
+		x2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
+	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
+		y2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
+	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
+		align = (Align)JSVAL_TO_INT(JS_ARGV(cx, vp)[4]);
+	if(argc > 5 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[5]))
+		automap = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[6]))
+		click = JS_ARGV(cx, vp)[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
+		hover = JS_ARGV(cx, vp)[7];
 
 	JSObject* hook = BuildObject(cx, &frame_class, frame_methods, frame_props);
 	if(!hook)
@@ -76,7 +77,7 @@ JSAPI_FUNC(frame_ctor)
 	pFrameHook->SetClickHandler(click);
 	pFrameHook->SetHoverHandler(hover);
 
-	*rval = OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(hook));
 
 	return JS_TRUE;
 }
@@ -87,7 +88,9 @@ JSAPI_PROP(frame_getProperty)
 	if(!pFramehook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case FRAME_X:
 			*vp = INT_TO_JSVAL(pFramehook->GetX());
 			break;
@@ -119,13 +122,15 @@ JSAPI_PROP(frame_getProperty)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(frame_setProperty)
+JSAPI_STRICT_PROP(frame_setProperty)
 {
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
 	if(!pFramehook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)){
 		case FRAME_X:
 			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetX(JSVAL_TO_INT(*vp));
@@ -178,26 +183,26 @@ JSAPI_FUNC(box_ctor)
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		x = JSVAL_TO_INT(argv[0]);
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		y = JSVAL_TO_INT(argv[1]);
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		x2 = JSVAL_TO_INT(argv[2]);
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		y2 = JSVAL_TO_INT(argv[3]);
-	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		color = (ushort)JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_INT(argv[5]))
-		opacity = (ushort)JSVAL_TO_INT(argv[5]);
-	if(argc > 6 && JSVAL_IS_INT(argv[6]))
-		align = (Align)JSVAL_TO_INT(argv[6]);
-	if(argc > 7 && JSVAL_IS_BOOLEAN(argv[7]))
-		automap = !!JSVAL_TO_BOOLEAN(argv[7]);
-	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
-		click = argv[8];
-	if(argc > 9 && JSVAL_IS_FUNCTION(cx, argv[9]))
-		hover = argv[9];
+	if(argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+		x = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
+	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
+		y = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
+	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
+		x2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
+	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
+		y2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
+	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
+		color = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[4]);
+	if(argc > 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[5]))
+		opacity = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[5]);
+	if(argc > 6 && JSVAL_IS_INT(JS_ARGV(cx, vp)[6]))
+		align = (Align)JSVAL_TO_INT(JS_ARGV(cx, vp)[6]);
+	if(argc > 7 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[7]))
+		automap = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[7]);
+	if(argc > 8 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]))
+		click = JS_ARGV(cx, vp)[8];
+	if(argc > 9 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[9]))
+		hover = JS_ARGV(cx, vp)[9];
 
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props);
 	if(!hook)
@@ -212,7 +217,7 @@ JSAPI_FUNC(box_ctor)
 	pBoxHook->SetClickHandler(click);
 	pBoxHook->SetHoverHandler(hover);
 
-	*rval = OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(hook));
 
 	return JS_TRUE;
 }
@@ -222,7 +227,9 @@ JSAPI_PROP(box_getProperty)
 	if(!pBoxHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case BOX_X:
 			*vp = INT_TO_JSVAL(pBoxHook->GetX());
 			break;
@@ -260,13 +267,15 @@ JSAPI_PROP(box_getProperty)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(box_setProperty)
+JSAPI_STRICT_PROP(box_setProperty)
 {
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	if(!pBoxHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case BOX_X:
 			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetX(JSVAL_TO_INT(*vp));
@@ -327,22 +336,22 @@ JSAPI_FUNC(line_ctor)
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		x = JSVAL_TO_INT(argv[0]);
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		y = JSVAL_TO_INT(argv[1]);
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		x2 = JSVAL_TO_INT(argv[2]);
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		y2 = JSVAL_TO_INT(argv[3]);
-	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		color = (ushort)JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
-		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
-	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
-		click = argv[6];
-	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		hover = argv[7];
+	if(argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+		x = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
+	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
+		y = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
+	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
+		x2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
+	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
+		y2 = JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
+	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
+		color = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[4]);
+	if(argc > 5 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[5]))
+		automap = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[6]))
+		click = JS_ARGV(cx, vp)[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
+		hover = JS_ARGV(cx, vp)[7];
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props);
 	if(!hook)
@@ -357,7 +366,7 @@ JSAPI_FUNC(line_ctor)
 	pLineHook->SetClickHandler(click);
 	pLineHook->SetHoverHandler(hover);
 
-	*rval = OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(hook));
 
 	return JS_TRUE;
 }
@@ -369,7 +378,9 @@ JSAPI_PROP(line_getProperty)
 	if(!pLineHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case LINE_X:
 			*vp = INT_TO_JSVAL(pLineHook->GetX());
 			break;
@@ -401,13 +412,15 @@ JSAPI_PROP(line_getProperty)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(line_setProperty)
+JSAPI_STRICT_PROP(line_setProperty)
 {
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	if(!pLineHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case LINE_X:
 			if (JSVAL_IS_INT(*vp))
 				pLineHook->SetX(JSVAL_TO_INT(*vp));
@@ -462,26 +475,26 @@ JSAPI_FUNC(text_ctor)
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 	char* szText = "";
 
-	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-		szText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
+		szText = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 		if(!szText)
 			return JS_TRUE;
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		x = JSVAL_TO_INT(argv[1]);
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		y = JSVAL_TO_INT(argv[2]);
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		color = (ushort)JSVAL_TO_INT(argv[3]);
-	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		font = (ushort)JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_INT(argv[5]))
-		align = (Align)JSVAL_TO_INT(argv[5]);
-	if(argc > 6 && JSVAL_IS_BOOLEAN(argv[6]))
-		automap = !!JSVAL_TO_BOOLEAN(argv[6]);
-	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		click = argv[7];
-	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
-		hover = argv[8];
+	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
+		x = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
+	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
+		y = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
+	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
+		color = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
+	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
+		font = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[4]);
+	if(argc > 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[5]))
+		align = (Align)JSVAL_TO_INT(JS_ARGV(cx, vp)[5]);
+	if(argc > 6 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[6]))
+		automap = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[6]);
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
+		click = JS_ARGV(cx, vp)[7];
+	if(argc > 8 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]))
+		hover = JS_ARGV(cx, vp)[8];
 
 	JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props);
 	if(!hook)
@@ -496,7 +509,7 @@ JSAPI_FUNC(text_ctor)
 	pTextHook->SetClickHandler(click);
 	pTextHook->SetHoverHandler(hover);
 
-	*rval = OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(hook);
 
 	return JS_TRUE;
 }
@@ -507,7 +520,9 @@ JSAPI_PROP(text_getProperty)
 	if(!pTextHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case TEXT_X:
 			*vp = INT_TO_JSVAL(pTextHook->GetX());
 			break;
@@ -542,13 +557,15 @@ JSAPI_PROP(text_getProperty)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(text_setProperty)
+JSAPI_STRICT_PROP(text_setProperty)
 {
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	if(!pTextHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case TEXT_X:
 			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetX(JSVAL_TO_INT(*vp));
@@ -568,7 +585,7 @@ JSAPI_PROP(text_setProperty)
 		case TEXT_TEXT:
 			if(JSVAL_IS_STRING(*vp))
 			{
-				char* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				char* pText = JS_EncodeString(cx,JS_ValueToString(cx, *vp));
 				if(!pText)
 					return JS_TRUE;
 				pTextHook->SetText(pText);
@@ -613,24 +630,24 @@ JSAPI_FUNC(image_ctor)
 	char* szText = "";
 	char path[_MAX_FNAME+_MAX_PATH];
 
-	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
+		szText	= JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 		if(!szText)
 			return JS_TRUE;
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
 		x = JSVAL_TO_INT(argv[1]);
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
 		y = JSVAL_TO_INT(argv[2]);
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		color = (ushort)JSVAL_TO_INT(argv[3]);
-	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		align = (Align)JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
-		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
-	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
-		click = argv[6];
-	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		hover = argv[7];
+	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
+		color = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
+	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
+		align = (Align)JSVAL_TO_INT(JS_ARGV(cx, vp)[4]);
+	if(argc > 5 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[5]))
+		automap = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[6]))
+		click = JS_ARGV(cx, vp)[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
+		hover = JS_ARGV(cx, vp)[7];
 
 	if(!isValidPath(path))
 		THROW_ERROR(cx, "Invalid image file path");
@@ -649,7 +666,7 @@ JSAPI_FUNC(image_ctor)
 	pImageHook->SetClickHandler(click);
 	pImageHook->SetHoverHandler(hover);
 
-	*rval = OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(hook));
 
 	return JS_TRUE;
 }
@@ -689,7 +706,7 @@ JSAPI_PROP(image_getProperty)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(image_setProperty)
+JSAPI_STRICT_PROP(image_setProperty)
 {
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	if(!pImageHook)
@@ -707,7 +724,7 @@ JSAPI_PROP(image_setProperty)
 		case IMAGE_LOCATION:
 			if(JSVAL_IS_STRING(*vp))
 			{
-				char* pimage = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				char* pimage = JS_EncodeString(cx,JS_ValueToString(cx, *vp));
 				if(!pimage)
 					return JS_TRUE;
 				pImageHook->SetImage(pimage);
@@ -759,7 +776,7 @@ JSAPI_FUNC(screenToAutomap)
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
 			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(res);
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 		}
 		else
 			THROW_ERROR(cx, "Invalid object specified to screenToAutomap");
@@ -779,7 +796,7 @@ JSAPI_FUNC(screenToAutomap)
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
 			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(res);
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 		}
 		else
 			THROW_ERROR(cx, "screenToAutomap expects two arguments to be two integers");
@@ -813,7 +830,7 @@ JSAPI_FUNC(automapToScreen)
 			y = INT_TO_JSVAL(iy);
 			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(arg);
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(arg));
 		}
 		else
 			THROW_ERROR(cx, "Invalid object specified to automapToScreen");
@@ -834,7 +851,7 @@ JSAPI_FUNC(automapToScreen)
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
 			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(res);
+			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 		}
 		else
 			THROW_ERROR(cx, "automapToScreen expects two arguments to be two integers");

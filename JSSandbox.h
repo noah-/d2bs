@@ -8,7 +8,7 @@ JSAPI_FUNC(sandbox_ctor);
 JSAPI_PROP(sandbox_addProperty);
 JSAPI_PROP(sandbox_delProperty);
 JSAPI_PROP(sandbox_getProperty);
-JSAPI_PROP(sandbox_setProperty);
+JSAPI_STRICT_PROP(sandbox_setProperty);
 
 JSAPI_FUNC(sandbox_eval);
 JSAPI_FUNC(sandbox_include);

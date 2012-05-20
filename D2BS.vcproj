@@ -281,9 +281,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib dbghelp.lib js32/js32.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib dbghelp.lib dependencies\libs\debug\mozjs.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				UACExecutionLevel="2"
+				UACUIAccess="true"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
@@ -512,55 +514,51 @@
 				Name="Engine Imports"
 				>
 				<File
-					RelativePath=".\js32\jsapi.h"
+					RelativePath=".\dependencies\include\js-config.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jscompat.h"
+					RelativePath=".\dependencies\include\jsapi.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsconfig.h"
+					RelativePath=".\dependencies\include\jscompat.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jscpucfg.h"
+					RelativePath=".\dependencies\include\jscpucfg.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsdbgapi.h"
+					RelativePath=".\dependencies\include\jsinttypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jslong.h"
+					RelativePath=".\dependencies\include\jsotypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsopcode.h"
+					RelativePath=".\dependencies\include\jsproto.tbl"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsosdep.h"
+					RelativePath=".\dependencies\include\jspubtd.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsotypes.h"
+					RelativePath=".\dependencies\include\jstypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsprvtd.h"
+					RelativePath=".\dependencies\include\jsutil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jspubtd.h"
+					RelativePath=".\dependencies\include\jsval.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jstypes.h"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsutil.h"
+					RelativePath=".\dependencies\include\jsversion.h"
 					>
 				</File>
 			</Filter>
@@ -867,10 +865,6 @@
 			<Filter
 				Name="Engine"
 				>
-				<File
-					RelativePath=".\AutoRoot.cpp"
-					>
-				</File>
 				<File
 					RelativePath=".\AutoRoot.h"
 					>

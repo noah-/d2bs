@@ -527,7 +527,7 @@ DWORD WINAPI RunCommandThread(void* data)
 		if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
 		{
 			JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-			char* text =_strdup( JS_GetStringBytes(JS_ValueToString(cx, rval)));
+			char* text =_strdup( JS_EncodeString(cx,JS_ValueToString(cx, rval)));
 			std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
 			Print(text);
 			free(text);

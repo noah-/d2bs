@@ -11,7 +11,7 @@ void hook_finalize(JSContext *cx, JSObject *obj);
 **********************************************************/
 JSAPI_FUNC(frame_ctor);
 JSAPI_PROP(frame_getProperty);
-JSAPI_PROP(frame_setProperty);
+JSAPI_STRICT_PROP(frame_setProperty);
 
 enum frame_tinyid {
 	FRAME_X,
@@ -48,7 +48,7 @@ static JSFunctionSpec frame_methods[] = {
 **********************************************************/
 JSAPI_FUNC(box_ctor);
 JSAPI_PROP(box_getProperty);
-JSAPI_PROP(box_setProperty);
+JSAPI_STRICT_PROP(box_setProperty);
 
 enum box_tinyid {
 	BOX_X,
@@ -90,7 +90,7 @@ static JSFunctionSpec box_methods[] = {
 **********************************************************/
 JSAPI_FUNC(line_ctor);
 JSAPI_PROP(line_getProperty);
-JSAPI_PROP(line_setProperty);
+JSAPI_STRICT_PROP(line_setProperty);
 
 enum line_tinyid {
 	LINE_X,
@@ -127,7 +127,7 @@ static JSFunctionSpec line_methods[] = {
 **********************************************************/
 JSAPI_FUNC(text_ctor);
 JSAPI_PROP(text_getProperty);
-JSAPI_PROP(text_setProperty);
+JSAPI_STRICT_PROP(text_setProperty);
 
 enum text_tinyid {
 	TEXT_X,
@@ -166,7 +166,7 @@ static JSFunctionSpec text_methods[] = {
 **********************************************************/
 JSAPI_FUNC(image_ctor);
 JSAPI_PROP(image_getProperty);
-JSAPI_PROP(image_setProperty);
+JSAPI_STRICT_PROP(image_setProperty);
 
 enum image_tinyid {
 	IMAGE_X,

@@ -31,7 +31,7 @@
 // Directory stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-EMPTY_CTOR(dir)
+JSAPI_EMPTY_CTOR(dir)
 
 JSAPI_FUNC(my_openDir)
 {
@@ -39,7 +39,7 @@ JSAPI_FUNC(my_openDir)
 		return JS_TRUE;
 
 	char path[_MAX_PATH];
-	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
 	if(!isValidPath(name))
 		return JS_TRUE;
@@ -53,7 +53,7 @@ JSAPI_FUNC(my_openDir)
 	else {
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
-		*rval = OBJECT_TO_JSVAL(jsdir);
+		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsdir));
 	}
 
 	return JS_TRUE;
@@ -72,10 +72,10 @@ JSAPI_FUNC(dir_getFiles)
 	if(argc > 1)
 		return JS_TRUE;
 	if(argc < 1)
-		argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
+		JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
-	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
-	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	char* search = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 	if(!search)
 		THROW_ERROR(cx, "Failed to get search string");
 
@@ -88,8 +88,8 @@ JSAPI_FUNC(dir_getFiles)
 
 	_finddata_t found;
 	JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
-	*rval = OBJECT_TO_JSVAL(jsarray);
-
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
+	
 	if((hFile = _findfirst(search, &found)) != -1L)
 	{
 		jsint element = 0;
@@ -112,10 +112,10 @@ JSAPI_FUNC(dir_getFolders)
 	if(argc > 1)
 		return JS_TRUE;
 	if(argc < 1)
-		argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
+		JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
-	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
-	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	char* search = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 	if(!search)
 		THROW_ERROR(cx, "Failed to get search string");
 
@@ -128,7 +128,7 @@ JSAPI_FUNC(dir_getFolders)
 
 	_finddata_t found;
 	JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
-	*rval = OBJECT_TO_JSVAL(jsarray);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
 
 	if((hFile = _findfirst(search, &found)) != -1L)
 	{
@@ -149,11 +149,11 @@ JSAPI_FUNC(dir_getFolders)
 
 JSAPI_FUNC(dir_create)
 {
-	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
+	DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 	char path[_MAX_PATH];
-	if (!JSVAL_IS_STRING(argv[0]))
+	if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "No path passed to dir.create()");
-	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
 	if(!isValidPath(name))
 		return JS_TRUE;
@@ -166,7 +166,7 @@ JSAPI_FUNC(dir_create)
 	else {
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
-		*rval = OBJECT_TO_JSVAL(jsdir);
+		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsdir));
 	}
 
 	return JS_TRUE;
@@ -174,7 +174,7 @@ JSAPI_FUNC(dir_create)
 
 JSAPI_FUNC(dir_delete)
 {
-	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
+	DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
 	char path[_MAX_PATH];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, d->name);
@@ -187,8 +187,8 @@ JSAPI_FUNC(dir_delete)
 		if(errno == ENOENT)
 			THROW_ERROR(cx, "Path not found");
 	}
-	*rval = JSVAL_TRUE;
-
+	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
+	
 	return JS_TRUE;
 }
 
@@ -198,7 +198,9 @@ JSAPI_PROP(dir_getProperty)
 
 	if(!d) return JS_FALSE;
 
-	switch(JSVAL_TO_INT(id))
+	jsval ID;
+	JS_IdToValue(cx,id, &ID);
+	switch(JSVAL_TO_INT(ID))
 	{
 		case DIR_NAME:
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, d->name));

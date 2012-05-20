@@ -347,9 +347,9 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
-		for(JSClassSpec* entry = global_classes; entry->js_class != NULL; entry++)
-			ScriptEngine::InitClass(cx, globalObject, entry->js_class, entry->funcs, entry->props,
-										entry->static_funcs, entry->static_props);
+		for(JSClassSpec* entry = global_classes; entry->classp != NULL; entry++)
+			ScriptEngine::InitClass(cx, globalObject, entry->classp, entry->methods, entry->properties,
+										entry->static_methods, entry->static_properties);
 
 		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
 		if(!meObject)

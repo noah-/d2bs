@@ -1,6 +1,6 @@
 #include "JSExits.h"
 
-EMPTY_CTOR(exit)
+JSAPI_EMPTY_CTOR(exit)
 
 void exit_finalize(JSContext *cx, JSObject *obj)
 {
@@ -17,7 +17,9 @@ JSAPI_PROP(exit_getProperty)
 	if(!pExit)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id))
+	jsval ID;
+	JS_IdToValue(cx, id, &ID);
+	switch(JSVAL_TO_INT(ID))
 	{
 		case EXIT_X:
 			*vp = INT_TO_JSVAL(pExit->x);

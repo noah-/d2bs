@@ -27,13 +27,13 @@
 
 using namespace std;
 
-EMPTY_CTOR(filetools)
+JSAPI_EMPTY_CTOR(filetools)
 
 JSAPI_FUNC(filetools_remove)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply a file name");
-	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* file = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
 		THROW_ERROR(cx, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
@@ -48,7 +48,7 @@ JSAPI_FUNC(filetools_rename)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
@@ -56,7 +56,7 @@ JSAPI_FUNC(filetools_rename)
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, "You must supply a new file name");
-	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	char* newName = JS_EncodeString(cx,JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
@@ -71,7 +71,7 @@ JSAPI_FUNC(filetools_copy)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
@@ -79,7 +79,7 @@ JSAPI_FUNC(filetools_copy)
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, "You must supply a new file name");
-	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	char* newName = JS_EncodeString(cx,JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
@@ -145,13 +145,13 @@ JSAPI_FUNC(filetools_exists)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "Invalid file name");
-	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* file = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
 		THROW_ERROR(cx, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
-	*rval = BOOLEAN_TO_JSVAL(!(_access(path, 0) != 0 && errno == ENOENT));
+	JS_SET_RVAL(cx, vp,  BOOLEAN_TO_JSVAL(!(_access(path, 0) != 0 && errno == ENOENT)));
 
 	return JS_TRUE;
 }
@@ -160,7 +160,7 @@ JSAPI_FUNC(filetools_readText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
@@ -185,7 +185,7 @@ JSAPI_FUNC(filetools_readText)
 	}
 	fclose(fptr);
 
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents)));
+	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
 	delete[] contents;
 	return JS_TRUE;
 }
@@ -195,7 +195,7 @@ JSAPI_FUNC(filetools_writeText)
         if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
                 THROW_ERROR(cx, "You must supply an original file name");
 
-        char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+        char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
         if(!isValidPath(orig))
                 THROW_ERROR(cx, "Invalid file name");
 
@@ -218,8 +218,7 @@ JSAPI_FUNC(filetools_writeText)
                 if(!writeValue(fptr, cx, argv[i], false, true))
         fflush(fptr);
         fclose(fptr);
-        *rval = BOOLEAN_TO_JSVAL(result);
-
+		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
         return JS_TRUE;
 }
 
@@ -227,7 +226,7 @@ JSAPI_FUNC(filetools_appendText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
@@ -242,7 +241,7 @@ JSAPI_FUNC(filetools_appendText)
 			result = false;
 	fflush(fptr);
 	fclose(fptr);
-	*rval = BOOLEAN_TO_JSVAL(result);
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
 
 	return JS_TRUE;
 }
