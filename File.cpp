@@ -62,7 +62,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool lock
 				return true;
 			break;
 		case JSTYPE_STRING:
-			str = JS_GetStringBytes(JSVAL_TO_STRING(value));
+			str = JS_EncodeString(cx,JSVAL_TO_STRING(value));
 			if(locking)
 				result = fwrite(str, sizeof(char), strlen(str), fptr);
 			else
@@ -171,7 +171,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool lock
 			else
 			{
 				JSString* jsstr = JS_ValueToString(cx, value);
-				str = JS_GetStringBytes(jsstr);
+				str = JS_EncodeString(cx,jsstr);
 				if(locking)
 					result = fwrite(str, sizeof(char), strlen(str), fptr);
 				else

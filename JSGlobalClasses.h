@@ -2,13 +2,7 @@
 
 #include "js32.h"
 
-struct JSClassSpec {
-	JSClass* js_class;
-	JSPropertySpec* props;
-	JSFunctionSpec* funcs;
-	JSPropertySpec* static_props;
-	JSFunctionSpec* static_funcs;
-};
+
 
 extern JSClassSpec global_classes[];
 
@@ -33,6 +27,6 @@ extern JSClass control_class;
 extern JSClass area_class;
 extern JSClass unit_class;
 
-extern JSExtendedClass unit_class_ex;
-extern JSExtendedClass file_class_ex;
-extern JSExtendedClass sqlite_db_ex;
+//extern JSExtendedClass unit_class_ex;
+//extern JSExtendedClass file_class_ex;
+//extern JSExtendedClass sqlite_db_ex;

@@ -35,7 +35,7 @@ JSAPI_FUNC(item_getItemCost);
 
 void unit_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(unit_getProperty);
-JSAPI_PROP(unit_setProperty);
+JSAPI_STRICT_PROP(unit_setProperty);
 JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
 struct myUnit

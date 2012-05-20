@@ -16,7 +16,7 @@ JSAPI_FUNC(control_setText);
 JSAPI_FUNC(control_getText);
 
 JSAPI_PROP(control_getProperty);
-JSAPI_PROP(control_setProperty);
+JSAPI_STRICT_PROP(control_setProperty);
 
 struct ControlData {
 	DWORD _dwPrivate;

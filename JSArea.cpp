@@ -4,7 +4,7 @@
 #include "CriticalSections.h"
 #include "MapHeader.h"
 
-EMPTY_CTOR(area)
+JSAPI_EMPTY_CTOR(area)
 
 void area_finalize(JSContext *cx, JSObject *obj)
 {
@@ -29,7 +29,9 @@ JSAPI_PROP(area_getProperty)
 	if(!pLevel)
 		return JS_FALSE;
 
-	switch(JSVAL_TO_INT(id))
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID))
 	{
 		case AUNIT_EXITS:
 			{
@@ -107,8 +109,8 @@ JSAPI_FUNC(my_getArea)
 
 	if(argc == 1)
 	{
-		if(JSVAL_IS_INT(argv[0]))
-			JS_ValueToECMAInt32(cx, argv[0], &nArea);
+		if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nArea);
 		else
 			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	}
@@ -120,14 +122,14 @@ JSAPI_FUNC(my_getArea)
 
 	if(!pLevel)
 	{
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 
 	myArea* pArea = new myArea;
 	if(!pArea)
 	{
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 
@@ -141,8 +143,7 @@ JSAPI_FUNC(my_getArea)
 		pArea = NULL;
 		THROW_ERROR(cx, "Failed to build area unit!");
 	}
-
-	*rval = OBJECT_TO_JSVAL(unit);
-
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(unit));
+	
 	return JS_TRUE;
 }

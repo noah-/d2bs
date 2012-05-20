@@ -4,7 +4,7 @@
 #include "CriticalSections.h"
 #include "D2Helpers.h"
 
-EMPTY_CTOR(presetunit)
+JSAPI_EMPTY_CTOR(presetunit)
 
 void presetunit_finalize(JSContext *cx, JSObject *obj)
 {
@@ -24,7 +24,9 @@ JSAPI_PROP(presetunit_getProperty)
 	if(!pUnit)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id))
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID))
 	{
 		case PUNIT_TYPE:
 			*vp = INT_TO_JSVAL(pUnit->dwType);
@@ -59,12 +61,12 @@ JSAPI_FUNC(my_getPresetUnits)
 
 	if(argc < 1)
 	{
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 
 	uint32 levelId;
-	JS_ValueToECMAUint32(cx, argv[0], &levelId);
+	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
@@ -74,9 +76,9 @@ JSAPI_FUNC(my_getPresetUnits)
 	uint nType = NULL;
 
 	if(argc >= 2)
-		nType = JSVAL_TO_INT(argv[1]);
+		nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
 	if(argc >= 3)
-		nClassId = JSVAL_TO_INT(argv[2]);
+		nClassId = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -131,8 +133,7 @@ JSAPI_FUNC(my_getPresetUnits)
 			bAddedRoom = FALSE;			
 		}
 	}
-
-	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(&pReturnArray);
 
 	return JS_TRUE;
@@ -145,12 +146,12 @@ JSAPI_FUNC(my_getPresetUnit)
 
 	if(argc < 1)
 	{
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 
 	uint32 levelId;
-	JS_ValueToECMAUint32(cx, argv[0], &levelId);
+	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
@@ -160,9 +161,9 @@ JSAPI_FUNC(my_getPresetUnit)
 	DWORD nType = NULL;
 
 	if(argc >= 2)
-		nType = JSVAL_TO_INT(argv[1]);
+		nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
 	if(argc >= 3)
-		nClassId = JSVAL_TO_INT(argv[2]);
+		nClassId = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -201,8 +202,7 @@ JSAPI_FUNC(my_getPresetUnit)
 					delete mypUnit;
 					THROW_ERROR(cx, "Failed to create presetunit object");
 				}
-
-				*rval = OBJECT_TO_JSVAL(obj);
+				JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
 				return JS_TRUE;
 			}
 		}
@@ -213,8 +213,6 @@ JSAPI_FUNC(my_getPresetUnit)
 			bAddedRoom = FALSE;			
 		}
 	}
-
-	*rval = JSVAL_FALSE;
-
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	return JS_TRUE;
 }

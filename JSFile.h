@@ -11,7 +11,7 @@ CLASS_CTOR(file);
 JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
 JSAPI_PROP(file_getProperty);
-JSAPI_PROP(file_setProperty);
+JSAPI_STRICT_PROP(file_setProperty);
 
 JSAPI_FUNC(file_open);
 JSAPI_FUNC(file_close);

@@ -17,7 +17,7 @@ JSAPI_FUNC(my_login)
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
 	bool copiedProfile = false;
 
-	if(!JSVAL_IS_STRING(argv[0]))
+	if(!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 	{
 		if(Vars.szProfile != NULL)
 		{
@@ -29,7 +29,7 @@ JSAPI_FUNC(my_login)
 		else
 			THROW_ERROR(cx, "Invalid profile specified!");
 	} else {
-		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		profile = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		strcpy_s(Vars.szProfile, 256, profile);
 	}
 
@@ -247,17 +247,17 @@ JSAPI_FUNC(my_login)
 
 JSAPI_FUNC(my_selectChar)
 {
-	if(argc != 1 || !JSVAL_IS_STRING(argv[0]))
+	if(argc != 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
-	char* profile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* profile = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 	if(!ProfileExists(profile))
 		THROW_ERROR(cx, "Invalid profile specified");
 	char charname[24], file[_MAX_FNAME+MAX_PATH];
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 
-	*rval = JSVAL_TO_BOOLEAN(OOG_SelectCharacter(charname));
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL (OOG_SelectCharacter(charname)));
 	return JS_TRUE;
 }
 
@@ -268,7 +268,7 @@ JSAPI_FUNC(my_createGame)
 
 	char *name = NULL, *pass = NULL;
 	int32 diff = 3;
-	if(!JS_ConvertArguments(cx, argc, argv, "s/si", &name, &pass, &diff))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s/si", &name, &pass, &diff))
 	{
 		JS_ReportError(cx, "Invalid arguments specified to createGame");
 		return JS_FALSE;
@@ -291,7 +291,7 @@ JSAPI_FUNC(my_joinGame)
 		return JS_TRUE;
 
 	char *name = NULL, *pass = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s/s", &name, &pass))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s/s", &name, &pass))
 	{
 		JS_ReportError(cx, "Invalid arguments specified to createGame");
 		return JS_FALSE;
@@ -320,12 +320,12 @@ JSAPI_FUNC(my_addProfile)
 	char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
 	for(uintN i = 0; i < 6; i++)
 	{
-		if(!JSVAL_IS_STRING(argv[i]))
+		if(!JSVAL_IS_STRING(JS_ARGV(cx, vp)[i]))
 		{
 			THROW_ERROR(cx, "Invalid argument passed to addProfile");
 		}
 		else
-			*args[i] = JS_GetStringBytes(JSVAL_TO_STRING(argv[i]));
+			*args[i] = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[i]));
 	}
 
 	for(int i = 0; i < 6; i++)
@@ -335,7 +335,7 @@ JSAPI_FUNC(my_addProfile)
 	}
 
 	if(argc == 7)
-		spdifficulty = JSVAL_TO_INT(argv[6]);
+		spdifficulty = JSVAL_TO_INT(JS_ARGV(cx, vp)[6]);
 
 	if(spdifficulty > 3 || spdifficulty < 0)
 		THROW_ERROR(cx, "Invalid argument passed to addProfile");
@@ -362,7 +362,7 @@ JSAPI_FUNC(my_getOOGLocation)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	*rval = INT_TO_JSVAL(OOG_GetLocation());
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(OOG_GetLocation()));
 
 	return JS_TRUE;
 }
@@ -375,9 +375,9 @@ JSAPI_FUNC(my_createCharacter)
 	char* name = NULL;
 	int32 type = -1;
 	JSBool hc = JS_FALSE, ladder = JS_FALSE;
-	if(!JS_ConvertArguments(cx, argc, argv, "si/bb", &name, &type, &hc, &ladder))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "si/bb", &name, &type, &hc, &ladder))
 		return JS_FALSE;
 
-	*rval = BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder));
+	JS_SET_RVAL(cx, vp,  BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder)));
 	return JS_TRUE;
 }

@@ -21,15 +21,15 @@ JSAPI_FUNC(my_print)
 {
 	for(uintN i = 0; i < argc; i++)
 	{
-		if(!JSVAL_IS_NULL(argv[i]))
+		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
-			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
 
-			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
 				JS_ReportError(cx, "Could not get string for value");
@@ -52,7 +52,7 @@ JSAPI_FUNC(my_print)
 JSAPI_FUNC(my_delay)
 {
 	uint32 nDelay = 0;
-	if(!JS_ConvertArguments(cx, argc, argv, "u", &nDelay))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nDelay))
 		return JS_FALSE;
 
 	if(nDelay)
@@ -69,7 +69,7 @@ JSAPI_FUNC(my_delay)
 
 JSAPI_FUNC(my_load)
 {
-	*rval = JSVAL_FALSE;
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if(!script)
@@ -79,7 +79,7 @@ JSAPI_FUNC(my_load)
 	}
 
 	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
 		return JS_FALSE;
 
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
@@ -95,18 +95,18 @@ JSAPI_FUNC(my_load)
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
 	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
-	Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc-1, argv+1);
+	Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc-1, JS_ARGV(cx, vp)+1);
 	if(newScript)
 	{
 		newScript->BeginThread(ScriptThread);
 		JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext());
-		*rval = OBJECT_TO_JSVAL(res);
+		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 	}
 	else
 	{
 		// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
 		Print("File \"%s\" not found.", file);
-		*rval = JSVAL_NULL;
+		JS_SET_RVAL(cx, vp,JSVAL_NULL );		
 	}
 
 	return JS_TRUE;
@@ -114,8 +114,8 @@ JSAPI_FUNC(my_load)
 
 JSAPI_FUNC(my_include)
 {
-	*rval = JSVAL_FALSE;
-
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if(!script)
 	{
@@ -124,7 +124,7 @@ JSAPI_FUNC(my_include)
 	}
 
 	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
 		return JS_FALSE;
 
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6))
@@ -136,15 +136,16 @@ JSAPI_FUNC(my_include)
 	char buf[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
 	if(_access(buf, 0) == 0)
-		*rval = BOOLEAN_TO_JSVAL(script->Include(buf));
+		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)) );
+		
 
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_stop)
 {
-	if(argc > 0 && (JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1) ||
-			(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
+	if(argc > 0 && (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == 1) ||
+			(JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]) && JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]) == TRUE))
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 		if(script)
@@ -160,8 +161,8 @@ JSAPI_FUNC(my_beep)
 {
 	jsint nBeepId = NULL;
 
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		nBeepId = JSVAL_TO_INT(argv[0]);
+	if(argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+		nBeepId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
 	MessageBeep(nBeepId);
 
@@ -170,20 +171,22 @@ JSAPI_FUNC(my_beep)
 
 JSAPI_FUNC(my_getTickCount)
 {
-	JS_NewNumberValue(cx, (jsdouble)GetTickCount(), rval);
+	jsval rval;
+	JS_NewNumberValue(cx, (jsdouble)GetTickCount(), &rval);
+	JS_SET_RVAL(cx, vp, rval);
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_getThreadPriority)
 {
-	*rval = GetThreadPriority(GetCurrentThread());
+	//JS_SET_RVAL(cx, vp, *(jsval)GetThreadPriority(GetCurrentThread()));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_isIncluded)
 {
 	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
 		return JS_FALSE;
 
 	if(strlen(file) > (_MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6))
@@ -195,8 +198,8 @@ JSAPI_FUNC(my_isIncluded)
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));
-
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
+	
 	return JS_TRUE;
 }
 
@@ -204,7 +207,7 @@ JSAPI_FUNC(my_version)
 {
 	if(argc < 1)
 	{
-		*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
+		JS_SET_RVAL(cx, vp,  STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION)));
 		return JS_TRUE;
 	}
 
@@ -217,15 +220,15 @@ JSAPI_FUNC(my_debugLog)
 {
 	for(uintN i = 0; i < argc; i++)
 	{
-		if(!JSVAL_IS_NULL(argv[i]))
+		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
-			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
 
-			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
 				JS_ReportError(cx, "Could not get string for value");
@@ -248,7 +251,7 @@ JSAPI_FUNC(my_debugLog)
 JSAPI_FUNC(my_copy)
 {
 	char  *data = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s", &data))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &data))
 		return JS_FALSE;
 
 	HGLOBAL hText;
@@ -271,25 +274,24 @@ JSAPI_FUNC(my_paste)
 	CloseClipboard();
 	LPVOID lptstr = GlobalLock(foo);
 	(char *)lptstr;
-
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)lptstr));
+	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)lptstr)));
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_sendCopyData)
 {
 	if(argc < 4)
 	{
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
 	jsint nModeId = NULL;
 	HWND hWnd = NULL;
 		
-	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
-		JS_ValueToECMAUint32(cx, argv[1], (uint32*)&hWnd);
+	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&hWnd);
 
-	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "ssis", &windowClassName, &windowName, &nModeId, &data))
 		return JS_FALSE;
 
 	if(_strcmpi(windowClassName, "null") == 0)
@@ -301,7 +303,7 @@ JSAPI_FUNC(my_sendCopyData)
 		hWnd = FindWindow(windowClassName, windowName);
 		if(!hWnd)
 		{
-			*rval = JSVAL_FALSE;
+			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 			return JS_TRUE;
 		}
 	}
@@ -310,8 +312,8 @@ JSAPI_FUNC(my_sendCopyData)
 		data = "";
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
-	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy));
-	
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
+
 	return JS_TRUE;
 }
 
@@ -320,14 +322,14 @@ JSAPI_FUNC(my_sendDDE)
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
-	if(!JS_ConvertArguments(cx, argc, argv, "issss", &mode, &pszDDEServer, &pszTopic, &pszItem, &pszData))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "issss", &mode, &pszDDEServer, &pszTopic, &pszItem, &pszData))
 		return JS_FALSE;
 
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
 	{
 		if(mode == 0)
-			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer));
+			JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer)));
 	}
 	else
 		THROW_ERROR(cx, "DDE Failed! Check the log for the error message.");
@@ -337,23 +339,23 @@ JSAPI_FUNC(my_sendDDE)
 
 JSAPI_FUNC(my_keystate)
 {
-	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
+	if(argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		return JS_TRUE;
-	
-	*rval = BOOLEAN_TO_JSVAL(!!GetAsyncKeyState(JSVAL_TO_INT(argv[0])));
 
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!GetAsyncKeyState(JSVAL_TO_INT(JS_ARGV(cx, vp)[0]))));
+	
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_addEventListener)
 {
-	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
+	if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1]))
 	{
-		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		char* evtName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		if(evtName && strlen(evtName))
 		{
 			Script* self = (Script*)JS_GetContextPrivate(cx);
-			self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
+			self->RegisterEvent(JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])), JS_ARGV(cx, vp)[1]);
 		}
 		else
 			THROW_ERROR(cx, "Event name is invalid!");
@@ -363,13 +365,13 @@ JSAPI_FUNC(my_addEventListener)
 
 JSAPI_FUNC(my_removeEventListener)
 {
-	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
+	if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1]))
 	{
-		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		char* evtName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		if(evtName && strlen(evtName))
 		{
 			Script* self = (Script*)JS_GetContextPrivate(cx);
-			self->UnregisterEvent(evtName, argv[1]);
+			self->UnregisterEvent(evtName, JS_ARGV(cx, vp)[1]);
 		}
 		else
 			THROW_ERROR(cx, "Event name is invalid!");
@@ -379,10 +381,10 @@ JSAPI_FUNC(my_removeEventListener)
 
 JSAPI_FUNC(my_clearEvent)
 {
-	if(JSVAL_IS_STRING(argv[0]))
+	if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 	{
 		Script* self = (Script*)JS_GetContextPrivate(cx);
-		self->ClearEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])));
+		self->ClearEvent(JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
 	}
 	return JS_TRUE;
 }
@@ -398,14 +400,14 @@ JSAPI_FUNC(my_js_strict)
 {
 	if(argc == NULL)
 	{
-		*rval = BOOLEAN_TO_JSVAL(((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT));
+		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT)));
 		return JS_TRUE;
 	}
 
 	if(argc == 1)
 	{
 		bool bFlag = ((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT);
-		if(JSVAL_TO_BOOLEAN(argv[0]))
+		if(JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]))
 		{
 			if(!bFlag)
 				JS_ToggleOptions(cx, JSOPTION_STRICT);
@@ -425,7 +427,7 @@ JSAPI_FUNC(my_scriptBroadcast)
 	if(argc < 1)
 		THROW_ERROR(cx, "You must specify something to broadcast");
 
-	ScriptBroadcastEvent(argc, argv);
+	ScriptBroadcastEvent(argc, JS_ARGV(cx, vp));
 	return JS_TRUE;
 }
 
@@ -444,7 +446,7 @@ JSAPI_FUNC(my_hideConsole)
 JSAPI_FUNC(my_loadMpq)
 {
 	char* path = NULL;
-	if(!JS_ConvertArguments(cx, argc, argv, "s", &path))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &path))
 		return JS_FALSE;
 
 	if(isValidPath(path))
@@ -467,14 +469,14 @@ JSAPI_FUNC(my_sendPacket)
 	uint type = 1;
 	for(uint i = 0; i < argc; i++){
 		if(i%2 == 0){ 
-			JS_ValueToECMAUint32(cx, argv[i], (uint32*)&type); ++i;
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
 		}
-		JS_ValueToECMAUint32(cx, argv[i], (uint32*)aPacket);
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
 	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
 	delete[] aPacket;
-	*rval = JSVAL_TRUE;
+	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
 
@@ -492,13 +494,13 @@ JSAPI_FUNC(my_getPacket)
 	uint type = 1;
 	for(uint i = 0; i < argc; i++){
 		if(i%2 == 0){ 
-			JS_ValueToECMAUint32(cx, argv[i], (uint32*)&type); ++i;
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
 		}
-		JS_ValueToECMAUint32(cx, argv[i], (uint32*)aPacket);
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
 	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
 	delete[] aPacket;
-	*rval = JSVAL_TRUE;
+	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }

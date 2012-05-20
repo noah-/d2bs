@@ -4,7 +4,7 @@
 #include "D2BS.h"
 #include "Helpers.h"
 
-EMPTY_CTOR(script)
+JSAPI_EMPTY_CTOR(script)
 
 struct FindHelper
 {
@@ -24,8 +24,9 @@ JSAPI_PROP(script_getProperty)
 	// TODO: make this check stronger
 	if(!script)
 		return JS_TRUE;
-
-	switch(JSVAL_TO_INT(id))
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) 
 	{
 		case SCRIPT_FILENAME:
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, script->GetShortFilename()));
@@ -50,11 +51,11 @@ JSAPI_FUNC(script_getNext)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	if(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) == NULL || !JS_GetContextPrivate(iterp))
-		*rval = JSVAL_FALSE;
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	else
 	{
-		JS_SetPrivate(cx, obj, iterp);
-		*rval = JSVAL_TRUE;
+		JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
+		JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	}
 
 	return JS_TRUE;
@@ -62,7 +63,7 @@ JSAPI_FUNC(script_getNext)
 
 JSAPI_FUNC(script_stop)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	if(script->IsRunning())
 		script->Stop();
@@ -72,7 +73,7 @@ JSAPI_FUNC(script_stop)
 
 JSAPI_FUNC(script_pause)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	if(script->IsRunning())
@@ -83,7 +84,7 @@ JSAPI_FUNC(script_pause)
 
 JSAPI_FUNC(script_resume)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	if(script->IsPaused())
@@ -94,12 +95,12 @@ JSAPI_FUNC(script_resume)
 
 JSAPI_FUNC(script_send)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	AutoRoot** args = new AutoRoot*[argc];
 	for(uintN i = 0; i < argc; i++)
-		args[i] = new AutoRoot(argv[i]);
+		args[i] = new AutoRoot(JS_ARGV(cx, vp)[i]);
 
 	// this event has to occur as such because it's not a broadcasted event, just a local one
 	script->ExecEventAsync("scriptmsg", argc, args);
@@ -109,7 +110,7 @@ JSAPI_FUNC(script_send)
 
 JSAPI_FUNC(script_join)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	
 	script->Join();
@@ -120,12 +121,12 @@ JSAPI_FUNC(script_join)
 JSAPI_FUNC(my_getScript)
 {
 	JSContext* iterp = NULL;
-	if(argc == 1 && JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == JS_TRUE)
+	if(argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]) && JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]) == JS_TRUE)
 		iterp = cx;
-	else if(argc == 1 && JSVAL_IS_INT(argv[0]))
+	else if(argc == 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 	{
 		// loop over the Scripts in ScriptEngine and find the one with the right threadid
-		DWORD tid = (DWORD)JSVAL_TO_INT(argv[0]);
+		DWORD tid = (DWORD)JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 		FindHelper args = {tid, NULL, NULL};
 		ScriptEngine::ForEachScript(FindScriptByTid, &args, 1);
 		if(args.script != NULL)
@@ -133,9 +134,9 @@ JSAPI_FUNC(my_getScript)
 		else
 			return JS_TRUE;
 	}
-	else if(argc == 1 && JSVAL_IS_STRING(argv[0]))
+	else if(argc == 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 	{
-		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		char* name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		if(name)
 			StringReplace(name, '/', '\\', strlen(name));
 		FindHelper args = {0, name, NULL};
@@ -160,7 +161,7 @@ JSAPI_FUNC(my_getScript)
 
 	if(!res)
 		THROW_ERROR(cx, "Failed to build the script object");
-	*rval = OBJECT_TO_JSVAL(res);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 
 	return JS_TRUE;
 }
