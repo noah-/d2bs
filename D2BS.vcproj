@@ -79,7 +79,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib dbghelp.lib js32/js32d.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib dbghelp.lib dependencies\libs\debug\mozjs.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

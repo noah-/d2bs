@@ -8,7 +8,7 @@
 #include "D2Skills.h"
 #include "MPQStats.h"
 
-JSAPI_EMPTY_CTOR(unit)
+EMPTY_CTOR(unit)
 
 void unit_finalize(JSContext *cx, JSObject *obj)
 {
@@ -35,19 +35,19 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 	JS_SetPrivate(cx, obj, NULL);
 }
 
-JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
-{
-	if(ClientState() == ClientStateInGame) {
-		*bp = JS_InstanceOf(cx, obj, &unit_class_ex.base, NULL);
-		myUnit* one = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
-				myUnit* two = (myUnit*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &unit_class_ex.base, NULL);
-		UnitAny* pUnit1 = D2CLIENT_FindUnit(one->dwUnitId, one->dwType);
-		UnitAny* pUnit2 = D2CLIENT_FindUnit(two->dwUnitId, two->dwType);
-		if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
-			*bp = JS_FALSE;
-	}
-	return JS_TRUE;
-}
+//JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp) // not 1.8 compatable
+//{
+//	if(ClientState() == ClientStateInGame) {
+//		*bp = JS_InstanceOf(cx, obj, &unit_class_ex.base, NULL);
+//		myUnit* one = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
+//				myUnit* two = (myUnit*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &unit_class_ex.base, NULL);
+//		UnitAny* pUnit1 = D2CLIENT_FindUnit(one->dwUnitId, one->dwType);
+//		UnitAny* pUnit2 = D2CLIENT_FindUnit(two->dwUnitId, two->dwType);
+//		if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
+//			*bp = JS_FALSE;
+//	}
+//	return JS_TRUE;
+//}
 
 JSAPI_PROP(unit_getProperty)
 {	
@@ -527,7 +527,7 @@ JSAPI_FUNC(unit_getUnit)
 	pmyUnit->dwUnitId = pUnit->dwUnitId;
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
 	if(!jsunit)
 		return JS_TRUE;
@@ -565,7 +565,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(!pUnit)
 		{
-			JSObject obj = JS_THIS_OBJECT(cx, vp);
+			JSObject* obj = JS_THIS_OBJECT(cx, vp);
 			JS_ClearScope(cx, obj);
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 				return JS_TRUE;
@@ -601,7 +601,7 @@ JSAPI_FUNC(unit_getNext)
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
 		{
-			JSObject obj = JS_THIS_OBJECT(cx, vp);
+			JSObject* obj = JS_THIS_OBJECT(cx, vp);
 			JS_ClearScope(cx, obj);
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 				return JS_TRUE;
@@ -793,9 +793,9 @@ JSAPI_FUNC(unit_getStat)
 	if(nStat >= STAT_HP && nStat <= STAT_MAXSTAMINA)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8));
 	else if(nStat == STAT_EXP || nStat == STAT_LASTEXP || nStat == STAT_NEXTEXP){
-		jsval* rval;
-		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
-		JS_SET_RVAL(cx, vp, rval);
+		jsval rval = JS_RVAL(cx,vp);
+		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), &rval);
+		
 	}
 	else if(nStat == STAT_ITEMLEVELREQ)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit())));
@@ -879,7 +879,8 @@ JSAPI_FUNC(unit_getStat)
 				}
 			}	
 		}
-		JS_NewNumberValue(cx, result, rval);
+		jsval rval = JS_RVAL(cx,vp);
+		JS_NewNumberValue(cx, result, &rval);
 	}
 	return JS_TRUE;
 }
@@ -1231,7 +1232,7 @@ JSAPI_FUNC(unit_getItems)
 		pmyUnit->dwOwnerId = pUnit->dwUnitId;
 		pmyUnit->dwOwnerType = pUnit->dwType;
 
-		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
 			JS_RemoveRoot(&pReturnArray);
@@ -1504,7 +1505,7 @@ JSAPI_FUNC(unit_getParent)
 		pmyUnit->dwType = pMonster->dwType;
 		pmyUnit->szName[0] = NULL;
 						
-		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 			if (!jsunit)
 				return JS_TRUE;
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
@@ -1535,7 +1536,7 @@ JSAPI_FUNC(unit_getParent)
 			pmyUnit->dwMode = pUnit->pItemData->pOwnerInventory->pOwner->dwMode;
 			pmyUnit->dwType = pUnit->pItemData->pOwnerInventory->pOwner->dwType;
 			pmyUnit->szName[0] = NULL;
-			JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+			JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
 		}
@@ -1567,7 +1568,7 @@ JSAPI_FUNC(unit_getMerc)
 				pmyUnit->dwType = UNIT_MONSTER;
 				pmyUnit->szName[0] = NULL;
 
-				JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+				JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 				if (jsunit)
 					JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
 			}
@@ -1623,7 +1624,7 @@ JSAPI_FUNC(unit_setskill)
 	if(argc == 3 && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[2]))
 	{
 		JSObject* object = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[2]);
-		if(JS_InstanceOf(cx, object, &unit_class_ex.base, argv))
+		if(JS_InstanceOf(cx, object, &unit_class, JS_ARGV(cx, vp)))
 		{
 			myUnit* unit = (myUnit*)JS_GetPrivate(cx, object);
 			if(unit->dwType == UNIT_ITEM)
@@ -1732,7 +1733,7 @@ JSAPI_FUNC(unit_getItem)
 	pmyItem->dwOwnerType = pmyUnit->dwType;
 	strcpy_s(pmyItem->szName, sizeof(pmyItem->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyItem);
+	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyItem);
 
 	if(!jsunit)
 		return JS_TRUE;

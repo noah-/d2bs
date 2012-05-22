@@ -509,7 +509,7 @@ JSAPI_FUNC(text_ctor)
 	pTextHook->SetClickHandler(click);
 	pTextHook->SetHoverHandler(hover);
 
-	JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(hook);
+	JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(hook));
 
 	return JS_TRUE;
 }
@@ -635,9 +635,9 @@ JSAPI_FUNC(image_ctor)
 		if(!szText)
 			return JS_TRUE;
 	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
-		x = JSVAL_TO_INT(argv[1]);
+		x = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
 	if(argc > 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
-		y = JSVAL_TO_INT(argv[2]);
+		y = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 	if(argc > 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
 		color = (ushort)JSVAL_TO_INT(JS_ARGV(cx, vp)[3]);
 	if(argc > 4 && JSVAL_IS_INT(JS_ARGV(cx, vp)[4]))
@@ -677,7 +677,9 @@ JSAPI_PROP(image_getProperty)
 	if(!pImageHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case IMAGE_X:
 			*vp = INT_TO_JSVAL(pImageHook->GetX());
 			break;
@@ -712,7 +714,9 @@ JSAPI_STRICT_PROP(image_setProperty)
 	if(!pImageHook)
 		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id)) {
+	jsval ID;
+	JS_IdToValue(cx,id,&ID);
+	switch(JSVAL_TO_INT(ID)) {
 		case IMAGE_X:
 			if(JSVAL_IS_INT(*vp))
 				pImageHook->SetX(JSVAL_TO_INT(*vp));
@@ -757,10 +761,10 @@ JSAPI_FUNC(screenToAutomap)
 	if(argc == 1)
 	{
 		// the arg must be an object with an x and a y that we can convert
-		if(JSVAL_IS_OBJECT(argv[0]))
+		if(JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0]))
 		{
 			// get the params
-			JSObject* arg = JSVAL_TO_OBJECT(argv[0]);
+			JSObject* arg = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]);
 			jsval x, y;
 			if(JS_GetProperty(cx, arg, "x", &x) == JS_FALSE || JS_GetProperty(cx, arg, "y", &y) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to get x and/or y values");
@@ -774,6 +778,7 @@ JSAPI_FUNC(screenToAutomap)
 			x = INT_TO_JSVAL(result.x);
 			y = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
+			jsval* argv = JS_ARGV(cx, vp);
 			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
@@ -784,9 +789,10 @@ JSAPI_FUNC(screenToAutomap)
 	else if(argc == 2)
 	{
 		// the args must be ints
-		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
+		if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
 		{
 			int32 ix, iy;
+			jsval* argv = JS_ARGV(cx, vp);
 			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
@@ -808,6 +814,7 @@ JSAPI_FUNC(screenToAutomap)
 
 JSAPI_FUNC(automapToScreen)
 {
+	jsval* argv = JS_ARGV(cx, vp);
 	if(argc == 1)
 	{
 		// the arg must be an object with an x and a y that we can convert

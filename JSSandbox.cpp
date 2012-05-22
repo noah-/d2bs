@@ -190,7 +190,7 @@ JSAPI_FUNC(sandbox_eval)
 			THROW_ERROR(cx, "Invalid execution object!");
 		char* code = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		jsval result;
-		if(JS_BufferIsCompilableUnit(box->context, box->innerObj, code, strlen(code)) &&
+		if(JS_BufferIsCompilableUnit(box->context, true, box->innerObj, code, strlen(code)) &&
 			JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
 				JS_SET_RVAL(cx, vp, result);
 	} else THROW_ERROR(cx, "Invalid parameter, string expected");
@@ -219,7 +219,8 @@ JSAPI_FUNC(sandbox_include)
 						box->list[file] = true;
 						JS_SET_RVAL(cx, vp, result);
 					}
-					JS_DestroyScript(cx, tmp);
+					//nolonger needed?
+					//JS_DestroyScript(cx, tmp);
 				}
 			}
 		}

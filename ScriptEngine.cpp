@@ -131,9 +131,9 @@ BOOL ScriptEngine::Startup(void)
 		// create a context for internal use before we set the callback
 		context = JS_NewContext(runtime, 8192);
 		JS_SetErrorReporter(context, reportError);
-		JS_SetBranchCallback(context, branchCallback);
-		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(context, JSVERSION_1_7);
+		JS_SetOperationCallback(context, branchCallback);
+		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
+		JS_SetVersion(context, JSVERSION_LATEST);
 
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
@@ -324,9 +324,14 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		JS_BeginRequest(cx);
 
 		JS_SetErrorReporter(cx, reportError);
-		JS_SetBranchCallback(cx, branchCallback);
-		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(cx, JSVERSION_1_7);
+		JS_SetOperationCallback(cx, branchCallback);
+		JS_SetVersion(cx, JSVERSION_LATEST);
+		JS_SetOptions(cx, JSOPTION_JIT|
+					  JSOPTION_METHODJIT|
+					  JSOPTION_RELIMIT|
+					  JSOPTION_VAROBJFIX|
+					  JSOPTION_XML|
+					  JSOPTION_STRICT);
 
 		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
 		if(!globalObject)
@@ -351,7 +356,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 			ScriptEngine::InitClass(cx, globalObject, entry->classp, entry->methods, entry->properties,
 										entry->static_methods, entry->static_properties);
 
-		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
+		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
 		if(!meObject)
 			return JS_FALSE;
 

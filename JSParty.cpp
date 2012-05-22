@@ -5,7 +5,7 @@
 #include "JSUnit.h"
 #include "JSGlobalClasses.h"
 
-JSAPI_EMPTY_CTOR(party)
+EMPTY_CTOR(party)
 
 JSAPI_PROP(party_getProperty)
 {

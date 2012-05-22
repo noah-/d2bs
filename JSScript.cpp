@@ -4,7 +4,7 @@
 #include "D2BS.h"
 #include "Helpers.h"
 
-JSAPI_EMPTY_CTOR(script)
+//JSAPI_EMPTY_CTOR(script)
 
 struct FindHelper
 {
@@ -49,7 +49,7 @@ JSAPI_PROP(script_getProperty)
 
 JSAPI_FUNC(script_getNext)
 {
-	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	if(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) == NULL || !JS_GetContextPrivate(iterp))
 		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	else

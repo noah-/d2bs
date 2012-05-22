@@ -61,8 +61,9 @@ public:
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_STATIC_VAR (JSPROP_ENUMERATE | JSPROP_PERMANENT)
 
-#define CLASS_CTOR(name) JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval)
-//#define EMPTY_CTOR(name) JSBool name##(JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
+#define CLASS_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) 
+
+#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
 //#define EMPTY_CTOR(name) \
 //JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval) { \
 //	THROW_ERROR(cx, "Invalid Operation"); }
@@ -80,7 +81,13 @@ EXPORT JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* obj, JSClassSpec
 #define JSPROP_STATIC	JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY
 
 #define JSAPI_FUNC(name) JSBool name##(JSContext *cx, uintN argc, jsval *vp)
-#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
+//#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, "Invalid Operation");}
+#define EMPTY_CTOR(name) \
+JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { \
+	THROW_ERROR(cx, "Invalid Operation"); }
+
+
+
 #define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
 #define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSObject *obj, jsid id, JSBool strict, jsval* vp)
 //#define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *rval, jsval *rval)

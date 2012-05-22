@@ -23,7 +23,7 @@ JSAPI_FUNC(unit_getItem);
 JSAPI_FUNC(unit_move);
 JSAPI_FUNC(item_getFlag);
 JSAPI_FUNC(item_getFlags);
-JSAPI_FUNC(item_getPrice);
+//JSAPI_FUNC(item_getPrice);
 JSAPI_FUNC(item_shop);
 JSAPI_FUNC(my_overhead);
 JSAPI_FUNC(my_revive);
@@ -252,7 +252,7 @@ static JSFunctionSpec unit_methods[] = {
 	{"getFlag",			item_getFlag,		1},
 	{"getStat",			unit_getStat,		1},
 	{"getState",		unit_getState,		1},
-	{"getPrice",		item_getPrice,		1},
+//	{"getPrice",		item_getPrice,		1},
 	{"getEnchant",		unit_getEnchant,	1},
 	{"shop",			item_shop,			2},
 	{"setSkill",		unit_setskill,		2},

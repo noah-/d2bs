@@ -62,12 +62,12 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		if(!script)
 			throw std::exception("Couldn't compile the script");
 
-		scriptObject = JS_NewScriptObject(context, script);
+		/*scriptObject = JS_NewScriptObject(context, script);
 		if(!scriptObject)
-			throw std::exception("Couldn't create the script object");
+			throw std::exception("Couldn't create the script object");*/
 
-		if(JS_AddNamedRoot(context, &scriptObject, "script object") == JS_FALSE)
-			throw std::exception("Couldn't add named root for scriptObject");
+	/*	if(JS_AddNamedRoot(context, &scriptObject, "script object") == JS_FALSE)
+			throw std::exception("Couldn't add named root for scriptObject");*/
 
 		JS_EndRequest(context);
 
@@ -75,12 +75,13 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 	} catch(std::exception&) {
 		if(scriptObject)
 			JS_RemoveRoot(&scriptObject);
-		if(script && !scriptObject)
-			JS_DestroyScript(context, script);
+		//if(script && !scriptObject)
+			//JS_DestroyScript(context, script);
 		if(context)
 		{
 			JS_EndRequest(context);
-			JS_DestroyContext(context);
+			//1.8 unneeded?
+			//JS_DestroyContext(context);
 		}
 		LeaveCriticalSection(&lock);
 		throw;
@@ -307,8 +308,8 @@ bool Script::Include(const char* file)
 	JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
 	if(script)
 	{
-		JSObject* scriptObj = JS_NewScriptObject(cx, script);
-		JS_AddRoot(&scriptObj);
+		//JSObject* scriptObj = JS_NewScriptObject(cx, script);
+		//JS_AddRoot(&scriptObj);
 		jsval dummy;
 		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(cx, GetGlobalObject(), script, &dummy);
@@ -317,7 +318,7 @@ bool Script::Include(const char* file)
 		else
 			JS_ReportPendingException(cx);
 		inProgress.erase(fname);
-		JS_RemoveRoot(&scriptObj);
+		//JS_RemoveRoot(&scriptObj);
 	} else JS_ReportPendingException(cx);
 
 	JS_EndRequest(cx);
