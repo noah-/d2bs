@@ -6,8 +6,8 @@
 
 #include "js32.h"
 
+//CLASS_CTOR(script);
 CLASS_CTOR(script);
-
 JSAPI_PROP(script_getProperty);
 
 JSAPI_FUNC(script_getNext);

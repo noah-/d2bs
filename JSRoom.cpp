@@ -5,7 +5,7 @@
 #include "D2Ptrs.h"
 
 
-JSAPI_EMPTY_CTOR(room)
+EMPTY_CTOR(room)
 
 JSAPI_PROP(room_getProperty)
 {

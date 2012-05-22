@@ -3,7 +3,7 @@
 #include "Helpers.h"
 #include "D2Helpers.h"
 
-JSAPI_EMPTY_CTOR(control)
+EMPTY_CTOR(control)
 
 void control_finalize(JSContext *cx, JSObject *obj)
 {

@@ -17,7 +17,7 @@ JSAPI_PROP(sqlite_getProperty);
 void sqlite_finalize(JSContext *cx, JSObject *obj);
 JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
-JSAPI_EMPTY_CTOR(sqlite_stmt);
+CLASS_CTOR(sqlite_stmt);
 
 JSAPI_FUNC(sqlite_stmt_getobject);
 JSAPI_FUNC(sqlite_stmt_colcount);

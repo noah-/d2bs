@@ -4,7 +4,7 @@
 #include "CriticalSections.h"
 #include "D2Helpers.h"
 
-JSAPI_EMPTY_CTOR(presetunit)
+EMPTY_CTOR(presetunit)
 
 void presetunit_finalize(JSContext *cx, JSObject *obj)
 {

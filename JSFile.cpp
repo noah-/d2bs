@@ -35,20 +35,20 @@ struct FileData {
 #endif
 };
 
-JSAPI_EMPTY_CTOR(file)
+EMPTY_CTOR(file)
 
-JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
-{
-	*bp = JS_FALSE;
-	if(JSVAL_IS_OBJECT(v) && !JSVAL_IS_VOID(v) && !JSVAL_IS_NULL(v))
-	{
-		FileData* ptr = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
-		FileData* ptr2 = (FileData*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &file_class, NULL);
-		if(ptr && ptr2 && !_strcmpi(ptr->path, ptr2->path) && ptr->mode == ptr2->mode)
-			*bp = JS_TRUE;
-	}
-	return JS_TRUE;
-}
+//JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
+//{
+//	*bp = JS_FALSE;
+//	if(JSVAL_IS_OBJECT(v) && !JSVAL_IS_VOID(v) && !JSVAL_IS_NULL(v))
+//	{
+//		FileData* ptr = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+//		FileData* ptr2 = (FileData*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &file_class, NULL);
+//		if(ptr && ptr2 && !_strcmpi(ptr->path, ptr2->path) && ptr->mode == ptr2->mode)
+//			*bp = JS_TRUE;
+//	}
+//	return JS_TRUE;
+//}
 
 JSAPI_PROP(file_getProperty)
 {
@@ -56,7 +56,9 @@ JSAPI_PROP(file_getProperty)
 	struct _stat filestat = {0};
 	if(fdata)
 	{
-		switch(JSVAL_TO_INT(id))
+		jsval ID;
+		JS_IdToValue(cx,id,&ID);
+		switch(JSVAL_TO_INT(ID))
 		{
 			case FILE_READABLE:
 				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !feof(fdata->fptr) && !ferror(fdata->fptr)));
@@ -139,7 +141,9 @@ JSAPI_STRICT_PROP(file_setProperty)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
 	if(fdata)
 	{
-		switch(JSVAL_TO_INT(id))
+		jsval ID;
+		JS_IdToValue(cx,id,&ID);
+		switch(JSVAL_TO_INT(ID))
 		{
 			case FILE_AUTOFLUSH:
 				if(JSVAL_IS_BOOLEAN(*vp))
@@ -234,7 +238,7 @@ JSAPI_FUNC(file_open)
 
 JSAPI_FUNC(file_close)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata)
 	{
 		if(fdata->fptr)
@@ -256,13 +260,13 @@ JSAPI_FUNC(file_close)
 		else
 			THROW_ERROR(cx, "File is not open");
 	}
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_reopen)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata)
 		if(!fdata->fptr) {
 			static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
@@ -279,13 +283,13 @@ JSAPI_FUNC(file_reopen)
 #endif
 			}
 		} else THROW_ERROR(cx, "File is not closed");
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_read)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr)
 	{
 		clearerr(fdata->fptr);
@@ -351,7 +355,7 @@ JSAPI_FUNC(file_read)
 
 JSAPI_FUNC(file_readLine)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr) {
 		const char* line = readLine(fdata->fptr, fdata->locked);
 		if(!line)
@@ -364,7 +368,7 @@ JSAPI_FUNC(file_readLine)
 
 JSAPI_FUNC(file_readAllLines)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr) {
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(arr));
@@ -383,7 +387,7 @@ JSAPI_FUNC(file_readAllLines)
 
 JSAPI_FUNC(file_readAll)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr) {
 		if(fdata->locked)
 			fseek(fdata->fptr, 0, SEEK_END);
@@ -423,7 +427,7 @@ JSAPI_FUNC(file_readAll)
 
 JSAPI_FUNC(file_write)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr) {
 		for(uintN i = 0; i < argc; i++)
 			writeValue(fdata->fptr, cx, JS_ARGV(cx, vp)[i], !!(fdata->mode > 2), fdata->locked);
@@ -436,13 +440,13 @@ JSAPI_FUNC(file_write)
 				_fflush_nolock(fdata->fptr);
 		}
 	}
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_seek)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr)
 	{
 		if(argc > 0)
@@ -475,39 +479,39 @@ JSAPI_FUNC(file_seek)
 		else
 			THROW_ERROR(cx, "Not enough parameters");
 	}
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_flush)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr)
 		if(fdata->locked)
 			fflush(fdata->fptr);
 		else
 			_fflush_nolock(fdata->fptr);
 
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_reset)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr) {
 		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_SET)) {
 			THROW_ERROR(cx, _strerror("Seek failed"));
 		} else if(_fseek_nolock(fdata->fptr, 0L, SEEK_SET))
 			THROW_ERROR(cx, _strerror("Seek failed"));
 	}
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(file_end)
 {
-	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class, NULL);
+	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
 	if(fdata && fdata->fptr)
 	{
 		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_END)) {
@@ -515,7 +519,7 @@ JSAPI_FUNC(file_end)
 		} else if(_fseek_nolock(fdata->fptr, 0L, SEEK_END))
 			THROW_ERROR(cx, _strerror("Seek failed"));
 	}
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
 	return JS_TRUE;
 }
 

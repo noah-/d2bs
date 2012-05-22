@@ -14,15 +14,15 @@
 #include "JSRoom.h"
 #include "JSScript.h"
 
-//JSClass global_obj = {
-//	"global", JSCLASS_GLOBAL_FLAGS,
-//	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-//    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-//    JSCLASS_NO_OPTIONAL_MEMBERS
-//};
-JSAPI_EMPTY_CTOR(global)
+JSClass global_obj = {
+	"global", JSCLASS_GLOBAL_FLAGS,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JSCLASS_NO_OPTIONAL_MEMBERS
+};
+//JSAPI_EMPTY_CTOR(global)
 
-JSClass global_obj = { "global", JSCLASS_GLOBAL_FLAGS, JSCLASS_DEFAULT_WITH_CTOR(global) };
+//JSClass global_obj = { "global", JSCLASS_GLOBAL_FLAGS, JSCLASS_DEFAULT_WITH_CTOR(global) };
 
 
 //JSClass pipe_class = { "Pipe", JSCLASS_HAS_PRIVATE, 
@@ -151,29 +151,29 @@ JSClass unit_class = {
 //JSClassSpec file_spec = JS_CS(&file_class, &stream_class, File, 0, file_methods, file_props, file_static_methods, nullptr);
 JSClassSpec global_classes[] = {
 	//JS_CS(&event_class, nullptr, ::Event, 0, nullptr, nullptr, event_methods, nullptr),
-	JS_CS(&unit_class,			0,	unit_ctor,			0,	unit_methods,	unit_props,				NULL,	NULL),
-	JS_CS(&presetunit_class,	0,	presetunit_ctor,	0,	NULL,			presetunit_props,		NULL,	NULL),
-	JS_CS(&area_class,			0,	area_ctor,			0,	NULL,			area_props,				NULL,	NULL),
-	JS_CS(&control_class,		0,	control_ctor,		0,	control_funcs,	control_props,			NULL,	NULL),
-	JS_CS(&folder_class,		0,	dir_ctor,			0,	dir_methods,	dir_props,				NULL,	NULL),
-	JS_CS(&exit_class,			0,	exit_ctor,			0,	NULL,			exit_props,				NULL,	NULL),
-	JS_CS(&party_class,			0,	party_ctor,			0,	party_methods,	party_props,			NULL,	NULL),
-	JS_CS(&room_class,			0,	room_ctor,			0,	room_methods,	room_props,				NULL,	NULL),
+	{&unit_class,			0,	unit_ctor,			0,	unit_methods,	unit_props,				NULL,	NULL},
+	{&presetunit_class,		0,	presetunit_ctor,	0,	NULL,			presetunit_props,		NULL,	NULL},
+	{&area_class,			0,	area_ctor,			0,	NULL,			area_props,				NULL,	NULL},
+	{&control_class,		0,	control_ctor,		0,	control_funcs,	control_props,			NULL,	NULL},
+	{&folder_class,			0,	dir_ctor,			0,	dir_methods,	dir_props,				NULL,	NULL},
+	{&exit_class,			0,	exit_ctor,			0,	NULL,			exit_props,				NULL,	NULL},
+	{&party_class,			0,	party_ctor,			0,	party_methods,	party_props,			NULL,	NULL},
+	{&room_class,			0,	room_ctor,			0,	room_methods,	room_props,				NULL,	NULL},
 	
-	JS_CS(&file_class,			0,	file_ctor,			0,	file_methods,	file_props,				file_s_methods,	NULL),
-	JS_CS(&filetools_class,		0,	filetools_ctor,		0,	NULL,			NULL,					filetools_s_methods,	NULL),
-	JS_CS(&sqlite_db,			0,	sqlite_ctor,		0,	sqlite_methods,	sqlite_props,			NULL,	NULL),
-	JS_CS(&sqlite_stmt,			0,	sqlite_stmt_ctor,	0,	sqlite_stmt_methods,	sqlite_stmt_props,			NULL,	NULL),
-	JS_CS(&sandbox_class,		0,	sandbox_ctor,		0,	sandbox_methods,	NULL,				NULL,	NULL),
-	JS_CS(&script_class,		0,	script_ctor,		0,	script_methods,	script_props,			NULL,	NULL),
+	{&file_class,			0,	file_ctor,			0,	file_methods,	file_props,				file_s_methods,	NULL},
+	{&filetools_class,		0,	filetools_ctor,		0,	NULL,			NULL,					filetools_s_methods,	NULL},
+	{&sqlite_db,			0,	sqlite_ctor,		0,	sqlite_methods,	sqlite_props,			NULL,	NULL},
+	{&sqlite_stmt,			0,	sqlite_stmt_ctor,	0,	sqlite_stmt_methods,	sqlite_stmt_props,			NULL,	NULL},
+	{&sandbox_class,		0,	sandbox_ctor,		0,	sandbox_methods,	NULL,				NULL,	NULL},
+	{&script_class,			0,	script_ctor,		0,	script_methods,	script_props,			NULL,	NULL},
 	
-	JS_CS(&frame_class,		0,	frame_ctor,			0,	frame_methods,	frame_props,			NULL,	NULL),
-	JS_CS(&box_class,		0,	box_ctor,			0,	box_methods,	box_props,				NULL,	NULL),
-	JS_CS(&line_class,		0,	line_ctor,			0,	line_methods,	line_props,				NULL,	NULL),
-	JS_CS(&text_class,		0,	text_ctor,			0,	text_methods,	text_props,				NULL,	NULL),
-	JS_CS(&image_class,		0,	image_ctor,			0,	image_methods,	image_props,			NULL,	NULL),
+	{&frame_class,			0,	frame_ctor,			0,	frame_methods,	frame_props,			NULL,	NULL},
+	{&box_class,			0,	box_ctor,			0,	box_methods,	box_props,				NULL,	NULL},
+	{&line_class,			0,	line_ctor,			0,	line_methods,	line_props,				NULL,	NULL},
+	{&text_class,			0,	text_ctor,			0,	text_methods,	text_props,				NULL,	NULL},
+	{&image_class,			0,	image_ctor,			0,	image_methods,	image_props,			NULL,	NULL},
+	{0}
 	
-	JS_CS_END
 };
 
 //JSClassSpec global_classes[] = {

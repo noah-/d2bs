@@ -4,7 +4,7 @@
 #include "CriticalSections.h"
 #include "MapHeader.h"
 
-JSAPI_EMPTY_CTOR(area)
+EMPTY_CTOR(area)
 
 void area_finalize(JSContext *cx, JSObject *obj)
 {

@@ -70,13 +70,12 @@ JSAPI_FUNC(my_sqlite_version)
 
 JSAPI_FUNC(my_sqlite_memusage)
 {
-	jsval* rval;
-	JS_NewNumberValue(cx, (jsdouble)sqlite3_memory_used(), rval);
-	JS_SET_RVAL(cx, vp, rval);
+	jsval rval = JS_RVAL(cx, vp);
+	JS_NewNumberValue(cx, (jsdouble)sqlite3_memory_used(), &rval);
 	return JS_TRUE;
 }
 
-JSAPI_EMPTY_CTOR(sqlite_stmt)
+EMPTY_CTOR(sqlite_stmt)
 
 JSAPI_FUNC(sqlite_ctor)
 {
@@ -178,7 +177,7 @@ JSAPI_FUNC(sqlite_query)
 				break;
 			case JSTYPE_NUMBER:
 				if(JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[i]))
-					sqlite3_bind_double(stmt, i, *(jsdouble)JSVAL_TO_DOUBLE(JS_ARGV(cx, vp)[i]));
+					sqlite3_bind_double(stmt, i, (jsdouble)JSVAL_TO_DOUBLE(JS_ARGV(cx, vp)[i]));
 				else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[i]))
 					sqlite3_bind_int(stmt, i, JSVAL_TO_INT(JS_ARGV(cx, vp)[i]));
 				break;
@@ -351,7 +350,8 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 				THROW_ERROR(cx, "Blob type not supported (yet)");
 				break;
 			case SQLITE_NULL:
-				if(!JS_SetProperty(cx, obj2, colnam, (jsval*) JSVAL_NULL))
+				jsval nul = OBJECT_TO_JSVAL(0);
+				if(!JS_SetProperty(cx, obj2, colnam, &nul ))
 					THROW_ERROR(cx, "Failed to add column to row results");
 				break;
 		}
@@ -385,15 +385,15 @@ JSAPI_FUNC(sqlite_stmt_colval)
 
 	if(argc < 1 || argc > 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "Invalid parameter for SQLiteStatement.getColumnValue");
-
+	jsval rval = JS_RVAL(cx,vp);
 	int i = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 	switch(sqlite3_column_type(stmt, i)) {
 		case SQLITE_INTEGER:
 			// jsdouble == double, so this conversion is no problem
-			JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), rval);
+			JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), &rval);
 			break;
 		case SQLITE_FLOAT:
-			JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), rval);
+			JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), &rval);
 			break;
 		case SQLITE_TEXT:
 			JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)))));
@@ -463,7 +463,7 @@ JSAPI_FUNC(sqlite_stmt_bind)
 			break;
 		case JSTYPE_NUMBER:
 			if(JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[1]))
-				sqlite3_bind_double(stmt, colnum, *(double*)JSVAL_TO_DOUBLE(JS_ARGV(cx, vp)[1]));
+				sqlite3_bind_double(stmt, colnum, JSVAL_TO_DOUBLE(JS_ARGV(cx, vp)[1]));
 			else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
 				sqlite3_bind_int(stmt, colnum, JSVAL_TO_INT(JS_ARGV(cx, vp)[1]));
 			break;
@@ -507,7 +507,8 @@ JSAPI_FUNC(sqlite_stmt_skip)
 		int res = sqlite3_step(stmtobj->stmt);
 		if(res != SQLITE_ROW) {
 			if(res == SQLITE_DONE) {
-				JS_SET_RVAL(cx, vp, INT_TO_JSVAL((JSVAL_TO_INT(JS_ARGV(cx, vp)[0]-1)-i)));
+				//*rval = INT_TO_JSVAL((JSVAL_TO_INT(argv[0]-1)-i));
+				//1.8 not sure whats getting accomplished here
 				stmtobj->canGet = false;
 				i = 0;
 				continue;
