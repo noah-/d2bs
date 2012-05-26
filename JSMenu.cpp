@@ -267,12 +267,16 @@ JSAPI_FUNC(my_createGame)
 		return JS_TRUE;
 
 	char *name = NULL, *pass = NULL;
+	jschar *jsname = NULL , *jspass = NULL;
 	int32 diff = 3;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s/si", &name, &pass, &diff))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "W/Wi", &jsname, &jspass, &diff))
 	{
 		JS_ReportError(cx, "Invalid arguments specified to createGame");
 		return JS_FALSE;
 	}
+	name  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	pass  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+
 	if(!pass)
 		pass = "";
 
@@ -289,13 +293,15 @@ JSAPI_FUNC(my_joinGame)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
-
+	jschar *jsname = NULL , *jspass = NULL;
 	char *name = NULL, *pass = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s/s", &name, &pass))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "W/W", &jsname, &jspass))
 	{
 		JS_ReportError(cx, "Invalid arguments specified to createGame");
 		return JS_FALSE;
 	}
+	name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	pass  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
 	if(!pass)
 		pass = "";
 
@@ -373,11 +379,14 @@ JSAPI_FUNC(my_createCharacter)
 		return JS_TRUE;
 
 	char* name = NULL;
+	jschar* jsname= NULL;
 	int32 type = -1;
 	JSBool hc = JS_FALSE, ladder = JS_FALSE;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "si/bb", &name, &type, &hc, &ladder))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Wi/bb", &jsname, &type, &hc, &ladder))
 		return JS_FALSE;
+	
+	name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-	JS_SET_RVAL(cx, vp,  BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder)));
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder)));
 	return JS_TRUE;
 }

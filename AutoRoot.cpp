@@ -9,13 +9,14 @@ AutoRoot::~AutoRoot() {
 		DebugBreak();
 		exit(3);
 	}
-	JS_RemoveRoot(&var);
+	//JS_RemoveRoot(&var);
 }
 
 void AutoRoot::Take() 
 { 
 	count++;
-	JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
+	//JS_AddNamedValueRoot(ScriptEngine::GetGlobalContext(), &var, "AutoRoot");
+	//JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
 }
 
 void AutoRoot::Release()

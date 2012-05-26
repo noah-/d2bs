@@ -270,6 +270,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
+	JS_TriggerOperationCallback(script->GetContext());
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }
@@ -289,7 +290,7 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-JSBool branchCallback(JSContext* cx, JSScript*)
+JSBool branchCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	static int callBackCount = 0;
@@ -313,7 +314,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		script->SetPauseState(false);
 
 	JS_ResumeRequest(cx, depth);
-
+	
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu));
 }
 
@@ -321,10 +322,12 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 {
 	if(contextOp == JSCONTEXT_NEW)
 	{
+		JS_SetContextThread(cx);
 		JS_BeginRequest(cx);
 
 		JS_SetErrorReporter(cx, reportError);
 		JS_SetOperationCallback(cx, branchCallback);
+		
 		JS_SetVersion(cx, JSVERSION_LATEST);
 		JS_SetOptions(cx, JSOPTION_JIT|
 					  JSOPTION_METHODJIT|
@@ -333,10 +336,13 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 					  JSOPTION_XML|
 					  JSOPTION_STRICT);
 
-		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
-		if(!globalObject)
-			return JS_FALSE;
-
+		
+	JSObject* globalObject = JS_NewCompartmentAndGlobalObject(cx, &global_obj, NULL);
+	JS_AddObjectRoot(cx, &globalObject);
+		//JSObjec* globalObjectt = JS_NewObject(cx, &global_obj, NULL, NULL);
+	//	if(!globalObject)
+			//return JS_FALSE;
+		
 		if(JS_InitStandardClasses(cx, globalObject) == JS_FALSE)
 			return JS_FALSE;
 		if(JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)

@@ -52,7 +52,7 @@ private:
 public:
 	JSAutoRoot(JSContext* cx, jsval value) : cx(cx) { ref = new jsval(value); JS_AddValueRoot(cx, ref); }
 	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); delete ref; }
-	jsval* get() { return ref; }
+	jsval* get() { return ref; }                   
 };
 #define JS_AddRoot(vp) JS_AddObjectRoot(ScriptEngine::GetGlobalContext(), (JSObject**)(vp), NAME(__LINE__, vp))
 #define JS_RemoveRoot(vp) JS_RemoveObjectRoot(ScriptEngine::GetGlobalContext(),(JSObject**) (vp));
@@ -63,7 +63,7 @@ public:
 
 #define CLASS_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) 
 
-#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
+//#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
 //#define EMPTY_CTOR(name) \
 //JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval) { \
 //	THROW_ERROR(cx, "Invalid Operation"); }

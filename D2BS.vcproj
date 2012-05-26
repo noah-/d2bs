@@ -866,6 +866,10 @@
 				Name="Engine"
 				>
 				<File
+					RelativePath=".\AutoRoot.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\AutoRoot.h"
 					>
 				</File>

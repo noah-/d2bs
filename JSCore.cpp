@@ -78,9 +78,7 @@ JSAPI_FUNC(my_load)
 		return JS_FALSE;
 	}
 
-	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
-		return JS_FALSE;
+	char *file  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
 	{
@@ -123,10 +121,8 @@ JSAPI_FUNC(my_include)
 		return JS_FALSE;
 	}
 
-	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
-		return JS_FALSE;
-
+	char *file  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6))
 	{
 		JS_ReportError(cx, "File name too long!");
@@ -185,10 +181,8 @@ JSAPI_FUNC(my_getThreadPriority)
 
 JSAPI_FUNC(my_isIncluded)
 {
-	char* file = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &file))
-		return JS_FALSE;
-
+	char *file  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	
 	if(strlen(file) > (_MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6))
 	{
 		JS_ReportError(cx, "File name too long");
@@ -250,15 +244,17 @@ JSAPI_FUNC(my_debugLog)
 }
 JSAPI_FUNC(my_copy)
 {
-	char  *data = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &data))
-		return JS_FALSE;
-
+	char *data  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	
+	JS_ValueToString(cx,JS_ARGV(cx, vp)[0]);
 	HGLOBAL hText;
 	char *pText;
 	hText = GlobalAlloc(GMEM_DDESHARE|GMEM_MOVEABLE, strlen(data)+1);
 	pText = (char*)GlobalLock(hText);
-	strcpy_s(pText,strlen(data)+1, data);
+	char* tempData;
+	
+
+	strcpy_s(pText,strlen(data)+1, tempData);
 	GlobalUnlock(hText);
 
 	OpenClipboard(NULL);
@@ -289,14 +285,22 @@ JSAPI_FUNC(my_sendCopyData)
 	HWND hWnd = NULL;
 		
 	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
-		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&hWnd);
-
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "ssis", &windowClassName, &windowName, &nModeId, &data))
-		return JS_FALSE;
-
-	if(_strcmpi(windowClassName, "null") == 0)
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
+	else
+	{
+		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
+			windowClassName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
+			windowName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[2]))
+			data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[2]));
+	
+	}
+	
+	
+	if(windowClassName && _strcmpi(windowClassName, "null") == 0)
 		windowClassName = NULL;
-	if(_strcmpi(windowName, "null") == 0)
+	if(windowName && _strcmpi(windowName, "null") == 0)
 		windowName = NULL;
 	if(hWnd == NULL)
 	{
@@ -445,10 +449,8 @@ JSAPI_FUNC(my_hideConsole)
 
 JSAPI_FUNC(my_loadMpq)
 {
-	char* path = NULL;
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &path))
-		return JS_FALSE;
-
+	char *path  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	
 	if(isValidPath(path))
 		LoadMPQ(path);
 

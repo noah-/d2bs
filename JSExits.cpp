@@ -1,6 +1,6 @@
 #include "JSExits.h"
 
-//JSAPI_EMPTY_CTOR(exit)
+EMPTY_CTOR(exit)
 
 void exit_finalize(JSContext *cx, JSObject *obj)
 {

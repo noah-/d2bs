@@ -179,8 +179,9 @@ Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacit
 	//InitializeCriticalSection(&hookSection);
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
-	JS_AddRoot(&self);
 	self = nself;
+	JS_AddObjectRoot(owner->GetContext(),&self);
+	//JS_AddRoot(&self);
 	SetX(x); SetY(y);
 	visible.push_back(this);
 }
@@ -191,7 +192,8 @@ Genhook::~Genhook(void) {
 		JS_RemoveRoot(&clicked);
 	if(owner && !JSVAL_IS_VOID(hovered))
 		JS_RemoveRoot(&hovered);
-	JS_RemoveRoot(&self);
+	JS_RemoveObjectRoot(owner->GetContext(), &self);
+	//JS_RemoveRoot(&self);
 
 	EnterCriticalSection(&globalSection);
 
@@ -276,10 +278,10 @@ void Genhook::SetClickHandler(jsval handler)
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(&clicked);
-	JSContext* cx = ScriptEngine::GetGlobalContext();
+	JSContext* cx = owner->GetContext();
 	
 	
-	JS_SetContextThread(cx);
+	//JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	if(JSVAL_IS_FUNCTION(cx, handler))
 		clicked = handler;
@@ -289,12 +291,12 @@ void Genhook::SetClickHandler(jsval handler)
 		{
 			Unlock();
 			JS_EndRequest(cx);
-			JS_ClearContextThread(cx);
+			//JS_ClearContextThread(cx);
 			return;
 		}
 	}
 	JS_EndRequest(cx);
-	JS_ClearContextThread(cx);
+	//JS_ClearContextThread(cx);
 	Unlock();
 }
 
