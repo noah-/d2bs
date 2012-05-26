@@ -4,7 +4,7 @@
 #include "D2BS.h"
 #include "Helpers.h"
 
-//JSAPI_EMPTY_CTOR(script)
+EMPTY_CTOR(script)
 
 struct FindHelper
 {

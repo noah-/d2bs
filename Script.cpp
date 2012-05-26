@@ -44,6 +44,10 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
+
+
+		
+		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
@@ -70,7 +74,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 			throw std::exception("Couldn't add named root for scriptObject");*/
 
 		JS_EndRequest(context);
-
+		JS_ClearContextThread(context);
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
 		if(scriptObject)
@@ -98,8 +102,8 @@ Script::~Script(void)
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
-	JS_RemoveRoot(&globalObject);
-	JS_RemoveRoot(&scriptObject);
+	JS_RemoveObjectRoot(context, &globalObject);
+	//JS_RemoveRoot(&scriptObject);
 
 	JS_DestroyContextNoGC(context);
 
@@ -160,12 +164,11 @@ void Script::Run(void)
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;
-
+	JS_SetContextThread(GetContext());
 	isAborted = false;
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(&main);
-
+	
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
@@ -173,10 +176,12 @@ void Script::Run(void)
 	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE &&
 	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
+		JS_AddValueRoot(GetContext(),&main);
 		JS_CallFunctionValue(GetContext(), globalObject, main, this->argc, this->argv, &dummy);
+		JS_RemoveValueRoot(GetContext(), &main);
 	}
 
-	JS_RemoveRoot(&main);
+	
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
@@ -473,14 +478,14 @@ bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 	evt->argc = argc;
 	evt->argv = argv;
 	evt->object = globalObject;
-	
-	HANDLE hThread;
+	DWORD ExitCode = 0;
+	/*HANDLE hThread;
 	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
 	WaitForSingleObject(hThread, 1000);
-	DWORD ExitCode = 0;
+	
 	GetExitCodeThread( hThread, &ExitCode);
 	CloseHandle(hThread);
-	
+	*/
 	return (ExitCode == 1);
 }
 
@@ -522,8 +527,9 @@ DWORD WINAPI RunCommandThread(void* data)
 	JS_BeginRequest(cx);
 	jsval rval;
 	JSContext* orignalCx = rcs->script->GetContext();
-	rcs->script->SetContext(cx);
-	if(JS_EvaluateScript(cx, rcs->script->GetGlobalObject(), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
+//	rcs->script->SetContext(cx);
+
+	if(JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
 	{
 		if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
 		{
@@ -536,8 +542,8 @@ DWORD WINAPI RunCommandThread(void* data)
 	}
 	JS_EndRequest(cx);
 	JS_ClearContextThread(cx);
-	rcs->script->SetContext(orignalCx);
-	JS_DestroyContextNoGC(cx);
+	//rcs->script->SetContext(orignalCx);
+	//JS_DestroyContext(cx); 1.8 needed? it crashes
 	delete rcs->command;
 	delete rcs;
 

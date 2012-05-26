@@ -104,7 +104,7 @@ BOOL Startup(void)
 
 	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
 		return FALSE;
-	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
+//	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
 	return TRUE;
 }
 

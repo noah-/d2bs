@@ -167,8 +167,9 @@ JSAPI_PROP(unit_getProperty)
 
 	if(ClientState() != ClientStateInGame)
 		return JS_TRUE;
-
-	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	//JSObject* obj ;
+	//JS_ValueToObject(cx,  JS_CALLEE(cx,vp),obj);
+	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 		return JS_TRUE;
 

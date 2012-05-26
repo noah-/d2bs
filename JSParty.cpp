@@ -103,8 +103,7 @@ JSAPI_FUNC(my_getParty)
 
 		if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		{
-			if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "s", &nPlayerName))
-				THROW_ERROR(cx, "Unable to get Name");
+			char *nPlayerName  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		}
 		else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		{
