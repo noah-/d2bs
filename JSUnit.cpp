@@ -476,6 +476,7 @@ JSAPI_STRICT_PROP(unit_setProperty)
 
 JSAPI_FUNC(unit_getUnit)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	if(argc < 1)
 		return JS_TRUE;
 
@@ -540,6 +541,7 @@ JSAPI_FUNC(unit_getUnit)
 
 JSAPI_FUNC(unit_getNext)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	Private* unit = (Private*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
 	if(!unit)
@@ -833,7 +835,7 @@ JSAPI_FUNC(unit_getStat)
 			for(UINT i = 0; i < dwStats; i++)
 			{
 				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
-				JS_AddRoot(&pArrayInsert);
+				JS_AddRoot(cx, &pArrayInsert);
 
 				if(!pArrayInsert)
 					continue;
@@ -849,7 +851,7 @@ JSAPI_FUNC(unit_getStat)
 				jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
 				JS_SetElement(cx, pReturnArray, i, &aObj);
-				JS_RemoveRoot(&pArrayInsert);
+				JS_RemoveRoot(cx, &pArrayInsert);
 			}
 		}
 	}
@@ -882,6 +884,7 @@ JSAPI_FUNC(unit_getStat)
 		}
 		jsval rval = JS_RVAL(cx,vp);
 		JS_NewNumberValue(cx, result, &rval);
+		JS_SET_RVAL(cx, vp, rval);
 	}
 	return JS_TRUE;
 }
@@ -954,12 +957,12 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 			{
 				// it's not an array, build one
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
-				JS_AddRoot(&arr);
+				JS_AddRoot(cx, &arr);
 				JS_SetElement(cx, arr, 0, &index);
 				JS_SetElement(cx, arr, 1, &obj);
 				jsval arr2 = OBJECT_TO_JSVAL(arr);
 				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
-				JS_RemoveRoot(&arr);
+				JS_RemoveRoot(cx, &arr);
 			}
 			else
 			{
@@ -1213,7 +1216,7 @@ JSAPI_FUNC(unit_getItems)
 
 	if(!pReturnArray)
 		return JS_TRUE;
-	JS_AddRoot(&pReturnArray);
+	JS_AddRoot(cx, &pReturnArray);
 
 	DWORD dwArrayCount = 0;
 
@@ -1236,7 +1239,7 @@ JSAPI_FUNC(unit_getItems)
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
-			JS_RemoveRoot(&pReturnArray);
+			JS_RemoveRoot(cx, &pReturnArray);
 			THROW_ERROR(cx, "Failed to build item array");
 		}
 
@@ -1245,7 +1248,7 @@ JSAPI_FUNC(unit_getItems)
 	}
 
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
-	JS_RemoveRoot(&pReturnArray);
+	JS_RemoveRoot(cx, &pReturnArray);
 
 	return JS_TRUE;
 }
@@ -1325,7 +1328,7 @@ JSAPI_FUNC(unit_getSkill)
 				int i = 0;
 				for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
 					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
-					JS_AddRoot(&pArrayInsert);
+					JS_AddRoot(cx, &pArrayInsert);
 
 					if(!pArrayInsert)
 						continue;
@@ -1341,7 +1344,7 @@ JSAPI_FUNC(unit_getSkill)
 					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
 					JS_SetElement(cx, pReturnArray, i, &aObj);
-					JS_RemoveRoot(&pArrayInsert);
+					JS_RemoveRoot(cx, &pArrayInsert);
 					i++;
 				}
 				break;
@@ -1582,8 +1585,10 @@ JSAPI_FUNC(unit_getMercHP)
 {	
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
-
-	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	JSObject* test = JS_THIS_OBJECT(cx,vp);
+	jsval* rest = 0;
+	myUnit* lpUnit = (myUnit*) JS_GetInstancePrivate(cx, test, &unit_class, rest);
+	//myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, test);
 
 	UnitAny* pUnit = lpUnit ? D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType) : D2CLIENT_GetPlayerUnit();
 
@@ -1687,6 +1692,7 @@ JSAPI_FUNC(unit_getItem)
 {	
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 

@@ -54,8 +54,8 @@ public:
 	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); delete ref; }
 	jsval* get() { return ref; }                   
 };
-#define JS_AddRoot(vp) JS_AddObjectRoot(ScriptEngine::GetGlobalContext(), (JSObject**)(vp), NAME(__LINE__, vp))
-#define JS_RemoveRoot(vp) JS_RemoveObjectRoot(ScriptEngine::GetGlobalContext(),(JSObject**) (vp));
+#define JS_AddRoot(cx, vp) JS_AddObjectRoot(cx, (JSObject**)(vp), NAME(__LINE__, vp))
+#define JS_RemoveRoot(cx, vp) JS_RemoveObjectRoot(cx, (JSObject**) (vp));
 #define JSVAL_IS_FUNCTION(cx, var) (JSVAL_IS_OBJECT(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
 
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)

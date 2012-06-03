@@ -102,6 +102,11 @@ JSAPI_FUNC(script_send)
 	for(uintN i = 0; i < argc; i++)
 		args[i] = new AutoRoot(JS_ARGV(cx, vp)[i]);
 
+
+	/*eventHelper* helper;
+	helper->eventName = "scriptmsg";
+	helper->arg1 = argc;
+	helper->argv = JS_ARGV(cx, vp);*/
 	// this event has to occur as such because it's not a broadcasted event, just a local one
 	script->ExecEventAsync("scriptmsg", argc, args);
 

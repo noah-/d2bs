@@ -1,7 +1,8 @@
 #include "AutoRoot.h"
 #include "ScriptEngine.h"
 
-AutoRoot::AutoRoot(jsval nvar) : var(nvar), count(0) { Take(); }
+AutoRoot::AutoRoot(JSContext* ncx, jsval nvar) : cx(ncx), var(nvar), count(0) { Take(); }
+AutoRoot::AutoRoot( jsval nvar) : cx(ScriptEngine::GetGlobalContext()), var(nvar), count(0) { Take(); }
 AutoRoot::~AutoRoot() {
 	if(count < 0)
 	{
@@ -9,13 +10,14 @@ AutoRoot::~AutoRoot() {
 		DebugBreak();
 		exit(3);
 	}
-	//JS_RemoveRoot(&var);
+	//JS_RemoveRoot(cx, &var);
+	JS_RemoveValueRoot(cx, &var);
 }
 
 void AutoRoot::Take() 
 { 
 	count++;
-	//JS_AddNamedValueRoot(ScriptEngine::GetGlobalContext(), &var, "AutoRoot");
+	JS_AddNamedValueRoot(cx, &var, "AutoRoot");
 	//JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
 }
 

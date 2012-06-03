@@ -357,7 +357,7 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		}
 	}
 	stmtobj->current_row = obj2;
-	if(JS_AddRoot(&stmtobj->current_row) == JS_FALSE)
+	if(JS_AddRoot(cx, &stmtobj->current_row) == JS_FALSE)
 		return JS_TRUE;
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj2));
 	return JS_TRUE;
@@ -490,7 +490,7 @@ JSAPI_FUNC(sqlite_stmt_next)
 
 	stmtobj->canGet = !!(SQLITE_ROW == res);
 	if(stmtobj->current_row) {
-		JS_RemoveRoot(&stmtobj->current_row);
+		JS_RemoveRoot(cx, &stmtobj->current_row);
 		stmtobj->current_row = NULL;
 	}
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL((SQLITE_ROW == res)));
@@ -535,7 +535,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 	JSObject* obj = JS_THIS_OBJECT(cx, vp);
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 	if(stmtobj->current_row)
-		JS_RemoveRoot(&stmtobj->current_row);
+		JS_RemoveRoot(cx, &stmtobj->current_row);
 	close_db_stmt(stmtobj);
 	delete stmtobj;
 	
@@ -573,7 +573,7 @@ void sqlite_stmt_finalize(JSContext *cx, JSObject *obj)
 		if(stmtobj->stmt && stmtobj->open) {
 			stmtobj->assoc_db->stmts.erase(stmtobj);
 			if(stmtobj->current_row)
-				JS_RemoveRoot(&stmtobj->current_row);
+				JS_RemoveRoot(cx, &stmtobj->current_row);
 			close_db_stmt(stmtobj);
 		}
 		delete stmtobj;

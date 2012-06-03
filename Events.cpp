@@ -1,71 +1,22 @@
 #include "ScriptEngine.h"
+#include "D2BS.h"
 
-struct ChatEventHelper
-{
-	char *event, *nick, *msg;
-};
-
-struct CopyDataHelper
-{
-	DWORD mode;
-	char* msg;
-};
-
-struct ItemEventHelper
-{
-	DWORD id;
-	char* code;
-	WORD mode;
-	bool global;
-};
-
-struct KeyEventHelper
-{
-	BOOL up;
-	WPARAM key;
-};
-
-struct GameActionEventHelper
-{
-	BYTE mode;
-	DWORD param1, param2;
-	char *name1, *name2;
-};
-
-struct SingleArgHelper
-{
-	DWORD arg1;
-};
-
-struct DoubleArgHelper
-{
-	DWORD arg1, arg2;
-};
-
-struct TripleArgHelper
-{
-	DWORD arg1, arg2, arg3;
-};
-struct QuadArgHelper
-{
-	DWORD arg1, arg2, arg3, arg4;
-};
-
-struct BCastEventHelper
-{
-	jsval* argv;
-	uintN argc;
-};
 
 bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 {
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("melife"))
 	{
-		AutoRoot** argv2 = new AutoRoot*[1];
-		argv2[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv2[0]->value());
-		script->ExecEventAsync("melife", 1, argv2);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup("melife");
+		evt->arg1 =  new DWORD(helper->arg1);
+ 		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -81,10 +32,16 @@ bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("memana"))
 	{
-		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		script->ExecEventAsync("memana", 1, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup("memana");
+		evt->arg1 =  new DWORD(helper->arg1);
+ 		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -101,20 +58,39 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 	char* event = (helper->up ? "keyup" : "keydown");
 	if(script->IsRunning() && script->IsListenerRegistered(event))
 	{
-		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
-		script->ExecEventAsync(event, 1, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup(event); 
+		evt->arg1 =  new DWORD((DWORD)helper->key);
+ 		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	bool block = false;
 	event = (helper->up ? "keyupblocker" : "keydownblocker");
 	if(script->IsRunning() && script->IsListenerRegistered(event))
 	{
-		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
-		if(script->ExecEvent(event, 1, argv))
-			block = true;
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup(event); 
+		evt->arg1 =  new DWORD((DWORD)helper->key);
+		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
+
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+		if(WaitForSingleObject(evt->arg5, 10000) == WAIT_TIMEOUT)
+			return false;
+		bool* global = (bool*) evt->arg4;
+		block = *global;
+		delete evt->name;
+		delete evt->arg1;
+		delete evt;
 	}
 
 	return block;
@@ -123,7 +99,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 bool KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
 	KeyEventHelper helper = {bUp, key};
-	return ScriptEngine::ForEachScript(KeyEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(KeyEventCallback, &helper, 2);
 }
 
 bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
@@ -150,13 +126,24 @@ bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
 	QuadArgHelper* helper = (QuadArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("mouseclick"))
 	{
-		AutoRoot** argv = new AutoRoot*[4];
-		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
-		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
-		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->arg3));
-		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->arg4));
-	
-		script->ExecEventAsync("mouseclick", 4, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = "mouseclick";
+		evt->arg1 =  new DWORD(helper->arg1);
+ 		evt->arg2 =  new DWORD(helper->arg2);
+		evt->arg3 =  new DWORD(helper->arg3);
+ 		evt->arg4 =  new DWORD(helper->arg4);
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		if(script->IsRunning())
+			JS_TriggerOperationCallback(evt->owner->GetContext());
+
+
+		
+		//script->ExecEventAsync("mouseclick", 4, argv);
 	}
 	return true;
 }
@@ -164,7 +151,7 @@ bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
 void MouseClickEvent(int button, POINT pt, bool bUp)
 {
 	QuadArgHelper helper = {button, pt.x, pt.y, bUp};
-	ScriptEngine::ForEachScript(MouseClickCallback, &helper, 1);
+	ScriptEngine::ForEachScript(MouseClickCallback, &helper, 4);
 }
 
 bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
@@ -172,12 +159,18 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
 	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("mousemove"))
 	{
-		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot();
-		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg2, argv[1]->value());
-		script->ExecEventAsync("mousemove", 2, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = "mousemove";
+		evt->arg1 =  new DWORD(helper->arg1);
+ 		evt->arg2 =  new DWORD(helper->arg2);
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		if(script->IsRunning())
+			JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -187,10 +180,10 @@ void MouseMoveEvent(POINT pt)
 	if (pt.x < 1 || pt.y < 1)
 		return;
 	DoubleArgHelper helper = {pt.x, pt.y};
-	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 1);
+	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 2);
 }
 
-bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
+bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) // Going to be tricy re rooting in other cx
 {
 	BCastEventHelper* helper = (BCastEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
@@ -209,52 +202,53 @@ void ScriptBroadcastEvent(uintN argc, jsval* args)
 	ScriptEngine::ForEachScript(BCastEventCallback, &helper, 1);
 }
 
-bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
-{
-	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("golddrop"))
-	{
-		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot();
-		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg2, argv[1]->value());
-		script->ExecEventAsync("golddrop", 2, argv);
-	}
-	return true;
-}
 
-void GoldDropEvent(DWORD GID, BYTE Mode)
-{
-	DoubleArgHelper helper = {GID, Mode};
-	ScriptEngine::ForEachScript(GoldDropCallback, &helper, 1);
-}
 
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 {
 	ChatEventHelper* helper = (ChatEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered(helper->event))
 	{
-		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync(helper->event, 2, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup(helper->event); 
+		evt->arg1 = strdup(helper->nick);
+ 		evt->arg2 = strdup(helper->msg);
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+		
 	}
-	std::string evt = helper->event;
-	evt = evt + "blocker";
+	std::string evtname = helper->event;
+	evtname = evtname + "blocker";
 	bool block = false;
 
-	if(script->IsRunning() && script->IsListenerRegistered(evt.c_str()))
+	if(script->IsRunning() && script->IsListenerRegistered(evtname.c_str()))
 	{
-		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		if (script->ExecEvent(const_cast<char*>(evt.c_str()), 2, argv))
-			block = true;
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup(evtname.c_str()); 
+		evt->arg1 = strdup(helper->nick);
+ 		evt->arg2 = strdup(helper->msg);
+		
+		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
+
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+		if(WaitForSingleObject(evt->arg5, 10000) == WAIT_TIMEOUT)
+			return false;
+		block = (bool*) evt->arg4;
+		delete evt->name;
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt;
+
 	}
 	return block;
 }
@@ -262,13 +256,13 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 bool ChatEvent(char* lpszNick, char* lpszMsg)
 {
 	ChatEventHelper helper = {"chatmsg", lpszNick, lpszMsg};
-	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
 bool WhisperEvent(char* lpszNick, char* lpszMsg)
 {
 	ChatEventHelper helper = {"whispermsg", lpszNick, lpszMsg};
-	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
+	return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
 bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
@@ -276,13 +270,17 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 	CopyDataHelper* helper = (CopyDataHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("copydata"))
 	{
-		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[0]->value());
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync("copydata", 2, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = "copydata";
+		evt->arg1 =  new DWORD(helper->mode);
+ 		evt->arg2 = strdup(helper->msg);
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -293,39 +291,24 @@ void CopyDataEvent(DWORD dwMode, char* lpszMsg)
 	ScriptEngine::ForEachScript(CopyDataCallback, &helper, 1);
 }
 
-bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
-{
-	if(script->IsRunning() && script->IsListenerRegistered("gamemsg"))
-	{
-		AutoRoot** argv = new AutoRoot*[1];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), (char*)argv)));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync("gamemsg", 1, argv);
-	}
-	return true;
-}
-
-void GameMsgEvent(char* lpszMsg)
-{
-	ScriptEngine::ForEachScript(GameEventCallback, lpszMsg, 1);
-}
-
 bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 {
 	ItemEventHelper* helper = (ItemEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("itemaction"))
 	{
-		AutoRoot** argv = new AutoRoot*[4];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot();
-		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->id, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[1]->value());
-		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->code)));
-		argv[3] = new AutoRoot(BOOLEAN_TO_JSVAL(helper->global));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync("itemaction", 4, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = "itemaction";
+		evt->arg1 =  new DWORD(helper->id);
+ 		evt->arg2 = strdup(helper->code);
+		evt->arg3 = new DWORD(helper->mode);
+		evt->arg4 = new bool(helper->global);
+
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -333,7 +316,7 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global)
 {
 	ItemEventHelper helper = {GID, Code, Mode, Global};
-	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 1);
+	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 4);
 }
 
 bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
@@ -341,18 +324,20 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
 	{
-		AutoRoot** argv = new AutoRoot*[5];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot();
-		argv[1] = new AutoRoot();
-		argv[2] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->param1, argv[1]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->param2, argv[2]->value());
-		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name1)));
-		argv[4] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name2)));
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync("gameevent", 5, argv);
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = "gameevent";
+		evt->arg1 = new BYTE(helper->mode);
+		evt->arg2 = new DWORD(helper->param1);
+		evt->arg3 = new DWORD(helper->param2);
+		evt->arg4 = strdup(helper->name1);
+ 		evt->arg5 = strdup(helper->name2);
+
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
 	}
 	return true;
 }
@@ -360,5 +345,5 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2)
 {
 	GameActionEventHelper helper = {mode, param1, param2, name1, name2};
-	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
+	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 5);
 }
