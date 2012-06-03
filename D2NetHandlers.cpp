@@ -170,9 +170,9 @@ DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 	memcpy(code, &icode, 4);
 	if(code[3] == ' ') code[3] = '\0';
 
-	if(strcmp(code, "gld") == 0)
+	/*if(strcmp(code, "gld") == 0)
 		GoldDropEvent(gid, mode);
-	else
+	else*/
 		ItemActionEvent(gid, code, mode, (pPacket[0] == 0x9d));	
 
 	return TRUE;

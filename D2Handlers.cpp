@@ -55,8 +55,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				}
 				else
 				{
-					Sleep(1000);
-
+					Sleep(500);
+					JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
 					ScriptEngine::ForEachScript(UpdatePlayerGid, NULL, 0);
@@ -78,6 +78,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
+				//	JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
 					bInGame = false;
 				}
 				break;
@@ -86,19 +87,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			case ClientStateNull:
 				break;
 		}
-		Sleep(50);
-		mouseEventMod ++; // only call mouse events every 500 ms and if the coords changed
-		if (mouseEventMod == 10)
-		{
-			mouseEventMod=0;
-			if (Vars.pMouseCoords.x != pMouse.x || Vars.pMouseCoords.y != pMouse.y)
-			{
-				pMouse=Vars.pMouseCoords;
-				HookClickHelper helper = {-1, {pMouse.x, pMouse.y}};
-				MouseMoveEvent(pMouse);
-				Genhook::ForEachVisibleHook(HoverHook, &helper, 1);
-			}
-		}
+		Sleep(50);		
+		JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
 	}
 
 	ScriptEngine::Shutdown();

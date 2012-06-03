@@ -9,7 +9,7 @@
 #include "JSGlobalClasses.h"
 #include "AutoRoot.h"
 #include "JSUnit.h"
-
+#include "Events.h"
 enum ScriptState {
 	InGame,
 	OutOfGame,
@@ -28,7 +28,13 @@ struct Event {
 	JSObject* object;
 	FunctionList functions;
 	AutoRoot** argv;
-	uintN argc;
+	uintN argc;	
+	char* name;
+	void* arg1;
+	void* arg2;
+	void* arg3; 
+	void* arg4;
+	void* arg5;
 };
 
 class Script
@@ -47,7 +53,7 @@ private:
 	bool isLocked, isPaused, isReallyPaused, isAborted;
 
 	IncludeList includes, inProgress;
-	FunctionMap functions;
+	
 	HANDLE threadHandle;
 	DWORD threadId;
 	CRITICAL_SECTION lock;
@@ -59,7 +65,7 @@ private:
 
 public:
 	friend class ScriptEngine;
-	
+	FunctionMap functions;
 	void Run(void);
 	void Join(void);
 	void Pause(void);
@@ -98,7 +104,8 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-	bool ExecEvent(char* evtName, uintN argc, AutoRoot** argv);
+	bool ExecEvent(char* evtName, uintN argc,  AutoRoot** argv);
+	std::list<Event*> EventList;
 };
 
 struct RUNCOMMANDSTRUCT {

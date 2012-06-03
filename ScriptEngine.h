@@ -80,6 +80,6 @@ JSBool branchCallback (JSContext *cx);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
-
+bool ExecScriptEvent(Event* evt,bool clearList);
 #endif
 

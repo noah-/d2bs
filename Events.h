@@ -16,3 +16,59 @@ void MouseMoveEvent(POINT pt);
 void ScriptBroadcastEvent(uintN argc, jsval* argv);
 void GoldDropEvent(DWORD GID, BYTE Mode);
 void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
+struct ChatEventHelper
+{
+	char *event, *nick, *msg;
+};
+
+struct CopyDataHelper
+{
+	DWORD mode;
+	char* msg;
+};
+
+struct ItemEventHelper
+{
+	DWORD id;
+	char* code;
+	WORD mode;
+	bool global;
+};
+
+struct KeyEventHelper
+{
+	BOOL up;
+	WPARAM key;
+};
+
+struct GameActionEventHelper
+{
+	BYTE mode;
+	DWORD param1, param2;
+	char *name1, *name2;
+};
+
+struct SingleArgHelper
+{
+	DWORD arg1;
+};
+
+struct DoubleArgHelper
+{
+	DWORD arg1, arg2;
+};
+
+struct TripleArgHelper
+{
+	DWORD arg1, arg2, arg3;
+};
+struct QuadArgHelper
+{
+	DWORD arg1, arg2, arg3, arg4;
+};
+
+struct BCastEventHelper
+{
+	jsval* argv;
+	uintN argc;
+};

@@ -30,7 +30,7 @@ JSAPI_FUNC(sandbox_ctor)
 	// how do I do that individually though? :/
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
-	if(JS_AddRoot(&res) == JS_FALSE)
+	if(JS_AddRoot(cx, &res) == JS_FALSE)
 	{
 		JS_DestroyContext(box->context);
 		delete box;
@@ -38,13 +38,13 @@ JSAPI_FUNC(sandbox_ctor)
 	}
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
-		JS_RemoveRoot(&box->innerObj);
+		JS_RemoveRoot(cx, &box->innerObj);
 		JS_DestroyContext(box->context);
 		delete box;
 		return JS_TRUE;
 	}
 	JS_SetPrivate(cx, res, box);
-	JS_RemoveRoot(&res);
+	JS_RemoveRoot(cx, &res);
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
 
 	return JS_TRUE;

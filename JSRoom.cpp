@@ -105,7 +105,7 @@ JSAPI_FUNC(room_getPresetUnits)
 	}
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-	JS_AddRoot(&pReturnArray);
+	JS_AddRoot(cx, &pReturnArray);
 	for(PresetUnit* pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext)
 	{
 		if((pUnit->dwType == nType || nType == NULL) && (pUnit->dwTxtFileNo == nClass || nClass == NULL))
@@ -137,7 +137,7 @@ JSAPI_FUNC(room_getPresetUnits)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 	
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
-	JS_RemoveRoot(&pReturnArray);
+	JS_RemoveRoot(cx, &pReturnArray);
 
 	return JS_TRUE;
 }
@@ -149,7 +149,7 @@ JSAPI_FUNC(room_getCollision)
 		return JS_TRUE;
 
 	JSObject* jsobjy = JS_NewArrayObject(cx, NULL, NULL);
-	JS_AddRoot(&jsobjy);
+	JS_AddRoot(cx, &jsobjy);
 	if(!jsobjy)
 		return JS_TRUE;
 
@@ -170,7 +170,7 @@ JSAPI_FUNC(room_getCollision)
 
 	if(!pCol)
 	{
-		JS_RemoveRoot(&jsobjy);
+		JS_RemoveRoot(cx, &jsobjy);
 		if(bAdded)
 			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 		return JS_TRUE;
@@ -201,7 +201,7 @@ JSAPI_FUNC(room_getCollision)
 			{
 				if(bAdded)
 					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-				JS_RemoveRoot(&jsobjy);
+				JS_RemoveRoot(cx, &jsobjy);
 				return JS_TRUE;
 			}
 
@@ -216,7 +216,7 @@ JSAPI_FUNC(room_getCollision)
 		{
 			if(bAdded)
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-			JS_RemoveRoot(&jsobjy);
+			JS_RemoveRoot(cx, &jsobjy);
 			return JS_TRUE;
 		}
 		nCurrentArrayY++;
@@ -227,7 +227,7 @@ JSAPI_FUNC(room_getCollision)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobjy));
-	JS_RemoveRoot(&jsobjy);
+	JS_RemoveRoot(cx, &jsobjy);
 	return JS_TRUE;
 }
 

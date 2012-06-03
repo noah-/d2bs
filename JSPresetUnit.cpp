@@ -87,7 +87,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	DWORD dwArrayCount = NULL;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-	JS_AddRoot(&pReturnArray);
+	JS_AddRoot(cx, &pReturnArray);
 	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
 	{
 		bAddedRoom = FALSE;
@@ -134,7 +134,7 @@ JSAPI_FUNC(my_getPresetUnits)
 		}
 	}
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
-	JS_RemoveRoot(&pReturnArray);
+	JS_RemoveRoot(cx, &pReturnArray);
 
 	return JS_TRUE;
 }

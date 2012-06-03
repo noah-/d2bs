@@ -59,8 +59,10 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
 		}
 
-		if(state == Command)
-			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
+		if(state == Command){
+			char * cmd = "while (true) delay(10000);";
+			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
+		}
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)
@@ -78,7 +80,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
 		if(scriptObject)
-			JS_RemoveRoot(&scriptObject);
+			JS_RemoveRoot(context, &scriptObject);
 		//if(script && !scriptObject)
 			//JS_DestroyScript(context, script);
 		if(context)
@@ -97,15 +99,15 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
-	JS_SetContextThread(context);
+	//JS_SetContextThread(context);
 
-	JS_BeginRequest(context);
+	//JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
-	JS_RemoveObjectRoot(context, &globalObject);
+	//JS_RemoveObjectRoot(context, &globalObject);
 	//JS_RemoveRoot(&scriptObject);
 
-	JS_DestroyContextNoGC(context);
+	//JS_DestroyContextNoGC(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -138,8 +140,25 @@ void Script::RunCommand(const char* command)
 
 	rcs->script = this;
 	rcs->command = passCommand;
+	
+	Event* evt = new Event;
+		evt->owner = this;
+		evt->argc = argc;
+		evt->name = "Command";
+		evt->arg1 =  passCommand;
+ 		//evt->arg2 =  new DWORD(helper->arg2);
 
-	CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
+		if(!JS_IsRunning(evt->owner->GetContext())){
+			CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
+		}else{
+
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		//if(script->IsRunning())
+			JS_TriggerOperationCallback(evt->owner->GetContext());
+		}
+		
 }
 
 bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
@@ -164,7 +183,7 @@ void Script::Run(void)
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;
-	JS_SetContextThread(GetContext());
+	
 	isAborted = false;
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
@@ -199,6 +218,7 @@ void Script::Pause(void)
 	//EnterCriticalSection(&lock);
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
+	JS_TriggerOperationCallback(GetContext());
 	//LeaveCriticalSection(&lock);
 }
 
@@ -217,6 +237,7 @@ void Script::Resume(void)
 	//EnterCriticalSection(&lock);
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
+	JS_TriggerOperationCallback(GetContext());
 	//LeaveCriticalSection(&lock);
 }
 
@@ -249,8 +270,8 @@ void Script::Stop(bool force, bool reallyForce)
 		Print("Script %s ended", displayName);
 	}
 
-	ClearAllEvents();
-	Genhook::Clean(this);
+	//ClearAllEvents();  //moved to cx callback
+	//Genhook::Clean(this);
 
 	// normal wait: 500ms, forced wait: 300ms, really forced wait: 100ms
 	int maxCount = (force ? (reallyForce ? 10 : 30) : 50);
@@ -261,7 +282,7 @@ void Script::Stop(bool force, bool reallyForce)
 			break;
 		Sleep(10);
 	}
-
+	JS_TriggerOperationCallback(GetContext());
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	threadHandle = INVALID_HANDLE_VALUE;
@@ -352,7 +373,7 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 	EnterCriticalSection(&lock);
 	if(JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0)
 	{
-		AutoRoot* root = new AutoRoot(evtFunc);
+		AutoRoot* root = new AutoRoot(context, evtFunc);
 		functions[evtName].push_back(root);
 	}
 	LeaveCriticalSection(&lock);
@@ -430,55 +451,48 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		return;
 	}
 
-	for(uintN i = 0; i < argc; i++)
+	/*for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
-
+*/
+	/*char* test = "testing";
+	
 	Event* evt = new Event;
 	evt->owner = this;
 	evt->functions = functions[evtName];
 	evt->argc = argc;
 	evt->argv = argv;
+	evt->name = test;
 	evt->object = globalObject;
-	
-	int timeout = 0;
-	while(! TryEnterCriticalSection(&Vars.cEventSection) )
-	{
-		timeout++ ;
-		if(timeout > 3)
-		{
-			HANDLE hThread;
-			hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-			CloseHandle(hThread);
-			return;
-		}
-		Sleep(10);
-	}
 
-	Vars.EventList.push_front(evt);
+	int timeout = 0;
+	EnterCriticalSection(&Vars.cEventSection) ;
+	
+	evt->owner->EventList.push_front(evt);
 	LeaveCriticalSection(&Vars.cEventSection);
+	JS_TriggerOperationCallback(evt->owner->GetContext());*/
 
 }
 bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 {
-	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
-	{
-		// no event will happen, clean up the roots
-		for(uintN i = 0; i < argc; i++)
-			delete argv[i];
-		delete[] argv;
-		return false;
-	}
+	//if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	//{
+	//	// no event will happen, clean up the roots
+	//	for(uintN i = 0; i < argc; i++)
+	//		delete argv[i];
+	//	delete[] argv;
+	//	return false;
+	//}
 
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();
+	//for(uintN i = 0; i < argc; i++)
+	//	argv[i]->Take();
 
-	Event* evt = new Event;
-	evt->owner = this;
-	evt->functions = functions[evtName];
-	evt->argc = argc;
-	evt->argv = argv;
-	evt->object = globalObject;
-	DWORD ExitCode = 0;
+	//Event* evt = new Event;
+	//evt->owner = this;
+	//evt->functions = functions[evtName];
+	//evt->argc = argc;
+	//evt->argv = argv;
+	//evt->object = globalObject;
+	//DWORD ExitCode = 0;
 	/*HANDLE hThread;
 	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
 	WaitForSingleObject(hThread, 1000);
@@ -486,7 +500,7 @@ bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 	GetExitCodeThread( hThread, &ExitCode);
 	CloseHandle(hThread);
 	*/
-	return (ExitCode == 1);
+	return false; //(ExitCode == 1);
 }
 
 #ifdef DEBUG
@@ -520,14 +534,14 @@ DWORD WINAPI RunCommandThread(void* data)
 {
 	RUNCOMMANDSTRUCT* rcs = (RUNCOMMANDSTRUCT*) data;
 	
-	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
-	JS_SetContextPrivate(cx, rcs->script);
-
+	//JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+	//JS_SetContextPrivate(cx, rcs->script);
+	JSContext* cx = rcs->script->GetContext();
 	JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	jsval rval;
-	JSContext* orignalCx = rcs->script->GetContext();
-//	rcs->script->SetContext(cx);
+	//JSContext* orignalCx = rcs->script->GetContext();
+	//rcs->script->SetContext(cx);
 
 	if(JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
 	{
@@ -541,11 +555,13 @@ DWORD WINAPI RunCommandThread(void* data)
 		}
 	}
 	JS_EndRequest(cx);
+	//JS_DestroyContext(cx);// 1.8 needed? it crashes
 	JS_ClearContextThread(cx);
+	JS_TriggerOperationCallback(cx);
 	//rcs->script->SetContext(orignalCx);
-	//JS_DestroyContext(cx); 1.8 needed? it crashes
-	delete rcs->command;
-	delete rcs;
+	
+//	delete rcs->command;
+	//delete rcs;
 
 	return 0;
 }
@@ -581,7 +597,7 @@ DWORD WINAPI FuncThread(void* data)
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = *evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			if(JS_AddRoot(evt->owner->GetContext(), &args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
 					delete[] evt->argv;
@@ -598,7 +614,7 @@ DWORD WINAPI FuncThread(void* data)
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
+			JS_RemoveRoot(evt->owner->GetContext(), &args[i]);
 		delete[] args;
 	}
 
@@ -681,7 +697,7 @@ bool callEventFunction(JSContext* cx ,Event* evt)
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = *evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			if(JS_AddRoot(evt->owner->GetContext(), &args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
 					delete[] evt->argv;
@@ -698,7 +714,7 @@ bool callEventFunction(JSContext* cx ,Event* evt)
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
+			JS_RemoveRoot(evt->owner->GetContext(), &args[i]);
 		delete[] args;
 	}
 return block;

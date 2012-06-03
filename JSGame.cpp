@@ -873,7 +873,7 @@ JSAPI_FUNC(my_getTextSize)
 		pObj = BuildObject(cx, NULL);
 		if(!pObj)
 			THROW_ERROR(cx, "Could not build object");
-		JS_AddRoot(&pObj);
+		JS_AddRoot(cx, &pObj);
 		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
 			THROW_ERROR(cx, "Could not set width property");
 		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
@@ -882,12 +882,12 @@ JSAPI_FUNC(my_getTextSize)
 	else
 	{
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
-		JS_AddRoot(&pObj);
+		JS_AddRoot(cx, &pObj);
 		JS_SetElement(cx, pObj, 0, &x);
 		JS_SetElement(cx, pObj, 1, &y);
 	}
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pObj));
-	JS_RemoveRoot(&pObj);
+	JS_RemoveRoot(cx, &pObj);
 
 	return JS_TRUE;
 }
@@ -1267,7 +1267,7 @@ JSAPI_FUNC(my_getMouseCoords)
 	if(nReturn)
 	{
 		pObj = BuildObject(cx, NULL);
-		JS_AddRoot(&pObj);
+		JS_AddRoot(cx, &pObj);
 		if(!pObj)
 			THROW_ERROR(cx, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
@@ -1278,7 +1278,7 @@ JSAPI_FUNC(my_getMouseCoords)
 	else
 	{
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
-		JS_AddRoot(&pObj);
+		JS_AddRoot(cx, &pObj);
 		JS_SetElement(cx, pObj, 0, &jsX);
 		JS_SetElement(cx, pObj, 1, &jsY);
 	}
@@ -1287,7 +1287,7 @@ JSAPI_FUNC(my_getMouseCoords)
 		return JS_TRUE;
 
 	JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(pObj));
-	JS_RemoveRoot(&pObj);
+	JS_RemoveRoot(cx, &pObj);
 	return JS_TRUE;
 }
 

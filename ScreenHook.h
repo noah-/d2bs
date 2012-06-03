@@ -90,6 +90,7 @@ public:
 	void SetOpacity(ushort nopacity) { Lock(); opacity = nopacity; Unlock(); }
 	void SetIsVisible(bool nisVisible) {
 		Lock();
+		EnterCriticalSection(&globalSection);
 		if(!nisVisible)
 		{
 			if(isVisible)
@@ -106,6 +107,7 @@ public:
 		}
 		isVisible = nisVisible;
 		Unlock();
+		LeaveCriticalSection(&globalSection);
 	}
 	void SetZOrder(ushort norder) { Lock(); zorder = norder; Unlock(); }
 	void SetClickHandler(jsval handler);

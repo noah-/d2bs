@@ -10,12 +10,13 @@ class AutoRoot
 private:
 	jsval var;
 	int count;
-
+	JSContext* cx;
 	AutoRoot(const AutoRoot&);
 	AutoRoot& operator=(const AutoRoot&);
 public:
 	AutoRoot() : var(JSVAL_NULL), count(0) {}
-	AutoRoot(jsval var);
+	AutoRoot(JSContext* cx, jsval var);
+	AutoRoot( jsval var);
 	~AutoRoot();
 	void Take();
 	void Release();
