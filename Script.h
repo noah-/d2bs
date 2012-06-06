@@ -27,7 +27,7 @@ struct Event {
 	Script* owner;
 	JSObject* object;
 	FunctionList functions;
-	AutoRoot** argv;
+	JSAutoStructuredCloneBuffer** argv;
 	uintN argc;	
 	char* name;
 	void* arg1;
@@ -92,7 +92,8 @@ public:
 	inline void SetContext(JSContext* cx) { context = cx;}
 	bool IsRunning(void);
 	bool IsAborted(void);
-
+	void Lock() { EnterCriticalSection(&lock);} // needed for events walking function list
+	void Unlock() { LeaveCriticalSection(&lock);}
 	bool IsIncluded(const char* file);
 	bool Include(const char* file);
 
@@ -106,6 +107,7 @@ public:
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 	bool ExecEvent(char* evtName, uintN argc,  AutoRoot** argv);
 	std::list<Event*> EventList;
+
 };
 
 struct RUNCOMMANDSTRUCT {

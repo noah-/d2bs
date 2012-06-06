@@ -54,12 +54,26 @@ JSAPI_FUNC(my_delay)
 	uint32 nDelay = 0;
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nDelay))
 		return JS_FALSE;
-
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	DWORD start = GetTickCount();
 	if(nDelay)
 	{
-		jsrefcount depth = JS_SuspendRequest(cx);
-		Sleep(nDelay);
-		JS_ResumeRequest(cx, depth);
+		while(GetTickCount() - start < nDelay)
+		{
+			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
+			{
+				EnterCriticalSection(&Vars.cEventSection);
+					Event* evt = script->EventList.back();
+					script->EventList.pop_back();
+				LeaveCriticalSection(&Vars.cEventSection);
+				ExecScriptEvent(evt,false);
+			}
+
+
+			jsrefcount depth = JS_SuspendRequest(cx);
+			Sleep(10);
+			JS_ResumeRequest(cx, depth);
+		}
 	}
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
@@ -431,7 +445,7 @@ JSAPI_FUNC(my_scriptBroadcast)
 	if(argc < 1)
 		THROW_ERROR(cx, "You must specify something to broadcast");
 
-	ScriptBroadcastEvent(argc, JS_ARGV(cx, vp));
+	ScriptBroadcastEvent(cx, argc, JS_ARGV(cx, vp));
 	return JS_TRUE;
 }
 

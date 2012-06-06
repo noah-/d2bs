@@ -117,13 +117,14 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 	for(HookIterator it = visible.begin(); it != visible.end(); it++)
 		list.push_back(*it);
 	
+	LeaveCriticalSection(&globalSection);
 	std::sort(list.begin(), list.end(), zOrderSort);
 	int count = list.size();
 	for(int i = 0; i < count; i++)
 		if(proc(list[i], argv, argc))
 			result = true;
 
-	LeaveCriticalSection(&globalSection);
+	
 	return result;
 }
 
@@ -230,6 +231,8 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
  		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
+		AutoRoot* root = new AutoRoot(owner->GetContext(),clicked);
+		evt->functions.push_back(root);
 
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
@@ -238,14 +241,15 @@ bool Genhook::Click(int button, POINT* loc)
 		WaitForSingleObject(evt->arg5, 10000);
 		bool* global = (bool*) evt->arg4;
 		block = *global;
-		delete evt->name;
 		delete evt->arg1;
 		delete evt->arg2;
 		delete evt->arg3;
 		delete evt->arg4;
+		delete root;
 		delete evt;
-
-
+		if(block)
+			return true;
+		
 
 		/*Event* evt = new Event;
 		evt->owner= owner;
@@ -274,33 +278,29 @@ void Genhook::Hover(POINT* loc)
 	if(!IsInRange(loc))
 		return;
 
-	JSContext* cx = ScriptEngine::GetGlobalContext();
-	
-	if(owner && JSVAL_IS_FUNCTION(cx, hovered))
-	{
+	if(owner && JSVAL_IS_FUNCTION(owner->GetContext(), hovered))
+	{	
 		Event* evt = new Event;
-		evt->owner= owner;
-		evt->argc=2;
-		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(INT_TO_JSVAL(loc->x));
-		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->y));
-		 
-		evt->argv=argv;
-		evt->object=self;
-		evt->functions.push_back(new AutoRoot((hovered)));
+		evt->owner = owner;
+		evt->argc = 2;
+		evt->functions.push_back(new AutoRoot((owner->GetContext(),hovered)));
+		evt->name = "ScreenHookHover";
+		evt->arg1 =  new DWORD((DWORD)loc->x);
+		evt->arg2 =  new DWORD((DWORD)loc->y);
 		
-		HANDLE hThread;
-		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-		CloseHandle(hThread);
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+
 	}
 }
-
 void Genhook::SetClickHandler(jsval handler)
 {
 	
 	if(!owner)
 		return;
-	if(JSVAL_IS_VOID(clicked))
+	if(JSVAL_IS_VOID(handler))
 		return;
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
@@ -308,7 +308,7 @@ void Genhook::SetClickHandler(jsval handler)
 	JSContext* cx = owner->GetContext();
 	
 	
-	JS_SetContextThread(cx);
+	//JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	if(JSVAL_IS_FUNCTION(cx, handler))
 		clicked = handler;
@@ -323,7 +323,7 @@ void Genhook::SetClickHandler(jsval handler)
 		}
 	}
 	JS_EndRequest(cx);
-	JS_ClearContextThread(cx);
+	//JS_ClearContextThread(cx);
 	Unlock();
 }
 
