@@ -84,7 +84,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
 		JS_TriggerOperationCallback(evt->owner->GetContext());
-		if(WaitForSingleObject(evt->arg5, 10000) == WAIT_TIMEOUT)
+		if(WaitForSingleObject(evt->arg5, 1000) == WAIT_TIMEOUT)
 			return false;
 		bool* global = (bool*) evt->arg4;
 		block = *global;
@@ -183,23 +183,42 @@ void MouseMoveEvent(POINT pt)
 	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 2);
 }
 
-bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) // Going to be tricy re rooting in other cx
+bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) 
 {
 	BCastEventHelper* helper = (BCastEventHelper*)argv;
+	
 	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
 	{
-		AutoRoot** args = new AutoRoot*[helper->argc];
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name ="scriptmsg"; 
+		evt->argv = new JSAutoStructuredCloneBuffer*;
+ 		for(uintN i = 0; i < argc; i++)
+		{
+			evt->argv[i] = new JSAutoStructuredCloneBuffer;
+			evt->argv[i]->write(helper->cx, helper->argv[i]);
+		}
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+
+
+
+		/*AutoRoot** args = new AutoRoot*[helper->argc];
 		for(uintN i = 0; i < helper->argc; i++)
 			args[i] = new AutoRoot(helper->argv[i]);
-		script->ExecEventAsync("scriptmsg", helper->argc, args);
+		script->ExecEventAsync("scriptmsg", helper->argc, args);*/
 	}
 	return true;
 }
 
-void ScriptBroadcastEvent(uintN argc, jsval* args)
+void ScriptBroadcastEvent(JSContext* cx ,uint argc, jsval* args)
 {
-	BCastEventHelper helper = {args, argc};
-	ScriptEngine::ForEachScript(BCastEventCallback, &helper, 1);
+	BCastEventHelper helper = {cx, args, argc};
+	ScriptEngine::ForEachScript(BCastEventCallback, &helper, argc);
 }
 
 
@@ -241,7 +260,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
 		JS_TriggerOperationCallback(evt->owner->GetContext());
-		if(WaitForSingleObject(evt->arg5, 10000) == WAIT_TIMEOUT)
+		if(WaitForSingleObject(evt->arg5, 5000) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
 		delete evt->name;

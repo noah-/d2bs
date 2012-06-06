@@ -76,7 +76,7 @@ struct EventHelper
 	uintN argc;
 	bool executed;
 };
-JSBool branchCallback (JSContext *cx);
+JSBool operationCallback (JSContext *cx);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

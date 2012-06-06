@@ -507,8 +507,7 @@ JSAPI_FUNC(sqlite_stmt_skip)
 		int res = sqlite3_step(stmtobj->stmt);
 		if(res != SQLITE_ROW) {
 			if(res == SQLITE_DONE) {
-				//*rval = INT_TO_JSVAL((JSVAL_TO_INT(argv[0]-1)-i));
-				//1.8 not sure whats getting accomplished here
+				JS_SET_RVAL(cx, vp,INT_TO_JSVAL((JSVAL_TO_INT(JS_ARGV(cx, vp)[0])-1)-i));				
 				stmtobj->canGet = false;
 				i = 0;
 				continue;

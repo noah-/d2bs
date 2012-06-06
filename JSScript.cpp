@@ -95,21 +95,25 @@ JSAPI_FUNC(script_resume)
 
 JSAPI_FUNC(script_send)
 {
+
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-
-	AutoRoot** args = new AutoRoot*[argc];
-	for(uintN i = 0; i < argc; i++)
-		args[i] = new AutoRoot(JS_ARGV(cx, vp)[i]);
-
-
-	/*eventHelper* helper;
-	helper->eventName = "scriptmsg";
-	helper->arg1 = argc;
-	helper->argv = JS_ARGV(cx, vp);*/
-	// this event has to occur as such because it's not a broadcasted event, just a local one
-	script->ExecEventAsync("scriptmsg", argc, args);
-
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name ="scriptmsg"; 
+		evt->argv = new JSAutoStructuredCloneBuffer*;
+ 		for(uintN i = 0; i < argc; i++)
+		{
+			evt->argv[i] = new JSAutoStructuredCloneBuffer;
+			evt->argv[i]->write(cx, JS_ARGV(cx,vp)[i]);
+		}
+		
+		EnterCriticalSection(&Vars.cEventSection);
+		evt->owner->EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
+		JS_TriggerOperationCallback(evt->owner->GetContext());
+		
 	return JS_TRUE;
 }
 
