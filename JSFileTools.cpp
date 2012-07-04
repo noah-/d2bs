@@ -40,7 +40,7 @@ JSAPI_FUNC(filetools_remove)
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
 	remove(path);
-
+	JS_free(cx, file);
 	return JS_TRUE;
 }
 
@@ -63,7 +63,8 @@ JSAPI_FUNC(filetools_rename)
 	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
 	rename(porig, pnewName);
-
+	JS_free(cx, orig);
+	JS_free(cx, newName);
 	return JS_TRUE;
 }
 
@@ -137,7 +138,8 @@ JSAPI_FUNC(filetools_copy)
 	fflush(fptr2);
 	fclose(fptr2);
 	fclose(fptr1);
-
+	JS_free(cx, orig);
+	JS_free(cx, newName);
 	return JS_TRUE;
 }
 
@@ -184,8 +186,9 @@ JSAPI_FUNC(filetools_readText)
 		THROW_ERROR(cx, _strerror("Read failed"));
 	}
 	fclose(fptr);
-
+	JS_BeginRequest(cx);
 	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
+	JS_EndRequest(cx);
 	delete[] contents;
 	return JS_TRUE;
 }
@@ -219,6 +222,7 @@ JSAPI_FUNC(filetools_writeText)
         fflush(fptr);
         fclose(fptr);
 		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
+		JS_free(cx, orig);
         return JS_TRUE;
 }
 

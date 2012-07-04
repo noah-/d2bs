@@ -255,6 +255,7 @@ JSAPI_PROP(sqlite_getProperty)
 			*vp = INT_TO_JSVAL(sqlite3_last_insert_rowid(dbobj->db));
 			break;
 		case SQLITE_STMTS: {
+				JS_BeginRequest(cx);
 				JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
 				*vp = OBJECT_TO_JSVAL(stmts);
 				int i = 0;
@@ -265,6 +266,7 @@ JSAPI_PROP(sqlite_getProperty)
 						JS_SetElement(cx, stmts, i, &tmp);
 					}
 				}
+				JS_EndRequest(cx);
 			}
 			break;
 		case SQLITE_CHANGES:

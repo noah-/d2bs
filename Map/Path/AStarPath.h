@@ -95,10 +95,11 @@ private:
 			if (GetTickCount() - ticks > 500){
 				map->CleanUp();
 				LeaveCriticalSection(&Vars.cGameLoopSection);
-				InterlockedDecrement(&Vars.SectionCount);
+				InterlockedDecrement(&Vars.SectionCount);  
 					Sleep(1);
-				InterlockedIncrement(&Vars.SectionCount);
+				
 				EnterCriticalSection(&Vars.cGameLoopSection);
+				InterlockedIncrement(&Vars.SectionCount);    //^^
 				ticks=GetTickCount();
 			}
 			bool result = closed.insert(current->point).second;

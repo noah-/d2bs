@@ -127,8 +127,9 @@ JSAPI_FUNC(room_getPresetUnits)
 			}
 
 			jsval a = OBJECT_TO_JSVAL(jsUnit);
+			JS_BeginRequest(cx);
 			JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
-
+			JS_EndRequest(cx);
 			dwArrayCount++;				
 		}
 	}
@@ -187,7 +188,7 @@ JSAPI_FUNC(room_getCollision)
 	int nCurrentArrayY = NULL;
 
 	WORD* p = pCol->pMapStart;
-
+	JS_BeginRequest(cx);
 	for(int j = y; j < nLimitY; j++)		
 	{
 		JSObject* jsobjx = JS_NewArrayObject(cx, NULL, NULL);
@@ -202,13 +203,14 @@ JSAPI_FUNC(room_getCollision)
 				if(bAdded)
 					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 				JS_RemoveRoot(cx, &jsobjy);
+				JS_EndRequest(cx);
 				return JS_TRUE;
 			}
 
 			nCurrentArrayX++;
 			p++;
 		}
-
+		
 
 		jsval jsu = OBJECT_TO_JSVAL(jsobjx);
 
@@ -217,17 +219,19 @@ JSAPI_FUNC(room_getCollision)
 			if(bAdded)
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			JS_RemoveRoot(cx, &jsobjy);
+			JS_EndRequest(cx);
 			return JS_TRUE;
 		}
 		nCurrentArrayY++;
 	}
-
-
+	
 	if(bAdded)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobjy));
 	JS_RemoveRoot(cx, &jsobjy);
+	JS_EndRequest(cx);
+
 	return JS_TRUE;
 }
 
@@ -236,25 +240,29 @@ JSAPI_FUNC(room_getNearby)
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 	if(!pRoom2)
 		return JS_TRUE;
-
 	JSObject* jsobj = JS_NewArrayObject(cx, NULL, NULL);
 
 	if(!jsobj)
 		return JS_TRUE;
-
+	JS_BeginRequest(cx);
 	for(DWORD i = 0; i < pRoom2->dwRoomsNear; ++i)
 	{
 		JSObject* jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom2->pRoom2Near[i]);
 		if(!jsroom)
+		{
+			JS_EndRequest(cx);
 			return JS_TRUE;
+		}
 		jsval jsu = OBJECT_TO_JSVAL(jsroom);
-
+				
 		if(!JS_SetElement(cx, jsobj, i, &jsu))
+		{
+			JS_EndRequest(cx);
 			return JS_TRUE;
+		}		
 	}
-
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobj));
-
+	JS_EndRequest(cx);
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobj));	
 	return JS_TRUE;
 }
 
@@ -395,7 +403,9 @@ JSAPI_FUNC(my_getRoom)
 	if(argc == 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 	{
 		uint32 levelId;
+		JS_BeginRequest(cx);
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
+		JS_EndRequest(cx);
 		if(levelId != 0) // 1 Parameter, AreaId
 		{
 			Level* pLevel = GetLevel(levelId);
@@ -431,8 +441,9 @@ JSAPI_FUNC(my_getRoom)
 		Level* pLevel = NULL;
 
 		uint32 levelId;
+		JS_BeginRequest(cx);
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
-
+		JS_EndRequest(cx);
 		if(argc == 3)
 			pLevel = GetLevel(levelId);
 		else if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pPath && D2CLIENT_GetPlayerUnit()->pPath->pRoom1 && D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2)
@@ -443,7 +454,7 @@ JSAPI_FUNC(my_getRoom)
 
 		uint32 nX = NULL;
 		uint32 nY = NULL;
-
+		JS_BeginRequest(cx);
 		if(argc == 2)
 		{
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &nX);
@@ -454,7 +465,7 @@ JSAPI_FUNC(my_getRoom)
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nX);
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], &nY);
 		}
-
+		JS_EndRequest(cx);
 		if(!nX || !nY)
 			return JS_TRUE;
 

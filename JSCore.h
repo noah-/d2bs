@@ -5,6 +5,9 @@
 JSAPI_FUNC(my_getThreadPriority);
 JSAPI_FUNC(my_debugLog);
 JSAPI_FUNC(my_print);
+JSAPI_FUNC(my_setTimeout);
+JSAPI_FUNC(my_setInterval);
+JSAPI_FUNC(my_clearInterval);
 JSAPI_FUNC(my_delay);
 JSAPI_FUNC(my_load);
 JSAPI_FUNC(my_include);
@@ -29,3 +32,4 @@ JSAPI_FUNC(my_hideConsole);
 JSAPI_FUNC(my_loadMpq);
 JSAPI_FUNC(my_getPacket);
 JSAPI_FUNC(my_sendPacket);
+JSAPI_FUNC(my_getIP);

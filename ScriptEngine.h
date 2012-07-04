@@ -28,17 +28,17 @@ class ScriptEngine
 	virtual ~ScriptEngine(void) = 0;
 	ScriptEngine(const ScriptEngine&);
 	ScriptEngine& operator=(const ScriptEngine&);
-
 	static JSRuntime* runtime;
 	static JSContext* context;
-	static ScriptMap scripts;
 	static Script* console;
 	static EngineState state;
-	static CRITICAL_SECTION lock;
-
+	static std::list<Event*> DelayedExecList;
+	static int delayedExecKey;
 public:
 	friend class Script;
-
+	static ScriptMap scripts;
+	
+	static CRITICAL_SECTION lock;
 	static BOOL Startup(void);
 	static void Shutdown(void);
 	static EngineState GetState(void) { return state; }
@@ -54,7 +54,7 @@ public:
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
 	static JSContext* GetGlobalContext(void) { return context; }
-
+	static void TriggerOperationCallbacks(void);
 	static void StopAll(bool forceStop = false);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -62,7 +62,8 @@ public:
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
 	static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
 	static void UpdateConsole();
-
+	static int AddDelayedEvent(Event* evt, int freq);
+	static void RemoveDelayedEvent(int key);
 	friend JSBool gcCallback(JSContext* cx, JSGCStatus status);
 };
 
@@ -81,5 +82,6 @@ JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
 bool ExecScriptEvent(Event* evt,bool clearList);
+void CALLBACK EventTimerProc(LPVOID lpArg, DWORD dwTimerLowValue, DWORD dwTimerHighValue);
 #endif
 

@@ -83,11 +83,17 @@
 #if defined(WIN32) || defined(XP_OS2)
 
 /* These also work for __MWERKS__ */
-# define JS_EXTERN_API(__type)  extern __declspec(dllexport) __type
-# define JS_EXPORT_API(__type)  __declspec(dllexport) __type
-# define JS_EXTERN_DATA(__type) extern __declspec(dllexport) __type
-# define JS_EXPORT_DATA(__type) __declspec(dllexport) __type
-
+#ifdef JS_STATIC_LIB 
+#define JS_EXTERN_API(__type) extern __type 
+#define JS_EXPORT_API(__type) __type 
+#define JS_EXTERN_DATA(__type) extern __type 
+#define JS_EXPORT_DATA(__type) __type 
+#else 
+#define JS_EXTERN_API(__type) extern __declspec(dllexport) __type 
+#define JS_EXPORT_API(__type) __declspec(dllexport) __type 
+#define JS_EXTERN_DATA(__type) extern __declspec(dllexport) __type 
+#define JS_EXPORT_DATA(__type) __declspec(dllexport) __type 
+#endif 
 #else /* Unix */
 
 # ifdef HAVE_VISIBILITY_ATTRIBUTE
@@ -290,11 +296,7 @@
 #define JS_MIN(x,y)     ((x)<(y)?(x):(y))
 #define JS_MAX(x,y)     ((x)>(y)?(x):(y))
 
-#ifdef _MSC_VER
-# include "jscpucfg.h"  /* We can't auto-detect MSVC configuration */
-#else
-# include "jsautocfg.h" /* Use auto-detected configuration */
-#endif
+#include "jscpucfg.h"
 
 /*
  * Define JS_64BIT iff we are building in an environment with 64-bit
@@ -343,13 +345,6 @@ JS_BEGIN_EXTERN_C
 
 typedef int JSIntn;
 typedef unsigned int JSUintn;
-
-/************************************************************************
-** TYPES:       JSFloat64
-** DESCRIPTION:
-**  NSPR's floating point type is always 64 bits.
-************************************************************************/
-typedef double          JSFloat64;
 
 /************************************************************************
 ** TYPES:       JSSize

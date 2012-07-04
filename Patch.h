@@ -29,3 +29,8 @@ PatchHook Patches[] = {
 
 	{PatchCall,	GetDllOffset("D2CMP.dll", 0x14CD5),		(DWORD)GameCrashFix_Intercept,			10},//1.13d
 };
+
+PatchHook Conditional[] = {
+	{PatchJmp,	GetDllOffset("BNCLIENT.DLL",0x15EB3),	(DWORD)ClassicSTUB,		5}, 
+	{PatchJmp,	GetDllOffset("BNCLIENT.DLL",0x161B8),	(DWORD)LodSTUB,			5} 
+};

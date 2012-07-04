@@ -14,6 +14,7 @@
 #include "Console.h"
 #include "D2BS.h"
 #include "MapHeader.h"
+#include "Offset.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	bool bInGame = false;
 	POINT pMouse = {0,0};
 	int mouseEventMod = 0;
+	Vars.bUseRawCDKey = 0; 
 	InitSettings();
 	if(InitHooks())
 	{
@@ -56,7 +58,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				else
 				{
 					Sleep(500);
-					JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
+					
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
 					ScriptEngine::ForEachScript(UpdatePlayerGid, NULL, 0);
@@ -78,7 +80,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
-				//	JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
 					bInGame = false;
 				}
 				break;
@@ -87,8 +88,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			case ClientStateNull:
 				break;
 		}
-		Sleep(50);		
-		JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
+		Sleep(50);			
+	
 	}
 
 	ScriptEngine::Shutdown();
@@ -185,6 +186,15 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
 					else
 						Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+				}
+				else if(pCopy->dwData == 0xDEAD)
+				{	
+					Vars.bUseRawCDKey = 1; 
+					InstallConditional();
+					const char *keys = (char*)pCopy->lpData;
+					int len = (strchr(keys,'|')-keys)*sizeof(char);
+					strncpy(Vars.szClassic, keys, len);
+					strcpy(Vars.szLod, keys+len+1);
 				}
 				else CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}

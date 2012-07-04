@@ -1,7 +1,7 @@
 #pragma once
 
 #define XP_WIN
-
+#define JS_STACK_GROWTH_DIRECTION (1)
 #include "dependencies\include\jsapi.h"
 //#include "Exports.hpp"
 #include <vector>

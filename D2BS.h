@@ -4,9 +4,8 @@
 #pragma once
 
 #define XP_WIN
-//#define JS_THREADSAFE
 
-#define D2BS_VERSION "1.4.1703"
+#define D2BS_VERSION "1.4.1715"
 
 #include <windows.h>
 #include <vector>
@@ -59,6 +58,7 @@ struct Variables
 	BOOL	bLoadedWithCGuard;
 	BOOL	bLogConsole;
 	BOOL	bEnableUnsupported;
+	BOOL	bUseRawCDKey;
 	int		dwMemUsage;
 
 	Module* pModule;
@@ -69,6 +69,8 @@ struct Variables
 	char	szProfile[256];
 	char	szStarter[_MAX_FNAME];
 	char	szDefault[_MAX_FNAME];
+	char	szClassic[30];
+	char	szLod[30];
 
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;

@@ -48,21 +48,32 @@ JSAPI_PROP(script_getProperty)
 }
 
 JSAPI_FUNC(script_getNext)
-{
+{	
+	
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
-	if(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) == NULL || !JS_GetContextPrivate(iterp))
-		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
-	else
-	{
-		JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
-		JS_SET_RVAL(cx, vp, JSVAL_TRUE);
-	}
+	EnterCriticalSection(&ScriptEngine::lock);
+		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
+			if(it->second->GetContext() == iterp )
+			{
+				it++;
+				if(it ==ScriptEngine::scripts.end() )
+					break;
+				iterp= it->second->GetContext();
+				JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
+				JS_SET_RVAL(cx, vp, JSVAL_TRUE);	
+				LeaveCriticalSection(&ScriptEngine::lock);
+				return JS_TRUE;
+			}
+	LeaveCriticalSection(&ScriptEngine::lock);
 
+	
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(script_stop)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	if(script->IsRunning())
@@ -73,6 +84,7 @@ JSAPI_FUNC(script_stop)
 
 JSAPI_FUNC(script_pause)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
@@ -84,6 +96,7 @@ JSAPI_FUNC(script_pause)
 
 JSAPI_FUNC(script_resume)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
@@ -95,7 +108,7 @@ JSAPI_FUNC(script_resume)
 
 JSAPI_FUNC(script_send)
 {
-
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 		Event* evt = new Event;
@@ -119,6 +132,7 @@ JSAPI_FUNC(script_send)
 
 JSAPI_FUNC(script_join)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	
@@ -129,6 +143,7 @@ JSAPI_FUNC(script_join)
 
 JSAPI_FUNC(my_getScript)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	JSContext* iterp = NULL;
 	if(argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]) && JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]) == JS_TRUE)
 		iterp = cx;
@@ -150,6 +165,7 @@ JSAPI_FUNC(my_getScript)
 			StringReplace(name, '/', '\\', strlen(name));
 		FindHelper args = {0, name, NULL};
 		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
+		JS_free(cx, name);
 		if(args.script != NULL)
 			iterp = args.script->GetContext();
 		else
@@ -157,10 +173,12 @@ JSAPI_FUNC(my_getScript)
 	}
 	else
 	{
-		// find the first context that has private data
-		while(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) != NULL)
-			if(JS_GetContextPrivate(iterp) != NULL)
-				break;
+		if(ScriptEngine::scripts.size() >0)
+		{
+			EnterCriticalSection(&ScriptEngine::lock);
+				iterp = ScriptEngine::scripts.begin()->second->GetContext();
+			LeaveCriticalSection(&ScriptEngine::lock);
+		}
 
 		if(iterp == NULL)
 			return JS_TRUE;

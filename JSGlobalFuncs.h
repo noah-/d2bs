@@ -49,6 +49,9 @@ static JSFunctionSpec global_funcs[] = {
 
 	// utility functions that don't have anything to do with the game
 	{"print",				my_print,				1},
+	{"setTimeout",			my_setTimeout,			0},
+	{"setInterval",			my_setInterval,			0},
+	{"clearInterval",		my_clearInterval,			1},
 	{"delay",				my_delay,				1},
 	{"load",				my_load,				1},
 	{"isIncluded",			my_isIncluded,			1},
@@ -108,6 +111,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"moveNPC",             my_moveNPC,             0},
 	{"getPacket",		    my_getPacket,	     	0},
 	{"sendPacket",		    my_sendPacket,   		0},
+	{"getIP",				my_getIP,				0},
 	// drawing functions
 	{"screenToAutomap",		screenToAutomap,		1},
 	{"automapToScreen",		automapToScreen,		1},

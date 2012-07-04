@@ -47,8 +47,9 @@
 #include <stdio.h>
 #include "js-config.h"
 #include "jspubtd.h"
-#include "jsutil.h"
 #include "jsval.h"
+
+#include "js/Utility.h"
 
 /************************************************************************/
 
@@ -683,7 +684,7 @@ class Value
 
     friend jsval_layout (::JSVAL_TO_IMPL)(Value);
     friend Value (::IMPL_TO_JSVAL)(jsval_layout l);
-} JSVAL_ALIGNMENT;
+};
 
 /************************************************************************/
 
@@ -838,6 +839,11 @@ IMPL_TO_JSVAL(jsval_layout l)
     return v;
 }
 
+#ifdef DEBUG
+struct JSValueAlignmentTester { char c; JS::Value v; };
+JS_STATIC_ASSERT(sizeof(JSValueAlignmentTester) == 16);
+#endif /* DEBUG */
+
 #else  /* defined(__cplusplus) */
 
 /*
@@ -861,6 +867,11 @@ IMPL_TO_JSVAL(jsval_layout l)
 }
 
 #endif  /* defined(__cplusplus) */
+
+#ifdef DEBUG
+typedef struct { char c; jsval_layout l; } JSLayoutAlignmentTester;
+JS_STATIC_ASSERT(sizeof(JSLayoutAlignmentTester) == 16);
+#endif /* DEBUG */
 
 JS_STATIC_ASSERT(sizeof(jsval_layout) == sizeof(jsval));
 
@@ -1646,6 +1657,16 @@ extern JS_PUBLIC_DATA(jsid) JSID_EMPTY;
 # define JSID_EMPTY ((jsid)JSID_TYPE_OBJECT)
 #endif
 
+/*
+ * Returns true iff the given jsval is immune to GC and can be used across
+ * multiple JSRuntimes without requiring any conversion API.
+ */
+static JS_ALWAYS_INLINE JSBool
+JSVAL_IS_UNIVERSAL(jsval v)
+{
+    return !JSVAL_IS_GCTHING(v);
+}
+
 /************************************************************************/
 
 /* Lock and unlock the GC thing held by a jsval. */
@@ -1703,6 +1724,17 @@ extern JS_PUBLIC_DATA(jsid) JSID_EMPTY;
  * JSFunctionSpec structs are allocated in static arrays.
  */
 #define JSFUN_GENERIC_NATIVE    JSFUN_LAMBDA
+
+/*
+ * The first call to JS_CallOnce by any thread in a process will call 'func'.
+ * Later calls to JS_CallOnce with the same JSCallOnceType object will be
+ * suppressed.
+ *
+ * Equivalently: each distinct JSCallOnceType object will allow one JS_CallOnce
+ * to invoke its JSInitCallback.
+ */
+extern JS_PUBLIC_API(JSBool)
+JS_CallOnce(JSCallOnceType *once, JSInitCallback func);
 
 /*
  * Microseconds since the epoch, midnight, January 1, 1970 UTC.  See the
@@ -2217,32 +2249,48 @@ js_TransplantObjectWithWrapper(JSContext *cx,
                                JSObject *targetobj,
                                JSObject *targetwrapper);
 
+extern JS_FRIEND_API(void *)
+js_GetCompartmentPrivate(JSCompartment *compartment);
+
 #ifdef __cplusplus
 JS_END_EXTERN_C
 
 class JS_PUBLIC_API(JSAutoEnterCompartment)
 {
-    JSCrossCompartmentCall *call;
+    /*
+     * This is a poor man's Maybe<AutoCompartment>, because we don't have
+     * access to the AutoCompartment definition here.  We statically assert in
+     * jsapi.cpp that we have the right size here.
+     *
+     * In practice, 32-bit Windows and Android get 16-word |bytes|, while
+     * other platforms get 13-word |bytes|.
+     */
+    void* bytes[sizeof(void*) == 4 && MOZ_ALIGNOF(JSUint64) == 8 ? 16 : 13];
+
+    /*
+     * This object may be in one of three states.  If enter() or
+     * enterAndIgnoreErrors() hasn't been called, it's in STATE_UNENTERED.
+     * Otherwise, if we were asked to enter into the current compartment, our
+     * state is STATE_SAME_COMPARTMENT.  If we actually created an
+     * AutoCompartment and entered another compartment, our state is
+     * STATE_OTHER_COMPARTMENT.
+     */
+    enum State {
+        STATE_UNENTERED,
+        STATE_SAME_COMPARTMENT,
+        STATE_OTHER_COMPARTMENT
+    } state;
 
   public:
-    JSAutoEnterCompartment() : call(NULL) {}
+    JSAutoEnterCompartment() : state(STATE_UNENTERED) {}
 
     bool enter(JSContext *cx, JSObject *target);
 
     void enterAndIgnoreErrors(JSContext *cx, JSObject *target);
 
-    bool entered() const { return call != NULL; }
+    bool entered() const { return state != STATE_UNENTERED; }
 
-    ~JSAutoEnterCompartment() {
-        if (call && call != reinterpret_cast<JSCrossCompartmentCall*>(1))
-            JS_LeaveCrossCompartmentCall(call);
-    }
-
-    void swap(JSAutoEnterCompartment &other) {
-        JSCrossCompartmentCall *tmp = call;
-        call = other.call;
-        other.call = tmp;
-    }
+    ~JSAutoEnterCompartment();
 };
 
 JS_BEGIN_EXTERN_C
@@ -2296,9 +2344,6 @@ JS_EnumerateResolvedStandardClasses(JSContext *cx, JSObject *obj,
 extern JS_PUBLIC_API(JSBool)
 JS_GetClassObject(JSContext *cx, JSObject *obj, JSProtoKey key,
                   JSObject **objp);
-
-extern JS_PUBLIC_API(JSObject *)
-JS_GetScopeChain(JSContext *cx);
 
 extern JS_PUBLIC_API(JSObject *)
 JS_GetGlobalForObject(JSContext *cx, JSObject *obj);
@@ -2608,7 +2653,7 @@ JS_UnlockGCThingRT(JSRuntime *rt, void *thing);
  * data:    the data argument to pass to each invocation of traceOp.
  */
 extern JS_PUBLIC_API(void)
-JS_SetExtraGCRoots(JSRuntime *rt, JSTraceDataOp traceOp, void *data);
+JS_SetExtraGCRootsTracer(JSRuntime *rt, JSTraceDataOp traceOp, void *data);
 
 /*
  * JS_CallTracer API and related macros for implementors of JSTraceOp, to
@@ -2782,6 +2827,9 @@ extern JS_PUBLIC_API(void)
 JS_PrintTraceThingInfo(char *buf, size_t bufsize, JSTracer *trc,
                        void *thing, JSGCTraceKind kind, JSBool includeDetails);
 
+extern JS_PUBLIC_API(const char *)
+JS_GetTraceEdgeName(JSTracer *trc, char *buffer, int bufferSize);
+
 /*
  * DEBUG-only method to dump the object graph of heap-allocated things.
  *
@@ -2849,7 +2897,7 @@ typedef enum JSGCParamKey {
     /* Select GC mode. */
     JSGC_MODE = 6,
 
-    /* Number of GC chunks waiting to expire. */
+    /* Number of cached empty GC chunks. */
     JSGC_UNUSED_CHUNKS = 7,
 
     /* Total number of allocated GC chunks. */
@@ -3037,6 +3085,8 @@ struct JSClass {
 #define JSCLASS_FREEZE_PROTO            (1<<(JSCLASS_HIGH_FLAGS_SHIFT+5))
 #define JSCLASS_FREEZE_CTOR             (1<<(JSCLASS_HIGH_FLAGS_SHIFT+6))
 
+#define JSCLASS_XPCONNECT_GLOBAL        (1<<(JSCLASS_HIGH_FLAGS_SHIFT+7))
+
 /* Global flags. */
 #define JSGLOBAL_FLAGS_CLEARED          0x1
 
@@ -3052,8 +3102,13 @@ struct JSClass {
  * prevously allowed, but is now an ES5 violation and thus unsupported.
  */
 #define JSCLASS_GLOBAL_SLOT_COUNT      (JSProto_LIMIT * 3 + 8)
+#define JSCLASS_GLOBAL_FLAGS_WITH_SLOTS(n)                                    \
+    (JSCLASS_IS_GLOBAL | JSCLASS_HAS_RESERVED_SLOTS(JSCLASS_GLOBAL_SLOT_COUNT + (n)))
 #define JSCLASS_GLOBAL_FLAGS                                                  \
-    (JSCLASS_IS_GLOBAL | JSCLASS_HAS_RESERVED_SLOTS(JSCLASS_GLOBAL_SLOT_COUNT))
+    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS(0)
+#define JSCLASS_HAS_GLOBAL_FLAG_AND_SLOTS(clasp)                              \
+  (((clasp)->flags & JSCLASS_IS_GLOBAL)                                       \
+   && JSCLASS_RESERVED_SLOTS(clasp) >= JSCLASS_GLOBAL_SLOT_COUNT)
 
 /* Fast access to the original value of each standard class's prototype. */
 #define JSCLASS_CACHED_PROTO_SHIFT      (JSCLASS_HIGH_FLAGS_SHIFT + 8)
@@ -3397,6 +3452,9 @@ extern JS_PUBLIC_API(JSBool)
 JS_GetPropertyByIdDefault(JSContext *cx, JSObject *obj, jsid id, jsval def, jsval *vp);
 
 extern JS_PUBLIC_API(JSBool)
+JS_ForwardGetPropertyTo(JSContext *cx, JSObject *obj, jsid id, JSObject *onBehalfOf, jsval *vp);
+
+extern JS_PUBLIC_API(JSBool)
 JS_GetMethodById(JSContext *cx, JSObject *obj, jsid id, JSObject **objp,
                  jsval *vp);
 
@@ -3527,6 +3585,18 @@ JS_LookupElement(JSContext *cx, JSObject *obj, uint32 index, jsval *vp);
 
 extern JS_PUBLIC_API(JSBool)
 JS_GetElement(JSContext *cx, JSObject *obj, uint32 index, jsval *vp);
+
+extern JS_PUBLIC_API(JSBool)
+JS_ForwardGetElementTo(JSContext *cx, JSObject *obj, uint32 index, JSObject *onBehalfOf, jsval *vp);
+
+/*
+ * Get the property with name given by |index|, if it has one.  If
+ * not, |*present| will be set to false and the value of |vp| must not
+ * be relied on.
+ */
+extern JS_PUBLIC_API(JSBool)
+JS_GetElementIfPresent(JSContext *cx, JSObject *obj, uint32 index, JSObject *onBehalfOf,
+                       jsval *vp, JSBool* present);
 
 extern JS_PUBLIC_API(JSBool)
 JS_SetElement(JSContext *cx, JSObject *obj, uint32 index, jsval *vp);
@@ -3695,6 +3765,9 @@ extern JS_PUBLIC_API(JSBool)
 JS_ObjectIsCallable(JSContext *cx, JSObject *obj);
 
 extern JS_PUBLIC_API(JSBool)
+JS_IsNativeFunction(JSObject *funobj, JSNative call);
+
+extern JS_PUBLIC_API(JSBool)
 JS_DefineFunctions(JSContext *cx, JSObject *obj, JSFunctionSpec *fs);
 
 extern JS_PUBLIC_API(JSFunction *)
@@ -3779,7 +3852,7 @@ JS_CompileFileHandleForPrincipalsVersion(JSContext *cx, JSObject *obj,
                                          JSVersion version);
 
 extern JS_PUBLIC_API(JSObject *)
-JS_GetObjectFromScript(JSScript *script);
+JS_GetGlobalFromScript(JSScript *script);
 
 extern JS_PUBLIC_API(JSFunction *)
 JS_CompileFunction(JSContext *cx, JSObject *obj, const char *name,
@@ -3958,7 +4031,7 @@ Call(JSContext *cx, jsval thisv, JSObject *funObj, uintN argc, jsval *argv, jsva
     return Call(cx, thisv, OBJECT_TO_JSVAL(funObj), argc, argv, rval);
 }
 
-} /* namespace js */
+} /* namespace JS */
 
 JS_BEGIN_EXTERN_C
 #endif /* __cplusplus */
@@ -4639,8 +4712,6 @@ JS_ObjectIsDate(JSContext *cx, JSObject *obj);
 #define JSREG_GLOB      0x02    /* global exec, creates array of matches */
 #define JSREG_MULTILINE 0x04    /* treat ^ and $ as begin and end of line */
 #define JSREG_STICKY    0x08    /* only match starting at lastIndex */
-#define JSREG_FLAT      0x10    /* parse as a flat regexp */
-#define JSREG_NOCOMPILE 0x20    /* do not try to compile to native code */
 
 extern JS_PUBLIC_API(JSObject *)
 JS_NewRegExpObject(JSContext *cx, JSObject *obj, char *bytes, size_t length, uintN flags);
@@ -4758,6 +4829,51 @@ JS_SetContextThread(JSContext *cx);
 extern JS_PUBLIC_API(jsword)
 JS_ClearContextThread(JSContext *cx);
 
+/*
+ * A JS runtime always has an "owner thread". The owner thread is set when the
+ * runtime is created (to the current thread) and practically all entry points
+ * into the JS engine check that a runtime (or anything contained in the
+ * runtime: context, compartment, object, etc) is only touched by its owner
+ * thread. Embeddings may check this invariant outside the JS engine by calling
+ * JS_AbortIfWrongThread (which will abort if not on the owner thread, even for
+ * non-debug builds).
+ *
+ * It is possible to "move" a runtime between threads. This is accomplished by
+ * calling JS_ClearRuntimeThread on a runtime's owner thread and then calling
+ * JS_SetRuntimeThread on the new owner thread. The runtime must not be
+ * accessed between JS_ClearRuntimeThread and JS_SetRuntimeThread. Also, the
+ * caller is responsible for synchronizing the calls to Set/Clear.
+ */
+
+extern JS_PUBLIC_API(void)
+JS_AbortIfWrongThread(JSRuntime *rt);
+
+extern JS_PUBLIC_API(void)
+JS_ClearRuntimeThread(JSRuntime *rt);
+
+extern JS_PUBLIC_API(void)
+JS_SetRuntimeThread(JSRuntime *rt);
+
+#ifdef __cplusplus
+JS_END_EXTERN_C
+
+class JSAutoSetRuntimeThread
+{
+    JSRuntime *runtime;
+
+  public:
+    JSAutoSetRuntimeThread(JSRuntime *runtime) : runtime(runtime) {
+        JS_SetRuntimeThread(runtime);
+    }
+
+    ~JSAutoSetRuntimeThread() {
+        JS_ClearRuntimeThread(runtime);
+    }
+};
+
+JS_BEGIN_EXTERN_C
+#endif
+
 /************************************************************************/
 
 /*
@@ -4850,6 +4966,12 @@ JS_SetGCZeal(JSContext *cx, uint8 zeal, uint32 frequency, JSBool compartment);
 extern JS_PUBLIC_API(void)
 JS_ScheduleGC(JSContext *cx, uint32 count, JSBool compartment);
 #endif
+
+/*
+ * Convert a uint32 index into a jsid.
+ */
+extern JS_PUBLIC_API(JSBool)
+JS_IndexToId(JSContext *cx, uint32 index, jsid *id);
 
 JS_END_EXTERN_C
 

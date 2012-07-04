@@ -96,7 +96,7 @@ JS_BEGIN_EXTERN_C
 /* Scalar typedefs. */
 typedef JSInt32   jsint;
 typedef JSUint32  jsuint;
-typedef float64   jsdouble;
+typedef double    jsdouble;
 typedef JSInt32   jsrefcount;   /* PRInt32 if JS_THREADSAFE, see jslock.h */
 
 #ifdef WIN32
@@ -240,6 +240,13 @@ class                                       JSString;
 typedef struct JSFlatString                 JSFlatString;
 typedef struct JSString                     JSString;
 #endif
+
+#ifdef JS_THREADSAFE
+typedef struct PRCallOnceType    JSCallOnceType;
+#else
+typedef JSBool                   JSCallOnceType;
+#endif
+typedef JSBool                 (*JSInitCallback)(void);
 
 JS_END_EXTERN_C
 

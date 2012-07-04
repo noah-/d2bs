@@ -103,11 +103,8 @@ public:
 	void UnregisterEvent(const char* evtName, jsval evtFunc);
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
-
-	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-	bool ExecEvent(char* evtName, uintN argc,  AutoRoot** argv);
-	std::list<Event*> EventList;
-
+	void FireEvent(Event* );
+	std::list<Event*> EventList;	
 };
 
 struct RUNCOMMANDSTRUCT {
