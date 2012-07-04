@@ -7,6 +7,7 @@
 
 JSAPI_FUNC(my_login)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -247,6 +248,7 @@ JSAPI_FUNC(my_login)
 
 JSAPI_FUNC(my_selectChar)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(argc != 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
@@ -263,6 +265,7 @@ JSAPI_FUNC(my_selectChar)
 
 JSAPI_FUNC(my_createGame)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -291,6 +294,7 @@ JSAPI_FUNC(my_createGame)
 
 JSAPI_FUNC(my_joinGame)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 	jschar *jsname = NULL , *jspass = NULL;
@@ -316,6 +320,7 @@ JSAPI_FUNC(my_joinGame)
 
 JSAPI_FUNC(my_addProfile)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	// validate the args...
 	char *profile, *mode, *gateway, *username, *password, *charname;
 	profile = mode = gateway = username = password = charname = NULL;
@@ -365,6 +370,7 @@ JSAPI_FUNC(my_addProfile)
 
 JSAPI_FUNC(my_getOOGLocation)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -382,9 +388,13 @@ JSAPI_FUNC(my_createCharacter)
 	jschar* jsname= NULL;
 	int32 type = -1;
 	JSBool hc = JS_FALSE, ladder = JS_FALSE;
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Wi/bb", &jsname, &type, &hc, &ladder))
-		return JS_FALSE;
-	
+	{
+		JS_EndRequest(cx);
+		THROW_ERROR(cx, "Failed to Convert Args createCharacter");
+	}
+	JS_EndRequest(cx);
 	name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder)));

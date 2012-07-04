@@ -70,7 +70,7 @@ enum unit_tinyid
 	ITEM_SIZEY, ITEM_TYPE, MISSILE_DIR, MISSILE_VEL, ITEM_CLASS, 
 	UNIT_SPECTYPE, ITEM_DESC, ITEM_BODYLOCATION, UNIT_ITEMCOUNT, ITEM_LEVELREQ,
 	UNIT_OWNER, UNIT_OWNERTYPE, UNIT_UNIQUEID, ITEM_LEVEL, UNIT_DIRECTION, 
-	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, OBJECT_TYPE, OBJECT_LOCKED
+	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, ITEM_PREFIXES, ITEM_SUFFIXES, ITEM_SUFFIXNUMS, ITEM_PREFIXNUMS, OBJECT_TYPE, OBJECT_LOCKED
 };
 
 enum me_tinyid {
@@ -170,8 +170,12 @@ static JSPropertySpec me_props[] = {
 	{"code",			ITEM_CODE,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"prefix",			ITEM_PREFIX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"suffix",			ITEM_SUFFIX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"prefixes",		ITEM_PREFIXES,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"suffixes",		ITEM_SUFFIXES,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"prefixnum",		ITEM_PREFIXNUM,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"suffixnum",		ITEM_SUFFIXNUM,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"prefixnums",		ITEM_PREFIXNUMS,	JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"suffixnums",		ITEM_SUFFIXNUMS,	JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"fname",			ITEM_FNAME,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"quality",			ITEM_QUALITY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"node",			ITEM_NODE,			JSPROP_PERMANENT_VAR,	unit_getProperty},
@@ -212,8 +216,12 @@ static JSPropertySpec unit_props[] = {
 	{"code",		ITEM_CODE,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"prefix",		ITEM_PREFIX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"suffix",		ITEM_SUFFIX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"prefixes",	ITEM_PREFIXES,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"suffixes",	ITEM_SUFFIXES,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"prefixnum",	ITEM_PREFIXNUM,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"suffixnum",	ITEM_SUFFIXNUM,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"prefixnums",	ITEM_PREFIXNUMS,	JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"suffixnums",	ITEM_SUFFIXNUMS,	JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"fname",		ITEM_FNAME,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"quality",		ITEM_QUALITY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"node",		ITEM_NODE,			JSPROP_PERMANENT_VAR,	unit_getProperty},

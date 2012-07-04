@@ -118,6 +118,7 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 		list.push_back(*it);
 	
 	LeaveCriticalSection(&globalSection);
+
 	std::sort(list.begin(), list.end(), zOrderSort);
 	int count = list.size();
 	for(int i = 0; i < count; i++)
@@ -154,23 +155,26 @@ void Genhook::Clean(Script* owner)
 		return;
 
 //ForEachHook(CleanHook, owner, 1);
-EnterCriticalSection(&globalSection);
+	EnterCriticalSection(&globalSection);
 
-for(HookIterator it = visible.begin(); it != visible.end(); it++)
-		if((*it)->owner == owner)
-		{
-			visible.erase(it);
-			it = visible.begin();
-		}
-
-for(HookIterator it = invisible.begin(); it != invisible.end(); it++)
-	if((*it)->owner == owner)
+	HookIterator it = visible.begin();
+	while(it != visible.end())
 	{
-		invisible.erase(it);
-		it = invisible.begin();
+		if( (*it)->owner != owner)
+				it = visible.erase(it);
+		else
+			it++;
 	}
-		
-LeaveCriticalSection(&globalSection);
+
+	it = invisible.begin();
+	while(it != invisible.end())
+	{
+		if( (*it)->owner != owner)
+				it = invisible.erase(it);
+		else
+			it++;
+	}
+	LeaveCriticalSection(&globalSection);
 
 }
 
@@ -238,7 +242,7 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
 		JS_TriggerOperationCallback(evt->owner->GetContext());
-		WaitForSingleObject(evt->arg5, 10000);
+		WaitForSingleObject(evt->arg5, 3000);
 		bool* global = (bool*) evt->arg4;
 		block = *global;
 		delete evt->arg1;
@@ -250,25 +254,6 @@ bool Genhook::Click(int button, POINT* loc)
 		if(block)
 			return true;
 		
-
-		/*Event* evt = new Event;
-		evt->owner= owner;
-		evt->argc=3;
-		AutoRoot** argv = new AutoRoot*[3];
-		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
-		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->x));
-		argv[2] = new AutoRoot(INT_TO_JSVAL(loc->y));
- 
-		evt->argv=argv;
-		evt->object=self;
-		evt->functions.push_back( new AutoRoot((clicked)));
-		*/
-		/*HANDLE hThread;
-		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-		WaitForSingleObject(hThread, 1000);
-		GetExitCodeThread( hThread, &ExitCode);*/
-		//CloseHandle(hThread);
-		//result = (ExitCode == 1);
 	}
 	return block;
 }
@@ -331,6 +316,8 @@ void Genhook::SetHoverHandler(jsval handler)
 {
 	return;
 	if(!owner)
+		return;
+	if(JSVAL_IS_VOID(handler))
 		return;
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))

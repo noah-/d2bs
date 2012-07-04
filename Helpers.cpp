@@ -111,7 +111,7 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
 	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
-	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
+	GetPrivateProfileString("settings", "MemoryLimit", "100", memUsage, 6, fname);
 	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
 	GetPrivateProfileString("settings", "GameReadyTimeout", "5", gameTimeout, 6, fname);
 	GetPrivateProfileString("settings", "UseProfileScript", "false", useProfilePath, 6, fname);

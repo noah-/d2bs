@@ -30,6 +30,8 @@ void FillBytes(void *pAddr, BYTE bFill, DWORD dwLen);
 BOOL WriteBytes(void *pAddr, void *pData, DWORD dwLen);
 void RemovePatches();
 void InstallPatches();
+void InstallConditional();
+void RemoveConditional();
 
 
 #endif

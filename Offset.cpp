@@ -1,6 +1,7 @@
 #define _DEFINE_VARS
 #include "D2Ptrs.h"
 #include "Patch.h"
+#include "D2BS.h"
 
 #ifndef ArraySize
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
@@ -61,6 +62,30 @@ void RemovePatches()
 		delete[] Patches[x].bOldCode;
 	}
 	
+}
+
+void InstallConditional()
+{
+	for(int x = 0; x < ArraySize(Conditional); x++)
+	{
+		Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
+		::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
+		Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
+	}	
+}
+
+void RemoveConditional()
+{
+	if(Vars.bUseRawCDKey)
+	{
+	
+		for(int x = 0; x < ArraySize(Conditional); x++)
+		{
+			WriteBytes((void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen);
+			delete[] Conditional[x].bOldCode;
+		}
+
+	}
 }
 
 BOOL WriteBytes(void *pAddr, void *pData, DWORD dwLen)

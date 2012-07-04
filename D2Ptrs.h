@@ -295,6 +295,7 @@ FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dw
 FUNCPTR(D2COMMON, IsTownByLevelNo, BOOL __stdcall, (DWORD dwLevelNo), 0x23950)
 FUNCPTR(D2COMMON, IsTownByRoom, BOOL __stdcall, (Room1* pRoom1), 0x23B80)
 FUNCPTR(D2COMMON, FindRoom1, Room1* __stdcall, (Act* pAct, int x, int y), -11056)
+FUNCPTR(D2COMMON, GetItemPalette, int __stdcall, (UnitAny* pPlayer, UnitAny* pItem, BYTE* pColor, int nTransType), 0x43A80)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Globals
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 #include <io.h>
 #include <windows.h>
 #include <ddeml.h>
+#include <wininet.h>
+#include <iostream>
 
 //#include "js32.h"
 //#include "Script.h"
@@ -17,18 +19,22 @@
 
 #include "JSScript.h"
 
+
 JSAPI_FUNC(my_print)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	for(uintN i = 0; i < argc; i++)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
+			JS_BeginRequest(cx);
 			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
-
+			JS_EndRequest(cx);
 			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
@@ -36,24 +42,86 @@ JSAPI_FUNC(my_print)
 				return JS_FALSE;
 			}
 
-			jsrefcount depth = JS_SuspendRequest(cx);
+			//box18jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Print("undefined");
 			else {
 				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
 				Print(Text);
 			}
-			JS_ResumeRequest(cx, depth);
+			//box18JS_ResumeRequest(cx, depth);
+			JS_free(cx, Text);
 		}
 	}
 	return JS_TRUE;
 }
+JSAPI_FUNC(my_setTimeout)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+		JS_ReportError(cx, "invalid prams passed to setTimeout");
+		
+	int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+	Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name ="setTimeout"; 
+		evt->argv = new JSAutoStructuredCloneBuffer*;
+ 		for(uintN i = 0; i < argc; i++)
+		{
+			evt->argv[i] = new JSAutoStructuredCloneBuffer;
+			evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
+		}
+	
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 
+	return JS_FALSE;
+
+}
+JSAPI_FUNC(my_setInterval)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+		JS_ReportError(cx, "invalid prams passed to setTimeout");
+		
+	int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+	Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name ="setInterval"; 
+		evt->argv = new JSAutoStructuredCloneBuffer*;
+ 		for(uintN i = 0; i < argc; i++)
+		{
+			evt->argv[i] = new JSAutoStructuredCloneBuffer;
+			evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
+		}
+	
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
+
+	return JS_FALSE;
+
+}
+JSAPI_FUNC(my_clearInterval)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+	if (argc != 1 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
+		JS_ReportError(cx, "invalid prams passed to setTimeout");
+
+	ScriptEngine::RemoveDelayedEvent(JSVAL_TO_INT(JS_ARGV(cx, vp)[0]));
+	return JS_TRUE;
+}
 JSAPI_FUNC(my_delay)
 {
 	uint32 nDelay = 0;
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nDelay))
+	{
+		JS_EndRequest(cx);
 		return JS_FALSE;
+	}
+	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
 	if(nDelay)
@@ -68,11 +136,14 @@ JSAPI_FUNC(my_delay)
 				LeaveCriticalSection(&Vars.cEventSection);
 				ExecScriptEvent(evt,false);
 			}
-
-
-			jsrefcount depth = JS_SuspendRequest(cx);
-			Sleep(10);
-			JS_ResumeRequest(cx, depth);
+			
+			//jsrefcount depth = JS_SuspendRequest(cx);
+			//JS_ClearContextThread(cx);
+			//JS_YieldRequest(cx);
+			SleepEx(10,true);
+			
+			//JS_SetContextThread(cx);
+			//JS_ResumeRequest(cx, depth);
 		}
 	}
 	else
@@ -108,11 +179,11 @@ JSAPI_FUNC(my_load)
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
 	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
 	Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc-1, JS_ARGV(cx, vp)+1);
+	JS_free(cx, file);
 	if(newScript)
 	{
 		newScript->BeginThread(ScriptThread);
-		JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext());
-		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
+		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext())));		
 	}
 	else
 	{
@@ -120,7 +191,6 @@ JSAPI_FUNC(my_load)
 		Print("File \"%s\" not found.", file);
 		JS_SET_RVAL(cx, vp,JSVAL_NULL );		
 	}
-
 	return JS_TRUE;
 }
 
@@ -148,7 +218,7 @@ JSAPI_FUNC(my_include)
 	if(_access(buf, 0) == 0)
 		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)) );
 		
-
+	JS_free(cx, file);
 	return JS_TRUE;
 }
 
@@ -181,15 +251,17 @@ JSAPI_FUNC(my_beep)
 
 JSAPI_FUNC(my_getTickCount)
 {
+	JS_BeginRequest(cx);
 	jsval rval;
 	JS_NewNumberValue(cx, (jsdouble)GetTickCount(), &rval);
 	JS_SET_RVAL(cx, vp, rval);
+	JS_EndRequest(cx);
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_getThreadPriority)
 {
-	//JS_SET_RVAL(cx, vp, *(jsval)GetThreadPriority(GetCurrentThread()));
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL( (uint)GetCurrentThread()));
 	return JS_TRUE;
 }
 
@@ -207,7 +279,7 @@ JSAPI_FUNC(my_isIncluded)
 	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
-	
+	JS_free(cx, file);
 	return JS_TRUE;
 }
 
@@ -230,12 +302,14 @@ JSAPI_FUNC(my_debugLog)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
+			JS_BeginRequest(cx);
 			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
-
+			JS_EndRequest(cx);
 			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
@@ -243,14 +317,15 @@ JSAPI_FUNC(my_debugLog)
 				return JS_FALSE;
 			}
 
-			jsrefcount depth = JS_SuspendRequest(cx);
+			//box18 jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Log("undefined");
 			else {
 				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 				Log(Text);
 			}
-			JS_ResumeRequest(cx, depth);
+			//box18JS_ResumeRequest(cx, depth);
+			JS_free(cx, Text);
 		}
 	}
 
@@ -275,6 +350,7 @@ JSAPI_FUNC(my_copy)
 	EmptyClipboard();
 	SetClipboardData(CF_TEXT, hText);
 	CloseClipboard();
+	JS_free(cx, data);
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_paste)
@@ -297,20 +373,25 @@ JSAPI_FUNC(my_sendCopyData)
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
 	jsint nModeId = NULL;
 	HWND hWnd = NULL;
-		
+	JS_BeginRequest(cx);
+
 	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
 	else
 	{
-		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-			windowClassName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
 			windowName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
-		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[2]))
-			data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[2]));
-	
 	}
+		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
+			windowClassName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+		
+		if(JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32*) &nModeId);
+		if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]))
+			data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
 	
+	
+	JS_EndRequest(cx);
 	
 	if(windowClassName && _strcmpi(windowClassName, "null") == 0)
 		windowClassName = NULL;
@@ -330,8 +411,13 @@ JSAPI_FUNC(my_sendCopyData)
 		data = "";
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
-	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
 
+	//box18 jsrefcount depth = JS_SuspendRequest(cx);
+	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
+	//box18 JS_ResumeRequest(cx, depth);
+	
+	JS_free(cx, data);
+	JS_free(cx,windowName);
 	return JS_TRUE;
 }
 
@@ -377,6 +463,7 @@ JSAPI_FUNC(my_addEventListener)
 		}
 		else
 			THROW_ERROR(cx, "Event name is invalid!");
+		JS_free(cx, evtName);
 	}
 	return JS_TRUE;
 }
@@ -393,6 +480,7 @@ JSAPI_FUNC(my_removeEventListener)
 		}
 		else
 			THROW_ERROR(cx, "Event name is invalid!");
+		JS_free(cx, evtName);
 	}
 	return JS_TRUE;
 }
@@ -402,7 +490,9 @@ JSAPI_FUNC(my_clearEvent)
 	if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 	{
 		Script* self = (Script*)JS_GetContextPrivate(cx);
-		self->ClearEvent(JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
+		char* evt =JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+		self->ClearEvent(evt);
+		JS_free(cx, evt);
 	}
 	return JS_TRUE;
 }
@@ -442,6 +532,7 @@ JSAPI_FUNC(my_js_strict)
 
 JSAPI_FUNC(my_scriptBroadcast)
 {
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	if(argc < 1)
 		THROW_ERROR(cx, "You must specify something to broadcast");
 
@@ -451,29 +542,32 @@ JSAPI_FUNC(my_scriptBroadcast)
 
 JSAPI_FUNC(my_showConsole)
 {
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	Console::Show();
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_hideConsole)
 {
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	Console::Hide();
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_loadMpq)
 {
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	char *path  = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 	
 	if(isValidPath(path))
 		LoadMPQ(path);
-
+	JS_free(cx, path);
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_sendPacket)
 {
-
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	if(!Vars.bEnableUnsupported)
 	{
 		THROW_WARNING(cx, "sendPacket requires EnableUnsupported = true in d2bs.ini");
@@ -483,6 +577,7 @@ JSAPI_FUNC(my_sendPacket)
 	BYTE* aPacket = new BYTE[20];
 	BYTE* pPacket = aPacket;
 	uint type = 1;
+	JS_BeginRequest(cx);
 	for(uint i = 0; i < argc; i++){
 		if(i%2 == 0){ 
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
@@ -490,6 +585,7 @@ JSAPI_FUNC(my_sendPacket)
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
+	JS_EndRequest(cx);
 	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
 	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
@@ -498,7 +594,7 @@ JSAPI_FUNC(my_sendPacket)
 
 JSAPI_FUNC(my_getPacket)
 {
-
+	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	if(!Vars.bEnableUnsupported)
 	{
 		THROW_WARNING(cx, "getPacket requires EnableUnsupported = true in d2bs.ini");
@@ -508,15 +604,38 @@ JSAPI_FUNC(my_getPacket)
 	BYTE* aPacket = new BYTE[20];
 	BYTE* pPacket = aPacket;
 	uint type = 1;
+	JS_BeginRequest(cx);
 	for(uint i = 0; i < argc; i++){
-		if(i%2 == 0){ 
+		if(i%2 == 0)
+		{ 
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
 		}
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
+	JS_EndRequest(cx);
 	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
 	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
+}
+
+#pragma comment(lib, "wininet")
+JSAPI_FUNC(my_getIP)
+{
+    HINTERNET hInternet, hFile;
+    DWORD rSize;
+    char buffer[32];
+
+    hInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+    hFile = InternetOpenUrl(hInternet, "http://automation.whatismyip.com/n09230945.asp", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    InternetReadFile(hFile, &buffer, sizeof(buffer), &rSize);
+    buffer[rSize] = '\0';
+
+    InternetCloseHandle(hFile);
+    InternetCloseHandle(hInternet);
+	JS_BeginRequest(cx);
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
+	JS_EndRequest(cx);
+        return JS_TRUE;
 }

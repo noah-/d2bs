@@ -42,7 +42,7 @@
 /*
  * Implementation details for js::Value in jsapi.h.
  */
-#include "jsutil.h"
+#include "js/Utility.h"
 
 JS_BEGIN_EXTERN_C
 
@@ -294,7 +294,7 @@ typedef enum JSWhyMagic
     JS_ARRAY_HOLE,               /* a hole in a dense array */
     JS_ARGS_HOLE,                /* a hole in the args object's array */
     JS_NATIVE_ENUMERATE,         /* indicates that a custom enumerate hook forwarded
-                                  * to js_Enumerate, which really means the object can be
+                                  * to JS_EnumerateState, which really means the object can be
                                   * enumerated like a native object. */
     JS_NO_ITER_VALUE,            /* there is not a pending iterator value */
     JS_GENERATOR_CLOSING,        /* exception value thrown when closing a generator */
@@ -326,7 +326,7 @@ typedef union jsval_layout
     } s;
     double asDouble;
     void *asPtr;
-} jsval_layout;
+} JSVAL_ALIGNMENT jsval_layout;
 # elif JS_BITS_PER_WORD == 64
 typedef union jsval_layout
 {
@@ -348,7 +348,7 @@ typedef union jsval_layout
     double asDouble;
     void *asPtr;
     size_t asWord;
-} jsval_layout;
+} JSVAL_ALIGNMENT jsval_layout;
 # endif  /* JS_BITS_PER_WORD */
 #else   /* defined(IS_LITTLE_ENDIAN) */
 # if JS_BITS_PER_WORD == 32
@@ -370,7 +370,7 @@ typedef union jsval_layout
     } s;
     double asDouble;
     void *asPtr;
-} jsval_layout;
+} JSVAL_ALIGNMENT jsval_layout;
 # elif JS_BITS_PER_WORD == 64
 typedef union jsval_layout
 {
@@ -390,7 +390,7 @@ typedef union jsval_layout
     double asDouble;
     void *asPtr;
     size_t asWord;
-} jsval_layout;
+} JSVAL_ALIGNMENT jsval_layout;
 # endif /* JS_BITS_PER_WORD */
 #endif  /* defined(IS_LITTLE_ENDIAN) */
 

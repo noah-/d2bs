@@ -13,10 +13,7 @@ bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 		evt->name = strdup("melife");
 		evt->arg1 =  new DWORD(helper->arg1);
  		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -38,10 +35,7 @@ bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 		evt->name = strdup("memana");
 		evt->arg1 =  new DWORD(helper->arg1);
  		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -64,10 +58,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->name = strdup(event); 
 		evt->arg1 =  new DWORD((DWORD)helper->key);
  		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	bool block = false;
 	event = (helper->up ? "keyupblocker" : "keydownblocker");
@@ -80,10 +71,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD((DWORD)helper->key);
 		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
 
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 		if(WaitForSingleObject(evt->arg5, 1000) == WAIT_TIMEOUT)
 			return false;
 		bool* global = (bool*) evt->arg4;
@@ -107,11 +95,14 @@ bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("playerassign"))
 	{
-		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		script->ExecEventAsync("playerassign", 1, argv);
-	}
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->name = strdup("playerassign"); 
+		evt->arg1 =  new DWORD((DWORD)helper->arg1);
+ 		
+		script->FireEvent(evt);
+	}		
 	return true;
 }
 
@@ -135,15 +126,7 @@ bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
 		evt->arg3 =  new DWORD(helper->arg3);
  		evt->arg4 =  new DWORD(helper->arg4);
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		if(script->IsRunning())
-			JS_TriggerOperationCallback(evt->owner->GetContext());
-
-
-		
-		//script->ExecEventAsync("mouseclick", 4, argv);
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -166,11 +149,7 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD(helper->arg1);
  		evt->arg2 =  new DWORD(helper->arg2);
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		if(script->IsRunning())
-			JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -200,17 +179,7 @@ bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
 			evt->argv[i]->write(helper->cx, helper->argv[i]);
 		}
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
-
-
-
-		/*AutoRoot** args = new AutoRoot*[helper->argc];
-		for(uintN i = 0; i < helper->argc; i++)
-			args[i] = new AutoRoot(helper->argv[i]);
-		script->ExecEventAsync("scriptmsg", helper->argc, args);*/
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -235,10 +204,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		evt->arg1 = strdup(helper->nick);
  		evt->arg2 = strdup(helper->msg);
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 		
 	}
 	std::string evtname = helper->event;
@@ -256,10 +222,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		
 		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
 
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 		if(WaitForSingleObject(evt->arg5, 5000) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
@@ -296,10 +259,7 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD(helper->mode);
  		evt->arg2 = strdup(helper->msg);
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -324,10 +284,7 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 		evt->arg3 = new DWORD(helper->mode);
 		evt->arg4 = new bool(helper->global);
 
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }
@@ -353,10 +310,7 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 		evt->arg4 = strdup(helper->name1);
  		evt->arg5 = strdup(helper->name2);
 
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		script->FireEvent(evt);
 	}
 	return true;
 }

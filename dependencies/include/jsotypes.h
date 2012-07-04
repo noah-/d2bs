@@ -93,11 +93,4 @@ typedef JSInt16 int16;
 typedef JSInt8 int8;
 #endif /* AIX && HAVE_SYS_INTTYPES_H */
 
-typedef JSFloat64 float64;
-
-/* Re: jsbit.h */
-#define TEST_BIT        JS_TEST_BIT
-#define SET_BIT         JS_SET_BIT
-#define CLEAR_BIT       JS_CLEAR_BIT
-
 #endif /* !defined(PROTYPES_H) */

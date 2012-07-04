@@ -78,7 +78,7 @@ JSAPI_FUNC(my_clickMap)
 	
 	if(argc < 3)
 		return JS_TRUE;
-
+	JS_BeginRequest(cx);
 	if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		JS_ValueToUint16(cx, JS_ARGV(cx, vp)[0], &nClickType);
 	if(JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) || JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1]))
@@ -87,7 +87,7 @@ JSAPI_FUNC(my_clickMap)
 		JS_ValueToUint16(cx, JS_ARGV(cx, vp)[2], &nX);
 	if(JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
 		JS_ValueToUint16(cx, JS_ARGV(cx, vp)[3], &nY);
-
+	JS_EndRequest(cx);
 	if(argc == 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) &&
 		(JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) || JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1])) &&
 		JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
@@ -179,9 +179,13 @@ JSAPI_FUNC(my_getPath)
 
 	uint lvl = 0, x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
+	{
+		JS_EndRequest(cx);
 		return JS_FALSE;
-
+	}
+	JS_EndRequest(cx);
 	if(reductionType == 3 &&
 		!(JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[9])))
 		THROW_ERROR(cx, "Invalid function values for reduction type");
@@ -211,12 +215,12 @@ JSAPI_FUNC(my_getPath)
 	AStarPath<> path(map, reducer);
 #endif
 
-	jsrefcount depth = JS_SuspendRequest(cx);
+	//box18jsrefcount depth = JS_SuspendRequest(cx);
 	
 	path.GetPath(start, end, list, true);
 	map->CleanUp();
 	
-	JS_ResumeRequest(cx, depth);
+	//box18JS_ResumeRequest(cx, depth);
 #if defined(_TIME)
 	char p[510];
 	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);
@@ -259,9 +263,13 @@ JSAPI_FUNC(my_getCollision)
 		THROW_WARNING(cx, "Game not ready");
 
 	uint32 nLevelId, nX, nY;
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uuu", &nLevelId, &nX, &nY))
+	{
+		JS_EndRequest(cx);
 		return JS_FALSE;
-	
+	}
+	JS_EndRequest(cx);
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
@@ -274,7 +282,9 @@ JSAPI_FUNC(my_getCollision)
 		THROW_ERROR(cx, "Invalid point!");
 
 	jsval rval;
+	JS_BeginRequest(cx);
 	JS_NewNumberValue(cx, map->GetMapData(point, true), &rval);
+	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp,rval );
 	map->CleanUp();
 	
@@ -601,10 +611,12 @@ JSAPI_FUNC(my_getLocaleString)
 		return JS_TRUE;
 
 	uint16 localeId;
+	JS_BeginRequest(cx);
 	JS_ValueToUint16(cx, JS_ARGV(cx, vp)[0], &localeId);
 	wchar_t* wString = D2LANG_GetLocaleText(localeId);
 	char* szTmp = UnicodeToAnsi(wString);
 	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTmp)));
+	JS_EndRequest(cx);
 	delete[] szTmp;
 	
 	return JS_TRUE;
@@ -634,12 +646,13 @@ JSAPI_FUNC(my_rand)
 
 	jsint high;
 	jsint low;
-
-	if(JS_ValueToInt32(cx, JS_ARGV(cx, vp)[0], &low) == JS_FALSE)
-		THROW_ERROR(cx, "Could not convert low value");
-
-	if(JS_ValueToInt32(cx, JS_ARGV(cx, vp)[1], &high) == JS_FALSE)
-		THROW_ERROR(cx, "Could not convert high value");
+	JS_BeginRequest(cx);
+	if(JS_ConvertArguments(cx, 2, JS_ARGV(cx, vp),"ii", &low, &high) == JS_FALSE)
+	{
+		JS_EndRequest(cx);
+		THROW_ERROR(cx, "Could not convert Rand aruments");
+	}
+	JS_EndRequest(cx);
 
 	if(high > low+1)
 	{
@@ -670,8 +683,10 @@ JSAPI_FUNC(my_getDistance)
 		{ 
 			nX1 = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit());
 			nY1 = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, x1, &nX2);
 			JS_ValueToECMAInt32(cx, y1, &nY2);
+			JS_EndRequest(cx);
 		}
 	}
 	else if(argc == 2)
@@ -680,20 +695,24 @@ JSAPI_FUNC(my_getDistance)
 		{
 			nX1 = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit());
 			nY1 = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nX2);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nY2);
+			JS_EndRequest(cx);
 		}
 		else if(JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[1])) 
-		{
+		{			
 			jsval x, y, x2, y2; 
 			if(JS_GetProperty(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]), "x", &x) && JS_GetProperty(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]), "y", &y) &&
 				JS_GetProperty(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[1]), "x", &x2) && JS_GetProperty(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[1]), "y", &y2)) 
 			{ 
+				JS_BeginRequest(cx);
 				JS_ValueToECMAInt32(cx, x, &nX1);
 				JS_ValueToECMAInt32(cx, y, &nY1);
 				JS_ValueToECMAInt32(cx, x2, &nX2);
 				JS_ValueToECMAInt32(cx, y2, &nY2);
-			}
+				JS_EndRequest(cx);
+			}			
 		}
 	}
 	else if(argc == 3)
@@ -712,8 +731,10 @@ JSAPI_FUNC(my_getDistance)
 
 			nX1 = D2CLIENT_GetUnitX(pUnitA);
 			nY1 = D2CLIENT_GetUnitY(pUnitA);
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nX2);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[2], &nY2);
+			JS_EndRequest(cx);
 		}
 		else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[2]))
 		{
@@ -729,24 +750,29 @@ JSAPI_FUNC(my_getDistance)
 
 			nX1 = D2CLIENT_GetUnitX(pUnitA);
 			nY1 = D2CLIENT_GetUnitY(pUnitA);
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nX2);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nY2);
+			JS_EndRequest(cx);
 		}
 	}
 	else if(argc == 4)
 	{
 		if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[3]))
 		{
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nX1);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nY1);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[2], &nX2);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[3], &nY2);
+			JS_EndRequest(cx);
 		}
 	}
-
 	jsdouble jsdist = (jsdouble)abs(GetDistance(nX1, nY1, nX2, nY2));
 	jsval rval;
+	JS_BeginRequest(cx);
 	JS_NewNumberValue(cx, jsdist, &rval);
+	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp, rval);
 	return JS_TRUE;
 }
@@ -835,8 +861,9 @@ JSAPI_FUNC(my_getSkillById)
 		return JS_TRUE;
 
 	jsint nId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
+	JS_BeginRequest(cx);
 	JS_SET_RVAL(cx, vp,  STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "Unknown")));
-	
+	JS_EndRequest(cx);
 	int row = 0;
 	if(FillBaseStat("skills", nId, "skilldesc", &row, sizeof(int)))
 		if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
@@ -881,14 +908,16 @@ JSAPI_FUNC(my_getTextSize)
 	}
 	else
 	{
+		JS_BeginRequest(cx);
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
 		JS_AddRoot(cx, &pObj);
 		JS_SetElement(cx, pObj, 0, &x);
 		JS_SetElement(cx, pObj, 1, &y);
+		JS_EndRequest(cx);
 	}
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pObj));
 	JS_RemoveRoot(cx, &pObj);
-
+	JS_free(cx, pString);
 	return JS_TRUE;
 }
 
@@ -1013,8 +1042,10 @@ JSAPI_FUNC(my_say)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
+			JS_BeginRequest(cx);
 			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
@@ -1022,13 +1053,16 @@ JSAPI_FUNC(my_say)
 			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Could not get string for value");
 				return JS_FALSE;
 			}
-
-			jsrefcount depth = JS_SuspendRequest(cx);
-			if(Text) Say(Text);
-			JS_ResumeRequest(cx, depth);
+			JS_EndRequest(cx);
+			//box18jsrefcount depth = JS_SuspendRequest(cx);
+			if(Text)
+				Say(Text);
+			//box18JS_ResumeRequest(cx, depth);
+			JS_free(cx, Text);
 		}
 	}
 
@@ -1106,9 +1140,13 @@ JSAPI_FUNC(my_useStatPoint)
 
 	WORD stat = 0;
 	int32 count = 1;
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "c/u", &stat, &count))
+	{
+		JS_EndRequest(cx);
 		return JS_FALSE;
-
+	}
+	JS_EndRequest(cx);
 	UseStatPoint(stat, count);
 	return JS_TRUE;
 }
@@ -1120,9 +1158,13 @@ JSAPI_FUNC(my_useSkillPoint)
 
 	WORD skill = 0;
 	int32 count = 1;
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "c/u", &skill, &count))
+	{
+		JS_EndRequest(cx);
 		return JS_FALSE;
-
+	}
+	JS_EndRequest(cx);
 	UseSkillPoint(skill, count);
 	return JS_TRUE;
 }
@@ -1135,17 +1177,23 @@ JSAPI_FUNC(my_getBaseStat)
 		jsint nBaseStat = 0;
 		jsint nClassId = 0;
 		jsint nStat = -1;
-
+		JS_BeginRequest(cx);
 		if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		{
 			szTableName = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 			if(!szTableName)
+			{
 				THROW_ERROR(cx, "Invalid table value");
+				JS_EndRequest(cx);
+			}
 		}
 		else if(JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nBaseStat);
 		else
+		{
+			JS_EndRequest(cx);
 			THROW_ERROR(cx, "Invalid table value");
+		}
 
 		JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nClassId);
 
@@ -1153,15 +1201,22 @@ JSAPI_FUNC(my_getBaseStat)
 		{
 			szStatName = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[2]));
 			if(!szStatName)
+			{
+				JS_EndRequest(cx);
 				THROW_ERROR(cx, "Invalid column value");
+			}
 		}
 		else if(JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]))
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[2], &nStat);
 		else
+		{
+			JS_EndRequest(cx);
 			THROW_ERROR(cx, "Invalid column value");
+		}
 		jsval rval;
 		FillBaseStat(cx, &rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
 		JS_SET_RVAL(cx, vp, rval);
+		JS_EndRequest(cx);
 	}
 
 	return JS_TRUE;
@@ -1176,8 +1231,15 @@ JSAPI_FUNC(my_weaponSwitch)
 
 	jsint nParameter = NULL;
 	if(argc > 0)
+	{
+		JS_BeginRequest(cx);
 		if(JS_ValueToInt32(cx, JS_ARGV(cx, vp)[0], &nParameter) == JS_FALSE)
+		{
+			JS_EndRequest(cx);
 			THROW_ERROR(cx, "Could not convert value");
+		}
+		JS_EndRequest(cx);
+	}
 	
 	if(nParameter == NULL)
 	{
@@ -1204,6 +1266,7 @@ JSAPI_FUNC(my_weaponSwitch)
 
 JSAPI_FUNC(my_transmute)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
@@ -1229,9 +1292,10 @@ JSAPI_FUNC(my_getPlayerFlag)
 
 	uint32 nFirstUnitId = (uint32)-1;
 	uint32 nSecondUnitId = (uint32)-1;
-	
+	JS_BeginRequest(cx);
 	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &nFirstUnitId);
 	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nSecondUnitId);
+	JS_EndRequest(cx);
 	
 	DWORD nFlag = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 	
@@ -1277,10 +1341,12 @@ JSAPI_FUNC(my_getMouseCoords)
 	}
 	else
 	{
+		JS_BeginRequest(cx);
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
 		JS_AddRoot(cx, &pObj);
 		JS_SetElement(cx, pObj, 0, &jsX);
 		JS_SetElement(cx, pObj, 1, &jsY);
+		JS_EndRequest(cx);
 	}
 
 	if(!pObj)
@@ -1293,6 +1359,7 @@ JSAPI_FUNC(my_getMouseCoords)
 
 JSAPI_FUNC(my_submitItem)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 

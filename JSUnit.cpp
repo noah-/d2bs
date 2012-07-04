@@ -55,6 +55,7 @@ JSAPI_PROP(unit_getProperty)
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
+	JS_BeginRequest(cx);
 	switch(JSVAL_TO_INT(ID))
 	{
 		case ME_PID:
@@ -164,7 +165,7 @@ JSAPI_PROP(unit_getProperty)
 		default:
 			break;
 	}
-
+	JS_EndRequest(cx);
 	if(ClientState() != ClientStateInGame)
 		return JS_TRUE;
 	//JSObject* obj ;
@@ -177,7 +178,6 @@ JSAPI_PROP(unit_getProperty)
 	if(!pUnit)
 		return JS_TRUE;
 	Room1* pRoom = NULL;
-
 	
 	switch(JSVAL_TO_INT(ID))
 	{
@@ -212,7 +212,9 @@ JSAPI_PROP(unit_getProperty)
 				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);
 			break;
 		case UNIT_ID:
+			JS_BeginRequest(cx);
 			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
+			JS_EndRequest(cx);
 			break;
 		case UNIT_XPOS:
 			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitX(pUnit));
@@ -286,22 +288,101 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ITEM_PREFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix)));
+				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0]))
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0])));
 			break;
 		case ITEM_SUFFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix)));
+				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0]))
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0])));
 			break;
 		case ITEM_PREFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wPrefix);
+					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicPrefix[0]);
 			break;
 		case ITEM_SUFFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wSuffix);
+					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicSuffix[0]);
 			break;
+
+		case ITEM_PREFIXES:  
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[i]))
+					{
+						jsval nPrefix = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[i])));
+
+						JS_SetElement(cx, pReturnArray, i, &nPrefix);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_PREFIXNUMS:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (pUnit->pItemData->wMagicPrefix[i])
+					{
+						jsval nPrefixnum = INT_TO_JSVAL(pUnit->pItemData->wMagicPrefix[i]);
+
+						JS_SetElement(cx, pReturnArray, i, &nPrefixnum);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_SUFFIXES:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[i]))
+					{
+						jsval nSuffix = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[i])));
+
+						JS_SetElement(cx, pReturnArray, i, &nSuffix);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_SUFFIXNUMS:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (pUnit->pItemData->wMagicSuffix[i])
+					{
+						jsval nSuffixnum = INT_TO_JSVAL(pUnit->pItemData->wMagicSuffix[i]);
+
+						JS_SetElement(cx, pReturnArray, i, &nSuffixnum);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+
+
 		case ITEM_FNAME:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				wchar_t wszfname[256] = L"";
@@ -491,7 +572,7 @@ JSAPI_FUNC(unit_getUnit)
 
 	if(argc > 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
 		strcpy_s(szName, sizeof(szName), JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[1])));
-	
+	JS_BeginRequest(cx);
 	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nClassId);
 
@@ -500,7 +581,7 @@ JSAPI_FUNC(unit_getUnit)
 
 	if(argc > 3 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[3], &nUnitId);
-
+	JS_EndRequest(cx);
 	UnitAny* pUnit = NULL;
 	
 	if(nType == 100)
@@ -554,7 +635,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(!pUnit)
 			return JS_TRUE;
-
+		JS_BeginRequest(cx);
 		if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 			strcpy_s(lpUnit->szName, 128, JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
@@ -563,7 +644,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1],(uint32*) &(lpUnit->dwMode));
-
+		JS_EndRequest(cx);
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
 
 		if(!pUnit)
@@ -591,7 +672,7 @@ JSAPI_FUNC(unit_getNext)
 		UnitAny* pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
 		if(!pUnit || !pOwner)
 			return JS_TRUE;
-
+		JS_BeginRequest(cx);
 		if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 			strcpy_s(pmyUnit->szName, 128, JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
@@ -600,7 +681,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1],(uint32*) &(pmyUnit->dwMode));
-
+		JS_EndRequest(cx);
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
 		{
@@ -738,9 +819,13 @@ JSAPI_FUNC(unit_interact)
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game - Done! TechnoHunter
 		jsint nWaypointID;
+		JS_BeginRequest(cx);
 		if(!JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nWaypointID))
+		{
+			JS_EndRequest(cx);
 			return JS_TRUE;
-
+		}
+		JS_EndRequest(cx);
 		int retVal = 0;
 		if(FillBaseStat("levels", nWaypointID, "Waypoint", &retVal, sizeof(int)))
 			if(retVal == 255)
@@ -789,9 +874,13 @@ JSAPI_FUNC(unit_getStat)
 
 	jsint nStat = 0;
 	jsint nSubIndex = 0;
-
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "i/i", &nStat, &nSubIndex))
+	{
+		JS_EndRequest(cx);
 		return JS_TRUE;
+	}
+	JS_EndRequest(cx);
 
 	if(nStat >= STAT_HP && nStat <= STAT_MAXSTAMINA)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8));
@@ -834,6 +923,7 @@ JSAPI_FUNC(unit_getStat)
 				}
 			for(UINT i = 0; i < dwStats; i++)
 			{
+				JS_BeginRequest(cx);
 				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 				JS_AddRoot(cx, &pArrayInsert);
 
@@ -852,6 +942,7 @@ JSAPI_FUNC(unit_getStat)
 
 				JS_SetElement(cx, pReturnArray, i, &aObj);
 				JS_RemoveRoot(cx, &pArrayInsert);
+				JS_EndRequest(cx);
 			}
 		}
 	}
@@ -956,6 +1047,7 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 			if(!JS_IsArrayObject(cx, JSVAL_TO_OBJECT(index)))
 			{
 				// it's not an array, build one
+				JS_BeginRequest(cx);
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 				JS_AddRoot(cx, &arr);
 				JS_SetElement(cx, arr, 0, &index);
@@ -963,6 +1055,7 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 				jsval arr2 = OBJECT_TO_JSVAL(arr);
 				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
 				JS_RemoveRoot(cx, &arr);
+				JS_EndRequest(cx);
 			}
 			else
 			{
@@ -972,11 +1065,15 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 				if(!JS_GetArrayLength(cx, arr, &len))
 					return;
 				len++;
+				JS_BeginRequest(cx);
 				JS_SetElement(cx, arr, len, &obj);
+				JS_EndRequest(cx);
 			}
 		}
 		else
+			JS_BeginRequest(cx);
 			JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
+			JS_EndRequest(cx);
 	}
 	else
 	{
@@ -992,11 +1089,17 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 		{
 			// the array index doesn't exist, make it
 			index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
-			if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+			JS_BeginRequest(cx);
+			if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index)){
+				JS_EndRequest(cx);
 				return;
+			}
+			JS_EndRequest(cx);
 		}
 		// index now points to the correct array index
+		JS_BeginRequest(cx);
 		JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
+		JS_EndRequest(cx);
 	}
 }
 
@@ -1018,9 +1121,13 @@ JSAPI_FUNC(unit_getState)
 		return JS_TRUE;
 
 	jsint nState;
-
+	JS_BeginRequest(cx);
 	if(JS_ValueToInt32(cx, JS_ARGV(cx, vp)[0], &nState) == JS_FALSE)
+	{
+		JS_EndRequest(cx);
 		return JS_TRUE;
+	}
+	JS_EndRequest(cx);
 
 	// TODO: make these constants so we know what we're checking here
 	if(nState > 159 || nState < 0)
@@ -1169,8 +1276,13 @@ JSAPI_FUNC(item_getItemCost)
 		}
 		else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		{
+			JS_BeginRequest(cx);
 			if(!JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nNpcClassId))
+			{
+				JS_EndRequest(cx);
 				return JS_TRUE;
+			}
+			JS_EndRequest(cx);
 		}
 		//TODO:: validate the base stat table sizes to make sure the game doesn't crash with checking values past the end of the table
 		int retVal = 0;
@@ -1211,11 +1323,14 @@ JSAPI_FUNC(unit_getItems)
 
 	if(!pUnit || !pUnit->pInventory || !pUnit->pInventory->pFirstItem)
 		return JS_TRUE;
-
+	JS_BeginRequest(cx);
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	if(!pReturnArray)
+	{
+		JS_EndRequest(cx);
 		return JS_TRUE;
+	}
 	JS_AddRoot(cx, &pReturnArray);
 
 	DWORD dwArrayCount = 0;
@@ -1239,17 +1354,17 @@ JSAPI_FUNC(unit_getItems)
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
+			JS_EndRequest(cx);
 			JS_RemoveRoot(cx, &pReturnArray);
 			THROW_ERROR(cx, "Failed to build item array");
-		}
-
+		}		
 		jsval a = OBJECT_TO_JSVAL(jsunit);
-		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
+		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);		
 	}
-
+	
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(cx, &pReturnArray);
-
+	JS_EndRequest(cx);
 	return JS_TRUE;
 }
 
@@ -1336,7 +1451,7 @@ JSAPI_FUNC(unit_getSkill)
 					jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
 					jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
 					jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
-
+					JS_BeginRequest(cx);
 					JS_SetElement(cx, pArrayInsert, 0, &nId);
 					JS_SetElement(cx, pArrayInsert, 1, &nBase);
 					JS_SetElement(cx, pArrayInsert, 2, &nTotal);
@@ -1345,6 +1460,7 @@ JSAPI_FUNC(unit_getSkill)
 
 					JS_SetElement(cx, pReturnArray, i, &aObj);
 					JS_RemoveRoot(cx, &pArrayInsert);
+					JS_EndRequest(cx);
 					i++;
 				}
 				break;
@@ -1672,6 +1788,7 @@ JSAPI_FUNC(my_overhead)
 				pUnit->pOMsg = pMsg;
 			}
 		}
+		JS_free(cx, lpszText);
 	}
 
 	return JS_TRUE;
