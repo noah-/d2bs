@@ -72,7 +72,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		}
 
 		if(state == Command){
-			char * cmd = "function main() {print('hi'); while (true){delay(10000000)};} ";
+			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(100000000)};} ";
 			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
 		}
 		else
@@ -196,9 +196,6 @@ bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
 void Script::Run(void)
 {
 	
-
-
-
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;

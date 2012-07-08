@@ -1,0 +1,432 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{d0426fb1-f7eb-4f7e-a22c-4dfbd66a1fbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Diablo II">
+      <UniqueIdentifier>{7d78c1ba-5dc3-4101-a8c2-b1df62a052ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Diablo II\Patches">
+      <UniqueIdentifier>{7bb4548d-0c0a-408f-bc54-2f015823ff2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Diablo II\Handlers">
+      <UniqueIdentifier>{6a841935-847b-48e5-94da-23bf726fb14c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{74af80c6-cf07-4633-8b7d-d5139f22d1fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine">
+      <UniqueIdentifier>{3a84dc41-cd58-481f-96dd-330eb133a1ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Engine Imports">
+      <UniqueIdentifier>{71ca107f-dae9-45be-bb1f-7e47a34d4f1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Core">
+      <UniqueIdentifier>{9df161b7-1ee4-4ba6-ba04-90ba188de356}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Core\C">
+      <UniqueIdentifier>{518957f6-9ba9-425f-ae99-d4545b6fbc0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Core\JS">
+      <UniqueIdentifier>{4e112811-2f11-48c9-bcdc-45243255c2e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Core\API">
+      <UniqueIdentifier>{0c875f07-31f7-47d3-bfa4-22dc36a7a18a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spidermonkey Engine\Engine">
+      <UniqueIdentifier>{63c6244f-973e-46d8-93e6-7fcbcb7a5ff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{21fed9d4-5452-4e20-b0ba-80cd1f6b0cab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\Path">
+      <UniqueIdentifier>{7a8bdeb3-40c0-4298-8232-059dfff4679c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\Path\Reduction">
+      <UniqueIdentifier>{eb52c36a-489f-4e6d-aea5-f38f3f0f8c14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\Diablo II">
+      <UniqueIdentifier>{ada5120e-f9b5-4725-a44a-9afd68bdaaa1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D2BS.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="D2Helpers.cpp">
+      <Filter>Diablo II</Filter>
+    </ClCompile>
+    <ClCompile Include="D2Intercepts.cpp">
+      <Filter>Diablo II\Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="D2Handlers.cpp">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="D2NetHandlers.cpp">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Events.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="js32.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Offset.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3.c">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="stringhash.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Control.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="Core.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="dde.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="Hash.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="MPQStats.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="Room.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHook.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
+    <ClCompile Include="JSArea.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSControl.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSCore.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSDirectory.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSExits.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSFile.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSFileTools.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSGame.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSGlobalClasses.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSHash.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSMenu.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSParty.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSPresetUnit.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSRoom.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSSandbox.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSScreenHook.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSScript.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSSQLite.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="JSUnit.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoRoot.cpp">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.cpp">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptEngine.cpp">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\Diablo_II\ActMap.cpp">
+      <Filter>Map\Diablo II</Filter>
+    </ClCompile>
+    <ClCompile Include="Map\Diablo_II\LevelMap.cpp">
+      <Filter>Map\Diablo II</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D2BS.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Helpers.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Ptrs.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Skills.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Structs.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="Patch.h">
+      <Filter>Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Intercepts.h">
+      <Filter>Diablo II\Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Handlers.h">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="D2NetHandlers.h">
+      <Filter>Diablo II\Handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="CriticalSections.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="D2Loader.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="js32.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="MapHeader.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Offset.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="stringhash.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedAlloc.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\js-config.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsapi.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jscompat.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jscpucfg.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsinttypes.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsotypes.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jspubtd.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jstypes.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsutil.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsval.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsversion.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="dde.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="MPQStats.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHook.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="JSArea.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSControl.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSCore.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSDirectory.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSExits.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSFile.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSFileTools.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSGame.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSGlobalClasses.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSGlobalFuncs.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSHash.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSMenu.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSParty.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSPresetUnit.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSRoom.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSSandbox.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSScreenHook.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSScript.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSSQLite.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="JSUnit.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoRoot.h">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\BlankMap.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Map.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\AStarPath.h">
+      <Filter>Map\Path</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Path.h">
+      <Filter>Map\Path</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Reduction\JSPathReducer.h">
+      <Filter>Map\Path\Reduction</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Reduction\NoPathReducer.h">
+      <Filter>Map\Path\Reduction</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Reduction\PathReducer.h">
+      <Filter>Map\Path\Reduction</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Reduction\TeleportPathReducer.h">
+      <Filter>Map\Path\Reduction</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Path\Reduction\WalkPathReducer.h">
+      <Filter>Map\Path\Reduction</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Diablo_II\ACtMap.h">
+      <Filter>Map\Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="Map\Diablo_II\LevelMap.h">
+      <Filter>Map\Diablo II</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ScriptEngine.h">
+      <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dependencies\include\jsproto.tbl">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
+  </ItemGroup>
+</Project>
