@@ -30,7 +30,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	InitSettings();
 	if(InitHooks())
 	{
-		Log("D2BS Engine startup complete.");
+		Log("D2BS Engine startup complete. %s", D2BS_VERSION);
 		Print("ÿc2D2BSÿc0 :: Engine startup complete!");
 	}
 	else

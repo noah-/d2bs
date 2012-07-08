@@ -271,7 +271,7 @@ JSBool operationCallback(JSContext* cx)
 	
 	if (callBackCount % 30 == 0){
 		// bob18 jsrefcount depth = JS_SuspendRequest(cx);
-		//JS_MaybeGC(cx);
+		JS_MaybeGC(cx);
 		// bob18 JS_ResumeRequest(cx, depth);
 		callBackCount = 0;
 	}
@@ -832,9 +832,6 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 }
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 {	
-
-	//HANDLE timer = CreateWaitableTimer(NULL,true,NULL);
-	
 	delayedExecKey++;
 	evt->arg1 =  new DWORD(delayedExecKey);
 	evt->arg2 = CreateWaitableTimer(NULL,true,NULL);	
@@ -856,10 +853,7 @@ int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 }
 
  void ScriptEngine::RemoveDelayedEvent(int key)
-{ //need to clear script event list too
-	
-	
-
+{ 
 	list<Event*>::iterator it;
 	it = DelayedExecList.begin();
 	while(it != DelayedExecList.end())
