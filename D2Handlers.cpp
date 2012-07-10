@@ -88,8 +88,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			case ClientStateNull:
 				break;
 		}
-		Sleep(50);			
-	
+		Sleep(50);	
+	/*	EnterCriticalSection(&ScriptEngine::lock);
+		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
+			JS_TriggerOperationCallback(it->second->GetContext());
+		LeaveCriticalSection(&ScriptEngine::lock);  */
 	}
 
 	ScriptEngine::Shutdown();

@@ -557,7 +557,7 @@ JSAPI_STRICT_PROP(unit_setProperty)
 
 JSAPI_FUNC(unit_getUnit)
 {
-	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	if(argc < 1)
 		return JS_TRUE;
 
@@ -622,7 +622,7 @@ JSAPI_FUNC(unit_getUnit)
 
 JSAPI_FUNC(unit_getNext)
 {
-	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	Private* unit = (Private*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
 	if(!unit)
@@ -1591,6 +1591,7 @@ JSAPI_FUNC(item_shop)
 
 JSAPI_FUNC(unit_getParent)
 {	
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
@@ -1668,6 +1669,7 @@ JSAPI_FUNC(unit_getParent)
 // Works only on players sinces monsters _CANT_ have mercs!
 JSAPI_FUNC(unit_getMerc)
 {	
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
@@ -1809,7 +1811,7 @@ JSAPI_FUNC(unit_getItem)
 {	
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
-	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 

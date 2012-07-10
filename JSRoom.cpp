@@ -335,6 +335,7 @@ JSAPI_FUNC(room_getStat)
 
 JSAPI_FUNC(room_getFirst)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 	if(!pRoom2 || !pRoom2->pLevel || !pRoom2->pLevel->pRoom2First )
 		return JS_TRUE;
@@ -394,6 +395,7 @@ JSAPI_FUNC(room_reveal)
 
 JSAPI_FUNC(my_getRoom)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 

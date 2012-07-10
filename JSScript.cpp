@@ -67,7 +67,7 @@ JSAPI_FUNC(script_getNext)
 	LeaveCriticalSection(&ScriptEngine::lock);
 
 	
-	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	return JS_TRUE;
 }
 

@@ -304,17 +304,6 @@ JSBool operationCallback(JSContext* cx)
 		}
 		return !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu));
 	} else {
-		while(script->EventList.size() > 0)
-		{
-			EnterCriticalSection(&Vars.cEventSection);
-				Event* evt = script->EventList.back();
-				script->EventList.pop_back();
-			LeaveCriticalSection(&Vars.cEventSection);
-			ExecScriptEvent(evt,true); //clean list and pop events
-		}
-		
-		script->ClearAllEvents();
-		Genhook::Clean(script);		
 		return false;
 	}
 	
@@ -379,9 +368,22 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		
 		
 	}
-	/*if(contextOp == JSCONTEXT_DESTROY)
-		JS_YieldRequest(cx);*/
+	if(contextOp == JSCONTEXT_DESTROY)
+	{
+		Script* script = (Script*)JS_GetContextPrivate(cx);
+		while(script->EventList.size() > 0)
+		{
+			EnterCriticalSection(&Vars.cEventSection);
+				Event* evt = script->EventList.back();
+				script->EventList.pop_back();
+			LeaveCriticalSection(&Vars.cEventSection);
+			ExecScriptEvent(evt,true); //clean list and pop events
+		}
+		
+		script->ClearAllEvents();
+		Genhook::Clean(script);		
 	
+	}
 	return JS_TRUE;
 }
 
