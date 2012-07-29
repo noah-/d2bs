@@ -20,6 +20,8 @@
 #include <windows.h>
 #include <Shlwapi.h>
 
+#include <assert.h>
+
 #include "JSFileTools.h"
 #include "D2BS.h"
 #include "File.h"
@@ -33,13 +35,14 @@ JSAPI_FUNC(filetools_remove)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "You must supply a file name");
-	char* file = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(file))
-		THROW_ERROR(cx, "Invalid file name");
-	char path[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
-	remove(path);
+	char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	char fullpath[_MAX_PATH+_MAX_FNAME];
+
+	if(getPathRelScript(file, _MAX_PATH+_MAX_FNAME, fullpath) == NULL)
+		THROW_ERROR(cx, "Invalid file name");
+
+	remove(fullpath);
 	JS_free(cx, file);
 	return JS_TRUE;
 }
@@ -48,23 +51,24 @@ JSAPI_FUNC(filetools_rename)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(orig))
-		THROW_ERROR(cx, "Invalid file name");
-	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
-
 	if(argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
 		THROW_ERROR(cx, "You must supply a new file name");
-	char* newName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
-	if(!isValidPath(newName))
-		THROW_ERROR(cx, "Invalid file name");
+
+	char* orig = JS_EncodeString(cx ,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+
+	char porig[_MAX_PATH+_MAX_FNAME];
 	char pnewName[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
+
+	if(getPathRelScript(orig, _MAX_PATH+_MAX_FNAME, porig) == NULL)
+		THROW_ERROR(cx, "Invalid original file name");
+
+	if(getPathRelScript(newName, _MAX_PATH+_MAX_FNAME, pnewName) == NULL)
+		THROW_ERROR(cx, "Invalid new file name");
 
 	rename(porig, pnewName);
 	JS_free(cx, orig);
-	JS_free(cx, newName);
+    JS_free(cx, newName);
 	return JS_TRUE;
 }
 
@@ -72,38 +76,29 @@ JSAPI_FUNC(filetools_copy)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(orig))
-		THROW_ERROR(cx, "Invalid file name");
-	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
-
 	if(argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
 		THROW_ERROR(cx, "You must supply a new file name");
-	char* newName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
-	if(!isValidPath(newName))
-		THROW_ERROR(cx, "Invalid file name");
-	char pnewName[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
+	char* orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+	char pnewName[_MAX_PATH+_MAX_FNAME];
 	bool overwrite = false;
+
 	if(argc > 2 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[2]))
 		overwrite = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[2]);
+
+	if(getPathRelScript(newName, _MAX_PATH+_MAX_FNAME, pnewName) == NULL)
+		THROW_ERROR(cx, "Invalid new file name");
 
 	if(overwrite && _access(pnewName, 0) == 0)
 		return JS_TRUE;
 
-	FILE* fptr1 = NULL;
-	fopen_s(&fptr1, porig, "r");
-	FILE* fptr2 = NULL;
-	fopen_s(&fptr2, pnewName, "w");
+	FILE* fptr1 = fileOpenRelScript(orig, "r", cx);
+	FILE* fptr2 = fileOpenRelScript(newName, "w", cx);
 
-	//Sanity check to make sure the file opened for reading!
-	if(!fptr1)
-		THROW_ERROR(cx, _strerror("Read file open failed"));
-	// Same for file opened for writing
-	if(!fptr2)
-		THROW_ERROR(cx, _strerror("Write file open failed"));
+	// If fileOpenRelScript failed, it already reported the error
+	if(fptr1 == NULL || fptr2 == NULL)
+		return JS_FALSE;
 
 	while(!feof(fptr1)) 
 	{
@@ -139,7 +134,7 @@ JSAPI_FUNC(filetools_copy)
 	fclose(fptr2);
 	fclose(fptr1);
 	JS_free(cx, orig);
-	JS_free(cx, newName);
+    JS_free(cx, newName);
 	return JS_TRUE;
 }
 
@@ -147,45 +142,53 @@ JSAPI_FUNC(filetools_exists)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "Invalid file name");
-	char* file = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(file))
-		THROW_ERROR(cx, "Invalid file name");
-	char path[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
+	char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	char fullpath[_MAX_PATH+_MAX_FNAME];
 
-	JS_SET_RVAL(cx, vp,  BOOLEAN_TO_JSVAL(!(_access(path, 0) != 0 && errno == ENOENT)));
+	if(getPathRelScript(file, _MAX_PATH+_MAX_FNAME, fullpath) == NULL)
+		THROW_ERROR(cx, "Invalid file name");
+
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!(_access(fullpath, 0) != 0 && errno == ENOENT)));
 
 	return JS_TRUE;
 }
 
+
 JSAPI_FUNC(filetools_readText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(orig))
-		THROW_ERROR(cx, "Invalid file name");
-	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
+		THROW_ERROR(cx, "You must supply a file name");
+	char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	FILE* fptr = fileOpenRelScript(fname, "r", cx);
 
-	if((_access(porig, 0) != 0 && errno == ENOENT))
-		THROW_ERROR(cx, "File not found");
+	// If fileOpenRelScript failed, it already reported the error
+	if(fptr == NULL)
+		return JS_FALSE;
 
-	FILE* fptr = NULL;
 	uint size, readCount;
-	fopen_s(&fptr, porig, "r");
+	char* contents;
+
+	// Determine file size
 	fseek(fptr, 0, SEEK_END);
 	size = ftell(fptr);
 	rewind(fptr);
-	char* contents = new char[size+1];
-	memset(contents, 0, size+1);
+
+	// Allocate and read the string. Need to set last char to \0 since fread
+	// doesn't.
+	contents = new char[size+1];
 	readCount = fread(contents, sizeof(char), size, fptr);
-	if( readCount != size && ferror(fptr))
+	assert(readCount <= size);	// Avoid SEGFAULT
+	contents[readCount] = 0;
+	fclose(fptr);
+
+	// Check to see if we had an error
+	if(ferror(fptr))
 	{
 		delete[] contents;
 		THROW_ERROR(cx, _strerror("Read failed"));
 	}
-	fclose(fptr);
+
+	// Convert to JSVAL cleanup and return
 	JS_BeginRequest(cx);
 	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
 	JS_EndRequest(cx);
@@ -195,57 +198,50 @@ JSAPI_FUNC(filetools_readText)
 
 JSAPI_FUNC(filetools_writeText)
 {
-        if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-                THROW_ERROR(cx, "You must supply an original file name");
+	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
+		THROW_ERROR(cx, "You must supply a file name");
 
-        char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        if(!isValidPath(orig))
-                THROW_ERROR(cx, "Invalid file name");
+	char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	FILE* fptr = fileOpenRelScript(fname, "w", cx);
+	bool result = true;
 
-        char porig[_MAX_PATH+_MAX_FNAME];
-        sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
+	// If fileOpenRelScript failed, it already reported the error
+	if(fptr == NULL)
+		return JS_FALSE;
 
-        StringReplace(porig, '/', '\\', strlen(porig));
+	for(uintN i = 1; i < argc; i++)
+		if(!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
+			result = false;
 
-        PathRemoveFileSpec(porig); 
-        if(!PathFileExists(porig))
-                THROW_ERROR(cx, "File path directory invalid");
+	fflush(fptr);
+	fclose(fptr);
 
-        sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
-
-        bool result = true;
-        FILE* fptr = NULL;
-        fopen_s(&fptr, porig, "w");
-        
-        for(uintN i = 1; i < argc; i++)
-                if(!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
-        fflush(fptr);
-        fclose(fptr);
-		JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
-		JS_free(cx, orig);
-        return JS_TRUE;
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
+	JS_free(cx, fname);
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(filetools_appendText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-		THROW_ERROR(cx, "You must supply an original file name");
-	char* orig = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-	if(!isValidPath(orig))
-		THROW_ERROR(cx, "Invalid file name");
-	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
+		THROW_ERROR(cx, "You must supply a file name");
 
+	char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	FILE* fptr = fileOpenRelScript(fname, "a+", cx);
 	bool result = true;
-	FILE* fptr = NULL;
-	if(fopen_s(&fptr, porig, "a+") != 0)
-		THROW_ERROR(cx, _strerror("Failed to open file"));
+
+	// If fileOpenRelScript failed, it already reported the error
+	if(fptr == NULL)
+		return JS_FALSE;
+
 	for(uintN i = 1; i < argc; i++)
-		if(!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
+		if(!writeValue(fptr, cx,JS_ARGV(cx, vp)[i], false, true))
 			result = false;
+
 	fflush(fptr);
 	fclose(fptr);
-	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
+
+	 JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
 
 	return JS_TRUE;
 }
