@@ -445,6 +445,10 @@ JSAPI_PROP(unit_getProperty)
 				}
 			}
 			break;
+		case ITEM_GFX:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+				*vp = INT_TO_JSVAL(pUnit->pItemData->bInvGfxIdx);
+			break;
 		case UNIT_ITEMCOUNT:
 			if(pUnit->pInventory)
 				*vp = INT_TO_JSVAL(pUnit->pInventory->dwItemCount);
