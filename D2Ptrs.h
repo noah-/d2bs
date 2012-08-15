@@ -42,6 +42,7 @@ FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (void), 0x9C0A0)
 
 FUNCPTR(D2CLIENT, SetSelectedUnit_I, void __fastcall, (UnitAny *pUnit), 0x17060)
 FUNCPTR(D2CLIENT, GetItemName, BOOL __stdcall, (UnitAny* pItem, wchar_t* wBuffer, DWORD dwSize), 0x958C0)
+FUNCPTR(D2CLIENT, LoadItemDesc, BOOL __stdcall, (UnitAny* pItem, int type), 0x97820)
 FUNCPTR(D2CLIENT, GetMonsterOwner, DWORD __fastcall, (DWORD nMonsterId), 0x8E3D0)
 FUNCPTR(D2CLIENT, GetUnitHPPercent, DWORD __fastcall, (DWORD dwUnitId), 0x8E2B0)
 FUNCPTR(D2CLIENT, InitInventory, void __fastcall, (void), 0x93280)
@@ -293,7 +294,7 @@ FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), 0x35AA0)
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), 0x5D270)
 
 FUNCPTR(D2COMMON, IsTownByLevelNo, BOOL __stdcall, (DWORD dwLevelNo), 0x23950)
-FUNCPTR(D2COMMON, IsTownByRoom, BOOL __stdcall, (Room1* pRoom1), 0x23B80)
+FUNCPTR(D2COMMON, GetLevelNoFromRoom, BOOL __stdcall, (Room1* pRoom1), 0x23B80)
 FUNCPTR(D2COMMON, FindRoom1, Room1* __stdcall, (Act* pAct, int x, int y), -11056)
 FUNCPTR(D2COMMON, GetItemPalette, int __stdcall, (UnitAny* pPlayer, UnitAny* pItem, BYTE* pColor, int nTransType), 0x43A80)
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -222,6 +222,24 @@ JSAPI_PROP(unit_getProperty)
 		case UNIT_YPOS:
 			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
 			break;
+		case UNIT_TARGETX:
+			switch(pUnit->dwType)
+			{
+				case 0:
+				case 1:
+				case 3:
+					*vp = INT_TO_JSVAL(pUnit->pPath->xTarget);
+			}
+			break;
+		case UNIT_TARGETY:
+			switch(pUnit->dwType)
+			{
+				case 0:
+				case 1:
+				case 3:
+					*vp = INT_TO_JSVAL(pUnit->pPath->yTarget);
+			}
+			break;
 		case UNIT_HP:
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
 			break;
@@ -434,7 +452,14 @@ JSAPI_PROP(unit_getProperty)
 					break;
 
 				wchar_t wBuffer[2048] = L"";
-				D2CLIENT_GetItemDesc(pUnit, wBuffer);
+				wchar_t bBuffer[1] = {1};
+
+				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB1C, bBuffer, 1, NULL);  
+				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB28, &pUnit, 4, NULL);  
+
+				//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
+				D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
+				ReadProcessBYTES(GetCurrentProcess(), 0x6F9A9E68, wBuffer, 2047); 
 
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
@@ -444,6 +469,7 @@ JSAPI_PROP(unit_getProperty)
 					tmp = NULL;
 				}
 			}
+
 			break;
 		case ITEM_GFX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
@@ -484,7 +510,7 @@ JSAPI_PROP(unit_getProperty)
 			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
 			{
 				pRoom = D2COMMON_GetRoomFromUnit(pUnit);
-				if(pRoom && D2COMMON_IsTownByRoom(pRoom))
+				if(pRoom && D2COMMON_GetLevelNoFromRoom(pRoom))
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
 				else
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
@@ -907,20 +933,20 @@ JSAPI_FUNC(unit_getStat)
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 			JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(pReturnArray));
 
-				for (int j = 0 ; j < pUnit->pStats->wStatCount1; j++)
+				for (int j = 0 ; j < pUnit->pStats->StatVec.wCount; j++)
 				{
 					bool inListAlready = false;
 					for(DWORD k = 0; k < dwStats; k++){
-						if( aStatList[k].dwStatValue == pUnit->pStats->pStat[j].dwStatValue &&
-							aStatList[k].wStatIndex == pUnit->pStats->pStat[j].wStatIndex &&
-							aStatList[k].wSubIndex == pUnit->pStats->pStat[j].wSubIndex)
+						if( aStatList[k].dwStatValue == pUnit->pStats->StatVec.pStats[j].dwStatValue &&
+							aStatList[k].wStatIndex == pUnit->pStats->StatVec.pStats[j].wStatIndex &&
+							aStatList[k].wSubIndex == pUnit->pStats->StatVec.pStats[j].wSubIndex)
 							inListAlready = true;
 					}
 					if(!inListAlready){
 						
-						aStatList[dwStats].dwStatValue = pUnit->pStats->pStat[j].dwStatValue;
-						aStatList[dwStats].wStatIndex = pUnit->pStats->pStat[j].wStatIndex;
-						aStatList[dwStats].wSubIndex = pUnit->pStats->pStat[j].wSubIndex;
+						aStatList[dwStats].dwStatValue = pUnit->pStats->StatVec.pStats[j].dwStatValue;
+						aStatList[dwStats].wStatIndex = pUnit->pStats->StatVec.pStats[j].wStatIndex;
+						aStatList[dwStats].wSubIndex = pUnit->pStats->StatVec.pStats[j].wSubIndex;
 						dwStats++;	
 					}
 
@@ -991,23 +1017,21 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 		return;
 	if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
 	{
-		pStat = pStatList->pStat;
+		pStat = pStatList->StatVec.pStats;
 
-		if(pStatList->wStatCount1)
-			for(int nStat = 0; nStat < pStatList->wStatCount1; nStat++)
-			{
-				InsertStatsNow(pStat, nStat, cx, pArray);
-			}
+		for(int nStat = 0; nStat < pStatList->StatVec.wCount; nStat++)
+		{
+			InsertStatsNow(pStat, nStat, cx, pArray);
+		}
 	}
 	if((pStatList->dwFlags >> 24 & 0x80))
 	{
-		pStat = pStatList->pSetStat;
+		pStat = pStatList->SetStatVec.pStats;
 
-		if(pStatList->wSetStatCount)
-			for(int nStat = 0; nStat < pStatList->wSetStatCount; nStat++)
-			{
-				InsertStatsNow(pStat, nStat, cx, pArray);
-			}
+		for(int nStat = 0; nStat < pStatList->SetStatVec.wCount; nStat++)
+		{
+			InsertStatsNow(pStat, nStat, cx, pArray);
+		}
 	}
 }
 

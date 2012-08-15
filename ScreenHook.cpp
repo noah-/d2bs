@@ -314,7 +314,7 @@ void Genhook::SetClickHandler(jsval handler)
 
 void Genhook::SetHoverHandler(jsval handler)
 {
-	return;
+	
 	if(!owner)
 		return;
 	if(JSVAL_IS_VOID(handler))

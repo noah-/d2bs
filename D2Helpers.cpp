@@ -1024,3 +1024,11 @@ bool IsScrollingText()
 
 	return false;
 }
+
+void ReadProcessBYTES(HANDLE hProcess, DWORD lpAddress, void* buf, int len)
+{
+   DWORD oldprot, dummy = 0;
+   VirtualProtectEx(hProcess, (void*) lpAddress, len, PAGE_READWRITE, &oldprot);
+   ReadProcessMemory(hProcess, (void*) lpAddress, buf, len, 0);
+   VirtualProtectEx(hProcess, (void*) lpAddress, len, oldprot, &dummy);
+}
