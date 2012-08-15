@@ -94,8 +94,8 @@ public:
 
 	/** Interact with the unit.
 	 *
-	 * If the unit is an item in inventory pick it up. Otherwise click it on
-	 * the map.
+	 * If the unit is an item in inventory or stash pick it up. Otherwise
+	 * click it on the map.
 	 */
 	bool interact();
 
@@ -615,6 +615,30 @@ public:
 	 */
 	int getItemCost(int nMode, int nNpcClassId, int nDifficulty);
 
+	/** Get the cost to do something (buy, sell, repair) with the given item, at
+	 * the given npc, in the given difficulty.
+	 *
+	 * \param nMode What to do: 0 - buy, 1 - sell, 2 - repair.
+	 *
+	 * \param npc The npc to check the price with.
+	 *
+	 * \param nDifficulty The difficulty to check the price in.
+	 *
+	 * \return The price.
+	 */
+	int getItemCost(int nMode, Unit npc, int nDifficulty);
+
+	/** Get the cost to do something (buy, sell, repair) with the given item, at
+	 * the given npc.
+	 *
+	 * \param nMode What to do: 0 - buy, 1 - sell, 2 - repair.
+	 *
+	 * \param npc The npc to check the price with.
+	 *
+	 * \return The price.
+	 */
+	int getItemCost(int nMode, Unit npc);
+
 	/** The type of the unit.
 	 *
 	 * 0 - Player
@@ -669,6 +693,14 @@ public:
 	/** The y location of the unit.
 	 */
 	int y;
+
+	/** The target x location of the unit. Where the game is taking the unit.
+	 */
+	int targetx;
+
+	/** The target y location of the unit. Where the game is taking the unit.
+	 */
+	int targety;
 
 	/** The id of the area (level) the unit is located in.
 	 *
@@ -754,6 +786,14 @@ public:
 	 */
 	String suffix;
 
+	/** The magic prefixes of the item.
+	 */
+	String[] prefixes;
+
+	/** The magic suffixes of the item.
+	 */
+	String[] suffixes;
+
 	/** The id code for the magic prefix.
 	 */
 	int prefixnum;
@@ -761,6 +801,14 @@ public:
 	/** The id code for the magic suffix.
 	 */
 	int suffixnum;
+
+	/** The id codes for the magic prefixes.
+	 */
+	int[] prefixnums;
+
+	/** The id codes for the magic suffixes.
+	 */
+	int[] suffixnums;
 
 	/** The full name of an item.
 	 */
@@ -870,7 +918,11 @@ public:
 
 	/** Level requirement (character level required to use the item).
 	 */
-	int ilvlreq;
+	int lvlreq;
+
+	/** Get the id for the graphic used for the item.
+	 */
+	int gfx;
 
 	/** Whether the controlled character is in the always run mode or not.
 	 *

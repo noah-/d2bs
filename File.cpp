@@ -245,9 +245,9 @@ char* getPathRelScript(const char* filename, int bufLen, char* fullPath)
 
 	// Make the filename relative to the script path
 	relPath = (char*)_alloca(strLenScript+strlen(filename)+2);
-	strcpy(relPath, Vars.szScriptPath);
+	strcpy_s(relPath, strLenScript+strlen(filename)+2, Vars.szScriptPath);
 	relPath[strLenScript] = '\\';
-	strcpy(relPath+strLenScript+1, filename);
+	strcpy_s(relPath+strLenScript+1, strlen(filename)+1, filename);
 
 	// Transform to the full pathname
 	GetFullPathName(relPath, bufLen, fullPath, NULL);

@@ -21,7 +21,7 @@ JSAPI_PROP(control_getProperty)
 	if(ClientState() != ClientStateMenu)
 		return JS_FALSE;
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp)));
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData)
 		return JS_FALSE;
 
@@ -312,12 +312,13 @@ JSAPI_FUNC(my_getControl)
 		return JS_TRUE;
 
 	ControlData* data = new ControlData;
-	data->dwType = nType;
-	data->dwX = nX;
-	data->dwY = nY;
-	data->dwSizeX = nXSize;
-	data->dwSizeY = nYSize;
-
+	data->dwType = pControl->dwType;
+	data->dwX = pControl->dwPosX;
+	data->dwY = pControl->dwPosY;
+	data->dwSizeX = pControl->dwSizeX;
+	data->dwSizeY = pControl->dwSizeY;
+	data->pControl =pControl;
+	
 	JSObject* control = BuildObject(cx, &control_class, control_funcs, control_props, data);
 	if(!control)
 		THROW_ERROR(cx, "Failed to build control!");

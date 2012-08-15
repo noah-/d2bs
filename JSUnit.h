@@ -71,7 +71,7 @@ enum unit_tinyid
 	UNIT_SPECTYPE, ITEM_DESC, ITEM_BODYLOCATION, UNIT_ITEMCOUNT, ITEM_LEVELREQ,
 	UNIT_OWNER, UNIT_OWNERTYPE, UNIT_UNIQUEID, ITEM_LEVEL, UNIT_DIRECTION, 
 	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, ITEM_PREFIXES, ITEM_SUFFIXES, ITEM_SUFFIXNUMS, ITEM_PREFIXNUMS, ITEM_GFX,
-	OBJECT_TYPE, OBJECT_LOCKED
+	OBJECT_TYPE, OBJECT_LOCKED, UNIT_TARGETX, UNIT_TARGETY
 };
 
 enum me_tinyid {
@@ -154,6 +154,8 @@ static JSPropertySpec me_props[] = {
 	{"gid",				UNIT_ID,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"x",				UNIT_XPOS,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"y",				UNIT_YPOS,			JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"targetx",			UNIT_TARGETX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"targety",			UNIT_TARGETY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"area",			UNIT_AREA,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"hp",				UNIT_HP,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"hpmax",			UNIT_HPMAX,			JSPROP_PERMANENT_VAR,	unit_getProperty},
@@ -199,6 +201,8 @@ static JSPropertySpec unit_props[] = {
 	{"gid",			UNIT_ID,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"x",			UNIT_XPOS,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"y",			UNIT_YPOS,			JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"targetx",		UNIT_TARGETX,		JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"targety",		UNIT_TARGETY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"area",		UNIT_AREA,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"hp",			UNIT_HP,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"hpmax",		UNIT_HPMAX,			JSPROP_PERMANENT_VAR,	unit_getProperty},

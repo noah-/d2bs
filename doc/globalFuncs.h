@@ -1076,6 +1076,20 @@ void stop(bool stop);
  */
 int rand(int32_t low, int32_t high);
 
+/** Copy txt to clipboard.
+ *
+ * \ingroup globalFunctions
+ *
+ * \param txt Text to copy to the clipboard.
+ */
+void copy(String txt);
+
+/** Get the text from the clipboard.
+ *
+ * \return The text from the clipboard.
+ */
+String paste();
+
 /** Send data to another window by means of the WM_COPYDATA message. Uses
  * FindWindow to get the HWND and SendMessage to send the message.
  *
@@ -1093,6 +1107,23 @@ int rand(int32_t low, int32_t high);
  */
 int sendCopyData(String windowClassName, String windowName, int32_t nModeId,
 	String data);
+
+/** Send data to another window by means of the WM_COPYDATA message. Uses
+ * SendMessage to send the message to hWnd.
+ *
+ * \ingroup globalFunctions
+ *
+ * \param hWnd The handle to the receiving window.
+ *
+ * \param dummy Ignored.
+ *
+ * \param nModeId Data to be sent as the dwData member of the copy data.
+ *
+ * \param data Data to be send as the lpData member of the copy data.
+ *
+ * \return The result of SendMessage.
+ */
+int sendCopyData(HWND hWnd, String dummy, int32_t nModeId, String data);
 
 /** Send data to a DDE server by means of DdeClientTransaction.
  *
@@ -1143,7 +1174,13 @@ bool keystate(int vKey);
  *
  * keydown (uint32_t key)
  *
- * mouseclick (uint32_t button, bool bUp, uint32_t x, uint32_t y)
+ * bool keyupblock (uint32_t key) - Returns true to block event from Diablo II
+ *
+ * bool keydownblock (uint32_t key) - Returns true to block event from Diablo II
+ *
+ * playerassign (uint32_t unitId)
+ *
+ * mouseclick (uint32_t button, uint32_t x, uint32_t y, bool bUp)
  *
  * mousemove (uint32_t x, uint32_t y)
  *
@@ -1153,11 +1190,15 @@ bool keystate(int vKey);
  *
  * chatmsg (String lpszNick, String lpszMsg)
  *
+ * bool chatmsgblocker (String lpszNick, String lpszMsg) - Returns true to block
+ * 	event from Diablo II
+ *
  * whispermsg (String lpszNick, String lpszMsg)
  *
- * copydata (int32_t dwMode, String lpszMsg)
+ * bool whispermsgblocker (String lpszNick, String lpszMsg) - Returns true to
+ * block event from Diablo II
  *
- * gamemsg (String lpszMsg)
+ * copydata (int32_t dwMode, String lpszMsg)
  *
  * itemaction (uint32_t gId, uint32_t mode, String code, Bool global)
  *
@@ -2092,6 +2133,49 @@ void useSkillPoint(uint16_t skill, uint32_t count);
  * \ingroup globalFunctions
  */
 void takeScreenshot();
+
+/** Move NPC to a new location.
+ *
+ * \warning This is an exploit function.
+ *
+ * \param npc NPC to move.
+ *
+ * \param x X coord to move to.
+ *
+ * \param y Y coord to move to.
+ *
+ * \return true
+ */
+bool moveNPC(Unit npc, uint32_t x, uint32_t y);
+
+/** Send a packet to the client.
+ * Params are length, val, length, val, ...
+ * Length is the number of bytes in the following value.
+ * Value is an integer, put in the packet little endian.
+ * Maximum packet length is 20.
+ *
+ * \warning This is an exploit function.
+ *
+ * \return true
+ */
+bool getPacket(...);
+
+/** Send a packet to the server.
+ * Params are length, val, length, val, ...
+ * Length is the number of bytes in the following value.
+ * Value is an integer, put in the packet little endian.
+ * Maximum packet length is 20.
+ *
+ * \warning This is an exploit function.
+ *
+ * \returns true
+ */
+bool sendPacket(...);
+
+/** Get the external IP by going to
+ * "http://automation.whatismyip.com/n09230945.asp" and parsing the result.
+ */
+String getIP();
 
 /** Convert a point from screen coordinates to automap coordinates.
  *

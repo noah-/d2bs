@@ -709,6 +709,14 @@ public:
 	 */
 	int y;
 
+	/** The target x location of the unit. Where the game is taking the unit.
+	 */
+	int targetx;
+
+	/** The target y location of the unit. Where the game is taking the unit.
+	 */
+	int targety;
+
 	/** The id of the area (level) the unit is located in.
 	 */
 	int area;

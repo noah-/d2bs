@@ -99,4 +99,5 @@ DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE* bPacket);
 
 double GetDistance(long x1, long y1, long x2, long y2, DistanceType type = Euclidean);
 bool IsScrollingText();
+void ReadProcessBYTES(HANDLE hProcess, DWORD lpAddress, void* buf, int len);
 #endif

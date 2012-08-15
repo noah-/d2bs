@@ -1183,8 +1183,9 @@ JSAPI_FUNC(my_getBaseStat)
 			szTableName = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
 			if(!szTableName)
 			{
-				THROW_ERROR(cx, "Invalid table value");
 				JS_EndRequest(cx);
+				THROW_ERROR(cx, "Invalid table value");
+				
 			}
 		}
 		else if(JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
