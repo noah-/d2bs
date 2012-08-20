@@ -114,6 +114,7 @@ JSAPI_FUNC(script_send)
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
+		evt->arg1 = new DWORD(argc);
 		evt->name ="scriptmsg"; 
 		evt->argv = new JSAutoStructuredCloneBuffer*;
  		for(uintN i = 0; i < argc; i++)
