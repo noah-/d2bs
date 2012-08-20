@@ -146,6 +146,7 @@ JSAPI_FUNC(sqlite_execute)
 		sqlite3_free(err);
 		THROW_ERROR(cx, msg);
 	}
+	JS_free(cx, sql);
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
@@ -207,6 +208,7 @@ JSAPI_FUNC(sqlite_query)
 		delete dbstmt;
 		THROW_ERROR(cx, "Could not create the sqlite row object");
 	}
+	JS_free(cx, sql);
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(row));
 	return JS_TRUE;
 }
@@ -282,7 +284,7 @@ void sqlite_finalize(JSContext *cx, JSObject *obj)
 	JS_SetPrivate(cx, obj, NULL);
 	if(dbobj) {
 		clean_sqlite_db(dbobj);
-		delete[] dbobj->path;
+		free (dbobj->path);     //_strdup reqires free not delete
 		delete dbobj;
 	}
 }

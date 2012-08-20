@@ -241,6 +241,7 @@ JSAPI_FUNC(file_open)
 			fclose(fptr);
 		else
 			_fclose_nolock(fptr);
+		free(fdata->path);
 		delete fdata;
 		THROW_ERROR(cx, "Failed to define the file object");
 	}
