@@ -247,7 +247,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	// no command?
 	if(argv == NULL)
 		return false;
-	free (buf);
+	
 	if(_strcmpi(argv, "start") == 0)
 	{
 		const char* script = GetStarterScriptName();
@@ -312,6 +312,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 		ExecCommand(command);
 		result = true;
 	}
+	free (buf);
 	return result;
 }
 
