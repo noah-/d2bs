@@ -106,8 +106,10 @@ JSAPI_PROP(area_getProperty)
 
 JSAPI_FUNC(my_getArea)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_ERROR(cx, "Get Area: Game not ready");
 
 	int32 nArea = GetPlayerArea();
 

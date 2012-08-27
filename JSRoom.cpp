@@ -396,8 +396,9 @@ JSAPI_FUNC(room_reveal)
 JSAPI_FUNC(my_getRoom)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_ERROR(cx, "Get Room Game not ready");
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();

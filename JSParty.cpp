@@ -92,6 +92,8 @@ JSAPI_FUNC(my_getParty)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	RosterUnit* pUnit = *p_D2CLIENT_PlayerUnitList;
 
 	if(!pUnit)

@@ -296,8 +296,10 @@ JSAPI_FUNC(control_getText)
 
 JSAPI_FUNC(my_getControl)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	if(ClientState() != ClientStateMenu)
-		return JS_TRUE;
+		return JS_TRUE;	
 
 	int32 nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
 	int32 *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
