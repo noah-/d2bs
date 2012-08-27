@@ -588,6 +588,7 @@ JSAPI_STRICT_PROP(unit_setProperty)
 JSAPI_FUNC(unit_getUnit)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	if(argc < 1)
 		return JS_TRUE;
 

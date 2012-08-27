@@ -17,6 +17,8 @@
 
 JSAPI_FUNC(my_copyUnit)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
 	if(argc >= 1 && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
 	{
 		JS_SET_RVAL(cx, vp, JSVAL_VOID);
