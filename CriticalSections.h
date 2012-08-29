@@ -12,9 +12,8 @@ public:
 	~CriticalRoom() { LeaveSection(); }
 
 	void EnterSection() {
-		
-		EnterCriticalSection(&Vars.cGameLoopSection);
-		InterlockedIncrement(&Vars.SectionCount);  //^^
+		InterlockedIncrement(&Vars.SectionCount); 
+		EnterCriticalSection(&Vars.cGameLoopSection);		
 		bEnteredCriticalSection = true;
 	}
 
@@ -37,9 +36,8 @@ public:
 	~CriticalMisc()  { LeaveSection(); }
 
 	void EnterSection() {
-		
-		EnterCriticalSection(&Vars.cGameLoopSection);
-		InterlockedIncrement(&Vars.SectionCount); //^^
+		InterlockedIncrement(&Vars.SectionCount);
+		EnterCriticalSection(&Vars.cGameLoopSection);		
 		bEnteredCriticalSection = true;
 	}
 
