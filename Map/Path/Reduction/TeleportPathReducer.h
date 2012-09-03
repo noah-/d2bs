@@ -82,10 +82,33 @@ public:
 				for(int j = 0; j < 3; j++) {
 					if(i == 0 && j == 0)
 						continue;
-					Point ptN(pt.first+i, pt.second+j);
-					if(!Reject(ptN, abs)) {
-						pt.first = ptN.first;
-						pt.second = ptN.second;
+
+					Point pt_pp(pt.first+i, pt.second+j);
+					if(!Reject(pt_pp, abs)) {
+						pt.first = pt_pp.first;
+						pt.second = pt_pp.second;
+						return;
+					}
+
+					Point pt_np(pt.first-i, pt.second+j);
+					if(!Reject(pt_np, abs)) {
+						pt.first = pt_np.first;
+						pt.second = pt_np.second;
+						return;
+					}
+
+					Point pt_pn(pt.first+i, pt.second-j);
+					if(!Reject(pt_pn, abs)) {
+						pt.first = pt_pn.first;
+						pt.second = pt_pn.second;
+						return;
+					}
+
+					Point pt_nn(pt.first-i, pt.second-j);
+					if(!Reject(pt_nn, abs)) {
+						pt.first = pt_nn.first;
+						pt.second = pt_nn.second;
+						return;
 					}
 				}
 			}

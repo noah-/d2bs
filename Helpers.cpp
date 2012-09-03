@@ -385,6 +385,10 @@ IMAGEHLP_LINE64* GetLineFromAddr(HANDLE hProcess, DWORD64 addr)
 
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 {
+	const char *dlls[] = {"D2Client.DLL", "D2Common.DLL", "D2Gfx.DLL", "D2Lang.DLL", 
+			       "D2Win.DLL", "D2Net.DLL", "D2Game.DLL", "D2Launch.DLL", "Fog.DLL", "BNClient.DLL",
+					"Storm.DLL", "D2Cmp.DLL", "D2Multi.DLL"};
+
 	EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
 	CONTEXT* ctx = ptrs->ContextRecord;
 	DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
@@ -395,6 +399,8 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId());
 	HANDLE hThread = GetCurrentThread();
 	CONTEXT context = *ctx;
+
+	unsigned int i;
 
 	SymSetOptions(SYMOPT_LOAD_LINES|SYMOPT_FAIL_CRITICAL_ERRORS|SYMOPT_NO_PROMPTS|SYMOPT_DEFERRED_LOADS);
 	SymInitialize(hProcess, Vars.szPath, TRUE);
@@ -410,7 +416,7 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 
 	std::string trace;
 
-	for(int i = 0; i < 64; i++)
+	for(i = 0; i < 64; i++)
 	{
 		if(!StackWalk64(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &stack, &context, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL))
 			break;
@@ -467,6 +473,11 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 			ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs,
 			ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags,
 			trace.c_str());
+
+	for(i = 0; i < sizeof(dlls) / sizeof(dlls[0]); ++i)
+	{
+		Log("%s loaded at: 0x%08x.", dlls[i], GetModuleHandle(dlls[i]));
+	}
 
 	delete[] (char*)sym;
 	delete line;

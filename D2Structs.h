@@ -787,6 +787,26 @@ struct WindowHandlerList
 	struct WindowHandlerList* next;
 };
 
+// Not sure of the location of handler and this struct inside Info.
+// Could be this struct is later and handler is earlier, but this is the safest
+// for now.
+struct TransactionDialogsLine_t
+{
+	wchar_t text[120];				// 0x000
+	DWORD unk[6];					// 0x0F0
+	void (__stdcall *handler)();	// 0x108
+	DWORD bMaybeSelectable;			// 0x10C
+};
+
+struct TransactionDialogsInfo_t
+{
+	DWORD unk[0x14];						// 0x000
+	DWORD numLines;							// 0x050
+	DWORD unk_2[0x5];						// 0x054
+	TransactionDialogsLine_t dialogLines[10];	// 0x068
+	void* something;						// 0xB08
+};
+
 #pragma warning ( pop )
 #pragma optimize ( "", on )
 

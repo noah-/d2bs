@@ -98,8 +98,7 @@ public:
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
-	 * \param opacity How much of the controls underneath the Box should show
-	 * through.
+	 * \param opacity See \ref opacity
 	 */
 	Box(int x, int y, int x2, int y2, int color, int opacity);
 
@@ -119,8 +118,7 @@ public:
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
-	 * \param opacity How much of the controls underneath the Box should show
-	 * through.
+	 * \param opacity See \ref opacity
 	 *
 	 * \param align The horizontal alignment.
 	 *
@@ -148,8 +146,7 @@ public:
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
-	 * \param opacity How much of the controls underneath the Box should show
-	 * through.
+	 * \param opacity See \ref opacity
 	 *
 	 * \param align The horizontal alignment.
 	 *
@@ -181,8 +178,7 @@ public:
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
-	 * \param opacity How much of the controls underneath the Box should show
-	 * through.
+	 * \param opacity See \ref opacity
 	 *
 	 * \param align The horizontal alignment.
 	 *
@@ -215,8 +211,7 @@ public:
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
-	 * \param opacity How much of the controls underneath the Box should show
-	 * through.
+	 * \param opacity See \ref opacity
 	 *
 	 * \param align The horizontal alignment.
 	 *

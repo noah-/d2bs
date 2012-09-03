@@ -46,6 +46,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getTickCount",		my_getTickCount,		0},
 	{"getInteractedNPC",	my_getInteractedNPC,	0},
 	{"getIsTalkingNPC",		my_getIsTalkingNPC,		0},
+	{"getDialogLines",		my_getDialogLines,		0},
 
 	// utility functions that don't have anything to do with the game
 	{"print",				my_print,				1},
@@ -93,6 +94,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"copyUnit",			my_copyUnit,			1},
 	{"clickMap",			my_clickMap,			3},
 	{"acceptTrade",			my_acceptTrade,			0},
+	{"tradeOk",				my_tradeOk,				0},
 	{"beep",				my_beep,				0},
 	{"clickItem",			my_clickItem,			0},
 	{"getDistance",			my_getDistance,			2},

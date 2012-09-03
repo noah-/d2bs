@@ -271,7 +271,8 @@ JSBool operationCallback(JSContext* cx)
 	
 	if (callBackCount % 30 == 0){
 		// bob18 jsrefcount depth = JS_SuspendRequest(cx);
-		JS_MaybeGC(cx);
+		//JS_MaybeGC(cx);
+		JS_GC(cx);
 		// bob18 JS_ResumeRequest(cx, depth);
 		callBackCount = 0;
 	}

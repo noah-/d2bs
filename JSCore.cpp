@@ -42,14 +42,14 @@ JSAPI_FUNC(my_print)
 				return JS_FALSE;
 			}
 
-			//box18jsrefcount depth = JS_SuspendRequest(cx);
+			jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Print("undefined");
 			else {
 				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
 				Print(Text);
 			}
-			//box18JS_ResumeRequest(cx, depth);
+			JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
 		}
 	}
@@ -137,13 +137,10 @@ JSAPI_FUNC(my_delay)
 				ExecScriptEvent(evt,false);
 			}
 			
-			//jsrefcount depth = JS_SuspendRequest(cx);
-			//JS_ClearContextThread(cx);
+			jsrefcount depth = JS_SuspendRequest(cx);			
 			//JS_YieldRequest(cx);
-			SleepEx(10,true);
-			
-			//JS_SetContextThread(cx);
-			//JS_ResumeRequest(cx, depth);
+			SleepEx(10,true);		
+			JS_ResumeRequest(cx, depth);
 		}
 	}
 	else
@@ -317,14 +314,14 @@ JSAPI_FUNC(my_debugLog)
 				return JS_FALSE;
 			}
 
-			//box18 jsrefcount depth = JS_SuspendRequest(cx);
+			jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Log("undefined");
 			else {
 				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 				Log(Text);
 			}
-			//box18JS_ResumeRequest(cx, depth);
+			JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
 		}
 	}
@@ -412,9 +409,9 @@ JSAPI_FUNC(my_sendCopyData)
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
 
-	//box18 jsrefcount depth = JS_SuspendRequest(cx);
+	 jsrefcount depth = JS_SuspendRequest(cx);
 	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
-	//box18 JS_ResumeRequest(cx, depth);
+	 JS_ResumeRequest(cx, depth);
 	
 	JS_free(cx, data);
 	JS_free(cx,windowName);
