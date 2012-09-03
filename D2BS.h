@@ -5,14 +5,14 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1736"
+#define D2BS_VERSION "1.5.1744"
 
 #include <windows.h>
 #include <vector>
 
 #include "ScreenHook.h"
 
-struct Variables;
+//struct Variables;
 
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 

@@ -40,6 +40,9 @@ JSAPI_PROP(script_getProperty)
 		case SCRIPT_THREADID:
 			*vp = INT_TO_JSVAL(script->GetThreadId());
 			break;
+		case SCRIPT_MEMORY:
+			*vp = INT_TO_JSVAL(JS_GetGCParameter (JS_GetRuntime (cx), JSGC_BYTES));
+			break;
 		default:
 			break;
 	}

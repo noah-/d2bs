@@ -168,6 +168,76 @@ JSAPI_FUNC(my_acceptTrade)
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
+JSAPI_FUNC(my_tradeOk)
+{	
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
+	CriticalMisc myMisc;
+	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
+	unsigned int i;
+
+	myMisc.EnterSection();
+
+	if(pTdi != NULL)
+	{
+		for(i = 0; i < pTdi->numLines; ++i)
+		{
+			// Not sure if *p_D2CLIENT_TransactionDialogs == 1 necessary if it's in
+			// the dialog list, but if it's not 1, a crash is guaranteed. (CrazyCasta)
+			if(pTdi->dialogLines[i].handler == D2CLIENT_TradeOK &&
+				*p_D2CLIENT_TransactionDialogs == 1)
+			{
+				D2CLIENT_TradeOK();
+				return JS_TRUE;
+			}
+		}
+	}
+
+	THROW_ERROR(cx, "Not in proper state to click ok to trade.");
+}
+
+JSAPI_FUNC(my_getDialogLines)
+{
+	CriticalMisc myMisc;
+	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
+	unsigned int i;
+	JSObject* pReturnArray;
+	JSObject* line;
+	jsval js_text, js_selectable, js_line;
+	char* ansi_text;
+
+	myMisc.EnterSection();
+
+	JS_EnterLocalRootScope(cx);
+
+	if(pTdi != NULL)
+	{
+		pReturnArray = JS_NewArrayObject(cx, pTdi->numLines, NULL);
+		for(i = 0; i < pTdi->numLines; ++i)
+		{
+			ansi_text = UnicodeToAnsi(pTdi->dialogLines[i].text);
+			js_text = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ansi_text));
+			delete[] ansi_text;
+
+			js_selectable = BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
+
+			line = BuildObject(cx);
+			JS_SetProperty(cx, line, "text", &js_text);
+			JS_SetProperty(cx, line, "selectable", &js_selectable);
+
+			js_line = OBJECT_TO_JSVAL(line);
+			JS_SetElement(cx, pReturnArray, i, &js_line);
+		}
+
+		JS_SET_RVAL(cx,vp, OBJECT_TO_JSVAL(pReturnArray));
+	}
+
+	JS_LeaveLocalRootScope(cx);
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())

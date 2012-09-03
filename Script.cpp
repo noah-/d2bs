@@ -58,7 +58,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		JS_SetGCCallbackRT(runtime, gcCallback);
 		
 		//int mode = JS_GetGCParameter(runtime, JSGC_MODE);
-		JS_SetGCParameter(runtime, JSGC_MODE, 0); //compartment gc
+		//JS_SetGCParameter(runtime, JSGC_MODE, 0); //compartment gc
 		
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);

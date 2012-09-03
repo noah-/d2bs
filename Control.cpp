@@ -412,7 +412,10 @@ OOG_Location OOG_GetLocation(void)
 			{
 				if (findControl(CONTROL_TEXTBOX, 11162, -1,45,318,531,140) || findControl(CONTROL_TEXTBOX, 11066, -1,45,318,531,140))	
 					return OOG_REALM_DOWN;
-				else				
+				// Look for CONNECTING... string
+				else if (findControl(CONTROL_TEXTBOX, 11065, -1, 0x2D, 0x13E, 0x213, 0x8C))
+					return OOG_CONNECTING;
+				else
 					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 
 			}
 		}

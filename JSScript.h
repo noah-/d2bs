@@ -23,6 +23,7 @@ enum script_tinyid {
 	SCRIPT_GAMETYPE,
 	SCRIPT_RUNNING,
 	SCRIPT_THREADID,
+	SCRIPT_MEMORY,
 };
 
 static JSPropertySpec script_props[] = {
@@ -30,6 +31,7 @@ static JSPropertySpec script_props[] = {
 	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR,	script_getProperty},
 	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR,	script_getProperty},
 	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	script_getProperty},
+	{"memory",  		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	script_getProperty},
 	{0},
 };
 

@@ -1779,6 +1779,25 @@ bool acceptTrade(int action);
  */
 bool acceptTrade();
 
+/** Hit the OK button to open the trade window.
+ *
+ * Throws an error if client not in a proper state to click ok.
+ *
+ * \ingroup globalFunctions
+ */
+void tradeOk();
+
+/** Get the lines of dialog of whatever you're talking to.
+ *
+ * Each object has a text property which gives the text and a selectable
+ * property which is a boolean as to whether you can click on that line or not.
+ *
+ * \ingroup globalFunctions
+ *
+ * \return An array of objects of the lines, or undefined if no dialog up.
+ */
+object[] getDialogLines();
+
 /** Make the windows default beep sound.
  *
  * \ingroup globalFunctions

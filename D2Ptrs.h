@@ -75,6 +75,7 @@ FUNCPTR(D2CLIENT, LeaveParty, void __fastcall, (void), 0xA26A0)
 
 FUNCPTR(D2CLIENT, AcceptTrade, void __fastcall, (void), 0x11F70)
 FUNCPTR(D2CLIENT, CancelTrade, void __fastcall, (void), 0x11F30)
+FUNCPTR(D2CLIENT, TradeOK, void __stdcall, (void), 0x12190)
 
 FUNCPTR(D2CLIENT, GetDifficulty, BYTE __stdcall, (void), 0x42980)
 
@@ -158,6 +159,7 @@ VARPTR(D2CLIENT, ItemPriceList, DWORD, 0x1018B3)
 VARPTR(D2CLIENT, TransactionDialog, void*, 0x1018D3)
 VARPTR(D2CLIENT, TransactionDialogs, DWORD, 0x11D58C)
 VARPTR(D2CLIENT, TransactionDialogs_2, DWORD, 0x11D588)
+VARPTR(D2CLIENT, pTransactionDialogsInfo, TransactionDialogsInfo_t*, 0x11D584)
 
 VARPTR(D2CLIENT, GameInfo, GameStructInfo*, 0x109738)
 
