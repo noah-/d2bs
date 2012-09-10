@@ -5,13 +5,13 @@
 
 EMPTY_CTOR(control)
 
-void control_finalize(JSContext *cx, JSObject *obj)
+void control_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	ControlData *pData = ((ControlData*)JS_GetPrivate(obj));
 
 	if(pData)
 	{
-		JS_SetPrivate(cx, obj, NULL);
+		JS_SetPrivate(obj, NULL);
 		delete pData;
 	}
 }

@@ -6,7 +6,7 @@
 
 CLASS_CTOR(exit);
 
-void exit_finalize(JSContext *cx, JSObject *obj);
+void exit_finalize(JSFreeOp *fop, JSObject *obj);
 JSAPI_PROP(exit_getProperty);
 
 enum exit_tinyid {

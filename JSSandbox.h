@@ -15,7 +15,7 @@ JSAPI_FUNC(sandbox_include);
 JSAPI_FUNC(sandbox_isIncluded);
 JSAPI_FUNC(sandbox_clear);
 
-void sandbox_finalize(JSContext *cx, JSObject *obj);
+void sandbox_finalize(JSFreeOp *fop, JSObject *obj);
 
 struct sandbox {
 	JSContext* context;

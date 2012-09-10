@@ -6,14 +6,14 @@
 
 EMPTY_CTOR(area)
 
-void area_finalize(JSContext *cx, JSObject *obj)
+void area_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
+	myArea* pArea = (myArea*)JS_GetPrivate(obj);
 
 	if(pArea)
 	{
 		
-		JS_SetPrivate(cx, obj, NULL);
+		JS_SetPrivate(obj, NULL);
 		delete pArea;
 	}
 }

@@ -6,13 +6,13 @@
 
 EMPTY_CTOR(presetunit)
 
-void presetunit_finalize(JSContext *cx, JSObject *obj)
+void presetunit_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	myPresetUnit *pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
+	myPresetUnit *pUnit = (myPresetUnit*)JS_GetPrivate(obj);
 
 	if(pUnit)
 	{
-		JS_SetPrivate(cx, obj, NULL);
+		JS_SetPrivate(obj, NULL);
 		delete pUnit;
 	}
 }

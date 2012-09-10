@@ -17,7 +17,7 @@
 JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
 	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL,
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 //JSAPI_EMPTY_CTOR(global)
@@ -45,7 +45,7 @@ JSClass sqlite_stmt = {
 JSClass script_class = {
 	"D2BSScript", JSCLASS_HAS_PRIVATE ,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, script_ctor)};
+			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, script_ctor)};
 
 JSClass frame_class = {
 	"Frame", JSCLASS_HAS_PRIVATE ,
@@ -80,7 +80,7 @@ JSClass sandbox_class = {
 JSClass room_class = {
 	"Room", JSCLASS_HAS_PRIVATE ,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, room_ctor)};
+			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, room_ctor)};
 
 JSClass presetunit_class = {
 	"PresetUnit", JSCLASS_HAS_PRIVATE ,
@@ -90,12 +90,12 @@ JSClass presetunit_class = {
 JSClass party_class = {
 	"Party", JSCLASS_HAS_PRIVATE ,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, party_ctor)};
+			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, party_ctor)};
 
 JSClass filetools_class = {
 	"FileTools", NULL ,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, filetools_ctor)};
+			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, filetools_ctor)};
 
 JSClass file_class = {
 	"File", JSCLASS_HAS_PRIVATE ,

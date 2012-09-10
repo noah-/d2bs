@@ -8,7 +8,7 @@
 
 CLASS_CTOR(control);
 
-void control_finalize(JSContext *cx, JSObject *obj);
+void control_finalize(JSFreeOp *fop, JSObject *obj);
 
 JSAPI_FUNC(control_getNext);
 JSAPI_FUNC(control_click);

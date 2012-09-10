@@ -64,7 +64,7 @@ public:
 	static void UpdateConsole();
 	static int AddDelayedEvent(Event* evt, int freq);
 	static void RemoveDelayedEvent(int key);
-	friend JSBool gcCallback(JSContext* cx, JSGCStatus status);
+	JSGCCallback gcCallback(JSRuntime* rt, JSGCStatus status);
 };
 
 // these ForEachScript helpers are exposed in case they can be of use somewhere
@@ -79,7 +79,7 @@ struct EventHelper
 };
 JSBool operationCallback (JSContext *cx);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
-JSBool gcCallback(JSContext* cx, JSGCStatus status);
+//gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
 bool ExecScriptEvent(Event* evt,bool clearList);
 void CALLBACK EventTimerProc(LPVOID lpArg, DWORD dwTimerLowValue, DWORD dwTimerHighValue);

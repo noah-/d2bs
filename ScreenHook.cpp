@@ -241,7 +241,7 @@ bool Genhook::Click(int button, POINT* loc)
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
 		WaitForSingleObject(evt->arg5, 3000);
 		bool* global = (bool*) evt->arg4;
 		block = *global;
@@ -276,7 +276,7 @@ void Genhook::Hover(POINT* loc)
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetContext());
+		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
 
 	}
 }
@@ -303,7 +303,7 @@ void Genhook::SetClickHandler(jsval handler)
 		{
 			Unlock();
 			JS_EndRequest(cx);
-			JS_ClearContextThread(cx);
+//bob1.8.8			JS_ClearContextThread(cx);
 			return;
 		}
 	}

@@ -1,10 +1,24 @@
 #pragma once
 
 #define XP_WIN
-#define JS_STACK_GROWTH_DIRECTION (1)
+
 #include "dependencies\include\jsapi.h"
 //#include "Exports.hpp"
 #include <vector>
+#include <io.h>
+#include <string>
+#include <fstream>
+#include <streambuf>
+
+typedef unsigned int uint;
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef unsigned int uintN;
+typedef unsigned int jsrefcount;
+typedef double jsdouble;
+typedef int32_t jsint;
+typedef uint32_t jsuint;
+typedef uint16_t uint16;
 
 #if defined(EXPORTING)
 #define EXPORT __declspec(dllexport)
@@ -21,7 +35,9 @@
 #define JS_AddObjectRoot(cx,vp) JS_AddNamedObjectRoot((cx), (vp), NAME(__LINE__, vp))
 #define JS_AddGCThingRoot(cx,vp) JS_AddNamedGCThingRoot((cx), (vp), NAME(__LINE__, vp))
 
-
+void * JS_GetPrivate(JSContext *cx, JSObject *obj);
+void JS_SetPrivate(JSContext *cx, JSObject *obj, void *data);
+JSBool JSVAL_IS_OBJECT(jsval v);
 // IMPORTANT: Ordering is critical here! If your object has a
 // defined prototype, _THAT PROTOTYPE MUST BE LISTED ABOVE IT_
 struct JSClassSpec {
@@ -57,7 +73,7 @@ public:
 
 #define JS_AddRoot(cx, vp) JS_AddObjectRoot(cx, (JSObject**)(vp), NAME(__LINE__, vp))
 #define JS_RemoveRoot(cx, vp) JS_RemoveObjectRoot(cx, (JSObject**) (vp));
-#define JSVAL_IS_FUNCTION(cx, var) (JSVAL_IS_OBJECT(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
+#define JSVAL_IS_FUNCTION(cx, var) (!JSVAL_IS_PRIMITIVE(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
 
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_STATIC_VAR (JSPROP_ENUMERATE | JSPROP_PERMANENT)
@@ -70,6 +86,7 @@ public:
 //	THROW_ERROR(cx, "Invalid Operation"); }
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
+JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName);
 #define THROW_ERROR(cx, msg) { JS_ReportError(cx, msg); return JS_FALSE; }
 #define THROW_WARNING(cx, msg) { JS_ReportWarning(cx, msg); }
 
@@ -88,9 +105,8 @@ JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { \
 	THROW_ERROR(cx, "Invalid Operation"); }
 
 
-
-#define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
-#define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSObject *obj, jsid id, JSBool strict, jsval* vp)
+#define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSHandleObject obj, JSHandleId id, jsval *vp)
+#define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSHandleObject obj, JSHandleId id, JSBool strict, jsval* vp)
 //#define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *rval, jsval *rval)
 //#define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
@@ -111,7 +127,7 @@ JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { \
 
 #define JSCLASS_SPEC(add, del, get, set, enumerate, resolve, convert, finalize, ctor) \
 	add, del, get, set, enumerate, resolve, convert, finalize, \
-    NULL, NULL, NULL, ctor, NULL, NULL, NULL
+    NULL,  NULL, NULL,ctor, NULL
 
 #define JSCLASS_DEFAULT_WITH_CTOR(ctor) \
 	JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, \

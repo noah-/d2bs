@@ -251,7 +251,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	JS_TriggerOperationCallback(script->GetContext());
+	JS_TriggerOperationCallback(JS_GetRuntime(script->GetContext()));
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }
@@ -272,7 +272,7 @@ JSBool operationCallback(JSContext* cx)
 	if (callBackCount % 30 == 0){
 		// bob18 jsrefcount depth = JS_SuspendRequest(cx);
 		//JS_MaybeGC(cx);
-		JS_GC(cx);
+		JS_GC(JS_GetRuntime(cx));
 		// bob18 JS_ResumeRequest(cx, depth);
 		callBackCount = 0;
 	}
@@ -314,19 +314,20 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 {
 	if(contextOp == JSCONTEXT_NEW)
 	{
-		JS_SetContextThread(cx);
+//bob1.8.8		JS_SetContextThread(cx);
 		JS_BeginRequest(cx);
 
 		JS_SetErrorReporter(cx, reportError);
 		JS_SetOperationCallback(cx, operationCallback);
 		
 		JS_SetVersion(cx, JSVERSION_LATEST);
-		JS_SetOptions(cx, JSOPTION_JIT|
+		JS_SetOptions(cx, 
+			//JSOPTION_JIT|
 					  JSOPTION_METHODJIT|
 					  JSOPTION_TYPE_INFERENCE|
 					  JSOPTION_RELIMIT|
 					  JSOPTION_VAROBJFIX|
-					  JSOPTION_XML|
+					  //JSOPTION_XML|
 					  JSOPTION_STRICT);
 
 		//JS_SetGCZeal(cx,2,1,false);
@@ -388,40 +389,40 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 	return JS_TRUE;
 }
 
-JSBool gcCallback(JSContext *cx, JSGCStatus status)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	DWORD cur =GetCurrentThreadId() ;
-	if (cur != script->GetThreadId())
-		return JS_FALSE;
-	if(status == JSGC_BEGIN)
-	{
-		 
-		//Script* script = (Script*)JS_GetContextPrivate(cx);
-		//Print("Entering GC %s",script->GetShortFilename());
-//		EnterCriticalSection(&ScriptEngine::lock);
-
-#ifdef DEBUG
-		Log("*** ENTERING GC ***");
-#ifdef lord2800_INFO
-		Print("*** ENTERING GC ***");
-#endif
-#endif
-	}
-	else if(status == JSGC_END)
-	{
-	//	Script* script = (Script*)JS_GetContextPrivate(cx);
-	//	Print("Leaving GC %s",script->GetShortFilename());
-#ifdef DEBUG
-		Log("*** LEAVING GC ***");
-#ifdef lord2800_INFO
-		Print("*** LEAVING GC ***");
-#endif
-#endif
-//		LeaveCriticalSection(&ScriptEngine::lock);
-	}
-	return JS_TRUE;
-}
+//JSGCCallback gcCallback(JSRuntime *rt, JSGCStatus status)
+//{
+//	//Script* script = (Script*)JS_GetContextPrivate(cx);
+//	DWORD cur =GetCurrentThreadId() ;
+//	//if (cur != script->GetThreadId())
+//	//	return JS_FALSE;
+//	if(status == JSGC_BEGIN)
+//	{
+//		 
+//		//Script* script = (Script*)JS_GetContextPrivate(cx);
+//		//Print("Entering GC %s",script->GetShortFilename());
+////		EnterCriticalSection(&ScriptEngine::lock);
+//
+//#ifdef DEBUG
+//		Log("*** ENTERING GC ***");
+//#ifdef lord2800_INFO
+//		Print("*** ENTERING GC ***");
+//#endif
+//#endif
+//	}
+//	else if(status == JSGC_END)
+//	{
+//	//	Script* script = (Script*)JS_GetContextPrivate(cx);
+//	//	Print("Leaving GC %s",script->GetShortFilename());
+//#ifdef DEBUG
+//		Log("*** LEAVING GC ***");
+//#ifdef lord2800_INFO
+//		Print("*** LEAVING GC ***");
+//#endif
+//#endif
+////		LeaveCriticalSection(&ScriptEngine::lock);
+//	}
+//	//return JS_TRUE;
+//}
 
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
@@ -454,7 +455,7 @@ void ScriptEngine::TriggerOperationCallbacks(void)
 	// damn std::list not supporting operator[]...
 	
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
-		JS_TriggerOperationCallback(it->second->GetContext());
+		JS_TriggerOperationCallback(JS_GetRuntime(it->second->GetContext()));
 	
 
 	LeaveCriticalSection(&lock);  // was previously locked after callback calls.
