@@ -17,7 +17,7 @@ JSAPI_FUNC(my_openDir);
 
 JSAPI_PROP(dir_getProperty);
 
-void dir_finalize(JSContext *cx, JSObject *obj);
+void dir_finalize(JSFreeOp *fop, JSObject *obj);
 
 
 //////////////////////////////////////////////////////////////////

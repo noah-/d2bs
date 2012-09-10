@@ -6,7 +6,7 @@
 
 CLASS_CTOR(area);
 
-void area_finalize(JSContext *cx, JSObject *obj);
+void area_finalize(JSFreeOp *fop, JSObject *obj);
 
 JSAPI_PROP(area_getProperty);
 

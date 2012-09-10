@@ -6,7 +6,7 @@
 
 CLASS_CTOR(presetunit);
 
-void presetunit_finalize(JSContext *cx, JSObject *obj);
+void presetunit_finalize(JSFreeOp *fop, JSObject *obj);
 JSAPI_PROP(presetunit_getProperty);
 
 JSAPI_FUNC(my_getPresetUnit);

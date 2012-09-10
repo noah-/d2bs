@@ -5,13 +5,13 @@
 #include "File.h"
 using namespace std;
 
-void hook_finalize(JSContext *cx, JSObject *obj)
+void hook_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
+	Genhook* hook = (Genhook*)JS_GetPrivate(obj);
 
 	if(hook)
 	{
-		JS_SetPrivate(cx, obj, NULL);
+		JS_SetPrivate(obj, NULL);
 		delete hook;
 	}
 }

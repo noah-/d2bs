@@ -26,7 +26,7 @@ JSAPI_FUNC(file_flush);
 JSAPI_FUNC(file_reset);
 JSAPI_FUNC(file_end);
 
-void file_finalize(JSContext *cx, JSObject *obj);
+void file_finalize(JSFreeOp *fop, JSObject *obj);
 
 /**
 File object:

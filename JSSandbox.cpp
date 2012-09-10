@@ -171,11 +171,11 @@ JSAPI_STRICT_PROP(sandbox_setProperty)
 	return JS_FALSE;
 }
 
-void sandbox_finalize(JSContext *cx, JSObject *obj)
+void sandbox_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
+	sandbox* box = (sandbox*)JS_GetPrivate(obj);
 	if(box) {
-		JS_SetContextThread(box->context);
+//bob1.8.8		JS_SetContextThread(box->context);
 		JS_DestroyContext(box->context);
 		delete box;
 	}

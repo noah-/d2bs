@@ -4,7 +4,7 @@
 #include "js32.h"
 
 JSAPI_FUNC(hook_remove);
-void hook_finalize(JSContext *cx, JSObject *obj);
+void hook_finalize(JSFreeOp *fop, JSObject *obj);
 
 /*********************************************************
 					Frame Header

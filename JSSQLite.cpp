@@ -278,10 +278,10 @@ JSAPI_PROP(sqlite_getProperty)
 	return JS_TRUE;
 }
 
-void sqlite_finalize(JSContext *cx, JSObject *obj)
+void sqlite_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db, NULL);
-	JS_SetPrivate(cx, obj, NULL);
+	SqliteDB* dbobj = (SqliteDB*)JS_GetPrivate(obj);
+	JS_SetPrivate(obj, NULL);
 	if(dbobj) {
 		clean_sqlite_db(dbobj);
 		free (dbobj->path);     //_strdup reqires free not delete
@@ -289,22 +289,22 @@ void sqlite_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
-{
-	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db, NULL);
-	if(!JSVAL_IS_OBJECT(v))
-		return JS_TRUE;
-	JSObject *obj2 = JSVAL_TO_OBJECT(v);
-	if(!obj2 || JS_GET_CLASS(cx, obj2) != JS_GET_CLASS(cx, obj))
-		return JS_TRUE;
-
-	SqliteDB* dbobj2 = (SqliteDB*)JS_GetPrivate(cx, obj2);
-	if(dbobj2->db != dbobj->db)
-		return JS_TRUE;
-
-	*bp = JS_TRUE;
-	return JS_TRUE;
-}
+//JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
+//{
+//	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db, NULL);
+//	if(!JSVAL_IS_OBJECT(v))
+//		return JS_TRUE;
+//	JSObject *obj2 = JSVAL_TO_OBJECT(v);
+//	if(!obj2 || JS_GET_CLASS(cx, obj2) != JS_GET_CLASS(cx, obj))
+//		return JS_TRUE;
+//
+//	SqliteDB* dbobj2 = (SqliteDB*)JS_GetPrivate(cx, obj2);
+//	if(dbobj2->db != dbobj->db)
+//		return JS_TRUE;
+//
+//	*bp = JS_TRUE;
+//	return JS_TRUE;
+//}
 
 JSAPI_FUNC(sqlite_stmt_getobject)
 {
@@ -326,7 +326,7 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		return JS_TRUE;
 	}
 
-	JSObject *obj2 = JS_ConstructObject(cx, NULL, NULL, NULL);
+	JSObject *obj2 = JS_ConstructObject(cx, NULL, NULL);
 	jsval val;
 	if(!obj2)
 		THROW_ERROR(cx, "Failed to create row result object");
@@ -568,15 +568,15 @@ JSAPI_PROP(sqlite_stmt_getProperty)
 	return JS_TRUE;
 }
 
-void sqlite_stmt_finalize(JSContext *cx, JSObject *obj)
+void sqlite_stmt_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
-	JS_SetPrivate(cx, obj, NULL);
+	DBStmt* stmtobj = (DBStmt*)JS_GetPrivate(obj);
+	JS_SetPrivate(obj, NULL);
 	if(stmtobj) {
 		if(stmtobj->stmt && stmtobj->open) {
 			stmtobj->assoc_db->stmts.erase(stmtobj);
-			if(stmtobj->current_row)
-				JS_RemoveRoot(cx, &stmtobj->current_row);
+			//if(stmtobj->current_row)
+			//	JS_RemoveRoot( &stmtobj->current_row);
 			close_db_stmt(stmtobj);
 		}
 		delete stmtobj;

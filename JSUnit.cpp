@@ -10,9 +10,9 @@
 
 EMPTY_CTOR(unit)
 
-void unit_finalize(JSContext *cx, JSObject *obj)
+void unit_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	Private* lpUnit = (Private*)JS_GetPrivate(cx, obj);
+	Private* lpUnit = (Private*)JS_GetPrivate(obj);
 
 	if(lpUnit)
 	{
@@ -32,7 +32,7 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 			}
 		}
 	}
-	JS_SetPrivate(cx, obj, NULL);
+	JS_SetPrivate(obj, NULL);
 }
 
 //JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp) // not 1.8 compatable

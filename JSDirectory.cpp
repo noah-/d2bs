@@ -214,9 +214,9 @@ JSAPI_PROP(dir_getProperty)
 	return JS_TRUE;
 }
 
-void dir_finalize(JSContext *cx, JSObject *obj)
+void dir_finalize(JSFreeOp *fop, JSObject *obj)
 {
-	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
+	DirData* d = (DirData*)JS_GetPrivate(obj);
 	delete d;
 }
 

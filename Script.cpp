@@ -49,13 +49,13 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 								
-		JS_SetContextThread(context);
+//bob1.8.8		JS_SetContextThread(context);
 
 		JS_SetErrorReporter(context, reportError);
 		JS_SetOperationCallback(context, operationCallback);
-		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
+		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX);
 		JS_SetVersion(context, JSVERSION_LATEST);
-		JS_SetGCCallbackRT(runtime, gcCallback);
+//		JS_SetGCCallback(runtime, gcCallback);
 		
 		//int mode = JS_GetGCParameter(runtime, JSGC_MODE);
 		//JS_SetGCParameter(runtime, JSGC_MODE, 0); //compartment gc
@@ -83,7 +83,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 	
 
 		JS_EndRequest(context);
-		JS_ClearContextThread(context);
+		//bob1.8.8JS_ClearContextThread(context);
 		JS_ClearRuntimeThread(runtime);
 
 		LeaveCriticalSection(&lock);
@@ -107,7 +107,7 @@ Script::~Script(void)
 {
 	
 	
-	if(JS_IsInRequest(context))
+	if(JS_IsInRequest(JS_GetRuntime(context)))
 		JS_EndRequest(context);
 	
 	JSRuntime* rt = JS_GetRuntime(context);
@@ -171,7 +171,7 @@ void Script::RunCommand(const char* command)
 			EnterCriticalSection(&Vars.cEventSection);
 			evt->owner->EventList.push_front(evt);
 			LeaveCriticalSection(&Vars.cEventSection);
-			JS_TriggerOperationCallback(evt->owner->GetContext());
+			JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
 		
 		
 }
@@ -204,7 +204,7 @@ void Script::Run(void)
 
 	jsval main = INT_TO_JSVAL(1), dummy = INT_TO_JSVAL(1);
 	JS_SetRuntimeThread(JS_GetRuntime(context));
-	JS_SetContextThread(GetContext());
+//bob1.8.8	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 	JS_AddValueRoot(GetContext(), &main);
 	JS_AddValueRoot(GetContext(), &dummy);
@@ -235,7 +235,7 @@ void Script::Pause(void)
 	//EnterCriticalSection(&lock);
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
-	JS_TriggerOperationCallback(GetContext());
+	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
 	//LeaveCriticalSection(&lock);
 }
 
@@ -254,7 +254,7 @@ void Script::Resume(void)
 	//EnterCriticalSection(&lock);
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
-	JS_TriggerOperationCallback(GetContext());
+	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
 	//LeaveCriticalSection(&lock);
 }
 
@@ -299,7 +299,7 @@ void Script::Stop(bool force, bool reallyForce)
 			break;
 		Sleep(10);
 	}
-	JS_TriggerOperationCallback(GetContext());
+	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	threadHandle = INVALID_HANDLE_VALUE;
@@ -461,7 +461,7 @@ void Script::FireEvent(Event* evt)
 	EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 	LeaveCriticalSection(&Vars.cEventSection);
-	JS_TriggerOperationCallback(evt->owner->GetContext());
+	JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
 }
 
 #ifdef DEBUG
@@ -497,7 +497,7 @@ DWORD WINAPI RunCommandThread(void* data)
 	//JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 	//JS_SetContextPrivate(cx, rcs->script);
 	JSContext* cx = rcs->script->GetContext();
-	JS_SetContextThread(cx);
+//bob1.8.8	JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
 	jsval rval;
 	//JSContext* orignalCx = rcs->script->GetContext();
@@ -516,8 +516,8 @@ DWORD WINAPI RunCommandThread(void* data)
 	}
 	JS_EndRequest(cx);
 	//JS_DestroyContext(cx);// 1.8 needed? it crashes
-	JS_ClearContextThread(cx);
-	JS_TriggerOperationCallback(cx);
+	//bob1.8.8JS_ClearContextThread(cx);
+	JS_TriggerOperationCallback(JS_GetRuntime(cx));
 	//rcs->script->SetContext(orignalCx);
 	
 //	delete rcs->command;
