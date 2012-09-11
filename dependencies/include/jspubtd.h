@@ -1,49 +1,16 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mozilla Communicator client code, released
- * March 31, 1998.
- *
- * The Initial Developer of the Original Code is
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either of the GNU General Public License Version 2 or later (the "GPL"),
- * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef jspubtd_h___
 #define jspubtd_h___
+
 /*
  * JS public API typedefs.
  */
 #include "jstypes.h"
-#include "jscompat.h"
 
 /*
  * Allow headers to reference JS::Value without #including the whole jsapi.h.
@@ -93,16 +60,10 @@ typedef ptrdiff_t jsid;
 
 JS_BEGIN_EXTERN_C
 
-/* Scalar typedefs. */
-typedef JSInt32   jsint;
-typedef JSUint32  jsuint;
-typedef double    jsdouble;
-typedef JSInt32   jsrefcount;   /* PRInt32 if JS_THREADSAFE, see jslock.h */
-
 #ifdef WIN32
 typedef wchar_t   jschar;
 #else
-typedef JSUint16  jschar;
+typedef uint16_t  jschar;
 #endif
 
 /*
@@ -201,6 +162,7 @@ typedef enum {
     JSTRACE_XML,
 #endif
     JSTRACE_SHAPE,
+    JSTRACE_BASE_SHAPE,
     JSTRACE_TYPE_OBJECT,
     JSTRACE_LAST = JSTRACE_TYPE_OBJECT
 } JSGCTraceKind;
@@ -231,7 +193,6 @@ typedef struct JSStructuredCloneCallbacks   JSStructuredCloneCallbacks;
 typedef struct JSStructuredCloneReader      JSStructuredCloneReader;
 typedef struct JSStructuredCloneWriter      JSStructuredCloneWriter;
 typedef struct JSTracer                     JSTracer;
-typedef struct JSXDRState                   JSXDRState;
 
 #ifdef __cplusplus
 class                                       JSFlatString;
@@ -239,7 +200,7 @@ class                                       JSString;
 #else
 typedef struct JSFlatString                 JSFlatString;
 typedef struct JSString                     JSString;
-#endif
+#endif /* !__cplusplus */
 
 #ifdef JS_THREADSAFE
 typedef struct PRCallOnceType    JSCallOnceType;
@@ -249,5 +210,69 @@ typedef JSBool                   JSCallOnceType;
 typedef JSBool                 (*JSInitCallback)(void);
 
 JS_END_EXTERN_C
+
+#ifdef __cplusplus
+
+namespace JS {
+
+template <typename T>
+class Rooted;
+
+class SkipRoot;
+
+enum ThingRootKind
+{
+    THING_ROOT_OBJECT,
+    THING_ROOT_SHAPE,
+    THING_ROOT_BASE_SHAPE,
+    THING_ROOT_TYPE_OBJECT,
+    THING_ROOT_STRING,
+    THING_ROOT_SCRIPT,
+    THING_ROOT_XML,
+    THING_ROOT_ID,
+    THING_ROOT_VALUE,
+    THING_ROOT_LIMIT
+};
+
+struct ContextFriendFields {
+    JSRuntime *const    runtime;
+
+    ContextFriendFields(JSRuntime *rt)
+      : runtime(rt) { }
+
+    static const ContextFriendFields *get(const JSContext *cx) {
+        return reinterpret_cast<const ContextFriendFields *>(cx);
+    }
+
+    static ContextFriendFields *get(JSContext *cx) {
+        return reinterpret_cast<ContextFriendFields *>(cx);
+    }
+
+#ifdef JSGC_ROOT_ANALYSIS
+
+    /*
+     * Stack allocated GC roots for stack GC heap pointers, which may be
+     * overwritten if moved during a GC.
+     */
+    Rooted<void*> *thingGCRooters[THING_ROOT_LIMIT];
+
+#ifdef DEBUG
+    /*
+     * Stack allocated list of stack locations which hold non-relocatable
+     * GC heap pointers (where the target is rooted somewhere else) or integer
+     * values which may be confused for GC heap pointers. These are used to
+     * suppress false positives which occur when a rooting analysis treats the
+     * location as holding a relocatable pointer, but have no other effect on
+     * GC behavior.
+     */
+    SkipRoot *skipGCRooters;
+#endif
+
+#endif /* JSGC_ROOT_ANALYSIS */
+};
+
+} /* namespace JS */
+
+#endif /* __cplusplus */
 
 #endif /* jspubtd_h___ */

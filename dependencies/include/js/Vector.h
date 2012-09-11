@@ -1,45 +1,14 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  * vim: set ts=8 sw=4 et tw=99 ft=cpp:
  *
- * ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mozilla SpiderMonkey JavaScript 1.9 code, released
- * June 12, 2009.
- *
- * The Initial Developer of the Original Code is
- *   the Mozilla Corporation.
- *
- * Contributor(s):
- *   Luke Wagner <lw@mozilla.com>
- *   Nicholas Nethercote <nnethercote@mozilla.com>
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either of the GNU General Public License Version 2 or later (the "GPL"),
- * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef jsvector_h_
 #define jsvector_h_
+
+#include "mozilla/Attributes.h"
 
 #include "TemplateLib.h"
 #include "Utility.h"
@@ -52,7 +21,11 @@
 
 namespace js {
 
-template <class T, size_t N, class AllocPolicy>
+class TempAllocPolicy;
+
+template <class T,
+          size_t MinInlineCapacity = 0,
+          class AllocPolicy = TempAllocPolicy>
 class Vector;
 
 /*
@@ -207,6 +180,8 @@ struct VectorImpl<T, N, AP, true>
 template <class T, size_t N, class AllocPolicy>
 class Vector : private AllocPolicy
 {
+    typedef typename tl::StaticAssert<tl::IsRelocatableHeapType<T>::result>::result _;
+
     /* utilities */
 
     static const bool sElemIsPod = tl::IsPodType<T>::result;
@@ -274,8 +249,8 @@ class Vector : private AllocPolicy
     bool entered;
 #endif
 
-    Vector(const Vector &);
-    Vector &operator=(const Vector &);
+    Vector(const Vector &) MOZ_DELETE;
+    Vector &operator=(const Vector &) MOZ_DELETE;
 
     /* private accessors */
 
@@ -343,7 +318,12 @@ class Vector : private AllocPolicy
         return mCapacity;
     }
 
-    T *begin() const {
+    T *begin() {
+        JS_ASSERT(!entered);
+        return mBegin;
+    }
+
+    const T *begin() const {
         JS_ASSERT(!entered);
         return mBegin;
     }
@@ -376,6 +356,23 @@ class Vector : private AllocPolicy
     const T &back() const {
         JS_ASSERT(!entered && !empty());
         return *(end() - 1);
+    }
+
+    class Range {
+        friend class Vector;
+        T *cur, *end;
+        Range(T *cur, T *end) : cur(cur), end(end) {}
+      public:
+        Range() {}
+        bool empty() const { return cur == end; }
+        size_t remain() const { return end - cur; }
+        T &front() const { return *cur; }
+        void popFront() { JS_ASSERT(!empty()); ++cur; }
+        T popCopyFront() { JS_ASSERT(!empty()); return *cur++; }
+    };
+
+    Range all() {
+        return Range(begin(), end());
     }
 
     /* mutators */
@@ -471,6 +468,17 @@ class Vector : private AllocPolicy
      * shifting existing elements from |t + 1| onward one position lower.
      */
     void erase(T *t);
+
+    /*
+     * Measure the size of the Vector's heap-allocated storage.
+     */
+    size_t sizeOfExcludingThis(JSMallocSizeOfFun mallocSizeOf) const;
+
+    /*
+     * Like sizeOfExcludingThis, but also measures the size of the Vector
+     * object (which must be heap-allocated) itself.
+     */
+    size_t sizeOfIncludingThis(JSMallocSizeOfFun mallocSizeOf) const;
 };
 
 /* This does the re-entrancy check plus several other sanity checks. */
@@ -966,6 +974,20 @@ Vector<T,N,AP>::replaceRawBuffer(T *p, size_t length)
 #ifdef DEBUG
     mReserved = length;
 #endif
+}
+
+template <class T, size_t N, class AP>
+inline size_t
+Vector<T,N,AP>::sizeOfExcludingThis(JSMallocSizeOfFun mallocSizeOf) const
+{
+    return usingInlineStorage() ? 0 : mallocSizeOf(beginNoCheck());
+}
+
+template <class T, size_t N, class AP>
+inline size_t
+Vector<T,N,AP>::sizeOfIncludingThis(JSMallocSizeOfFun mallocSizeOf) const
+{
+    return mallocSizeOf(this) + sizeOfExcludingThis(mallocSizeOf);
 }
 
 }  /* namespace js */

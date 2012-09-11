@@ -1,136 +1,21 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  * vim: set ts=8 sw=4 et tw=99 ft=cpp:
  *
- * ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at:
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mozilla Code.
- *
- * The Initial Developer of the Original Code is
- *   The Mozilla Foundation
- * Portions created by the Initial Developer are Copyright (C) 2011
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * Miscellaneous uncategorized functionality.  Please add new functionality to
+ * new headers, or to other appropriate existing headers, not here.
+ */
 
 #ifndef mozilla_Util_h_
 #define mozilla_Util_h_
 
+#include "mozilla/Assertions.h"
+#include "mozilla/Attributes.h"
 #include "mozilla/Types.h"
-
-/*
- * XXX: we're cheating here in order to avoid creating object files
- * for mfbt /just/ to provide a function like FatalError() to be used
- * by MOZ_ASSERT().  (It'll happen eventually, but for just ASSERT()
- * it isn't worth the pain.)  JS_Assert(), although unfortunately
- * named, is part of SpiderMonkey's stable, external API, so this
- * isn't quite as bad as it seems.
- *
- * Once mfbt needs object files, this unholy union with JS_Assert()
- * will be broken.
- *
- * JS_Assert is present even in release builds, for the benefit of applications
- * that build DEBUG and link against a non-DEBUG SpiderMonkey library.
- */
-MOZ_BEGIN_EXTERN_C
-
-extern MFBT_API(void)
-JS_Assert(const char *s, const char *file, JSIntn ln);
-
-MOZ_END_EXTERN_C
-
-/*
- * MOZ_ASSERT() is a "strong" assertion of state, like libc's
- * assert().  If a MOZ_ASSERT() fails in a debug build, the process in
- * which it fails will stop running in a loud and dramatic way.
- */
-#ifdef DEBUG
-
-# define MOZ_ASSERT(expr_)                                      \
-    ((expr_) ? (void)0 : JS_Assert(#expr_, __FILE__, __LINE__))
-
-#else
-
-# define MOZ_ASSERT(expr_) ((void)0)
-
-#endif  /* DEBUG */
-
-/*
- * MOZ_INLINE is a macro which expands to tell the compiler that the method
- * decorated with it should be inlined.  This macro is usable from C and C++
- * code, even though C89 does not support the |inline| keyword.  The compiler
- * may ignore this directive if it chooses.
- */
-#ifndef MOZ_INLINE
-# if defined __cplusplus
-#  define MOZ_INLINE          inline
-# elif defined _MSC_VER
-#  define MOZ_INLINE          __inline
-# elif defined __GNUC__
-#  define MOZ_INLINE          __inline__
-# else
-#  define MOZ_INLINE          inline
-# endif
-#endif
-
-/*
- * MOZ_ALWAYS_INLINE is a macro which expands to tell the compiler that the
- * method decorated with it must be inlined, even if the compiler thinks
- * otherwise.  This is only a (much) stronger version of the MOZ_INLINE hint:
- * compilers are not guaranteed to respect it (although they're much more likely
- * to do so).
- */
-#ifndef MOZ_ALWAYS_INLINE
-# if defined DEBUG
-#  define MOZ_ALWAYS_INLINE   MOZ_INLINE
-# elif defined _MSC_VER
-#  define MOZ_ALWAYS_INLINE   __forceinline
-# elif defined __GNUC__
-#  define MOZ_ALWAYS_INLINE   __attribute__((always_inline)) MOZ_INLINE
-# else
-#  define MOZ_ALWAYS_INLINE   MOZ_INLINE
-# endif
-#endif
-
-/*
- * MOZ_NEVER_INLINE is a macro which expands to tell the compiler that the
- * method decorated with it must never be inlined, even if the compiler would
- * otherwise choose to inline the method.  Compilers aren't absolutely
- * guaranteed to support this, but most do.
- */
-#ifndef MOZ_NEVER_INLINE
-# if defined _MSC_VER
-#  define MOZ_NEVER_INLINE __declspec(noinline)
-# elif defined __GNUC__
-#  define MOZ_NEVER_INLINE __attribute__((noinline))
-# else
-#  define MOZ_NEVER_INLINE
-# endif
-#endif
 
 #ifdef __cplusplus
 
@@ -161,6 +46,7 @@ struct DebugOnly
 
     DebugOnly() {}
     DebugOnly(const T& other) : value(other) {}
+    DebugOnly(const DebugOnly& other) : value(other.value) {}
     DebugOnly& operator=(const T& rhs) {
         value = rhs;
         return *this;
@@ -172,6 +58,8 @@ struct DebugOnly
         value--;
     }
 
+    T *operator&() { return &value; }
+
     operator T&() { return value; }
     operator const T&() const { return value; }
 
@@ -180,6 +68,7 @@ struct DebugOnly
 #else
     DebugOnly() {}
     DebugOnly(const T&) {}
+    DebugOnly(const DebugOnly&) {}
     DebugOnly& operator=(const T&) { return *this; }
     void operator++(int) {}
     void operator--(int) {}
@@ -224,18 +113,14 @@ public:
  */
 
 #if defined(__GNUC__)
-#define MOZ_ALIGNED_DECL(_type, _align) \
-  _type __attribute__((aligned(_align)))
-
+#  define MOZ_ALIGNED_DECL(_type, _align) \
+     _type __attribute__((aligned(_align)))
 #elif defined(_MSC_VER)
-#define MOZ_ALIGNED_DECL(_type, _align) \
-  __declspec(align(_align)) _type
-
+#  define MOZ_ALIGNED_DECL(_type, _align) \
+     __declspec(align(_align)) _type
 #else
-
-#warning "We don't know how to align variables on this compiler."
-#define MOZ_ALIGNED_DECL(_type, _align) _type
-
+#  warning "We don't know how to align variables on this compiler."
+#  define MOZ_ALIGNED_DECL(_type, _align) _type
 #endif
 
 /*
@@ -254,36 +139,36 @@ struct AlignedElem;
 template<>
 struct AlignedElem<1>
 {
-  MOZ_ALIGNED_DECL(uint8 elem, 1);
+  MOZ_ALIGNED_DECL(uint8_t elem, 1);
 };
 
 template<>
 struct AlignedElem<2>
 {
-  MOZ_ALIGNED_DECL(uint8 elem, 2);
+  MOZ_ALIGNED_DECL(uint8_t elem, 2);
 };
 
 template<>
 struct AlignedElem<4>
 {
-  MOZ_ALIGNED_DECL(uint8 elem, 4);
+  MOZ_ALIGNED_DECL(uint8_t elem, 4);
 };
 
 template<>
 struct AlignedElem<8>
 {
-  MOZ_ALIGNED_DECL(uint8 elem, 8);
+  MOZ_ALIGNED_DECL(uint8_t elem, 8);
 };
 
 template<>
 struct AlignedElem<16>
 {
-  MOZ_ALIGNED_DECL(uint8 elem, 16);
+  MOZ_ALIGNED_DECL(uint8_t elem, 16);
 };
 
 /*
  * This utility pales in comparison to Boost's aligned_storage. The utility
- * simply assumes that uint64 is enough alignment for anyone. This may need
+ * simply assumes that uint64_t is enough alignment for anyone. This may need
  * to be extended one day...
  *
  * As an important side effect, pulling the storage into this template is
@@ -296,7 +181,7 @@ struct AlignedStorage
 {
     union U {
         char bytes[nbytes];
-        uint64 _;
+        uint64_t _;
     } u;
 
     const void *addr() const { return u.bytes; }
@@ -308,7 +193,7 @@ struct AlignedStorage2
 {
     union U {
         char bytes[sizeof(T)];
-        uint64 _;
+        uint64_t _;
     } u;
 
     const T *addr() const { return (const T *)u.bytes; }
