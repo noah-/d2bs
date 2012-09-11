@@ -1,49 +1,24 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  * vim: set ts=8 sw=4 et tw=99 ft=cpp:
  *
- * ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mozilla SpiderMonkey JavaScript code.
- *
- * The Initial Developer of the Original Code is
- * the Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2011
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef js_utility_h__
 #define js_utility_h__
 
+#include "mozilla/Assertions.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "mozilla/Util.h"
+#ifdef JS_OOM_DO_BACKTRACES
+#include <stdio.h>
+#include <execinfo.h>
+#endif
+
+#include "jstypes.h"
 
 #ifdef __cplusplus
 
@@ -71,57 +46,24 @@ JS_BEGIN_EXTERN_C
  */
 #define JS_FREE_PATTERN 0xDA
 
-/* JS_ASSERT */
+#define JS_ASSERT(expr)           MOZ_ASSERT(expr)
+#define JS_ASSERT_IF(cond, expr)  MOZ_ASSERT_IF(cond, expr)
+#define JS_NOT_REACHED(reason)    MOZ_NOT_REACHED(reason)
+#define JS_ALWAYS_TRUE(expr)      MOZ_ALWAYS_TRUE(expr)
+#define JS_ALWAYS_FALSE(expr)     MOZ_ALWAYS_FALSE(expr)
+
 #ifdef DEBUG
-# define JS_ASSERT(expr)                                                      \
-    ((expr) ? (void)0 : JS_Assert(#expr, __FILE__, __LINE__))
-# define JS_ASSERT_IF(cond, expr)                                             \
-    ((!(cond) || (expr)) ? (void)0 : JS_Assert(#expr, __FILE__, __LINE__))
-# define JS_NOT_REACHED(reason)                                               \
-    JS_Assert(reason, __FILE__, __LINE__)
-# define JS_ALWAYS_TRUE(expr) JS_ASSERT(expr)
-# define JS_ALWAYS_FALSE(expr) JS_ASSERT(!(expr))
 # ifdef JS_THREADSAFE
 #  define JS_THREADSAFE_ASSERT(expr) JS_ASSERT(expr)
 # else
 #  define JS_THREADSAFE_ASSERT(expr) ((void) 0)
 # endif
 #else
-# define JS_ASSERT(expr)         ((void) 0)
-# define JS_ASSERT_IF(cond,expr) ((void) 0)
-# define JS_NOT_REACHED(reason)
-# define JS_ALWAYS_TRUE(expr)    ((void) (expr))
-# define JS_ALWAYS_FALSE(expr)    ((void) (expr))
 # define JS_THREADSAFE_ASSERT(expr) ((void) 0)
 #endif
 
-/*
- * JS_STATIC_ASSERT
- *
- * A compile-time assert. "cond" must be a constant expression. The macro can
- * be used only in places where an "extern" declaration is allowed.
- */
-#ifdef __SUNPRO_CC
-/*
- * Sun Studio C++ compiler has a bug
- * "sizeof expression not accepted as size of array parameter"
- * It happens when js_static_assert() function is declared inside functions.
- * The bug number is 6688515. It is not public yet.
- * Therefore, for Sun Studio, declare js_static_assert as an array instead.
- */
-# define JS_STATIC_ASSERT(cond) extern char js_static_assert[(cond) ? 1 : -1]
-#else
-# ifdef __COUNTER__
-#  define JS_STATIC_ASSERT_GLUE1(x,y) x##y
-#  define JS_STATIC_ASSERT_GLUE(x,y) JS_STATIC_ASSERT_GLUE1(x,y)
-#  define JS_STATIC_ASSERT(cond)                                            \
-        typedef int JS_STATIC_ASSERT_GLUE(js_static_assert, __COUNTER__)[(cond) ? 1 : -1]
-# else
-#  define JS_STATIC_ASSERT(cond) extern void js_static_assert(int arg[(cond) ? 1 : -1])
-# endif
-#endif
-
-#define JS_STATIC_ASSERT_IF(cond, expr) JS_STATIC_ASSERT(!(cond) || (expr))
+#define JS_STATIC_ASSERT(cond)           MOZ_STATIC_ASSERT(cond, "JS_STATIC_ASSERT")
+#define JS_STATIC_ASSERT_IF(cond, expr)  MOZ_STATIC_ASSERT_IF(cond, expr, "JS_STATIC_ASSERT_IF")
 
 /*
  * Abort the process in a non-graceful manner. This will cause a core file,
@@ -141,19 +83,63 @@ extern JS_PUBLIC_API(void) JS_Abort(void);
  * In order to test OOM conditions, when the shell command-line option
  * |-A NUM| is passed, we fail continuously after the NUM'th allocation.
  */
-extern JS_PUBLIC_DATA(JSUint32) OOM_maxAllocations; /* set from shell/js.cpp */
-extern JS_PUBLIC_DATA(JSUint32) OOM_counter; /* data race, who cares. */
+extern JS_PUBLIC_DATA(uint32_t) OOM_maxAllocations; /* set from shell/js.cpp */
+extern JS_PUBLIC_DATA(uint32_t) OOM_counter; /* data race, who cares. */
+
+#ifdef JS_OOM_DO_BACKTRACES
+#define JS_OOM_BACKTRACE_SIZE 32
+static JS_ALWAYS_INLINE void
+PrintBacktrace()
+{
+    void* OOM_trace[JS_OOM_BACKTRACE_SIZE];
+    char** OOM_traceSymbols = NULL;
+    int32_t OOM_traceSize = 0;
+    int32_t OOM_traceIdx = 0;
+    OOM_traceSize = backtrace(OOM_trace, JS_OOM_BACKTRACE_SIZE);
+    OOM_traceSymbols = backtrace_symbols(OOM_trace, OOM_traceSize);
+    
+    if (!OOM_traceSymbols)
+        return;
+
+    for (OOM_traceIdx = 0; OOM_traceIdx < OOM_traceSize; ++OOM_traceIdx) {
+        fprintf(stderr, "#%d %s\n", OOM_traceIdx, OOM_traceSymbols[OOM_traceIdx]);
+    }
+
+    free(OOM_traceSymbols);
+}
+
+#define JS_OOM_EMIT_BACKTRACE() \
+    do {\
+        fprintf(stderr, "Forcing artificial memory allocation function failure:\n");\
+	PrintBacktrace();\
+    } while (0)
+# else
+#  define JS_OOM_EMIT_BACKTRACE() do {} while(0)
+#endif /* JS_OOM_DO_BACKTRACES */
+
 #  define JS_OOM_POSSIBLY_FAIL() \
     do \
     { \
-        if (OOM_counter++ >= OOM_maxAllocations) { \
+        if (++OOM_counter > OOM_maxAllocations) { \
+            JS_OOM_EMIT_BACKTRACE();\
+            return NULL; \
+        } \
+    } while (0)
+
+#  define JS_OOM_POSSIBLY_FAIL_REPORT(cx) \
+    do \
+    { \
+        if (++OOM_counter > OOM_maxAllocations) { \
+            JS_OOM_EMIT_BACKTRACE();\
+            js_ReportOutOfMemory(cx);\
             return NULL; \
         } \
     } while (0)
 
 # else
 #  define JS_OOM_POSSIBLY_FAIL() do {} while(0)
-# endif
+#  define JS_OOM_POSSIBLY_FAIL_REPORT(cx) do {} while(0)
+# endif /* DEBUG */
 
 /*
  * SpiderMonkey code should not be calling these allocation functions directly.
@@ -274,7 +260,7 @@ __BitScanReverse64(unsigned __int64 val)
 #else
 # define JS_CEILING_LOG2(_log2,_n)                                            \
     JS_BEGIN_MACRO                                                            \
-        JSUint32 j_ = (JSUint32)(_n);                                         \
+        uint32_t j_ = (uint32_t)(_n);                                         \
         (_log2) = 0;                                                          \
         if ((j_) & ((j_)-1))                                                  \
             (_log2) += 1;                                                     \
@@ -310,7 +296,7 @@ __BitScanReverse64(unsigned __int64 val)
 #else
 # define JS_FLOOR_LOG2(_log2,_n)                                              \
     JS_BEGIN_MACRO                                                            \
-        JSUint32 j_ = (JSUint32)(_n);                                         \
+        uint32_t j_ = (uint32_t)(_n);                                         \
         (_log2) = 0;                                                          \
         if ((j_) >> 16)                                                       \
             (_log2) += 16, (j_) >>= 16;                                       \
@@ -323,6 +309,24 @@ __BitScanReverse64(unsigned __int64 val)
         if ((j_) >> 1)                                                        \
             (_log2) += 1;                                                     \
     JS_END_MACRO
+#endif
+
+#if JS_BYTES_PER_WORD == 4
+# ifdef JS_HAS_BUILTIN_BITSCAN32
+#  define js_FloorLog2wImpl(n)                                                \
+    ((size_t)(JS_BITS_PER_WORD - 1 - js_bitscan_clz32(n)))
+# else
+JS_PUBLIC_API(size_t) js_FloorLog2wImpl(size_t n);
+# endif
+#elif JS_BYTES_PER_WORD == 8
+# ifdef JS_HAS_BUILTIN_BITSCAN64
+#  define js_FloorLog2wImpl(n)                                                \
+    ((size_t)(JS_BITS_PER_WORD - 1 - js_bitscan_clz64(n)))
+# else
+JS_PUBLIC_API(size_t) js_FloorLog2wImpl(size_t n);
+# endif
+#else
+# error "NOT SUPPORTED"
 #endif
 
 /*
@@ -339,25 +343,12 @@ __BitScanReverse64(unsigned __int64 val)
  * This is a version of JS_FloorLog2 that operates on unsigned integers with
  * CPU-dependant size and requires that n != 0.
  */
-#define JS_FLOOR_LOG2W(n) (JS_ASSERT((n) != 0), js_FloorLog2wImpl(n))
-
-#if JS_BYTES_PER_WORD == 4
-# ifdef JS_HAS_BUILTIN_BITSCAN32
-#  define js_FloorLog2wImpl(n)                                                \
-    ((size_t)(JS_BITS_PER_WORD - 1 - js_bitscan_clz32(n)))
-# else
-extern size_t js_FloorLog2wImpl(size_t n);
-# endif
-#elif JS_BYTES_PER_WORD == 8
-# ifdef JS_HAS_BUILTIN_BITSCAN64
-#  define js_FloorLog2wImpl(n)                                                \
-    ((size_t)(JS_BITS_PER_WORD - 1 - js_bitscan_clz64(n)))
-# else
-extern size_t js_FloorLog2wImpl(size_t n);
-# endif
-#else
-# error "NOT SUPPORTED"
-#endif
+static MOZ_ALWAYS_INLINE size_t
+JS_FLOOR_LOG2W(size_t n)
+{
+    JS_ASSERT(n != 0);
+    return js_FloorLog2wImpl(n);
+}
 
 JS_END_EXTERN_C
 
@@ -525,7 +516,7 @@ JS_END_EXTERN_C
     template <class T>\
     QUALIFIERS T *array_new(size_t n) {\
         /* The length is stored just before the vector memory. */\
-        uint64 numBytes64 = uint64(JSMinAlignment) + uint64(sizeof(T)) * uint64(n);\
+        uint64_t numBytes64 = uint64_t(JSMinAlignment) + uint64_t(sizeof(T)) * uint64_t(n);\
         size_t numBytes = size_t(numBytes64);\
         if (numBytes64 != numBytes) {\
             JS_ASSERT(0);   /* we want to know if this happens in debug builds */\
@@ -824,7 +815,7 @@ class MoveRef {
     explicit MoveRef(T &t) : pointer(&t) { }
     T &operator*()  const { return *pointer; }
     T *operator->() const { return  pointer; }
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__clang__)
     /*
      * If MoveRef is used in a rvalue position (which is expected), we can
      * end up in a situation where, without this ifdef, we would try to pass
@@ -892,14 +883,46 @@ RoundUpPow2(size_t x)
 
 } /* namespace js */
 
+namespace JS {
+
+/*
+ * Methods for poisoning GC heap pointer words and checking for poisoned words.
+ * These are in this file for use in Value methods and so forth.
+ *
+ * If the moving GC hazard analysis is in use and detects a non-rooted stack
+ * pointer to a GC thing, one byte of that pointer is poisoned to refer to an
+ * invalid location. For both 32 bit and 64 bit systems, the fourth byte of the
+ * pointer is overwritten, to reduce the likelihood of accidentally changing
+ * a live integer value.
+ */
+
+inline void PoisonPtr(uintptr_t *v)
+{
+#if defined(JSGC_ROOT_ANALYSIS) && defined(DEBUG)
+    uint8_t *ptr = (uint8_t *) v + 3;
+    *ptr = JS_FREE_PATTERN;
+#endif
+}
+
+template <typename T>
+inline bool IsPoisonedPtr(T *v)
+{
+#if defined(JSGC_ROOT_ANALYSIS) && defined(DEBUG)
+    uint32_t mask = uintptr_t(v) & 0xff000000;
+    return mask == uint32_t(JS_FREE_PATTERN << 24);
+#else
+    return false;
+#endif
+}
+
+}
+
 #endif /* defined(__cplusplus) */
 
 /*
- * This signature is for malloc_usable_size-like functions used to measure
- * memory usage.  A return value of zero indicates that the size is unknown,
- * and so a fall-back computation should be done for the size.
+ * This is SpiderMonkey's equivalent to |nsMallocSizeOfFun|.
  */
-typedef size_t(*JSUsableSizeFun)(void *p);
+typedef size_t(*JSMallocSizeOfFun)(const void *p);
 
 /* sixgill annotation defines */
 #ifndef HAVE_STATIC_ANNOTATIONS
