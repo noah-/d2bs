@@ -276,7 +276,7 @@ JSBool operationCallback(JSContext* cx)
 		// bob18 JS_ResumeRequest(cx, depth);
 		callBackCount = 0;
 	}
-	
+	//jsuint test = JS_GetGCParameter(JS_GetRuntime(cx), JSGC_MODE);
 	jsrefcount depth = JS_SuspendRequest(cx);
 	
 	bool pause = script->IsPaused();
@@ -332,7 +332,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 		//JS_SetGCZeal(cx,2,1,false);
 	JSObject* globalObject = JS_NewCompartmentAndGlobalObject(cx, &global_obj, NULL);
-	
+	JS_SetGCParameter(JS_GetRuntime(cx), JSGC_MODE, JSGC_MODE_INCREMENTAL);
 		
 		if(JS_InitStandardClasses(cx, globalObject) == JS_FALSE)
 			return JS_FALSE;
