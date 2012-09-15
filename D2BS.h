@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1756" //uptodate with d branch 1744
+#define D2BS_VERSION "1.5.1757" //uptodate with d branch 1744
 
 #include <windows.h>
 #include <vector>

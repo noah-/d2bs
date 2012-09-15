@@ -395,9 +395,11 @@ JSAPI_FUNC(sqlite_stmt_colval)
 		case SQLITE_INTEGER:
 			// jsdouble == double, so this conversion is no problem
 			JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), &rval);
+			JS_SET_RVAL(cx, vp, rval);
 			break;
 		case SQLITE_FLOAT:
 			JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), &rval);
+			JS_SET_RVAL(cx, vp, rval);
 			break;
 		case SQLITE_TEXT:
 			JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)))));

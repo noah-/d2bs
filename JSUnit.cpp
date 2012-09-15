@@ -916,9 +916,9 @@ JSAPI_FUNC(unit_getStat)
 	if(nStat >= STAT_HP && nStat <= STAT_MAXSTAMINA)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8));
 	else if(nStat == STAT_EXP || nStat == STAT_LASTEXP || nStat == STAT_NEXTEXP){
-		jsval rval = JS_RVAL(cx,vp);
+		jsval rval;
 		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), &rval);
-		
+		JS_SET_RVAL(cx,vp, rval);
 	}
 	else if(nStat == STAT_ITEMLEVELREQ)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit())));
