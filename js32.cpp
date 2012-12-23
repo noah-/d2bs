@@ -47,3 +47,4 @@ return rval;
 JSBool JSVAL_IS_OBJECT(jsval v){return !JSVAL_IS_PRIMITIVE(v);}
 void * JS_GetPrivate(JSContext *cx, JSObject *obj){ return JS_GetPrivate(obj);}
 void JS_SetPrivate(JSContext *cx, JSObject *obj, void *data){ return JS_SetPrivate(obj ,data);}
+

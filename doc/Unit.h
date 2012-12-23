@@ -60,18 +60,6 @@ public:
 	 */
 	void cancel();
 
-	/** Close some form of interaction.
-	 *
-	 * \todo Clarify what each of the calls do.
-	 *
-	 * \param type Type of interaction to cancel
-	 *
-	 * 0 - Call D2CLIENT_CloseInteract
-	 *
-	 * 1 - Call D2CLIENT_CloseNPCInteract
-	 */
-	void cancel(int type);
-
 	/** Try to repair.
 	 *
 	 * Need to be able to find unit that you're trying to repair with. That
@@ -107,52 +95,6 @@ public:
 	 */
 	bool interact(int destId);
 
-	/** Get the first item from inventory.
-	 *
-	 * \return The first item from inventory.
-	 */
-	Unit getItem();
-
-	/** Get an item from inventory by name.
-	 *
-	 * \param name The name of the item to look for.
-	 *
-	 * \return The first item found that matches the description.
-	 */
-	Unit getItem(String name);
-
-	/** Get an item from inventory by classId.
-	 *
-	 * \param classId The class id of the unit.
-	 *
-	 * \return The first item found that matches the description.
-	 */
-	Unit getItem(uint32_t classId);
-
-	/** Get an item from inventory by name and mode.
-	 *
-	 * \param name The name of the unit to look for.
-	 *
-	 * \param mode Either the mode being searched for, or a bitmask with bit
-	 * 29 set and bits 0-28 corresponding to modes of units being searched
-	 * for.
-	 *
-	 * \return The first item found that matches the description.
-	 */
-	Unit getItem(String name, uint32_t mode);
-
-	/** Get an item from inventory by classId and mode.
-	 *
-	 * \param classId The class id of the unit.
-	 *
-	 * \param mode Either the mode being searched for, or a bitmask with bit
-	 * 29 set and bits 0-28 corresponding to modes of units being searched
-	 * for.
-	 *
-	 * \return The first item found that matches the description.
-	 */
-	Unit getItem(uint32_t classId, uint32_t mode);
-
 	/** Get an item from inventory by name, mode and nUnitId.
 	 *
 	 * \param name The name of the unit to look for.
@@ -165,7 +107,8 @@ public:
 	 *
 	 * \return The first item found that matches the description.
 	 */
-	Unit getItem(String name, uint32_t mode, uint32_t nUnitId);
+	Unit getItem(String name, uint32_t mode = (uint32_t) -1,
+		uint32_t nUnitId = (uint32_t)-1);
 
 	/** Get an item from inventory by classId, mode and nUnitId.
 	 *
@@ -179,7 +122,8 @@ public:
 	 *
 	 * \return The first item found that matches the description.
 	 */
-	Unit getItem(uint32_t classId, uint32_t mode, uint32_t nUnitId);
+	Unit getItem(uint32_t classId = (uint32_t)-1, uint32_t mode = (uint32_t)-1,
+		uint32_t nUnitId = (uint32_t)-1);
 
 	/** Get all items from inventory.
 	 *
@@ -326,28 +270,6 @@ public:
 	 */
 	bool getFlag(int flags);
 
-	/** Get a stat by stat id.
-	 *
-	 * Used for everything except stats 6-11.
-	 *
-	 * \param nStat The stat type.
-	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
-	 *
-	 * \return The stat value.
-	 */
-	double getStat(int nStat);
-
-	/** Get a stat by stat id and sub index.
-	 *
-	 * Used for stats 6-11.
-	 *
-	 * \param nStat The stat type.
-	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
-	 *
-	 * \return The stat value.
-	 */
-	int getStat(int nStat);
-
 	/** Get a stat by stat id and sub index.
 	 *
 	 * Used for stat 13.
@@ -360,7 +282,7 @@ public:
 	 *
 	 * \return The stat value.
 	 */
-	double getStat(int nStat, int nSubIndex);
+	double getStat(int nStat, int nSubIndex = 0);
 
 	/** Get a stat by stat id and sub index.
 	 *
@@ -374,16 +296,7 @@ public:
 	 *
 	 * \return The stat value.
 	 */
-	int getStat(int nStat, int nSubIndex);
-
-	/** Get an array of all the stats of the item.
-	 *
-	 * \param nStat Set to -1.
-	 *
-	 * \return An array of the first 64 stats. The indices of the inner array
-	 * are: 0 - nStat, 1 - nSubIndex, 2 - nValue.
-	 */
-	int[][] getStat(int nStat);
+	int getStat(int nStat, int nSubIndex = 0);
 
 	/** Get an array of all the stats of the item.
 	 *
@@ -394,7 +307,7 @@ public:
 	 * \return An array of the first 64 stats. The indices of the inner array
 	 * are: 0 - nStat, 1 - nSubIndex, 2 - nValue.
 	 */
-	int[][] getStat(int nStat, int nSubIndex);
+	int[][] getStat(int nStat, int nSubIndex = 0);
 
 	/** Return whether or not the unit has a given state.
 	 *
@@ -403,37 +316,6 @@ public:
 	 * \return Whether or not the unit has the state.
 	 */
 	bool getState(int nState);
-
-	/** Get the price of the item at npc 148, with "buysell" of 0, in the
-	 * current difficult.
-	 *
-	 * \todo Determine if this is the buy or sell price. "buysell" is 0.
-	 *
-	 * \return Some sort of price.
-	 */
-	int getPrice();
-
-	/** Get the price of the item at a given npc, with "buysell" of 0, in the
-	 * current difficulty.
-	 *
-	 * \todo Determine the meaning of "buysell".
-	 *
-	 * \param npc The npc to determine the price at.
-	 *
-	 * \return The price requested.
-	 */
-	int getPrice(Unit npc);
-
-	/** Get the price of the item at a given npc (by id), with "buysell" of 0,
-	 * in the current difficulty.
-	 *
-	 * \todo Determine the meaning of "buysell".
-	 *
-	 * \param npcId The id of the npc to determine the price at.
-	 *
-	 * \return The price requested.
-	 */
-	int getPrice(int npcId);
 
 	/** Get the price of the item at a given npc, with choice of buying or
 	 * selling, in the current difficulty.
@@ -446,7 +328,7 @@ public:
 	 *
 	 * \return The price requested.
 	 */
-	int getPrice(Unit npc, int buysell);
+	int getPrice(Unit npc, int buysell = 0);
 
 	/** Get the price of the item at a given npc (by id), which choice of buying
 	 * or selling, in the current difficulty.
@@ -459,7 +341,7 @@ public:
 	 *
 	 * \return The price requested.
 	 */
-	int getPrice(int npcId, int buysell);
+	int getPrice(int npcId = 148, int buysell = 0);
 
 	/** Get the price of the item at a given npc, with choice of buying or
 	 * selling, in a given difficulty.
@@ -567,13 +449,6 @@ public:
 	 */
 	int getMinionCount(int nType);
 
-	/** Get price to repair this unit at the current npc or npc 0x9A if not
-	 * currently interacting.
-	 *
-	 * \return The price to repair the given unit.
-	 */
-	int getRepairCost();
-
 	/** Get price to repair this unit at the current npc given by nNpcClassId.
 	 *
 	 * \param nNpcClassId The class id of the npc to get the price for repair
@@ -581,15 +456,7 @@ public:
 	 *
 	 * \return The price to repair the given unit.
 	 */
-	int getRepairCost(int nNpcClassId);
-
-	/** Get the cost to do something (buy, sell, repair) with the given item.
-	 *
-	 * \param nMode What to do: 0 - buy, 1 - sell, 2 - repair.
-	 *
-	 * \return The price.
-	 */
-	int getItemCost(int nMode);
+	int getRepairCost(int nNpcClassId = 154);
 
 	/** Get the cost to do something (buy, sell, repair) with the given item, at
 	 * the given npc.
@@ -600,7 +467,7 @@ public:
 	 *
 	 * \return The price.
 	 */
-	int getItemCost(int nMode, int nNpcClassId);
+	int getItemCost(int nMode, int nNpcClassId = 154);
 
 	/** Get the cost to do something (buy, sell, repair) with the given item, at
 	 * the given npc, in the given difficulty.

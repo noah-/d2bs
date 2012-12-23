@@ -18,27 +18,13 @@ public:
 
 	/** Get the PresetUnit s from the current Room.
 	 *
-	 * \return An array of all the PresetUnit s from the current Room.
-	 */
-	PresetUnit[] getPresetUnits();
-
-	/** Get the PresetUnit s from the current Room.
-	 *
-	 * \param nType The type of Unit to get. See Unit::type.
-	 *
-	 * \return An array of all the PresetUnit s from the current Room.
-	 */
-	PresetUnit[] getPresetUnits(int nType);
-
-	/** Get the PresetUnit s from the current Room.
-	 *
 	 * \param nType The type of Unit to get. See Unit::type.
 	 *
 	 * \param nClass The class id of the Unit (s) to find. See Unit::classId.
 	 *
 	 * \return An array of all the PresetUnit s from the current Room.
 	 */
-	PresetUnit[] getPresetUnits(int nType, int nClass);
+	PresetUnit[] getPresetUnits(int nType = 0, int nClass = 0);
 
 	/** Get the collision data for the Room.
 	 *

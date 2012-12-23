@@ -26,6 +26,8 @@ extern JSClass folder_class;
 extern JSClass control_class;
 extern JSClass area_class;
 extern JSClass unit_class;
+extern JSClass profile_class;
+extern JSClass profileType_class;
 
 //extern JSExtendedClass unit_class_ex;
 //extern JSExtendedClass file_class_ex;

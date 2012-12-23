@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include "js32.h"
+#include "Offset.h"
 
 CLASS_CTOR(unit);
 
@@ -87,6 +88,7 @@ enum me_tinyid {
 	ME_GAMESTARTTIME,
 	ME_GAMETYPE,
 	ME_ITEMONCURSOR,
+	ME_AUTOMAP,
 	ME_LADDER,
 	ME_PING,
 	ME_FPS,
@@ -120,6 +122,7 @@ static JSPropertySpec me_props[] = {
 	{"gamestarttime",	ME_GAMESTARTTIME,	JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"gametype",		ME_GAMETYPE,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"itemoncursor",	ME_ITEMONCURSOR,	JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"automap",			ME_AUTOMAP,			JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"ladder",			ME_LADDER,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"ping",			ME_PING,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"fps",				ME_FPS,				JSPROP_PERMANENT_VAR,	unit_getProperty},

@@ -1,75 +1,6 @@
 /** \defgroup globalFunctions Global functions
  */
 
-/** Get a unit by type.
- *
- * \ingroup globalFunctions
- *
- * \param type The type of the unit. Set to -1 to get any unit. 100 gets the
- * cursor item, 101 gets the selected unit.
- *
- * \return The first unit found that matches the description.
- */
-Unit getUnit(int type);
-
-/** Get a unit by type and name.
- *
- * \ingroup globalFunctions
- *
- * \param type The type of the unit. Set to -1 to get any unit. 100 gets the
- * cursor item, 101 gets the selected unit.
- *
- * \param name The name of the unit to look for.
- *
- * \return The first unit found that matches the description.
- */
-Unit getUnit(int type, char* name);
-
-/** Get a unit by type and class id.
- *
- * \ingroup globalFunctions
- *
- * \param type The type of the unit. Set to -1 to get any unit. 100 gets the
- * cursor item, 101 gets the selected unit.
- *
- * \param classId The class id of the unit.
- *
- * \return The first unit found that matches the description.
- */
-Unit getUnit(int type, uint32_t classId);
-
-/** Get a unit by type, name and mode.
- *
- * \ingroup globalFunctions
- *
- * \param type The type of the unit. Set to -1 to get any unit. 100 gets the
- * cursor item, 101 gets the selected unit.
- *
- * \param name The name of the unit to look for.
- *
- * \param mode Either the mode being searched for, or a bitmask with bit 29 set
- * and bits 0-28 corresponding to modes of units being searched for.
- *
- * \return The first unit found that matches the description.
- */
-Unit getUnit(int type, char* name, uint32_t mode);
-
-/** Get a unit by type, classId and mode.
- *
- * \ingroup globalFunctions
- *
- * \param type The type of the unit. Set to -1 to get any unit. 100 gets the
- * cursor item, 101 gets the selected unit.
- *
- * \param classId The class id of the unit.
- *
- * \param mode Either the mode being searched for, or a bitmask with bit 29 set
- * and bits 0-28 corresponding to modes of units being searched for.
- *
- * \return The first unit found that matches the description.
- */
-Unit getUnit(int type, uint32_t classId, uint32_t mode);
-
 /** Get a unit by type, name, mode and nUnitId.
  *
  * \ingroup globalFunctions
@@ -86,7 +17,8 @@ Unit getUnit(int type, uint32_t classId, uint32_t mode);
  *
  * \return The first unit found that matches the description.
  */
-Unit getUnit(int type, char* name, uint32_t mode, uint32_t nUnitId);
+Unit getUnit(int type = -1, String name = "", uint32_t mode = (uint32_t)-1,
+	uint32_t nUnitId = (uint32_t)-1);
 
 /** Get a unit by type, classId, mode and nUnitId.
  *
@@ -104,53 +36,8 @@ Unit getUnit(int type, char* name, uint32_t mode, uint32_t nUnitId);
  *
  * \return The first unit found that matches the description.
  */
-Unit getUnit(int type, uint32_t classId, uint32_t mode, uint32_t nUnitId);
-
-/** Creates a path walking from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area ID, source and destination points as parameters.
- *
- * \ingroup globalFunctions
- *
- * \param Area The Area ID to path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY);
-
-/** Creates a path (walking or teleporting) from the source to the destination.
- * Returns an array of points that form a path from the source to the
- * destination. Takes Area ID, source and destination points, and walking or
- * teleporting as parameters.
- *
- * \ingroup globalFunctions
- *
- * \param Area The Area ID to path through.
- *
- * \param srcX The source X coordinate.
- *
- * \param srcY The source Y coordinate.
- *
- * \param dstX The destination X coordinate.
- *
- * \param dstY The destination Y coordinate.
- *
- * \param reductionType The type of reduction: {0 - walking, 1 - teleport,
- * 	2 - none}
- *
- * \return The path as an array of objects with x and y properties.
- */
-object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, uint32_t reductionType);
+Unit getUnit(int type = -1, uint32_t classId = (uint32_t)-1,
+	uint32_t mode = (uint32_t)-1, uint32_t nUnitId = (uint32_t)-1);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
@@ -177,7 +64,7 @@ object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  * \return The path as an array of objects with x and y properties.
  */
 object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, uint32_t reductionType, uint32_t Radius);
+	int dstY, uint32_t reductionType = 0, uint32_t Radius = 20);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
@@ -302,23 +189,11 @@ String getLocaleString(uint16_t localeId);
  *
  * \param font The font to use.
  *
- * \return The width and height of the text. 0 - width, 1 - height.
- */
-int[] getTextSize(String string, int font);
-
-/** Get the width and height of the given text in the given font.
- *
- * \ingroup globalFunctions
- *
- * \param string The string to get the size of.
- *
- * \param font The font to use.
- *
  * \param asObject False to return as an array.
  *
  * \return The width and height of the text. 0 - width, 1 - height.
  */
-int[] getTextSize(String string, int font, bool asObject);
+int[] getTextSize(String string, int font, bool asObject = false);
 
 /** Get the width and height of the given text in the given font.
  *
@@ -510,28 +385,6 @@ Party getParty(uint32_t playerId);
  */
 Party getParty(Unit player);
 
-/** Get the first PresetUnit in the given level.
- *
- * \ingroup globalFunctions
- *
- * \param levelId The area id of the level to look for a PresetUnit in.
- *
- * \return The first PresetUnit found.
- */
-PresetUnit getPresetUnit(uint32_t levelId);
-
-/** Get the first PresetUnit of the given type.
- *
- * \ingroup globalFunctions
- *
- * \param levelId The area id of the level to look for a PresetUnit in.
- *
- * \param nType The type of the PresetUnit. See getUnit for type codes.
- *
- * \return The first PresetUnit found of type nType.
- */
-PresetUnit getPresetUnit(uint32_t levelId, int nType);
-
 /** Get the first PresetUnit of the given type and class id.
  *
  * \ingroup globalFunctions
@@ -546,29 +399,7 @@ PresetUnit getPresetUnit(uint32_t levelId, int nType);
  *
  * \return The first PresetUnit found of type nType and class ID nClassId.
  */
-PresetUnit getPresetUnit(uint32_t levelId, int nType, int nClassId);
-
-/** Get an array of all the PresetUnit s in the given level.
- *
- * \ingroup globalFunctions
- *
- * \param levelId The area id of the level to look for PresetUnit s in.
- *
- * \return An array of all the PresetUnit s on the given level.
- */
-PresetUnit[] getPresetUnits(uint32_t levelId);
-
-/** Get an array of all the PresetUnit s of the given type.
- *
- * \ingroup globalFunctions
- *
- * \param levelId The area id of the level to look for PresetUnit s in.
- *
- * \param nType The type of the PresetUnit. See getUnit for type codes.
- *
- * \return An array of all PresetUnit s found of type nType.
- */
-PresetUnit[] getPresetUnits(uint32_t levelId, int nType);
+PresetUnit getPresetUnit(uint32_t levelId, int nType = 0, int nClassId = 0);
 
 /** Get an array of PresetUnit s of the given type and class id.
  *
@@ -584,7 +415,7 @@ PresetUnit[] getPresetUnits(uint32_t levelId, int nType);
  *
  * \return An array of PresetUnit s found of type nType and class ID nClassId.
  */
-PresetUnit[] getPresetUnits(uint32_t levelId, int nType, int nClassId);
+PresetUnit[] getPresetUnits(uint32_t levelId, int nType = 0, int nClassId = 0);
 
 /** Get the Area where the controlled unit currently resides.
  *
@@ -876,67 +707,8 @@ double getBaseStat(String szTableName, int32_t nClassId, int32_t nStat);
  */
 double getBaseStat(int32_t nBaseStat, int32_t nClassId, int32_t nStat);
 
-/** Get the control specified by type.
- *
- * \ingroup globalFunctions
- *
- * \param nType The type of control (button, text box, etc.)
- *
- * \todo Get a reference for nType
- *
- * \return A Control object representing the Control found.
- */
-Control getControl(int32_t nType);
-
-/** Get the control specified by type, x location.
- *
- * \ingroup globalFunctions
- *
- * \param nType The type of control (button, text box, etc.)
- *
- * \param nX The x coordinate of the control of the control to find.
- *
- * \todo Get a reference for nType
- *
- * \return A Control object representing the Control found.
- */
-Control getControl(int32_t nType, int32_t nX);
-
-/** Get the control specified by type and location.
- *
- * \ingroup globalFunctions
- *
- * \param nType The type of control (button, text box, etc.)
- *
- * \param nX The x coordinate of the control of the control to find.
- *
- * \param nY The y coordinate of the control of the control to find.
- *
- * \todo Get a reference for nType
- *
- * \return A Control object representing the Control found.
- */
-Control getControl(int32_t nType, int32_t nX, int32_t nY);
-
-/** Get the control specified by type, location and width.
- *
- * \ingroup globalFunctions
- *
- * \param nType The type of control (button, text box, etc.)
- *
- * \param nX The x coordinate of the control of the control to find.
- *
- * \param nY The y coordinate of the control of the control to find.
- *
- * \param nXSize The width of the control.
- *
- * \todo Get a reference for nType
- *
- * \return A Control object representing the Control found.
- */
-Control getControl(int32_t nType, int32_t nX, int32_t nY, int32_t nXSize);
-
-/** Get the control specified by type, location and size.
+/** Get the control specified by type, location and size. -1 indicates parameter
+ * not to be matched against.
  *
  * \ingroup globalFunctions
  *
@@ -954,8 +726,8 @@ Control getControl(int32_t nType, int32_t nX, int32_t nY, int32_t nXSize);
  *
  * \return A Control object representing the Control found.
  */
-Control getControl(int32_t nType, int32_t nX, int32_t nY, int32_t nXSize,
-	int32_t nYSize);
+Control getControl(int32_t nType = -1, int32_t nX = -1, int32_t nY = -1,
+	int32_t nXSize = -1, int32_t nYSize = -1);
 
 /** Get the relation between two units.
  *
@@ -1041,19 +813,13 @@ bool isIncluded(String file);
  */
 bool include(String file);
 
-/** Stop all scripts.
- *
- * \ingroup globalFunctions
- */
-void stop();
-
 /** Conditionally stop current script.
  *
  * \ingroup globalFunctions
  *
  * \param stop 1 if current script should be stopped.
  */
-void stop(int stop);
+void stop(int stop = 0);
 
 /** Conditionnaly stop current script.
  *
@@ -1505,24 +1271,6 @@ void login(String profile);
  */
 bool selectCharacter(String profile);
 
-/** Create a game with the given name.
- *
- * \ingroup globalFunctions
- *
- * \param name The game name
- */
-void createGame(String name);
-
-/** Create a game with the given name and password.
- *
- * \ingroup globalFunctions
- *
- * \param name The game name
- *
- * \param pass The game password
- */
-void createGame(String name, String pass);
-
 /** Create a game with the given name and password in the given difficulty.
  *
  * \ingroup globalFunctions
@@ -1534,15 +1282,7 @@ void createGame(String name, String pass);
  * \param diff The game difficulty. 0 - normal, 1 - nightmare, 2 - hell, 3 - 
  * hardest difficulty available.
  */
-void createGame(String name, String pass, int32_t diff);
-
-/** Join a game with the given name.
- *
- * \ingroup globalFunctions
- *
- * \param name The game name.
- */
-void joinGame(String name);
+void createGame(String name, String pass = "", int32_t diff = 3);
 
 /** Join a game with the given name and password.
  *
@@ -1552,27 +1292,7 @@ void joinGame(String name);
  *
  * \param pass The game password.
  */
-void joinGame(String name, String pass);
-
-/** Create a profile with the given profile name, mode, gateway, username,
- * password and character name.
- *
- * \ingroup globalFunctions
- *
- * \param profile The profile name.
- *
- * \param mode The mode (single player/battle.net/etc).
- *
- * \param gateway The realm gateway.
- *
- * \param username Account username.
- *
- * \param password Account password.
- *
- * \param charname Character name (case sensitive).
- */
-void addProfile(String profile, String mode, String gateway, String username,
-	String password, String charname);
+void joinGame(String name, String pass = "");
 
 /** Create a profile with the given profile name, mode, gateway, username,
  * password, character name and single player difficulty.
@@ -1595,7 +1315,7 @@ void addProfile(String profile, String mode, String gateway, String username,
  * character.
  */
 void addProfile(String profile, String mode, String gateway, String username,
-	String password, String charname, int spDifficulty);
+	String password, String charname, int spDifficulty = 3);
 
 /** Get the current OOG location.
  *
@@ -1624,24 +1344,6 @@ void loadMpq(String path);
  */
 bool submitItem();
 
-/** Get the mouse coordinates (in screen space) and return as an array.
- *
- * \ingroup globalFunctions
- *
- * \return The mouse coordinates in an array. 0 - x, 1 - y.
- */
-int[] getMouseCoords();
-
-/** Get the mouse coordinates (in screen or map space) and return as an array.
- *
- * \ingroup globalFunctions
- *
- * \param nFlag Whether to return in map space (true) or screen space (false).
- *
- * \return The mouse coordinates in an array. 0 - x, 1 - y.
- */
-int[] getMouseCoords(bool nFlag);
-
 /** Get the mouse coordinates (in screen or map space) and return as an array.
  *
  * \ingroup globalFunctions
@@ -1653,7 +1355,7 @@ int[] getMouseCoords(bool nFlag);
  *
  * \return The mouse coordinates in an array. 0 - x, 1 - y.
  */
-int[] getMouseCoords(bool nFlag, int nReturn);
+int[] getMouseCoords(bool nFlag = false, bool nReturn = false);
 
 /** Get the mouse coordinates (in screen or map space) and return as an Object.
  *
@@ -1666,7 +1368,7 @@ int[] getMouseCoords(bool nFlag, int nReturn);
  *
  * \return The mouse coordinates in an array. Has properties .x and .y.
  */
-Object getMouseCoords(bool nFlag, int nReturn);
+Object getMouseCoords(bool nFlag, bool nReturn);
 
 /** Copy the cached data associated with given unit. This is things like type
  * and unit id.
@@ -1798,12 +1500,6 @@ void tradeOk();
  */
 object[] getDialogLines();
 
-/** Make the windows default beep sound.
- *
- * \ingroup globalFunctions
- */
-void beep();
-
 /** Beep with beep ID nBeepId.
  *
  * \ingroup globalFunctions
@@ -1811,7 +1507,7 @@ void beep();
  * \param nBeepId ID of the beep to make. See:
  * http://msdn.microsoft.com/en-us/library/ms680356%28VS.85%29.aspx .
  */
-void beep(init nBeepId);
+void beep(int nBeepId = 0);
 
 /** Click an item.
  *
@@ -1973,14 +1669,6 @@ double getDistance(int32_t ax, int32_t ay, Unit b);
  */
 double getDistance(int32_t ax, int32_t ay, int32_t bx, int32_t by);
 
-/** Drop some gold.
- *
- * \ingroup globalFunctions
- *
- * \param nGold The amount of gold to drop.
- */
-void gold(int nGold);
-
 /** Do something with some gold.
  *
  * \ingroup globalFunctions
@@ -1991,7 +1679,7 @@ void gold(int nGold);
  *
  * \param nMode What to do with the gold.
  */
-void gold(int nGold, int nMode);
+void gold(int nGold = 0, int nMode = 1);
 
 /** Check if two units collide.
  *
@@ -2051,14 +1739,6 @@ bool say(...);
  */
 bool clickParty(Party player, int nMode);
 
-/** Switch the weapons.
- *
- * \ingroup globalFunctions
- *
- * \return true
- */
-bool weaponSwitch();
-
 /** Get which weapon switch is being used.
  *
  * \ingroup globalFunctions
@@ -2077,7 +1757,7 @@ int weaponSwitch(int32_t dummy);
  *
  * \return true
  */
-bool weaponSwitch(int32_t dummy);
+bool weaponSwitch(int32_t dummy = 0);
 
 /** Hit the transmute button.
  *
@@ -2095,39 +1775,11 @@ void transmute();
  *
  * \todo Come up with a reference for the statType values
  *
- * \param statType The type of stat to add the point to
- */
-void useStatPoint(uint16_t statType);
-
-/** Use a stat point.
- *
- * BE CAREFUL! This function directly sends packets without checks. If you
- * call this function and do not have the points, or specify an invalid stat,
- * you might get flagged/banned.
- *
- * \ingroup globalFunctions
- *
- * \todo Come up with a reference for the statType values
- *
  * \param statType The type of stat to add the points to
  *
  * \param count The number of points to add
  */
-void useStatPoint(uint16_t statType, uint32_t count);
-
-/** Use a skill point
- *
- * BE CAREFUL! This function directly sends packets without checks. If you
- * call this function and do not have the points, or specify an invalid skill,
- * you might get flagged/banned.
- *
- * \ingroup globalFunctions
- *
- * \todo Come up with a reference for the skill values
- *
- * \param skill The skill to add the point to
- */
-void useSkillPoint(uint16_t skill);
+void useStatPoint(uint16_t statType, uint32_t count = 1);
 
 /** Use a skill point
  *
@@ -2143,7 +1795,7 @@ void useSkillPoint(uint16_t skill);
  *
  * \param count The number points to spend
  */
-void useSkillPoint(uint16_t skill, uint32_t count);
+void useSkillPoint(uint16_t skill, uint32_t count = 1);
 
 /** Take a screenshot
  *

@@ -8,6 +8,7 @@
 #include "D2Ptrs.h"
 #include "Helpers.h"
 #include "DbgHelp.h"
+#include "Profile.h"
 
 wchar_t* AnsiToUnicode(const char* str)
 {
@@ -49,7 +50,7 @@ void StringReplace(char* str, const char find, const char replace, size_t buflen
 
 bool SwitchToProfile(const char* profile)
 {
-	if(Vars.bUseProfileScript != TRUE || !ProfileExists(profile))
+	if(Vars.bUseProfileScript != TRUE || !Profile::ProfileExists(profile))
 		return false;
 
 	char file[_MAX_FNAME+_MAX_PATH] = "",
@@ -72,26 +73,6 @@ bool SwitchToProfile(const char* profile)
 	Vars.bUseProfileScript = FALSE;
 	//Reload();
 	return true;
-}
-
-bool ProfileExists(const char *profile)
-{
-	char file[_MAX_FNAME+_MAX_PATH], profiles[65535] = "";
-	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
-
-	int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
-	if(count > 0)
-	{
-		int i = 0;
-		while(i < count)
-		{
-			if(_strcmpi(profiles+i, profile) == 0)
-				return true;
-
-			i += strlen(profiles+i)+1;
-		}
-	}
-	return false;
 }
 
 void InitSettings(void)
