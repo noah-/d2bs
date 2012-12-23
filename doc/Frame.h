@@ -10,136 +10,6 @@ class Frame
 public:
 	/** Create a Frame hook with the given parameters.
 	 *
-	 * Uses defaults x = 0, y = 0, x2 = 0, y2 = 0, align = 0, automap = false,
-	 * click = null, hover = null.
-	 */
-	Frame();
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults y = 0, x2 = 0, y2 = 0, align = 0, automap = false,
-	 * click = null, hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 */
-	Frame(int x);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults x2 = 0, y2 = 0, align = 0, automap = false, click = null,
-	 * hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 */
-	Frame(int x, int y);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults y2 = 0, align = 0, automap = false, click = null,
-	 * hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 *
-	 * \param x2 The xsize (width) of the Frame.
-	 */
-	Frame(int x, int y, int x2);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults align = 0, automap = false, click = null, hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 *
-	 * \param x2 The xsize (width) of the Frame.
-	 *
-	 * \param y2 The ysize (height) of the Frame.
-	 */
-	Frame(int x, int y, int x2, int y2);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults automap = false, click = null, hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 *
-	 * \param x2 The xsize (width) of the Frame.
-	 *
-	 * \param y2 The ysize (height) of the Frame.
-	 *
-	 * \param align The horizontal alignment.
-	 *
-	 * 0 - Left
-	 *
-	 * 1 - Right
-	 *
-	 * 2 - Center
-	 */
-	Frame(int x, int y, int x2, int y2, int align);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses defaults automap = false, click = null, hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 *
-	 * \param x2 The xsize (width) of the Frame.
-	 *
-	 * \param y2 The ysize (height) of the Frame.
-	 *
-	 * \param align The horizontal alignment.
-	 *
-	 * 0 - Left
-	 *
-	 * 1 - Right
-	 *
-	 * 2 - Center
-	 *
-	 * \param automap Whether the Frame is in automap coordinate space (true) or
-	 * screen coordinate space (false).
-	 */
-	Frame(int x, int y, int x2, int y2, int align, bool automap);
-
-	/** Create a Frame hook with the given parameters.
-	 *
-	 * Uses default hover = null.
-	 *
-	 * \param x The x coordinate (left) of the Frame.
-	 *
-	 * \param y The y coordinate (top) of the Frame.
-	 *
-	 * \param x2 The xsize (width) of the Frame.
-	 *
-	 * \param y2 The ysize (height) of the Frame.
-	 *
-	 * \param align The horizontal alignment.
-	 *
-	 * 0 - Left
-	 *
-	 * 1 - Right
-	 *
-	 * 2 - Center
-	 *
-	 * \param automap Whether the Frame is in automap coordinate space (true) or
-	 * screen coordinate space (false).
-	 *
-	 * \param click The click handler that gets called when the Frame is
-	 * clicked.
-	 */
-	Frame(int x, int y, int x2, int y2, int align, bool automap,
-		ClickHandler click);
-
-	/** Create a Frame hook with the given parameters.
-	 *
 	 * \param x The x coordinate (left) of the Frame.
 	 *
 	 * \param y The y coordinate (top) of the Frame.
@@ -165,8 +35,9 @@ public:
 	 * \param hover The hover handler that gets called when the Frame gets
 	 * hovered over.
 	 */
-	Frame(int x, int y, int x2, int y2, int align, bool automap,
-		ClickHandler click, HoverHandler hover);
+	Frame(int x = 0, int y = 0, int x2 = 0, int y2 = 0, int align = 0,
+		bool automap = false, ClickHandler click = null,
+		HoverHandler hover = null);
 
 	/** Remove the Frame from the screen and destroy the corresponding object.
 	 */

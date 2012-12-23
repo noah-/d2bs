@@ -117,6 +117,11 @@ JSAPI_PROP(unit_getProperty)
 		case ME_ITEMONCURSOR:
 			*vp = BOOLEAN_TO_JSVAL(!!D2CLIENT_GetCursorItem());
 			break;
+		case ME_AUTOMAP:
+			*vp = *p_D2CLIENT_AutomapOn ? JSVAL_TRUE : JSVAL_FALSE;
+			//JS_NewNumberValue(cx, (jsdouble)(*p_D2CLIENT_AutomapOn), vp);
+			//*vp = *p_D2CLIENT_AutomapOn;
+			break;
 		case ME_LADDER:
 			if(pData)
 				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
@@ -145,7 +150,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
+			*vp = BOOLEAN_TO_JSVAL( (ClientState() == ClientStateMenu ? false : true));
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
@@ -454,12 +459,12 @@ JSAPI_PROP(unit_getProperty)
 				wchar_t wBuffer[2048] = L"";
 				wchar_t bBuffer[1] = {1};
 
-				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB1C, bBuffer, 1, NULL);  
-				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB28, &pUnit, 4, NULL);  
+				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB1C), bBuffer, 1, NULL); // d2client + 0x11cb1c
+				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB28), &pUnit, 4, NULL); // d2client + 0x11cb28
 
 				//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
 				D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
-				ReadProcessBYTES(GetCurrentProcess(), 0x6F9A9E68, wBuffer, 2047); 
+				ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
 
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
@@ -577,6 +582,9 @@ JSAPI_STRICT_PROP(unit_setProperty)
 				if(pUnit == D2CLIENT_GetPlayerUnit())
 					*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
 			}
+			break;
+		case ME_AUTOMAP:
+			*p_D2CLIENT_AutomapOn = JSVAL_TO_BOOLEAN(*vp) ? 1 : 0;
 			break;
 		case ME_NOPICKUP:
 			*p_D2CLIENT_NoPickUp = !!JSVAL_TO_INT(*vp);

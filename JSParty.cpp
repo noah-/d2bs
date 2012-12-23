@@ -114,8 +114,9 @@ JSAPI_FUNC(my_getParty)
 			JS_BeginRequest(cx);
 			if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nPlayerId))
 			{
-				THROW_ERROR(cx, "Unable to get ID");
 				JS_EndRequest(cx);
+				THROW_ERROR(cx, "Unable to get ID");
+				
 			}
 			JS_EndRequest(cx);
 		}

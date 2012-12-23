@@ -1,3 +1,4 @@
+#pragma comment(lib, "psapi.lib") // Added to support GetProcessMemoryInfo()
 #pragma once
 
 #define XP_WIN

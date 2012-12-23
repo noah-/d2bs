@@ -4,25 +4,13 @@ class SQLite
 {
 public:
 	/** Create a database object which can be used to open SQLite databases and
-	 * execute queries. Opens the :memory: path immediately.
-	 */
-	SQLite();
-
-	/** Create a database object which can be used to open SQLite databases and
-	 * execute queries. Opens the database immediately.
-	 *
-	 * \param path The path to the database to open.
-	 */
-	SQLite(String path);
-
-	/** Create a database object which can be used to open SQLite databases and
 	 * execute queries.
 	 *
 	 * \param path The path to the database to open.
 	 *
 	 * \param autoOpen Whether to open the database immediately or not.
 	 */
-	SQLite(String path, bool autoOpen);
+	SQLite(String path = ":memory:", bool autoOpen = true);
 
 	/** Execute a query on the database.
 	 *

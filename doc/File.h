@@ -69,16 +69,6 @@ public:
 	 */
 	File seek(int n);
 
-	/** Seek n bytes or lines (depending on isLines) from the current location.
-	 *
-	 * \param n Number of bytes or lines to move.
-	 *
-	 * \param isLines Whether n is a number of lines, or just bytes.
-	 *
-	 * \return The File.
-	 */
-	File seek(int n, bool isLines);
-
 	/** Seek n bytes or lines (depending on isLines) from the current location
 	 * or the start of file (depending on fromStart).
 	 *
@@ -91,7 +81,7 @@ public:
 	 *
 	 * \return The File.
 	 */
-	File seek(int n, bool isLines, bool fromStart);
+	File seek(int n, bool isLines, bool fromStart = false);
 
 	/** Flush the buffers for the File.
 	 *
@@ -129,48 +119,6 @@ public:
 
 	/** Open a file with the given settings.
 	 *
-	 * Uses defaults: autoflush = false, lockFile = false.
-	 *
-	 * \param file The filename.
-	 *
-	 * \param mode The mode of the file (read/write/append). Use FILE_READ,
-	 * FILE_WRITE and FILE_APPEND.
-	 * FILE_READ corresponds to a C mode of "r".
-	 * FILE_WRITE corresponds to a C mode of "w+".
-	 * FILE_APPEND corresponds to a C mode of "a+".
-	 *
-	 * \param binary Whether to open the file in text or binary mode. If opening
-	 * in text mode a "t" is appended to the C mode, otherwise a "b" is
-	 * appended.
-	 *
-	 * \return The File object just created.
-	 */
-	static File open(String file, int mode, bool binary);
-
-	/** Open a file with the given settings.
-	 *
-	 * Uses default: lockFile = false.
-	 *
-	 * \param file The filename.
-	 *
-	 * \param mode The mode of the file (read/write/append). Use FILE_READ,
-	 * FILE_WRITE and FILE_APPEND.
-	 * FILE_READ corresponds to a C mode of "r".
-	 * FILE_WRITE corresponds to a C mode of "w+".
-	 * FILE_APPEND corresponds to a C mode of "a+".
-	 *
-	 * \param binary Whether to open the file in text or binary mode. If opening
-	 * in text mode a "t" is appended to the C mode, otherwise a "b" is
-	 * appended.
-	 *
-	 * \param autoflush Whether to flush after each write.
-	 *
-	 * \return The File object just created.
-	 */
-	static File open(String file, int mode, bool binary, bool autoflush);
-
-	/** Open a file with the given settings.
-	 *
 	 * \param file The filename.
 	 *
 	 * \param mode The mode of the file (read/write/append). Use FILE_READ,
@@ -189,8 +137,8 @@ public:
 	 *
 	 * \return The File object just created.
 	 */
-	static File open(String file, int mode, bool binary, bool autoflush,
-		bool lockFile);
+	static File open(String file, int mode, bool binary = false,
+		bool autoflush = false, bool lockFile = false);
 
 	/** Whether or not the file can be read from. Based on whether the File is
 	 * open, whether it is at the end of file, and whether there is an error

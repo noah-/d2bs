@@ -64,6 +64,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</IgnoreImportLibrary>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -132,7 +133,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN;_MSVC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;XP_WIN;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN;STATIC_JS_API;_MSVC_DEBUG;_LIB;MOZILLA_STRICT_API;-D_NSPR_BUILD_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -156,7 +157,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shlwapi.lib;advapi32.lib;dbghelp.lib;dependencies\libs\debug\mozjs.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shlwapi.lib;advapi32.lib;dbghelp.lib;Winmm.lib;dependencies\js_static.lib;dependencies\nspr4.lib</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -178,6 +179,7 @@
     </PostBuildEvent>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Packaging|Win32'">
@@ -253,7 +255,9 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClCompile Include="Events.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="js32.cpp" />
+    <ClCompile Include="JSProfile.cpp" />
     <ClCompile Include="Offset.cpp" />
+    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="sqlite3.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SmallerTypeCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</SmallerTypeCheck>
@@ -316,6 +320,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="D2Ptrs.h" />
     <ClInclude Include="D2Skills.h" />
     <ClInclude Include="D2Structs.h" />
+    <ClInclude Include="JSProfile.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="D2Intercepts.h" />
     <ClInclude Include="D2Handlers.h" />
@@ -328,6 +333,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="js32.h" />
     <ClInclude Include="MapHeader.h" />
     <ClInclude Include="Offset.h" />
+    <ClInclude Include="Profile.h" />
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="stringhash.h" />
     <ClInclude Include="TimedAlloc.h" />

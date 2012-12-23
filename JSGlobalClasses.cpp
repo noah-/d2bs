@@ -13,6 +13,7 @@
 #include "JSExits.h"
 #include "JSRoom.h"
 #include "JSScript.h"
+#include "JSProfile.h"
 
 JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
@@ -127,7 +128,16 @@ JSClass unit_class = {
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
 			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize, unit_ctor)};
 
-	
+JSClass profile_class = {
+    "Profile", JSCLASS_HAS_PRIVATE,
+  JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, profile_finalize, profile_ctor)};
+
+JSClass profileType_class = {
+    "ProfileType", JSCLASS_HAS_PRIVATE,
+   JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+   JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, profileType_ctor)};
+
 	
 
 //JSExtendedClass unit_class_ex = {
@@ -159,7 +169,7 @@ JSClassSpec global_classes[] = {
 	{&exit_class,			0,	exit_ctor,			0,	NULL,			exit_props,				NULL,	NULL},
 	{&party_class,			0,	party_ctor,			0,	party_methods,	party_props,			NULL,	NULL},
 	{&room_class,			0,	room_ctor,			0,	room_methods,	room_props,				NULL,	NULL},
-	
+
 	{&file_class,			0,	file_ctor,			0,	file_methods,	file_props,				file_s_methods,	NULL},
 	{&filetools_class,		0,	filetools_ctor,		0,	NULL,			NULL,					filetools_s_methods,	NULL},
 	{&sqlite_db,			0,	sqlite_ctor,		0,	sqlite_methods,	sqlite_props,			NULL,	NULL},
@@ -187,6 +197,9 @@ JSClassSpec global_classes[] = {
 	//{&exit_class,			exit_props,			NULL,					NULL,			NULL},
 	//{&party_class,			party_props,		party_methods,			NULL,			NULL},
 	//{&room_class,			room_props,			room_methods,			NULL,			NULL},
+	//{&profile_class,		profile_props,		profile_methods,		NULL,			NULL},
+	//{&profileType_class,	NULL,				NULL,					profileType_props,
+	//																					NULL},
 
 	// utility objects
 	//{&file_class,	file_props,			file_methods,			NULL,			file_s_methods},

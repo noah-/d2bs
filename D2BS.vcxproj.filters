@@ -189,6 +189,12 @@
     <ClCompile Include="Map\Diablo_II\LevelMap.cpp">
       <Filter>Map\Diablo II</Filter>
     </ClCompile>
+    <ClCompile Include="JSProfile.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
+    <ClCompile Include="Profile.cpp">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2BS.h">
@@ -419,6 +425,12 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScriptEngine.h">
       <Filter>Spidermonkey Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="JSProfile.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="Profile.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

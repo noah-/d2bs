@@ -326,10 +326,11 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 					  JSOPTION_METHODJIT|
 					  JSOPTION_TYPE_INFERENCE|
 					  JSOPTION_RELIMIT|
+					  JSOPTION_MOAR_XML|
 					  JSOPTION_VAROBJFIX|
-					  //JSOPTION_XML|
+					  JSOPTION_ALLOW_XML|
 					  JSOPTION_STRICT);
-
+	
 		//JS_SetGCZeal(cx,2,1,false);
 	JSObject* globalObject = JS_NewCompartmentAndGlobalObject(cx, &global_obj, NULL);
 	JS_SetGCParameter(JS_GetRuntime(cx), JSGC_MODE, JSGC_MODE_INCREMENTAL);

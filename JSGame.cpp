@@ -11,6 +11,7 @@
 #include "JSGlobalClasses.h"
 #include "TimedAlloc.h"
 #include "MapHeader.h"
+#include "JSRoom.h"
 
 #include <cassert>
 #include <cmath>
@@ -1557,4 +1558,31 @@ JSAPI_FUNC(my_moveNPC)
     D2NET_SendPacket(sizeof(aPacket), 1, aPacket);
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
     return JS_TRUE;
+}
+
+JSAPI_FUNC(my_revealLevel)
+{
+	UnitAny* unit = D2CLIENT_GetPlayerUnit();
+
+	if (!unit) {
+		return JS_TRUE;
+	}
+
+	Level* level = unit->pPath->pRoom1->pRoom2->pLevel;
+
+	if (!level) {
+		return JS_TRUE;
+	}
+
+	BOOL bDrawPresets = false;
+
+	if (argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0])) {
+		bDrawPresets = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]);
+	}
+
+	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next) {
+		RevealRoom(room, bDrawPresets);
+	}
+
+	return JS_TRUE;
 }

@@ -44,4 +44,5 @@ JSAPI_FUNC(my_getWaypoint);
 JSAPI_FUNC(my_getBaseStat);
 JSAPI_FUNC(my_getPlayerFlag);
 JSAPI_FUNC(my_moveNPC);
+JSAPI_FUNC(my_revealLevel);
 #endif
