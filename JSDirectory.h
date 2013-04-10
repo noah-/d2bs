@@ -27,16 +27,16 @@ void dir_finalize(JSFreeOp *fop, JSObject *obj);
 enum {DIR_NAME};
 
 static JSPropertySpec dir_props[] = {
-	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	dir_getProperty},
-	{0}
+	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(dir_getProperty), JSOP_NULLWRAPPER },
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec dir_methods[] = {
-	{"create",			dir_create,			1},
-	{"remove",			dir_delete,			1},
-	{"getFiles",		dir_getFiles,		1},
-	{"getFolders",		dir_getFolders,		1},
-	{0}
+	JS_FS("create",			dir_create,			1, FUNCTION_FLAGS),
+	JS_FS("remove",			dir_delete,			1, FUNCTION_FLAGS),
+	JS_FS("getFiles",		dir_getFiles,		1, FUNCTION_FLAGS),
+	JS_FS("getFolders",		dir_getFolders,		1, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 class DirData {

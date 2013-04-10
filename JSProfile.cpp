@@ -101,6 +101,7 @@ CLASS_CTOR(profile)
 
 JSAPI_FUNC(profile_login)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	char* error;
 	Profile* prof;
 	
@@ -134,28 +135,28 @@ JSAPI_PROP(profile_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case PROFILE_TYPE:
-			*vp = INT_TO_JSVAL(prof->type);
+			vp.setInt32(prof->type);
 			break;
 		case PROFILE_IP:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, prof->ip));
+			vp.setString(JS_NewStringCopyZ(cx, prof->ip));
 			break;
 		case PROFILE_USERNAME:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, prof->username));
+			vp.setString(JS_NewStringCopyZ(cx, prof->username));
 			break;
 		case PROFILE_GATEWAY:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, prof->gateway));
+			vp.setString(JS_NewStringCopyZ(cx, prof->gateway));
 			break;
 		case PROFILE_CHARACTER:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, prof->charname));
+			vp.setString(JS_NewStringCopyZ(cx, prof->charname));
 			break;
 		case PROFILE_DIFFICULTY:
-			*vp = INT_TO_JSVAL(prof->diff);
+			vp.setInt32(prof->diff);
 			break;
 		case PROFILE_MAXLOGINTIME:
-			*vp = INT_TO_JSVAL(prof->maxLoginTime);
+			vp.setInt32(prof->maxLoginTime);
 			break;
 		case PROFILE_MAXCHARSELTIME:
-			*vp = INT_TO_JSVAL(prof->maxCharTime);
+			vp.setInt32(prof->maxCharTime);
 			break;
 	}
 
@@ -168,7 +169,7 @@ JSAPI_PROP(profileType_getProperty)
 {
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
-	*vp = ID;
+	vp.set(ID);
 
 	return JS_TRUE;
 }

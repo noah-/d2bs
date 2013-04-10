@@ -33,7 +33,7 @@ public:
 		// create the initial array to pass to the js function
 		int count = in.size();
 
-		JS_EnterLocalRootScope(cx);
+	//	JS_EnterLocalRootScope(cx);
 
 		jsval* vec = new jsval[count];
 		for(int i = 0; i < count; i++)
@@ -60,7 +60,7 @@ public:
 				out.push_back(in[i]);
 		}
 
-		JS_LeaveLocalRootScope(cx);
+//		JS_LeaveLocalRootScope(cx);
 		delete[] vec;
 	}
 	bool Reject(Point const & pt, bool abs)

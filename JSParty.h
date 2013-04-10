@@ -26,22 +26,22 @@ enum party_tinyid {
 
 
 static JSPropertySpec party_props[] = {
-	{"x",			PARTY_X,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"y",			PARTY_Y,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"area",		PARTY_AREA,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"gid",			PARTY_GID,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"life",		PARTY_LIFE,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"partyflag",	PARTY_FLAG,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"partyid",		PARTY_ID,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"name",		PARTY_NAME,			JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"classid",		PARTY_CLASSID,		JSPROP_PERMANENT_VAR,	party_getProperty},
-	{"level",		PARTY_LEVEL,		JSPROP_PERMANENT_VAR,	party_getProperty},
-	{0},
+	{"x",			PARTY_X,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"y",			PARTY_Y,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"area",		PARTY_AREA,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"gid",			PARTY_GID,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"life",		PARTY_LIFE,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"partyflag",	PARTY_FLAG,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"partyid",		PARTY_ID,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"name",		PARTY_NAME,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"classid",		PARTY_CLASSID,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{"level",		PARTY_LEVEL,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(party_getProperty), JSOP_NULLWRAPPER },
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec party_methods[] = {
-	{"getNext",			party_getNext,		0},
-	{0},
+	JS_FS("getNext",			party_getNext,		0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 #endif

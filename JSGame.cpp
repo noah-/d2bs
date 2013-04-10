@@ -210,7 +210,7 @@ JSAPI_FUNC(my_getDialogLines)
 
 	myMisc.EnterSection();
 
-	JS_EnterLocalRootScope(cx);
+//	JS_EnterLocalRootScope(cx);
 
 	if(pTdi != NULL)
 	{
@@ -234,7 +234,7 @@ JSAPI_FUNC(my_getDialogLines)
 		JS_SET_RVAL(cx,vp, OBJECT_TO_JSVAL(pReturnArray));
 	}
 
-	JS_LeaveLocalRootScope(cx);
+//	JS_LeaveLocalRootScope(cx);
 
 	return JS_TRUE;
 }
@@ -292,7 +292,7 @@ JSAPI_FUNC(my_getPath)
 	
 	path.GetPath(start, end, list, true);
 	map->CleanUp();
-	
+	myMisc.LeaveSection();
 	//box18JS_ResumeRequest(cx, depth);
 #if defined(_TIME)
 	char p[510];
@@ -305,7 +305,7 @@ JSAPI_FUNC(my_getPath)
 
 	int count = list.size();
 
-	JS_EnterLocalRootScope(cx);
+//	JS_EnterLocalRootScope(cx);
 
 	jsval* vec = new jsval[count];
 	for(int i = 0; i < count; i++)
@@ -323,7 +323,7 @@ JSAPI_FUNC(my_getPath)
 	JSObject* arr = JS_NewArrayObject(cx, count, vec);
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(arr));
 	
-	JS_LeaveLocalRootScope(cx);
+//	JS_LeaveLocalRootScope(cx);
 
 	delete reducer;
 
@@ -356,11 +356,11 @@ JSAPI_FUNC(my_getCollision)
 
 	jsval rval;
 	JS_BeginRequest(cx);
-	JS_NewNumberValue(cx, map->GetMapData(point, true), &rval);
+	rval = JS_NumberValue(map->GetMapData(point, true));
 	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp,rval );
 	map->CleanUp();
-	
+	myMisc.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -844,7 +844,7 @@ JSAPI_FUNC(my_getDistance)
 	jsdouble jsdist = (jsdouble)abs(GetDistance(nX1, nY1, nX2, nY2));
 	jsval rval;
 	JS_BeginRequest(cx);
-	JS_NewNumberValue(cx, jsdist, &rval);
+	rval = JS_NumberValue(jsdist);
 	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp, rval);
 	return JS_TRUE;

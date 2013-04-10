@@ -32,54 +32,68 @@ JSAPI_PROP(control_getProperty)
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
 	JS_BeginRequest(cx);
-	switch(JSVAL_TO_INT(ID))
+
+	JSType a = JS_TypeOfValue(cx, ID);
+
+	if (JSID_IS_STRING(id)){
+		JSString *b = JSVAL_TO_STRING(ID);
+		char* pText = JS_EncodeString(cx,b);
+		
+		return JS_TRUE;
+	}
+	if (JSID_IS_VOID(id))
+		return JS_TRUE;
+	if (JSID_IS_ZERO(id))
+		return JS_TRUE;
+	switch(JSID_TO_INT(id))
 	{
 		case CONTROL_TEXT:
 			if(ctrl->dwIsCloaked != 33)
 			{
 				char* tmp = UnicodeToAnsi((ctrl->dwType == 6 ? ctrl->wText2 : ctrl->wText));
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+				vp.setString(JS_InternString(cx, tmp));
 				delete[] tmp;
 			}
 			break;
 		case CONTROL_X:
-			JS_NewNumberValue(cx, ctrl->dwPosX, vp);
+			vp.setNumber((double) ctrl->dwPosX);
+			//JS_NewNumberValue(cx, ctrl->dwPosX, vp);
 			break;
 		case CONTROL_Y:
-			JS_NewNumberValue(cx, ctrl->dwPosY, vp);
+			vp.setNumber((double) ctrl->dwPosY);
 			break;
 		case CONTROL_XSIZE:
-			JS_NewNumberValue(cx, ctrl->dwSizeX, vp);
+			vp.setNumber((double) ctrl->dwSizeX);
 			break;
 		case CONTROL_YSIZE:
-			JS_NewNumberValue(cx, ctrl->dwSizeY, vp);
+			vp.setNumber((double) ctrl->dwSizeY);
 			break;
 		case CONTROL_STATE:
-			JS_NewNumberValue(cx, (ctrl->dwDisabled - 2), vp);
+			vp.setNumber((double) (ctrl->dwDisabled - 2));
 			break;
 		case CONTROL_MAXLENGTH:
 			//JS_NewNumberValue(cx, ctrl->dwMaxLength, vp);
 			break;
 		case CONTROL_TYPE:
-			JS_NewNumberValue(cx, ctrl->dwType, vp);
+			vp.setNumber((double) ctrl->dwType);
 			break;
 		case CONTROL_VISIBLE:
 			// nothing to do yet because we don't know what to do
 			break;
 		case CONTROL_CURSORPOS:
-			JS_NewNumberValue(cx, ctrl->dwCursorPos, vp);
+			vp.setNumber((double) ctrl->dwCursorPos);
 			break;
 		case CONTROL_SELECTSTART:
-			JS_NewNumberValue(cx, ctrl->dwSelectStart, vp);
+			vp.setNumber((double)ctrl->dwSelectStart);
 			break;
 		case CONTROL_SELECTEND:
-			JS_NewNumberValue(cx, ctrl->dwSelectEnd, vp);
+			vp.setNumber((double) ctrl->dwSelectEnd);
 			break;
 		case CONTROL_PASSWORD:
-			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwIsCloaked == 33));
+			vp.setBoolean(!!(ctrl->dwIsCloaked == 33));
 			break;
 		case CONTROL_DISABLED:
-			JS_NewNumberValue(cx, ctrl->dwDisabled, vp);
+			vp.setNumber((double) ctrl->dwDisabled);
 			break;
 	}
 	JS_EndRequest(cx);
@@ -90,8 +104,8 @@ JSAPI_STRICT_PROP(control_setProperty)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_FALSE;
-
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp)));
+	
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, &vp.get())));
 	if(!pData)
 		return JS_FALSE;
 
@@ -104,9 +118,9 @@ JSAPI_STRICT_PROP(control_setProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case CONTROL_TEXT:
-			if(ctrl->dwType == 1 && JSVAL_IS_STRING(*vp))
+			if(ctrl->dwType == 1 && vp.isString())
 			{
-				char* pText = JS_EncodeString(cx,JS_ValueToString(cx, *vp));
+				char* pText = JS_EncodeString(cx,vp.toString());
 				if(!pText)
 					return JS_TRUE;
 				wchar_t* szwText = AnsiToUnicode(pText);
@@ -116,11 +130,11 @@ JSAPI_STRICT_PROP(control_setProperty)
 			}
 			break;
 		case CONTROL_STATE:
-			if(JSVAL_IS_INT(*vp))
+			if(vp.isInt32())
 			{
 				int32 nState;
 				JS_BeginRequest(cx);
-				if(!JS_ValueToECMAInt32(cx, *vp, &nState) || nState < 0 || nState > 3)
+				if(!JS_ValueToECMAInt32(cx, vp.get(), &nState) || nState < 0 || nState > 3)
 				{
 					JS_EndRequest(cx);
 					THROW_ERROR(cx, "Invalid state value");
@@ -130,11 +144,11 @@ JSAPI_STRICT_PROP(control_setProperty)
 			}
 			break;
 		case CONTROL_CURSORPOS:
-			if(JSVAL_IS_INT(*vp))
+			if(vp.isInt32())
 			{
 				JS_BeginRequest(cx);
 				uint32 dwPos;
-				if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
+				if(!JS_ValueToECMAUint32(cx, vp.get(), &dwPos))
 				{
 					JS_EndRequest(cx);
 					THROW_ERROR(cx, "Invalid cursor position value");
@@ -144,9 +158,9 @@ JSAPI_STRICT_PROP(control_setProperty)
 			}
 			break;
 		case CONTROL_DISABLED:
-			if(JSVAL_IS_INT(*vp))
+			if(vp.isInt32())
 			{
-				memset((void*)&ctrl->dwDisabled, JSVAL_TO_INT(*vp), sizeof(DWORD));
+				memset((void*)&ctrl->dwDisabled, vp.toInt32(), sizeof(DWORD));
 			}
 			break;
 	}
@@ -183,7 +197,7 @@ JSAPI_FUNC(control_getNext)
 	else
 	{
 		JSObject* obj = JS_THIS_OBJECT(cx, vp);
-		JS_ClearScope(cx, obj);
+//		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 			return JS_TRUE;
 		JS_SET_RVAL(cx, vp, JSVAL_FALSE); 

@@ -12,8 +12,13 @@
 #define jsutil_h___
 
 #include "mozilla/Attributes.h"
+#include "mozilla/GuardObjects.h"
 
 #include "js/Utility.h"
+
+#ifdef USE_ZLIB
+#include "zlib.h"
+#endif
 
 /* Forward declarations. */
 struct JSContext;
@@ -154,20 +159,21 @@ ImplicitCast(U &u)
 template<typename T>
 class AutoScopedAssign
 {
-  private:
-    JS_DECL_USE_GUARD_OBJECT_NOTIFIER
-    T *addr;
-    T old;
-
   public:
-    AutoScopedAssign(T *addr, const T &value JS_GUARD_OBJECT_NOTIFIER_PARAM)
+    AutoScopedAssign(T *addr, const T &value
+                     MOZ_GUARD_OBJECT_NOTIFIER_PARAM)
         : addr(addr), old(*addr)
     {
-        JS_GUARD_OBJECT_NOTIFIER_INIT;
+        MOZ_GUARD_OBJECT_NOTIFIER_INIT;
         *addr = value;
     }
 
     ~AutoScopedAssign() { *addr = old; }
+
+  private:
+    MOZ_DECL_USE_GUARD_OBJECT_NOTIFIER
+    T *addr;
+    T old;
 };
 
 template <class T>
@@ -260,6 +266,28 @@ Swap(T &t, T &u)
     u = Move(tmp);
 }
 
+template <typename T>
+static inline bool
+IsPowerOfTwo(T t)
+{
+    return t && !(t & (t - 1));
+}
+
+template <typename T, typename U>
+static inline U
+ComputeByteAlignment(T bytes, U alignment)
+{
+    JS_ASSERT(IsPowerOfTwo(alignment));
+    return (alignment - (bytes % alignment)) % alignment;
+}
+
+template <typename T, typename U>
+static inline T
+AlignBytes(T bytes, U alignment)
+{
+    return bytes + ComputeByteAlignment(bytes, alignment);
+}
+
 JS_ALWAYS_INLINE static size_t
 UnsignedPtrDiff(const void *bigger, const void *smaller)
 {
@@ -335,41 +363,43 @@ ClearAllBitArrayElements(size_t *array, size_t length)
         array[i] = 0;
 }
 
-}  /* namespace js */
-#endif  /* __cplusplus */
+#ifdef USE_ZLIB
+class Compressor
+{
+    /* Number of bytes we should hand to zlib each compressMore() call. */
+    static const size_t CHUNKSIZE = 2048;
+    z_stream zs;
+    const unsigned char *inp;
+    size_t inplen;
+    size_t outbytes;
+
+  public:
+    enum Status {
+        MOREOUTPUT,
+        DONE,
+        CONTINUE,
+        OOM
+    };
+
+    Compressor(const unsigned char *inp, size_t inplen);
+    ~Compressor();
+    bool init();
+    void setOutput(unsigned char *out, size_t outlen);
+    size_t outWritten() const { return outbytes; }
+    /* Compress some of the input. Return true if it should be called again. */
+    Status compressMore();
+};
 
 /*
- * JS_ROTATE_LEFT32
- *
- * There is no rotate operation in the C Language so the construct (a << 4) |
- * (a >> 28) is used instead. Most compilers convert this to a rotate
- * instruction but some versions of MSVC don't without a little help.  To get
- * MSVC to generate a rotate instruction, we have to use the _rotl intrinsic
- * and use a pragma to make _rotl inline.
- *
- * MSVC in VS2005 will do an inline rotate instruction on the above construct.
+ * Decompress a string. The caller must know the length of the output and
+ * allocate |out| to a string of that length.
  */
-#if defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_AMD64) || \
-    defined(_M_X64))
-#include <stdlib.h>
-#pragma intrinsic(_rotl)
-#define JS_ROTATE_LEFT32(a, bits) _rotl(a, bits)
-#else
-#define JS_ROTATE_LEFT32(a, bits) (((a) << (bits)) | ((a) >> (32 - (bits))))
+bool DecompressString(const unsigned char *inp, size_t inplen,
+                      unsigned char *out, size_t outlen);
 #endif
 
-/* Static control-flow checks. */
-#ifdef NS_STATIC_CHECKING
-/* Trigger a control flow check to make sure that code flows through label */
-inline __attribute__ ((unused)) void MUST_FLOW_THROUGH(const char *label) {}
-
-/* Avoid unused goto-label warnings. */
-# define MUST_FLOW_LABEL(label) goto label; label:
-
-#else
-# define MUST_FLOW_THROUGH(label)            ((void) 0)
-# define MUST_FLOW_LABEL(label)
-#endif
+}  /* namespace js */
+#endif  /* __cplusplus */
 
 /* Crash diagnostics */
 #ifdef DEBUG
@@ -377,14 +407,8 @@ inline __attribute__ ((unused)) void MUST_FLOW_THROUGH(const char *label) {}
 #endif
 #ifdef JS_CRASH_DIAGNOSTICS
 # define JS_POISON(p, val, size) memset((p), (val), (size))
-# define JS_OPT_ASSERT(expr)                                                  \
-    ((expr) ? (void)0 : MOZ_Assert(#expr, __FILE__, __LINE__))
-# define JS_OPT_ASSERT_IF(cond, expr)                                         \
-    ((!(cond) || (expr)) ? (void)0 : MOZ_Assert(#expr, __FILE__, __LINE__))
 #else
 # define JS_POISON(p, val, size) ((void) 0)
-# define JS_OPT_ASSERT(expr) ((void) 0)
-# define JS_OPT_ASSERT_IF(cond, expr) ((void) 0)
 #endif
 
 /* Basic stats */
@@ -433,8 +457,9 @@ typedef size_t jsbitmap;
 # define JS_SILENCE_UNUSED_VALUE_IN_EXPR(expr)                                \
     JS_BEGIN_MACRO                                                            \
         _Pragma("clang diagnostic push")                                      \
+        /* If these _Pragmas cause warnings for you, try disabling ccache. */ \
         _Pragma("clang diagnostic ignored \"-Wunused-value\"")                \
-        expr;                                                                 \
+        { expr; }                                                             \
         _Pragma("clang diagnostic pop")                                       \
     JS_END_MACRO
 #elif (__GNUC__ >= 5) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)

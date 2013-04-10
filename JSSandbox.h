@@ -24,11 +24,11 @@ struct sandbox {
 };
 
 static JSFunctionSpec sandbox_methods[] = {
-	{"evaluate",	sandbox_eval,		1},
-	{"include",		sandbox_include,	1},
-	{"isIncluded",	sandbox_isIncluded,	1},
-	{"clearScope",	sandbox_clear,		0},
-	{0}
+	JS_FS("evaluate",	sandbox_eval,		1, FUNCTION_FLAGS),
+	JS_FS("include",		sandbox_include,	1, FUNCTION_FLAGS),
+	JS_FS("isIncluded",	sandbox_isIncluded,	1, FUNCTION_FLAGS),
+	JS_FS("clearScope",	sandbox_clear,		0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 #endif

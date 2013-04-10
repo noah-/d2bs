@@ -208,7 +208,7 @@ JSAPI_PROP(dir_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case DIR_NAME:
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, d->name));
+			vp.setString(JS_InternString(cx, d->name));
 			break;
 	}
 	return JS_TRUE;

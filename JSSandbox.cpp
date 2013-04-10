@@ -72,7 +72,7 @@ JSAPI_PROP(sandbox_addProperty)
 		if(found)
 			return JS_TRUE;
 
-		return JS_DefineProperty(cxptr, ptr, name, *vp, NULL, NULL, JSPROP_ENUMERATE);
+		return JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
 	}
 	else if(JSVAL_IS_STRING(ID))
 	{
@@ -83,7 +83,7 @@ JSAPI_PROP(sandbox_addProperty)
 		if(found)
 			return JS_TRUE;
 
-		return JS_DefineProperty(cxptr, ptr, name, *vp, NULL, NULL, JSPROP_ENUMERATE);
+		return JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
 	}
 	return JS_FALSE;
 }
@@ -126,19 +126,19 @@ JSAPI_PROP(sandbox_getProperty)
 			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
-		*vp = JSVAL_VOID;
-		if(box && JS_LookupProperty(box->context, box->innerObj, name, vp))
+		vp.set(JSVAL_VOID);
+		if(box && JS_LookupProperty(box->context, box->innerObj, name, &vp.get()))
 			return JS_TRUE;
-		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
+		if(JSVAL_IS_VOID(vp.get()) && JS_LookupProperty(cx, obj, name, &vp.get()))
 			return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(ID))
 	{
 		char* name = JS_EncodeString(cx,JSVAL_TO_STRING(ID));
-		*vp = JSVAL_VOID;
-		if(box && (JS_LookupProperty(box->context, box->innerObj, name, vp)))
+		vp.set(JSVAL_VOID);
+		if(box && (JS_LookupProperty(box->context, box->innerObj, name, &vp.get())))
 			return JS_TRUE;
-		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
+		if(JSVAL_IS_VOID(vp.get()) && JS_LookupProperty(cx, obj, name, &vp.get()))
 			return JS_TRUE;
 	}
 	return JS_FALSE;
@@ -158,14 +158,14 @@ JSAPI_STRICT_PROP(sandbox_setProperty)
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
-			if(JS_SetProperty(box->context, box->innerObj, name, vp))
+			if(JS_SetProperty(box->context, box->innerObj, name, &vp.get()))
 				return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(ID))
 	{
 		char* name = JS_EncodeString(cx,JSVAL_TO_STRING(ID));
 		if(box)
-			if(JS_SetProperty(box->context, box->innerObj, name, vp))
+			if(JS_SetProperty(box->context, box->innerObj, name, &vp.get()))
 				return JS_TRUE;
 	}
 	return JS_FALSE;
@@ -190,7 +190,7 @@ JSAPI_FUNC(sandbox_eval)
 			THROW_ERROR(cx, "Invalid execution object!");
 		char* code = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 		jsval result;
-		if(JS_BufferIsCompilableUnit(box->context, true, box->innerObj, code, strlen(code)) &&
+		if(JS_BufferIsCompilableUnit(box->context, box->innerObj, code, strlen(code)) &&
 			JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
 				JS_SET_RVAL(cx, vp, result);
 	} else THROW_ERROR(cx, "Invalid parameter, string expected");
@@ -247,8 +247,8 @@ JSAPI_FUNC(sandbox_isIncluded)
 JSAPI_FUNC(sandbox_clear)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
-	if(box)
-		JS_ClearScope(cx, box->innerObj);
+	//if(box)
+	//	JS_ClearScope(cx, box->innerObj);
 	return JS_TRUE;
 }
 

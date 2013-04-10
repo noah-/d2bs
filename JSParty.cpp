@@ -20,34 +20,34 @@ JSAPI_PROP(party_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case PARTY_NAME:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pUnit->szName));
+			vp.setString(JS_NewStringCopyZ(cx, pUnit->szName));
 			break;
 		case PARTY_X:
-			*vp = INT_TO_JSVAL(pUnit->Xpos);
+			vp.setInt32(pUnit->Xpos);
 			break;
 		case PARTY_Y:
-			*vp = INT_TO_JSVAL(pUnit->Ypos);
+			vp.setInt32(pUnit->Ypos);
 			break;
 		case PARTY_AREA:
-			*vp = INT_TO_JSVAL(pUnit->dwLevelId);
+			vp.setInt32(pUnit->dwLevelId);
 			break;
 		case PARTY_GID:
-			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
+			vp.setNumber((jsdouble)pUnit->dwUnitId);
 			break;
 		case PARTY_LIFE:
-			*vp = INT_TO_JSVAL(pUnit->dwPartyLife);
+			vp.setInt32(pUnit->dwPartyLife);
 			break;
 		case PARTY_CLASSID:
-			*vp = INT_TO_JSVAL(pUnit->dwClassId);
+			vp.setInt32(pUnit->dwClassId);
 			break;
 		case PARTY_LEVEL:
-			*vp = INT_TO_JSVAL(pUnit->wLevel);
+			vp.setInt32(pUnit->wLevel);
 			break;
 		case PARTY_FLAG:
-			*vp = INT_TO_JSVAL(pUnit->dwPartyFlags);
+			vp.setInt32(pUnit->dwPartyFlags);
 			break;
 		case PARTY_ID:
-			*vp = INT_TO_JSVAL(pUnit->wPartyId);
+			vp.setInt32(pUnit->wPartyId);
 			break;
 		default:
 			break;
@@ -79,7 +79,7 @@ JSAPI_FUNC(party_getNext)
 	else
 	{
 		JSObject* obj = JS_THIS_OBJECT(cx, vp);
-		JS_ClearScope(cx, obj);
+//		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
 			JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
 	}

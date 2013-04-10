@@ -19,9 +19,9 @@ public:
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
-			LeaveCriticalSection(&Vars.cGameLoopSection);
-			InterlockedDecrement(&Vars.SectionCount);
 			bEnteredCriticalSection = false;
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+			InterlockedDecrement(&Vars.SectionCount);			
 		}
 	}
 };

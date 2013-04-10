@@ -12,7 +12,7 @@ JSAPI_PROP(exit_getProperty)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
-	*vp = JSVAL_VOID;
+	vp.set(JSVAL_VOID);
 
 	if(!pExit)
 		return JS_TRUE;
@@ -22,22 +22,22 @@ JSAPI_PROP(exit_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case EXIT_X:
-			*vp = INT_TO_JSVAL(pExit->x);
+			vp.setInt32(pExit->x);
 			break;
 		case EXIT_Y:
-			*vp = INT_TO_JSVAL(pExit->y);
+			vp.setInt32(pExit->y);
 			break;
 		case EXIT_TARGET:
-			*vp = INT_TO_JSVAL(pExit->id);
+			vp.setInt32(pExit->id);
 			break;
 		case EXIT_TYPE:
-			*vp = INT_TO_JSVAL(pExit->type);
+			vp.setInt32(pExit->type);
 			break;
 		case EXIT_TILEID:
-			*vp = INT_TO_JSVAL(pExit->tileid);
+			vp.setInt32(pExit->tileid);
 			break;
 		case EXIT_LEVELID:
-			*vp = INT_TO_JSVAL(pExit->level);
+			vp.setInt32(pExit->level);
 			break;
 		default:
 			break;

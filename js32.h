@@ -100,14 +100,15 @@ EXPORT JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* obj, JSClassSpec
 #define JSPROP_STATIC	JSPROP_ENUMERATE|JSPROP_PERMANENT|JSPROP_READONLY
 
 #define JSAPI_FUNC(name) JSBool name##(JSContext *cx, uintN argc, jsval *vp)
+#define FUNCTION_FLAGS  JSFUN_STUB_GSOPS 
 //#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, "Invalid Operation");}
 #define EMPTY_CTOR(name) \
 JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { \
 	THROW_ERROR(cx, "Invalid Operation"); }
 
 
-#define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSHandleObject obj, JSHandleId id, jsval *vp)
-#define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSHandleObject obj, JSHandleId id, JSBool strict, jsval* vp)
+#define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSHandleObject obj, JSHandleId id, JSMutableHandleValue vp)
+#define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSHandleObject obj, JSHandleId id, JSBool strict, JSMutableHandleValue vp)
 //#define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *rval, jsval *rval)
 //#define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 

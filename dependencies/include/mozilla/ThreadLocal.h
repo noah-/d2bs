@@ -1,11 +1,12 @@
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Cross-platform lightweight thread local data wrappers
+/* Cross-platform lightweight thread local data wrappers. */
 
-#ifndef mozilla_TLS_h_
-#define mozilla_TLS_h_
+#ifndef mozilla_ThreadLocal_h_
+#define mozilla_ThreadLocal_h_
 
 #if defined(XP_WIN)
 // This file will get included in any file that wants to add a profiler mark.
@@ -16,8 +17,8 @@
 // Unfortunately, even including these headers causes us to add a bunch of ugly
 // stuff to our namespace e.g #define CreateEvent CreateEventW
 extern "C" {
-__declspec(dllimport) void * __stdcall TlsGetValue(unsigned long);
-__declspec(dllimport) int __stdcall TlsSetValue(unsigned long, void *);
+__declspec(dllimport) void* __stdcall TlsGetValue(unsigned long);
+__declspec(dllimport) int __stdcall TlsSetValue(unsigned long, void*);
 __declspec(dllimport) unsigned long __stdcall TlsAlloc();
 }
 #else
@@ -63,7 +64,7 @@ typedef sig_atomic_t sig_safe_t;
  * // Get the TLS value
  * int value = tlsKey.get();
  */
-template <typename T>
+template<typename T>
 class ThreadLocal
 {
 #if defined(XP_WIN)
@@ -73,7 +74,7 @@ class ThreadLocal
 #endif
 
     union Helper {
-      void *ptr;
+      void* ptr;
       T value;
     };
 
@@ -82,7 +83,7 @@ class ThreadLocal
 
     inline T get() const;
 
-    inline bool set(const T value);
+    inline void set(const T value);
 
     bool initialized() const {
       return inited;
@@ -93,10 +94,13 @@ class ThreadLocal
     bool inited;
 };
 
-template <typename T>
+template<typename T>
 inline bool
-ThreadLocal<T>::init() {
-  MOZ_STATIC_ASSERT(sizeof(T) <= sizeof(void *), "mozilla::ThreadLocal can't be used for types larger than a pointer");
+ThreadLocal<T>::init()
+{
+  MOZ_STATIC_ASSERT(sizeof(T) <= sizeof(void*),
+                    "mozilla::ThreadLocal can't be used for types larger than "
+                    "a pointer");
   MOZ_ASSERT(!initialized());
 #ifdef XP_WIN
   key = TlsAlloc();
@@ -107,9 +111,10 @@ ThreadLocal<T>::init() {
   return inited;
 }
 
-template <typename T>
+template<typename T>
 inline T
-ThreadLocal<T>::get() const {
+ThreadLocal<T>::get() const
+{
   MOZ_ASSERT(initialized());
   Helper h;
 #ifdef XP_WIN
@@ -120,19 +125,23 @@ ThreadLocal<T>::get() const {
   return h.value;
 }
 
-template <typename T>
-inline bool
-ThreadLocal<T>::set(const T value) {
+template<typename T>
+inline void
+ThreadLocal<T>::set(const T value)
+{
   MOZ_ASSERT(initialized());
   Helper h;
   h.value = value;
+  bool succeeded;
 #ifdef XP_WIN
-  return TlsSetValue(key, h.ptr);
+  succeeded = TlsSetValue(key, h.ptr);
 #else
-  return !pthread_setspecific(key, h.ptr);
+  succeeded = !pthread_setspecific(key, h.ptr);
 #endif
+  if (!succeeded)
+    MOZ_CRASH();
 }
 
 } // namespace mozilla
 
-#endif // mozilla_TLS_h_
+#endif // mozilla_ThreadLocal_h_
