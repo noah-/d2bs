@@ -27,20 +27,20 @@ enum script_tinyid {
 };
 
 static JSPropertySpec script_props[] = {
-	{"name",			SCRIPT_FILENAME,		JSPROP_PERMANENT_VAR,	script_getProperty},
-	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR,	script_getProperty},
-	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR,	script_getProperty},
-	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	script_getProperty},
-	{"memory",  		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	script_getProperty},
-	{0},
+	{"name",			SCRIPT_FILENAME,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{"memory",  		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec script_methods[] = {
-	{"getNext",			script_getNext,		0},
-	{"pause",			script_pause,		0},
-	{"resume",			script_resume,		0},
-	{"stop",			script_stop,		0},
-	{"join",			script_join,		0},
-	{"send",			script_send,		1},
-	{0},
+	JS_FS("getNext",		script_getNext,		0, FUNCTION_FLAGS),
+	JS_FS("pause",			script_pause,		0, FUNCTION_FLAGS),
+	JS_FS("resume",			script_resume,		0, FUNCTION_FLAGS),
+	JS_FS("stop",			script_stop,		0, FUNCTION_FLAGS),
+	JS_FS("join",			script_join,		0, FUNCTION_FLAGS),
+	JS_FS("send",			script_send,		1, FUNCTION_FLAGS),
+	JS_FS_END
 };

@@ -29,19 +29,19 @@ JSAPI_PROP(script_getProperty)
 	switch(JSVAL_TO_INT(ID)) 
 	{
 		case SCRIPT_FILENAME:
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, script->GetShortFilename()));
+			vp.setString(JS_InternString(cx, script->GetShortFilename()));
 			break;
 		case SCRIPT_GAMETYPE:
-			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
+			vp.setBoolean(script->GetState() == InGame ? false : true);
 			break;
 		case SCRIPT_RUNNING:
-			*vp = BOOLEAN_TO_JSVAL(script->IsRunning());
+			vp.setBoolean(script->IsRunning());
 			break;
 		case SCRIPT_THREADID:
-			*vp = INT_TO_JSVAL(script->GetThreadId());
+			vp.setInt32(script->GetThreadId());
 			break;
 		case SCRIPT_MEMORY:
-			*vp = INT_TO_JSVAL(JS_GetGCParameter (JS_GetRuntime (cx), JSGC_BYTES));
+			vp.setInt32(JS_GetGCParameter (JS_GetRuntime (cx), JSGC_BYTES));
 			break;
 		default:
 			break;

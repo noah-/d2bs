@@ -71,7 +71,7 @@ JSAPI_FUNC(my_sqlite_version)
 JSAPI_FUNC(my_sqlite_memusage)
 {
 	jsval rval = JS_RVAL(cx, vp);
-	JS_NewNumberValue(cx, (jsdouble)sqlite3_memory_used(), &rval);
+	rval = JS_NumberValue((jsdouble)sqlite3_memory_used());
 	return JS_TRUE;
 }
 
@@ -248,18 +248,18 @@ JSAPI_PROP(sqlite_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case SQLITE_PATH:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, dbobj->path));
+			vp.setString(JS_NewStringCopyZ(cx, dbobj->path));
 			break;
 		case SQLITE_OPEN:
-			*vp = BOOLEAN_TO_JSVAL(dbobj->open);
+			vp.setBoolean(dbobj->open);
 			break;
 		case SQLITE_LASTROWID:
-			*vp = INT_TO_JSVAL(sqlite3_last_insert_rowid(dbobj->db));
+			vp.setInt32(sqlite3_last_insert_rowid(dbobj->db));
 			break;
 		case SQLITE_STMTS: {
 				JS_BeginRequest(cx);
 				JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
-				*vp = OBJECT_TO_JSVAL(stmts);
+				vp.set( OBJECT_TO_JSVAL(stmts));
 				int i = 0;
 				for(StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
 					if((*it)->open) {
@@ -272,7 +272,8 @@ JSAPI_PROP(sqlite_getProperty)
 			}
 			break;
 		case SQLITE_CHANGES:
-			JS_NewNumberValue(cx, (jsdouble)sqlite3_changes(dbobj->db), vp);
+			vp.setDouble(sqlite3_changes(dbobj->db));
+			//JS_NewNumberValue(cx, (jsdouble)sqlite3_changes(dbobj->db), vp);
 			break;
 	}
 	return JS_TRUE;
@@ -325,8 +326,8 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 		return JS_TRUE;
 	}
-
-	JSObject *obj2 = JS_ConstructObject(cx, NULL, NULL);
+	JSObject *obj2 = JS_New(cx, NULL,NULL,NULL);
+	//JSObject *obj2 = JS_ConstructObject(cx, NULL, NULL);
 	jsval val;
 	if(!obj2)
 		THROW_ERROR(cx, "Failed to create row result object");
@@ -335,12 +336,12 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		switch(sqlite3_column_type(stmt, i)) {
 			case SQLITE_INTEGER:
 				// jsdouble == double, so this conversion is no problem
-				JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), &val);
+				val = JS_NumberValue((jsdouble)sqlite3_column_int64(stmt, i));
 				if(!JS_SetProperty(cx, obj2, colnam, &val))
 					THROW_ERROR(cx, "Failed to add column to row results");
 				break;
 			case SQLITE_FLOAT:
-				JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), &val);
+				val = JS_NumberValue(sqlite3_column_double(stmt, i));
 				if(!JS_SetProperty(cx, obj2, colnam, &val))
 					THROW_ERROR(cx, "Failed to add column to row results");
 				break;
@@ -394,11 +395,11 @@ JSAPI_FUNC(sqlite_stmt_colval)
 	switch(sqlite3_column_type(stmt, i)) {
 		case SQLITE_INTEGER:
 			// jsdouble == double, so this conversion is no problem
-			JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), &rval);
+			rval = JS_NumberValue((jsdouble)sqlite3_column_int64(stmt, i));
 			JS_SET_RVAL(cx, vp, rval);
 			break;
 		case SQLITE_FLOAT:
-			JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), &rval);
+			rval = JS_NumberValue(sqlite3_column_double(stmt, i));
 			JS_SET_RVAL(cx, vp, rval);
 			break;
 		case SQLITE_TEXT:
@@ -546,7 +547,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 	
 	JS_SetPrivate(cx, obj, NULL);
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
-	JS_ClearScope(cx, obj);
+//	JS_ClearScope(cx, obj);
 	if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 		return JS_TRUE;
 
@@ -561,10 +562,10 @@ JSAPI_PROP(sqlite_stmt_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)){
 		case SQLITE_STMT_SQL:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, sqlite3_sql(stmtobj->stmt)));
+			vp.setString(JS_NewStringCopyZ(cx, sqlite3_sql(stmtobj->stmt)));
 			break;
 		case SQLITE_STMT_READY:
-			*vp = BOOLEAN_TO_JSVAL(stmtobj->canGet);
+			vp.setBoolean(stmtobj->canGet);
 			break;
 	}
 	return JS_TRUE;

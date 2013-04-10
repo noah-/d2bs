@@ -29,25 +29,25 @@ JSAPI_PROP(presetunit_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case PUNIT_TYPE:
-			*vp = INT_TO_JSVAL(pUnit->dwType);
+			vp.setInt32(pUnit->dwType);
 			break;
 		case PUNIT_ROOMX:
-			*vp = INT_TO_JSVAL(pUnit->dwRoomX);
+			vp.setInt32(pUnit->dwRoomX);
 			break;
 		case PUNIT_ROOMY:
-			*vp = INT_TO_JSVAL(pUnit->dwRoomY);
+			vp.setInt32(pUnit->dwRoomY);
 			break;
 		case PUNIT_X:
-			*vp = INT_TO_JSVAL(pUnit->dwPosX);
+			vp.setInt32(pUnit->dwPosX);
 			break;
 		case PUNIT_Y:
-			*vp = INT_TO_JSVAL(pUnit->dwPosY);
+			vp.setInt32(pUnit->dwPosY);
 			break;
 		case PUNIT_ID:
-			*vp = INT_TO_JSVAL(pUnit->dwId);
+			vp.setInt32(pUnit->dwId);
 			break;
 		case PUINT_LEVEL:
-			*vp = INT_TO_JSVAL(pUnit->dwLevel);
+			vp.setInt32(pUnit->dwLevel);
 		default:
 			break;
 	}

@@ -62,72 +62,72 @@ JSAPI_PROP(file_getProperty)
 		switch(JSVAL_TO_INT(ID))
 		{
 			case FILE_READABLE:
-				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !feof(fdata->fptr) && !ferror(fdata->fptr)));
+				vp.setBoolean((fdata->fptr && !feof(fdata->fptr) && !ferror(fdata->fptr)));
 				break;
 			case FILE_WRITEABLE:
-				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !ferror(fdata->fptr) && (fdata->mode % 3) > FILE_READ));
+				vp.setBoolean((fdata->fptr && !ferror(fdata->fptr) && (fdata->mode % 3) > FILE_READ));
 				break;
 			case FILE_SEEKABLE:
-				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !ferror(fdata->fptr)));
+				vp.setBoolean((fdata->fptr && !ferror(fdata->fptr)));
 				break;
 			case FILE_MODE:
-				*vp = INT_TO_JSVAL((fdata->mode % 3));
+				vp.setInt32((fdata->mode % 3));
 				break;
 			case FILE_BINARYMODE:
-				*vp = BOOLEAN_TO_JSVAL((fdata->mode > 2));
+				vp.setBoolean((fdata->mode > 2));
 				break;
 			case FILE_LENGTH:
 				if(fdata->fptr)
-					*vp = INT_TO_JSVAL(_filelength(_fileno(fdata->fptr)));
+					vp.setInt32(_filelength(_fileno(fdata->fptr)));
 				else
-					*vp = JSVAL_ZERO;
+					vp.setInt32(0); //= JSVAL_ZERO;
 				break;
 			case FILE_PATH:
-				*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, fdata->path+1));
+				vp.setString(JS_NewStringCopyZ(cx, fdata->path+1));
 				break;
 			case FILE_POSITION:
 				if(fdata->fptr)
 				{
 					if(fdata->locked)
-						*vp = INT_TO_JSVAL(ftell(fdata->fptr));
+						vp.setInt32(ftell(fdata->fptr));
 					else
-						*vp = INT_TO_JSVAL(_ftell_nolock(fdata->fptr));
+						vp.setInt32(_ftell_nolock(fdata->fptr));
 				}
 				else 
-					*vp = JSVAL_ZERO;
+					vp.setInt32(0); //= JSVAL_ZERO;
 				break;
 			case FILE_EOF:
 				if(fdata->fptr)
-					*vp = BOOLEAN_TO_JSVAL(!!feof(fdata->fptr));
+					vp.setBoolean(!!feof(fdata->fptr));
 				else
-					*vp = JSVAL_TRUE;
+					vp.set(JSVAL_TRUE);
 				break;
 			case FILE_AUTOFLUSH:
-				*vp = BOOLEAN_TO_JSVAL(fdata->autoflush);
+				vp.setBoolean(fdata->autoflush);
 				break;
 			case FILE_ACCESSED:
 				if(fdata->fptr)
 				{
 					_fstat(_fileno(fdata->fptr), &filestat);
-					JS_NewNumberValue(cx, (jsdouble)filestat.st_atime, vp);
+					vp.setNumber((jsdouble)filestat.st_atime);
 				}
-				else *vp = JSVAL_ZERO;
+				else vp.setInt32(0); //= JSVAL_ZERO;
 				break;
 			case FILE_MODIFIED:
 				if(fdata->fptr)
 				{
 					_fstat(_fileno(fdata->fptr), &filestat);
-					JS_NewNumberValue(cx, (jsdouble)filestat.st_mtime, vp);
+					vp.setNumber((jsdouble)filestat.st_mtime);
 				}
-				else *vp = JSVAL_ZERO;
+				else vp.setInt32(0);
 				break;
 			case FILE_CREATED:
 				if(fdata->fptr)
 				{
 					_fstat(_fileno(fdata->fptr), &filestat);
-					JS_NewNumberValue(cx, (jsdouble)filestat.st_ctime, vp);
+					vp.setDouble((jsdouble)filestat.st_ctime);
 				}
-				else *vp = JSVAL_ZERO;
+				else vp.setInt32(0);
 				break;
 		}
 		JS_EndRequest(cx);
@@ -148,8 +148,8 @@ JSAPI_STRICT_PROP(file_setProperty)
 		switch(JSVAL_TO_INT(ID))
 		{
 			case FILE_AUTOFLUSH:
-				if(JSVAL_IS_BOOLEAN(*vp))
-					fdata->autoflush = !!JSVAL_TO_BOOLEAN(*vp);
+				if(vp.isBoolean())
+					fdata->autoflush = !!vp.toBoolean();
 				break;
 		}
 	}

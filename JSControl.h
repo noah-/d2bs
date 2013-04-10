@@ -30,45 +30,45 @@ struct ControlData {
 };
 
 enum control_tinyid {
-	CONTROL_TEXT		= -1,
-	CONTROL_X			= -2,
-	CONTROL_Y			= -3,
-	CONTROL_XSIZE		= -4,
-	CONTROL_YSIZE		= -5,
-	CONTROL_STATE		= -6,
-	CONTROL_MAXLENGTH	= -7,
-	CONTROL_TYPE		= -8,
-	CONTROL_VISIBLE		= -9,
-	CONTROL_CURSORPOS	= -10,
-	CONTROL_SELECTSTART	= -11,
-	CONTROL_SELECTEND	= -12,
-	CONTROL_PASSWORD	= -13,
-	CONTROL_DISABLED	= -14
+	CONTROL_TEXT		,
+	CONTROL_X			,
+	CONTROL_Y			,
+	CONTROL_XSIZE		,
+	CONTROL_YSIZE		,
+	CONTROL_STATE		,
+	CONTROL_MAXLENGTH	,
+	CONTROL_TYPE		,
+	CONTROL_VISIBLE		,
+	CONTROL_CURSORPOS	,
+	CONTROL_SELECTSTART	,
+	CONTROL_SELECTEND	,
+	CONTROL_PASSWORD	,
+	CONTROL_DISABLED	
 };
 
 
 static JSPropertySpec control_props[] = {
-	{"text",		CONTROL_TEXT,			JSPROP_STATIC_VAR,		control_getProperty,	control_setProperty},
-	{"x",			CONTROL_X,				JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"y",			CONTROL_Y,				JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"xsize",		CONTROL_XSIZE,			JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"ysize",		CONTROL_YSIZE,			JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"state",		CONTROL_STATE,			JSPROP_STATIC_VAR,		control_getProperty,	control_setProperty},
-	{"password",	CONTROL_PASSWORD,		JSPROP_PERMANENT_VAR,	control_getProperty},
+	{"text",		CONTROL_TEXT,			JSPROP_STATIC_VAR,		JSOP_WRAPPER(control_getProperty), JSOP_WRAPPER(control_setProperty)},
+	{"x",			CONTROL_X,				JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"y",			CONTROL_Y,				JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"xsize",		CONTROL_XSIZE,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"ysize",		CONTROL_YSIZE,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"state",		CONTROL_STATE,			JSPROP_STATIC_VAR,		JSOP_WRAPPER(control_getProperty),	JSOP_WRAPPER(control_setProperty)},
+	{"password",	CONTROL_PASSWORD,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
 //	{"maxlength",	CONTROL_MAXLENGTH,		JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"type",		CONTROL_TYPE,			JSPROP_PERMANENT_VAR,	control_getProperty},
+	{"type",		CONTROL_TYPE,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
 //	{"visible",		CONTROL_VISIBLE,		JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"cursorpos",	CONTROL_CURSORPOS,		JSPROP_STATIC_VAR,		control_getProperty,	control_setProperty},
-	{"selectstart",	CONTROL_SELECTSTART,	JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"selectend",	CONTROL_SELECTEND,		JSPROP_PERMANENT_VAR,	control_getProperty},
-	{"disabled",	CONTROL_DISABLED,		JSPROP_PERMANENT_VAR,	control_getProperty,	control_setProperty},
-	{0},
+	{"cursorpos",	CONTROL_CURSORPOS,		JSPROP_STATIC_VAR,		JSOP_WRAPPER(control_getProperty),	JSOP_WRAPPER(control_setProperty)},
+	{"selectstart",	CONTROL_SELECTSTART,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"selectend",	CONTROL_SELECTEND,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty), JSOP_NULLWRAPPER},
+	{"disabled",	CONTROL_DISABLED,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(control_getProperty),	JSOP_WRAPPER(control_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec control_funcs[] = {
-	{"getNext",			control_getNext,		0},
-	{"click",			control_click,			0},
-	{"setText",			control_setText,		1},
-	{"getText",			control_getText,		0},
-	{0},
+	JS_FS("getNext",		control_getNext,		0, FUNCTION_FLAGS),
+	JS_FS("click",			control_click,			0, FUNCTION_FLAGS),
+	JS_FS("setText",		control_setText,		1, FUNCTION_FLAGS),
+	JS_FS("getText",		control_getText,		0, FUNCTION_FLAGS),
+	JS_FS_END
 };

@@ -59,113 +59,117 @@ JSAPI_PROP(unit_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case ME_PID:
-			JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);			
+			vp.setDouble ((jsdouble)GetCurrentProcessId());
+			//JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);			
 			break;
 		case ME_PROFILE:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Vars.szProfile));
+			vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
+			//vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
 			break;
 		case ME_GAMEREADY:
-			*vp = BOOLEAN_TO_JSVAL(GameReady());
+			vp.setBoolean(GameReady());
+			//*vp = BOOLEAN_TO_JSVAL(GameReady());
 			break;
 		case ME_ACCOUNT:
 			if(!pData)
 				return JS_TRUE;
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szAccountName));
+			vp.setString(JS_NewStringCopyZ(cx, pData->szAccountName));
+			//vp.setString(JS_NewStringCopyZ(cx, pData->szAccountName));
 			break;
 		case ME_CHARNAME:
 			if(!pInfo)
 				return JS_TRUE;
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szCharName));
+			vp.setString(JS_NewStringCopyZ(cx, pInfo->szCharName));
 			break;
 		case ME_CHICKENHP:
-			*vp = INT_TO_JSVAL(Vars.nChickenHP);
+			vp.setInt32(Vars.nChickenHP);
 			break;
 		case ME_CHICKENMP:
-			*vp = INT_TO_JSVAL(Vars.nChickenMP);
+			vp.setInt32(Vars.nChickenMP);
 			break;
 		case ME_DIFF:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetDifficulty());
+			vp.setInt32(D2CLIENT_GetDifficulty());
 			break;
 		case ME_MAXDIFF:
-			*vp = INT_TO_JSVAL(pData->nMaxDiff);
+			vp.setInt32(pData->nMaxDiff);
 			break;
 		case ME_GAMENAME:
 			if(!pInfo)
 				return JS_TRUE;
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGameName));
+			vp.setString(JS_NewStringCopyZ(cx, pInfo->szGameName));
 			break;
 		case ME_GAMEPASSWORD:
 			if(!pInfo)
 				return JS_TRUE;
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGamePassword));
+			vp.setString(JS_NewStringCopyZ(cx, pInfo->szGamePassword));
 			break;
 		case ME_GAMESERVERIP:
 			if(!pInfo)
 				return JS_TRUE;
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGameServerIp));
+			vp.setString(JS_NewStringCopyZ(cx, pInfo->szGameServerIp));
 			break;
 		case ME_GAMESTARTTIME:
-			JS_NewNumberValue(cx, (jsdouble)Vars.dwGameTime, vp);
+			vp.setDouble((jsdouble)Vars.dwGameTime);
 			break;
 		case ME_GAMETYPE:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_ExpCharFlag);
+			vp.setInt32(*p_D2CLIENT_ExpCharFlag);
 			break;
 		case ME_PLAYERTYPE:
 			if(pData)
-				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_HARDCORE));
+				vp.setBoolean(!!(pData->nCharFlags & PLAYER_TYPE_HARDCORE));
 			break;
 		case ME_ITEMONCURSOR:
-			*vp = BOOLEAN_TO_JSVAL(!!D2CLIENT_GetCursorItem());
+			vp.setBoolean(!!(D2CLIENT_GetCursorItem()));
 			break;
 		case ME_AUTOMAP:
-			*vp = *p_D2CLIENT_AutomapOn ? JSVAL_TRUE : JSVAL_FALSE;
+			vp.setBoolean(*p_D2CLIENT_AutomapOn );
 			//JS_NewNumberValue(cx, (jsdouble)(*p_D2CLIENT_AutomapOn), vp);
 			//*vp = *p_D2CLIENT_AutomapOn;
 			break;
 		case ME_LADDER:
 			if(pData)
-				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
+				vp.setBoolean(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
 			break;
 		case ME_QUITONHOSTILE:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnHostile);
+			vp.setBoolean(Vars.bQuitOnHostile);
 			break;
 		case ME_REALM:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szRealmName));
+			vp.setString(JS_NewStringCopyZ(cx, pData->szRealmName));
 			break;
 		case ME_REALMSHORT:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szRealmName2));
+			vp.setString(JS_NewStringCopyZ(cx, pData->szRealmName2));
 			break;
 		case OOG_SCREENSIZE:
-			*vp = INT_TO_JSVAL(D2GFX_GetScreenSize());
+			vp.setInt32(D2GFX_GetScreenSize());
 			break;
 		case OOG_WINDOWTITLE:
 			char szTitle[128];
 			GetWindowText(D2GFX_GetHwnd(), szTitle, 128);
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
+			vp.setString(JS_NewStringCopyZ(cx, szTitle));
 			break;
 		case ME_PING:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_Ping);
+			vp.setInt32(*p_D2CLIENT_Ping);
 			break;
 		case ME_FPS:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
+			vp.setInt32(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = BOOLEAN_TO_JSVAL( (ClientState() == ClientStateMenu ? false : true));
+			vp.setBoolean( (ClientState() == ClientStateMenu ? false : true));
 			break;
 		case OOG_QUITONERROR:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
+			vp.setBoolean(Vars.bQuitOnError);
 			break;
 		case OOG_MAXGAMETIME:
-			*vp = INT_TO_JSVAL(Vars.dwMaxGameTime);
+			vp.setInt32(Vars.dwMaxGameTime);
 			break;
 		case ME_MERCREVIVECOST:
-			*vp = INT_TO_JSVAL((*p_D2CLIENT_MercReviveCost));
+			vp.setInt32((*p_D2CLIENT_MercReviveCost));
 			break;
 		case ME_BLOCKKEYS:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bBlockKeys);
+			vp.setBoolean(Vars.bBlockKeys);
 			break;
 		case ME_BLOCKMOUSE:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bBlockMouse);
+			vp.setBoolean(Vars.bBlockMouse);
 			break;
 		default:
 			break;
@@ -187,45 +191,45 @@ JSAPI_PROP(unit_getProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case UNIT_TYPE:
-			*vp = INT_TO_JSVAL(pUnit->dwType);
+			vp.setInt32(pUnit->dwType);
 			break;
 		case UNIT_CLASSID:
-			*vp = INT_TO_JSVAL(pUnit->dwTxtFileNo);
+			vp.setInt32(pUnit->dwTxtFileNo);
 			break;
 		case UNIT_MODE:
-			*vp = INT_TO_JSVAL(pUnit->dwMode);
+			vp.setInt32(pUnit->dwMode);
 			break;
 		case UNIT_NAME:
 			{
 				char tmp[128] = "";
 				GetUnitName(pUnit, tmp, 128);
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+				vp.setString(JS_InternString(cx, tmp));
 			}
 			break;
 		case ME_MAPID:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_MapId);
+			vp.setInt32(*p_D2CLIENT_MapId);
 			break;
 		case ME_NOPICKUP:
-			*vp = BOOLEAN_TO_JSVAL(!!*p_D2CLIENT_NoPickUp);
+			vp.setBoolean(!!*p_D2CLIENT_NoPickUp);
 			break;
 		case UNIT_ACT:
-			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
+			vp.setInt32(pUnit->dwAct + 1);
 			break;
 		case UNIT_AREA:
 			pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 			if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel)
-				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);
+				vp.setInt32(pRoom->pRoom2->pLevel->dwLevelNo);
 			break;
 		case UNIT_ID:
 			JS_BeginRequest(cx);
-			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
+			vp.setNumber((jsdouble)pUnit->dwUnitId);
 			JS_EndRequest(cx);
 			break;
 		case UNIT_XPOS:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitX(pUnit));
+			vp.setInt32(D2CLIENT_GetUnitX(pUnit));
 			break;
 		case UNIT_YPOS:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
+			vp.setInt32(D2CLIENT_GetUnitY(pUnit));
 			break;
 		case UNIT_TARGETX:
 			switch(pUnit->dwType)
@@ -233,7 +237,7 @@ JSAPI_PROP(unit_getProperty)
 				case 0:
 				case 1:
 				case 3:
-					*vp = INT_TO_JSVAL(pUnit->pPath->xTarget);
+					vp.setInt32(pUnit->pPath->xTarget);
 			}
 			break;
 		case UNIT_TARGETY:
@@ -242,33 +246,33 @@ JSAPI_PROP(unit_getProperty)
 				case 0:
 				case 1:
 				case 3:
-					*vp = INT_TO_JSVAL(pUnit->pPath->yTarget);
+					vp.setInt32(pUnit->pPath->yTarget);
 			}
 			break;
 		case UNIT_HP:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
 			break;
 		case UNIT_HPMAX:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 7, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 7, 0) >> 8);
 			break;
 		case UNIT_MP:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 8, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 8, 0) >> 8);
 			break;
 		case UNIT_MPMAX:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 9, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 9, 0) >> 8);
 			break;
 		case UNIT_STAMINA:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 10, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 10, 0) >> 8);
 			break;
 		case UNIT_STAMINAMAX:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 11, 0) >> 8);
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 11, 0) >> 8);
 			break;
 		case UNIT_CHARLVL:
-			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 12, 0));
+			vp.setInt32(D2COMMON_GetUnitStat(pUnit, 12, 0));
 			break;
 		case ME_RUNWALK:
 			 if(pUnit == D2CLIENT_GetPlayerUnit())
-				*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
+				vp.setInt32(*p_D2CLIENT_AlwaysRun);
 			break;
 		case UNIT_SPECTYPE:
 			DWORD SpecType;
@@ -285,15 +289,15 @@ JSAPI_PROP(unit_getProperty)
 					SpecType |= 0x01;
 				if(pUnit->pMonsterData->fNormal & 1)
 					SpecType |= 0x00;
-				*vp = INT_TO_JSVAL(SpecType);
+				vp.setInt32(SpecType);
 				return JS_TRUE;
 			}
 			break;
 		case UNIT_UNIQUEID:
 			if(pUnit->dwType == UNIT_MONSTER && pUnit->pMonsterData->fBoss && pUnit->pMonsterData->fNormal)
-				*vp = INT_TO_JSVAL(pUnit->pMonsterData->wUniqueNo);
+				vp.setInt32(pUnit->pMonsterData->wUniqueNo);
 			else
-				*vp = INT_TO_JSVAL(-1);
+				vp.setInt32(-1);
 			break;
 		case ITEM_CODE: // replace with better method if found
 			if(!(pUnit->dwType == UNIT_ITEM) && pUnit->pItemData)
@@ -301,31 +305,31 @@ JSAPI_PROP(unit_getProperty)
 			ItemTxt* pTxt;
 			pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
 			if(!pTxt) {
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, "Unknown"));
+				vp.setString(JS_InternString(cx, "Unknown"));
 				return JS_TRUE;
 			}
 			char szCode[4];
 			memcpy(szCode, pTxt->szCode, 3);
 			szCode[3] = 0x00;
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, szCode));
+			vp.setString(JS_InternString(cx, szCode));
 			break;
 		case ITEM_PREFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0]))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0])));
+					vp.setString(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0])));
 			break;
 		case ITEM_SUFFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0]))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0])));
+					vp.setString(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0])));
 			break;
 		case ITEM_PREFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicPrefix[0]);
+					vp.setInt32(pUnit->pItemData->wMagicPrefix[0]);
 			break;
 		case ITEM_SUFFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicSuffix[0]);
+					vp.setInt32(pUnit->pItemData->wMagicSuffix[0]);
 			break;
 
 		case ITEM_PREFIXES:  
@@ -342,8 +346,8 @@ JSAPI_PROP(unit_getProperty)
 						JS_SetElement(cx, pReturnArray, i, &nPrefix);
 					}
 				}
-
-				*vp = OBJECT_TO_JSVAL(pReturnArray);
+				vp.setObject(*pReturnArray);
+				//*vp = OBJECT_TO_JSVAL(pReturnArray);
 			}
 
 			break;
@@ -361,8 +365,8 @@ JSAPI_PROP(unit_getProperty)
 						JS_SetElement(cx, pReturnArray, i, &nPrefixnum);
 					}
 				}
-
-				*vp = OBJECT_TO_JSVAL(pReturnArray);
+				vp.setObject(*pReturnArray);
+				//*vp = OBJECT_TO_JSVAL(pReturnArray);
 			}
 
 			break;
@@ -380,8 +384,8 @@ JSAPI_PROP(unit_getProperty)
 						JS_SetElement(cx, pReturnArray, i, &nSuffix);
 					}
 				}
-
-				*vp = OBJECT_TO_JSVAL(pReturnArray);
+				vp.setObject(*pReturnArray);
+				//*vp = OBJECT_TO_JSVAL(pReturnArray);
 			}
 
 			break;
@@ -400,7 +404,7 @@ JSAPI_PROP(unit_getProperty)
 					}
 				}
 
-				*vp = OBJECT_TO_JSVAL(pReturnArray);
+				vp.setObject(*pReturnArray);
 			}
 
 			break;
@@ -412,7 +416,7 @@ JSAPI_PROP(unit_getProperty)
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+					vp.setString(JS_InternString(cx, tmp));
 					delete[] tmp;
 					tmp = NULL;
 				}
@@ -420,35 +424,35 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ITEM_QUALITY:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->dwQuality);
+				vp.setInt32(pUnit->pItemData->dwQuality);
 			break;
 		case ITEM_NODE:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->NodePage);
+				vp.setInt32(pUnit->pItemData->NodePage);
 			break;
 		case ITEM_LOC:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->GameLocation);
+				vp.setInt32(pUnit->pItemData->GameLocation);
 			break;
 		case ITEM_SIZEX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				if(!D2COMMON_GetItemText(pUnit->dwTxtFileNo))
 					break;
-				*vp = INT_TO_JSVAL(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->xSize);
+				vp.setInt32(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->xSize);
 			}
 			break;
 		case ITEM_SIZEY:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				if(!D2COMMON_GetItemText(pUnit->dwTxtFileNo))
 					break;
-				*vp = INT_TO_JSVAL(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->ySize);
+				vp.setInt32(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->ySize);
 			}
 			break;
 		case ITEM_TYPE:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				if(!D2COMMON_GetItemText(pUnit->dwTxtFileNo))
 					break;
-				*vp = INT_TO_JSVAL(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->nType);
+				vp.setInt32(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->nType);
 			}
 			break;
 		case ITEM_DESC:
@@ -469,7 +473,7 @@ JSAPI_PROP(unit_getProperty)
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
 				{
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+					vp.setString(JS_InternString(cx, tmp));
 					delete[] tmp;
 					tmp = NULL;
 				}
@@ -478,56 +482,56 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ITEM_GFX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->bInvGfxIdx);
+				vp.setInt32(pUnit->pItemData->bInvGfxIdx);
 			break;
 		case UNIT_ITEMCOUNT:
 			if(pUnit->pInventory)
-				*vp = INT_TO_JSVAL(pUnit->pInventory->dwItemCount);
+				vp.setInt32(pUnit->pInventory->dwItemCount);
 			break;
 		case ITEM_BODYLOCATION:
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
 			if(pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->BodyLocation);
+				vp.setInt32(pUnit->pItemData->BodyLocation);
 			break;
 		case UNIT_OWNER:
-			JS_NewNumberValue(cx, (jsdouble)pUnit->dwOwnerId, vp);
+			vp.setNumber((jsdouble)pUnit->dwOwnerId);
 			break;
 		case UNIT_OWNERTYPE:
-			*vp = INT_TO_JSVAL(pUnit->dwOwnerType);
+			vp.setInt32(pUnit->dwOwnerType);
 			break;
 		case ITEM_LEVEL:
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
 			if(pUnit->pItemData)
-				*vp = INT_TO_JSVAL(pUnit->pItemData->dwItemLevel);
+				vp.setInt32(pUnit->pItemData->dwItemLevel);
 			break;
 		case ITEM_LEVELREQ:
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
-			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
+			vp.setInt32(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 			break;
 		case UNIT_DIRECTION:
-			if(pUnit->pPath)
-				*vp = INT_TO_JSVAL(pUnit->pPath->bDirection);
+			if(pUnit->pPath && pUnit->pPath->bDirection)
+				vp.setInt32(pUnit->pPath->bDirection);
 			break;
 		case OBJECT_TYPE:
 			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
 			{
 				pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 				if(pRoom && D2COMMON_GetLevelNoFromRoom(pRoom))
-					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
+					vp.setInt32(pUnit->pObjectData->Type & 255);
 				else
-					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
+					vp.setInt32(pUnit->pObjectData->Type);
 			}
 			break;
 		case OBJECT_LOCKED:
 			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
-				*vp = INT_TO_JSVAL( pUnit->pObjectData->ChestLocked );
+				vp.setInt32( pUnit->pObjectData->ChestLocked );
 			break;
 		case ME_WSWITCH:
 			 if(pUnit == D2CLIENT_GetPlayerUnit())
-				*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
+				vp.setInt32(*p_D2CLIENT_bWeapSwitch);
 			break;
 		default:
 			break;
@@ -543,51 +547,51 @@ JSAPI_STRICT_PROP(unit_setProperty)
 	switch(JSVAL_TO_INT(ID))
 	{
 		case ME_CHICKENHP:
-			if(JSVAL_IS_INT(*vp))
-				Vars.nChickenHP		= JSVAL_TO_INT(*vp);
+			if(vp.isInt32())
+				Vars.nChickenHP		= vp.toInt32();
 			break;
 		case ME_CHICKENMP:
-			if(JSVAL_IS_INT(*vp))
-				Vars.nChickenMP		= JSVAL_TO_INT(*vp);
+			if(vp.isInt32())
+				Vars.nChickenMP		= vp.toInt32();
 			break;
 		case ME_QUITONHOSTILE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				Vars.bQuitOnHostile = JSVAL_TO_BOOLEAN(*vp);
+			if(vp.isBoolean())
+				Vars.bQuitOnHostile = vp.toBoolean();
 			break;
 		case OOG_QUITONERROR:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				Vars.bQuitOnError	= JSVAL_TO_BOOLEAN(*vp);
+			if(vp.isBoolean())
+				Vars.bQuitOnError	= vp.toBoolean();
 			break;
 		case OOG_MAXGAMETIME:
-			if(JSVAL_IS_INT(*vp))
-				Vars.dwMaxGameTime	= JSVAL_TO_INT(*vp);
+			if(vp.isInt32())
+				Vars.dwMaxGameTime	= vp.toInt32();
 			break;
 		case ME_BLOCKKEYS:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				Vars.bBlockKeys = JSVAL_TO_BOOLEAN(*vp);
+			if(vp.isBoolean())
+				Vars.bBlockKeys = vp.toBoolean();
 			break;
 		case ME_BLOCKMOUSE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				Vars.bBlockMouse = JSVAL_TO_BOOLEAN(*vp);
+			if(vp.isBoolean())
+				Vars.bBlockMouse = vp.toBoolean();
 			break;
 		case ME_RUNWALK:
 			{
-				myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+				myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, &vp.get()));
 				if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 					return JS_TRUE;
-
+				
 				UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 				if(!pUnit)
 					return JS_TRUE;
 				if(pUnit == D2CLIENT_GetPlayerUnit())
-					*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+					*p_D2CLIENT_AlwaysRun = !!vp.toInt32();
 			}
 			break;
 		case ME_AUTOMAP:
-			*p_D2CLIENT_AutomapOn = JSVAL_TO_BOOLEAN(*vp) ? 1 : 0;
+			*p_D2CLIENT_AutomapOn = vp.toBoolean() ? 1 : 0;
 			break;
 		case ME_NOPICKUP:
-			*p_D2CLIENT_NoPickUp = !!JSVAL_TO_INT(*vp);
+			*p_D2CLIENT_NoPickUp = !!vp.toInt32();
 			break;
 	}
 	return JS_TRUE;
@@ -689,7 +693,7 @@ JSAPI_FUNC(unit_getNext)
 		if(!pUnit)
 		{
 			JSObject* obj = JS_THIS_OBJECT(cx, vp);
-			JS_ClearScope(cx, obj);
+			//JS_ClearScope(cx, obj);
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 				return JS_TRUE;
 			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
@@ -725,7 +729,7 @@ JSAPI_FUNC(unit_getNext)
 		if(!nextItem)
 		{
 			JSObject* obj = JS_THIS_OBJECT(cx, vp);
-			JS_ClearScope(cx, obj);
+			//JS_ClearScope(cx, obj);
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 				return JS_TRUE;
 			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
@@ -925,7 +929,7 @@ JSAPI_FUNC(unit_getStat)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8));
 	else if(nStat == STAT_EXP || nStat == STAT_LASTEXP || nStat == STAT_NEXTEXP){
 		jsval rval;
-		JS_NewNumberValue(cx, (unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), &rval);
+		rval = JS_NumberValue((unsigned int)D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
 		JS_SET_RVAL(cx,vp, rval);
 	}
 	else if(nStat == STAT_ITEMLEVELREQ)
@@ -1013,7 +1017,7 @@ JSAPI_FUNC(unit_getStat)
 			}	
 		}
 		jsval rval = JS_RVAL(cx,vp);
-		JS_NewNumberValue(cx, result, &rval);
+		rval = JS_NumberValue(result);
 		JS_SET_RVAL(cx, vp, rval);
 	}
 	return JS_TRUE;

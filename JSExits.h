@@ -20,13 +20,13 @@ enum exit_tinyid {
 
 
 static JSPropertySpec exit_props[] = {
-	{"x",			EXIT_X,			JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{"y",			EXIT_Y,			JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{"target",		EXIT_TARGET,	JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{"type",		EXIT_TYPE,		JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{"tileid",		EXIT_TILEID,	JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{"level",		EXIT_LEVELID,	JSPROP_PERMANENT_VAR,	exit_getProperty},
-	{0},
+	{"x",			EXIT_X,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{"y",			EXIT_Y,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{"target",		EXIT_TARGET,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{"type",		EXIT_TYPE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{"tileid",		EXIT_TILEID,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{"level",		EXIT_LEVELID,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(exit_getProperty), JSOP_NULLWRAPPER },
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 struct myExit {

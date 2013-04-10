@@ -18,30 +18,30 @@ JSAPI_PROP(room_getProperty)
 	switch(JSVAL_TO_INT(ID)) {
 		case ROOM_NUM:
 			if(pRoom2->dwPresetType != 2)
-				*vp = INT_TO_JSVAL(-1);
+				vp.setInt32(-1);
 			else if(pRoom2->pType2Info)
-				*vp = INT_TO_JSVAL(pRoom2->pType2Info->dwRoomNumber);
+				vp.setInt32(pRoom2->pType2Info->dwRoomNumber);
 			break;
 		case ROOM_XPOS:
-			*vp = INT_TO_JSVAL(pRoom2->dwPosX);
+			vp.setInt32(pRoom2->dwPosX);
 			break;
 		case ROOM_YPOS:
-			*vp = INT_TO_JSVAL(pRoom2->dwPosY);
+			vp.setInt32(pRoom2->dwPosY);
 			break;
 		case ROOM_XSIZE:
-			*vp = INT_TO_JSVAL(pRoom2->dwSizeX * 5);
+			vp.setInt32(pRoom2->dwSizeX * 5);
 			break;
 		case ROOM_YSIZE:
-			*vp = INT_TO_JSVAL(pRoom2->dwSizeY * 5);
+			vp.setInt32(pRoom2->dwSizeY * 5);
 			break;
 		case ROOM_AREA: case ROOM_LEVEL:
 			if(pRoom2->pLevel)
-				*vp = INT_TO_JSVAL(pRoom2->pLevel->dwLevelNo);
+				vp.setInt32(pRoom2->pLevel->dwLevelNo);
 			break;
 
 		case ROOM_CORRECTTOMB:
 			if(pRoom2->pLevel && pRoom2->pLevel->pMisc && pRoom2->pLevel->pMisc->dwStaffTombLevel)
-				*vp = INT_TO_JSVAL(pRoom2->pLevel->pMisc->dwStaffTombLevel);
+				vp.setInt32(pRoom2->pLevel->pMisc->dwStaffTombLevel);
 			break;
 
 		default:
@@ -65,7 +65,7 @@ JSAPI_FUNC(room_getNext)
 	if(!pRoom2)
 	{
 		JSObject* obj = JS_THIS_OBJECT(cx, vp);
-		JS_ClearScope(cx, obj);
+//		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
 			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	}
@@ -204,6 +204,7 @@ JSAPI_FUNC(room_getCollision)
 					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 				JS_RemoveRoot(cx, &jsobjy);
 				JS_EndRequest(cx);
+				cRoom.LeaveSection();
 				return JS_TRUE;
 			}
 
@@ -220,6 +221,7 @@ JSAPI_FUNC(room_getCollision)
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			JS_RemoveRoot(cx, &jsobjy);
 			JS_EndRequest(cx);
+			cRoom.LeaveSection();
 			return JS_TRUE;
 		}
 		nCurrentArrayY++;
@@ -231,7 +233,7 @@ JSAPI_FUNC(room_getCollision)
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobjy));
 	JS_RemoveRoot(cx, &jsobjy);
 	JS_EndRequest(cx);
-
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -329,7 +331,7 @@ JSAPI_FUNC(room_getStat)
 
 	if(bAdded)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -389,7 +391,7 @@ JSAPI_FUNC(room_reveal)
 	cMisc.EnterSection();
 	
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(RevealRoom(pRoom2, bDrawPresets)));
-	
+	cMisc.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -419,7 +421,7 @@ JSAPI_FUNC(my_getRoom)
 			JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pLevel->pRoom2First);
 			if (!jsroom)
 				return JS_TRUE;
-
+			cRoom.LeaveSection();
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
 						
 			return JS_TRUE;
@@ -434,6 +436,7 @@ JSAPI_FUNC(my_getRoom)
 			JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom1->pRoom2);
 			if (!jsroom)
 				return JS_TRUE;
+			cRoom.LeaveSection();
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
 			
 			return JS_TRUE;
@@ -494,7 +497,7 @@ JSAPI_FUNC(my_getRoom)
 				return JS_TRUE;
 
 				JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
-				
+				cRoom.LeaveSection();
 				return JS_TRUE;
 			}
 
@@ -506,6 +509,7 @@ JSAPI_FUNC(my_getRoom)
 		if (!jsroom)
 			return JS_TRUE;
 
+		cRoom.LeaveSection();
 		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
 	
 		return JS_TRUE;
@@ -515,6 +519,7 @@ JSAPI_FUNC(my_getRoom)
 		if (!jsroom)
 			return JS_TRUE;
 
+		cRoom.LeaveSection();
 		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
 		return JS_TRUE;
 	}

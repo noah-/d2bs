@@ -24,14 +24,14 @@ enum area_tinyid {
 
 
 static JSPropertySpec area_props[] = {
-	{"exits",		AUNIT_EXITS,		JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"name",		AUNIT_NAME,			JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"x",			AUNIT_X,			JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"xsize",		AUNIT_XSIZE,		JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"y",			AUNIT_Y,			JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"ysize",		AUNIT_YSIZE,		JSPROP_PERMANENT_VAR,	area_getProperty},
-	{"id",			AUNIT_ID,			JSPROP_PERMANENT_VAR,	area_getProperty},
-	{0},
+	{"exits",		AUNIT_EXITS,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"name",		AUNIT_NAME,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"x",			AUNIT_X,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"xsize",		AUNIT_XSIZE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"y",			AUNIT_Y,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"ysize",		AUNIT_YSIZE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{"id",			AUNIT_ID,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(area_getProperty), JSOP_NULLWRAPPER},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 struct myArea {

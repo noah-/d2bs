@@ -28,7 +28,7 @@ JSAPI_FUNC(hook_remove)
 	}
 
 	JS_SetPrivate(cx, obj, NULL);
-	JS_ClearScope(cx, obj);
+	//JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	Genhook::LeaveGlobalSection();
 
@@ -92,31 +92,31 @@ JSAPI_PROP(frame_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case FRAME_X:
-			*vp = INT_TO_JSVAL(pFramehook->GetX());
+			vp.setInt32(pFramehook->GetX());
 			break;
 		case FRAME_Y:
-			*vp = INT_TO_JSVAL(pFramehook->GetY());
+			vp.setInt32(pFramehook->GetY());
 			break;
 		case FRAME_XSIZE:
-			*vp = INT_TO_JSVAL(pFramehook->GetXSize());
+			vp.setInt32(pFramehook->GetXSize());
 			break;
 		case FRAME_YSIZE:
-			*vp = INT_TO_JSVAL(pFramehook->GetYSize());
+			vp.setInt32(pFramehook->GetYSize());
 			break;
 		case FRAME_ALIGN:
-			*vp = INT_TO_JSVAL(pFramehook->GetAlign());
+			vp.setInt32(pFramehook->GetAlign());
 			break;
 		case FRAME_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pFramehook->GetIsVisible());
+			vp.setBoolean(pFramehook->GetIsVisible());
 			break;
 		case FRAME_ZORDER:
-			*vp = INT_TO_JSVAL(pFramehook->GetZOrder());
+			vp.setInt32(pFramehook->GetZOrder());
 			break;
 		case FRAME_ONCLICK:
-			*vp = pFramehook->GetClickHandler();
+			vp.set(pFramehook->GetClickHandler());
 			break;
 		case FRAME_ONHOVER:
-			*vp = pFramehook->GetHoverHandler();
+			vp.set(pFramehook->GetHoverHandler());
 			break;
 	}
 	return JS_TRUE;
@@ -132,38 +132,38 @@ JSAPI_STRICT_PROP(frame_setProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)){
 		case FRAME_X:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetX(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetX(vp.toInt32());
 			break;
 		case FRAME_Y:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetY(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetY(vp.toInt32());
 			break;
 		case FRAME_XSIZE:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetXSize(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetXSize(vp.toInt32());
 			break;
 		case FRAME_YSIZE:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetYSize(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetYSize(vp.toInt32());
 			break;
 		case FRAME_ALIGN:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetAlign((Align)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetAlign((Align)vp.toInt32());
 			break;
 		case FRAME_VISIBLE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				pFramehook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			if(vp.isBoolean())
+				pFramehook->SetIsVisible(!!vp.toBoolean());
 			break;
 		case FRAME_ZORDER:
-			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pFramehook->SetZOrder((ushort)vp.toInt32());
 			break;
 		case FRAME_ONCLICK:
-			pFramehook->SetClickHandler(*vp);
+			pFramehook->SetClickHandler(vp.get());
 			break;
 		case FRAME_ONHOVER:
-			pFramehook->SetHoverHandler(*vp);
+			pFramehook->SetHoverHandler(vp.get());
 			break;
 	}
 	return JS_TRUE;
@@ -231,37 +231,37 @@ JSAPI_PROP(box_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case BOX_X:
-			*vp = INT_TO_JSVAL(pBoxHook->GetX());
+			vp.setInt32(pBoxHook->GetX());
 			break;
 		case BOX_Y:
-			*vp = INT_TO_JSVAL(pBoxHook->GetY());
+			vp.setInt32(pBoxHook->GetY());
 			break;
 		case BOX_XSIZE:
-			*vp = INT_TO_JSVAL(pBoxHook->GetXSize());
+			vp.setInt32(pBoxHook->GetXSize());
 			break;
 		case BOX_YSIZE:
-			*vp = INT_TO_JSVAL(pBoxHook->GetYSize());
+			vp.setInt32(pBoxHook->GetYSize());
 			break;
 		case BOX_ALIGN:
-			*vp = INT_TO_JSVAL(pBoxHook->GetAlign());
+			vp.setInt32(pBoxHook->GetAlign());
 			break;
 		case BOX_COLOR:
-			*vp = INT_TO_JSVAL(pBoxHook->GetColor());
+			vp.setInt32(pBoxHook->GetColor());
 			break;
 		case BOX_OPACITY:
-			*vp = INT_TO_JSVAL(pBoxHook->GetOpacity());
+			vp.setInt32(pBoxHook->GetOpacity());
 			break;
 		case BOX_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pBoxHook->GetIsVisible());
+			vp.setBoolean(pBoxHook->GetIsVisible());
 			break;
 		case BOX_ZORDER:
-			*vp = INT_TO_JSVAL(pBoxHook->GetZOrder());
+			vp.setInt32(pBoxHook->GetZOrder());
 			break;
 		case BOX_ONCLICK:
-			*vp = pBoxHook->GetClickHandler();
+			vp.set(pBoxHook->GetClickHandler());
 			break;
 		case BOX_ONHOVER:
-			*vp = pBoxHook->GetHoverHandler();
+			vp.set(pBoxHook->GetHoverHandler());
 			break;
 	}
 	return JS_TRUE;
@@ -277,46 +277,46 @@ JSAPI_STRICT_PROP(box_setProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case BOX_X:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetX(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetX(vp.toInt32());
 			break;
 		case BOX_Y:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetY(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetY(vp.toInt32());
 			break;
 		case BOX_XSIZE:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetXSize(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetXSize(vp.toInt32());
 			break;
 		case BOX_YSIZE:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetYSize(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetYSize(vp.toInt32());
 			break;
 		case BOX_OPACITY:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetOpacity((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetOpacity((ushort)vp.toInt32());
 			break;
 		case BOX_COLOR:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetColor((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetColor((ushort)vp.toInt32());
 			break;
 		case BOX_ALIGN:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetAlign((Align)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetAlign((Align)vp.toInt32());
 			break;
 		case BOX_VISIBLE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				pBoxHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			if(vp.isBoolean())
+				pBoxHook->SetIsVisible(!!vp.toBoolean());
 			break;
 		case BOX_ZORDER:
-			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pBoxHook->SetZOrder((ushort)vp.toInt32());
 			break;
 		case BOX_ONCLICK:
-			pBoxHook->SetClickHandler(*vp);
+			pBoxHook->SetClickHandler(vp.get());
 			break;
 		case BOX_ONHOVER:
-			pBoxHook->SetHoverHandler(*vp);
+			pBoxHook->SetHoverHandler(vp.get());
 			break;
 	}
 	return JS_TRUE;
@@ -382,31 +382,31 @@ JSAPI_PROP(line_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case LINE_X:
-			*vp = INT_TO_JSVAL(pLineHook->GetX());
+			vp.setInt32(pLineHook->GetX());
 			break;
 		case LINE_Y:
-			*vp = INT_TO_JSVAL(pLineHook->GetY());
+			vp.setInt32(pLineHook->GetY());
 			break;
 		case LINE_XSIZE:
-			*vp = INT_TO_JSVAL(pLineHook->GetX2());
+			vp.setInt32(pLineHook->GetX2());
 			break;
 		case LINE_YSIZE:
-			*vp = INT_TO_JSVAL(pLineHook->GetY2());
+			vp.setInt32(pLineHook->GetY2());
 			break;
 		case LINE_COLOR:
-			*vp = INT_TO_JSVAL(pLineHook->GetColor());
+			vp.setInt32(pLineHook->GetColor());
 			break;
 		case LINE_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pLineHook->GetIsVisible());
+			vp.setBoolean(pLineHook->GetIsVisible());
 			break;
 		case LINE_ZORDER:
-			*vp = INT_TO_JSVAL(pLineHook->GetZOrder());
+			vp.setInt32(pLineHook->GetZOrder());
 			break;
 		case LINE_ONCLICK:
-			*vp = pLineHook->GetClickHandler();
+			vp.set(pLineHook->GetClickHandler());
 			break;
 		case LINE_ONHOVER:
-			*vp = pLineHook->GetHoverHandler();
+			vp.set(pLineHook->GetHoverHandler());
 			break;
 	}
 	return JS_TRUE;
@@ -422,38 +422,38 @@ JSAPI_STRICT_PROP(line_setProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case LINE_X:
-			if (JSVAL_IS_INT(*vp))
-				pLineHook->SetX(JSVAL_TO_INT(*vp));
+			if (vp.isInt32())
+				pLineHook->SetX(vp.toInt32());
 			break;
 		case LINE_Y:
-			if (JSVAL_IS_INT(*vp))
-				pLineHook->SetY(JSVAL_TO_INT(*vp));
+			if (vp.isInt32())
+				pLineHook->SetY(vp.toInt32());
 			break;
 		case LINE_XSIZE:
-			if (JSVAL_IS_INT(*vp))
-				pLineHook->SetX2(JSVAL_TO_INT(*vp));
+			if (vp.isInt32())
+				pLineHook->SetX2(vp.toInt32());
 			break;
 		case LINE_YSIZE:
-			if (JSVAL_IS_INT(*vp))
-				pLineHook->SetY2(JSVAL_TO_INT(*vp));
+			if (vp.isInt32())
+				pLineHook->SetY2(vp.toInt32());
 			break;
 		case LINE_COLOR:
-			if (JSVAL_IS_INT(*vp))
-				pLineHook->SetColor((ushort)JSVAL_TO_INT(*vp));
+			if (vp.isInt32())
+				pLineHook->SetColor((ushort)vp.toInt32());
 			break;
 		case LINE_VISIBLE:
-			if (JSVAL_IS_BOOLEAN(*vp))
-				pLineHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			if (vp.isBoolean())
+				pLineHook->SetIsVisible(!!vp.toBoolean());
 			break;
 		case LINE_ZORDER:
-			if(JSVAL_IS_INT(*vp))
-				pLineHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pLineHook->SetZOrder((ushort)vp.toInt32());
 			break;
 		case LINE_ONCLICK:
-			pLineHook->SetClickHandler(*vp);
+			pLineHook->SetClickHandler(vp.get());
 			break;
 		case LINE_ONHOVER:
-			pLineHook->SetHoverHandler(*vp);
+			pLineHook->SetHoverHandler(vp.get());
 			break;
 	}
 	return JS_TRUE;
@@ -524,34 +524,34 @@ JSAPI_PROP(text_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case TEXT_X:
-			*vp = INT_TO_JSVAL(pTextHook->GetX());
+			vp.setInt32(pTextHook->GetX());
 			break;
 		case TEXT_Y:
-			*vp = INT_TO_JSVAL(pTextHook->GetY());
+			vp.setInt32(pTextHook->GetY());
 			break;
 		case TEXT_COLOR:
-			*vp = INT_TO_JSVAL(pTextHook->GetColor());
+			vp.setInt32(pTextHook->GetColor());
 			break;
 		case TEXT_FONT:
-			*vp = INT_TO_JSVAL(pTextHook->GetFont());
+			vp.setInt32(pTextHook->GetFont());
 			break;
 		case TEXT_TEXT:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pTextHook->GetText()));
+			vp.setString(JS_NewStringCopyZ(cx, pTextHook->GetText()));
 			break;
 		case TEXT_ALIGN:
-			*vp = INT_TO_JSVAL(pTextHook->GetAlign());
+			vp.setInt32(pTextHook->GetAlign());
 			break;
 		case TEXT_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pTextHook->GetIsVisible());
+			vp.setBoolean(pTextHook->GetIsVisible());
 			break;
 		case TEXT_ZORDER:
-			*vp = INT_TO_JSVAL(pTextHook->GetZOrder());
+			vp.setInt32(pTextHook->GetZOrder());
 			break;
 		case TEXT_ONCLICK:
-			*vp = pTextHook->GetClickHandler();
+			vp.set(pTextHook->GetClickHandler());
 			break;
 		case TEXT_ONHOVER:
-			*vp = pTextHook->GetHoverHandler();
+			vp.set(pTextHook->GetHoverHandler());
 			break;
 	}
 	return JS_TRUE;
@@ -567,25 +567,25 @@ JSAPI_STRICT_PROP(text_setProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case TEXT_X:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetX(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetX(vp.toInt32());
 			break;
 		case TEXT_Y:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetY(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetY(vp.toInt32());
 			break;
 		case TEXT_COLOR:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetColor((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetColor((ushort)vp.toInt32());
 			break;
 		case TEXT_FONT:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetFont((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetFont((ushort)vp.toInt32());
 			break;
 		case TEXT_TEXT:
-			if(JSVAL_IS_STRING(*vp))
+			if(vp.isString())
 			{
-				char* pText = JS_EncodeString(cx,JS_ValueToString(cx, *vp));
+				char* pText = JS_EncodeString(cx,vp.toString());
 				if(!pText)
 					return JS_TRUE;
 				pTextHook->SetText(pText);
@@ -593,22 +593,22 @@ JSAPI_STRICT_PROP(text_setProperty)
 			}
 			break;
 		case TEXT_ALIGN:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetAlign((Align)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetAlign((Align)vp.toInt32());
 			break;
 		case TEXT_VISIBLE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				pTextHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			if(vp.isBoolean())
+				pTextHook->SetIsVisible(!!vp.toBoolean());
 			break;
 		case TEXT_ZORDER:
-			if(JSVAL_IS_INT(*vp))
-				pTextHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pTextHook->SetZOrder((ushort)vp.toInt32());
 			break;
 		case TEXT_ONCLICK:
-			pTextHook->SetClickHandler(*vp);
+			pTextHook->SetClickHandler(vp.get());
 			break;
 		case TEXT_ONHOVER:
-			pTextHook->SetHoverHandler(*vp);
+			pTextHook->SetHoverHandler(vp.get());
 			break;
 	}
 	return JS_TRUE;
@@ -682,28 +682,28 @@ JSAPI_PROP(image_getProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case IMAGE_X:
-			*vp = INT_TO_JSVAL(pImageHook->GetX());
+			vp.setInt32(pImageHook->GetX());
 			break;
 		case IMAGE_Y:
-			*vp = INT_TO_JSVAL(pImageHook->GetY());
+			vp.setInt32(pImageHook->GetY());
 			break;
 		case IMAGE_LOCATION:
-			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pImageHook->GetImage()));
+			vp.setString(JS_NewStringCopyZ(cx, pImageHook->GetImage()));
 			break;
 		case IMAGE_ALIGN:
-			*vp = INT_TO_JSVAL(pImageHook->GetAlign());
+			vp.setInt32(pImageHook->GetAlign());
 			break;
 		case IMAGE_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pImageHook->GetIsVisible());
+			vp.setBoolean(pImageHook->GetIsVisible());
 			break;
 		case IMAGE_ZORDER:
-			*vp = INT_TO_JSVAL(pImageHook->GetZOrder());
+			vp.setInt32(pImageHook->GetZOrder());
 			break;
 		case IMAGE_ONCLICK:
-			*vp = pImageHook->GetClickHandler();
+			vp.set(pImageHook->GetClickHandler());
 			break;
 		case IMAGE_ONHOVER:
-			*vp = pImageHook->GetHoverHandler();
+			vp.set(pImageHook->GetHoverHandler());
 			break;
 	}
 	return JS_TRUE;
@@ -719,39 +719,39 @@ JSAPI_STRICT_PROP(image_setProperty)
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID)) {
 		case IMAGE_X:
-			if(JSVAL_IS_INT(*vp))
-				pImageHook->SetX(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pImageHook->SetX(vp.toInt32());
 			break;
 		case IMAGE_Y:
-			if(JSVAL_IS_INT(*vp))
-				pImageHook->SetY(JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pImageHook->SetY(vp.toInt32());
 			break;
 		case IMAGE_LOCATION:
-			if(JSVAL_IS_STRING(*vp))
+			if(vp.isString())
 			{
-				char* pimage = JS_EncodeString(cx,JS_ValueToString(cx, *vp));
+				char* pimage = JS_EncodeString(cx,vp.toString());
 				if(!pimage)
 					return JS_TRUE;
 				pImageHook->SetImage(pimage);
 			}
 			break;
 		case IMAGE_ALIGN:
-			if(JSVAL_IS_INT(*vp))
-				pImageHook->SetAlign((Align)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pImageHook->SetAlign((Align)vp.toInt32());
 			break;
 		case IMAGE_VISIBLE:
-			if(JSVAL_IS_BOOLEAN(*vp))
-				pImageHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			if(vp.isBoolean())
+				pImageHook->SetIsVisible(!!vp.toBoolean());
 			break;
 		case IMAGE_ZORDER:
-			if(JSVAL_IS_INT(*vp))
-				pImageHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			if(vp.isInt32())
+				pImageHook->SetZOrder((ushort)vp.toInt32());
 			break;
 		case IMAGE_ONCLICK:
-			pImageHook->SetClickHandler(*vp);
+			pImageHook->SetClickHandler(vp.get());
 			break;
 		case IMAGE_ONHOVER:
-			pImageHook->SetHoverHandler(*vp);
+			pImageHook->SetHoverHandler(vp.get());
 			break;
 	}
 	return JS_TRUE;

@@ -29,8 +29,6 @@
 #include "js/Vector.h"
 #endif
 
-JS_BEGIN_EXTERN_C
-
 /*
  * Convenience constants.
  */
@@ -47,12 +45,9 @@ typedef uint8_t     jssrcnote;
 typedef uintptr_t   jsatomid;
 
 /* Struct typedefs. */
-typedef struct JSArgumentFormatMap  JSArgumentFormatMap;
 typedef struct JSGCThing            JSGCThing;
 typedef struct JSGenerator          JSGenerator;
 typedef struct JSNativeEnumerator   JSNativeEnumerator;
-typedef struct JSProperty           JSProperty;
-typedef struct JSSharpObjectMap     JSSharpObjectMap;
 typedef struct JSTryNote            JSTryNote;
 
 /* Friend "Advanced API" typedefs. */
@@ -82,8 +77,6 @@ class JSDependentString;
 class JSExtensibleString;
 class JSExternalString;
 class JSLinearString;
-class JSFixedString;
-class JSStaticAtom;
 class JSRope;
 class JSAtom;
 class JSWrapper;
@@ -101,8 +94,6 @@ class RegExpStatics;
 class MatchPairs;
 class PropertyName;
 
-namespace detail { class RegExpCode; }
-
 enum RegExpFlag
 {
     IgnoreCaseFlag  = 0x01,
@@ -112,12 +103,6 @@ enum RegExpFlag
 
     NoFlags         = 0x00,
     AllFlags        = 0x0f
-};
-
-enum RegExpExecType
-{
-    RegExpExec,
-    RegExpTest
 };
 
 class ExecuteArgsGuard;
@@ -131,27 +116,11 @@ class StackSegment;
 class StackSpace;
 class ContextStack;
 class ScriptFrameIter;
-class CallReceiver;
-class CallArgs;
-
-struct BytecodeEmitter;
-struct Definition;
-struct FunctionBox;
-struct ObjectBox;
-struct ParseNode;
-struct Parser;
-struct SharedContext;
-class TokenStream;
-struct Token;
-struct TokenPos;
-struct TokenPtr;
-struct TreeContext;
-class UpvarCookie;
 
 class Proxy;
-class BaseProxyHandler;
-class DirectWrapper;
-class CrossCompartmentWrapper;
+class JS_FRIEND_API(BaseProxyHandler);
+class JS_FRIEND_API(Wrapper);
+class JS_FRIEND_API(CrossCompartmentWrapper);
 
 class TempAllocPolicy;
 class RuntimeAllocPolicy;
@@ -165,23 +134,7 @@ class InlineMap;
 
 class LifoAlloc;
 
-class BaseShape;
-class UnownedBaseShape;
-struct Shape;
-struct EmptyShape;
-class ShapeKindArray;
-class Bindings;
-
-struct StackBaseShape;
-struct StackShape;
-
-class MultiDeclRange;
-class ParseMapPool;
-class DefnOrHeader;
-typedef InlineMap<JSAtom *, Definition *, 24> AtomDefnMap;
-typedef InlineMap<JSAtom *, jsatomid, 24> AtomIndexMap;
-typedef InlineMap<JSAtom *, DefnOrHeader, 24> AtomDOHMap;
-typedef Vector<UpvarCookie, 8> UpvarCookies;
+class Shape;
 
 class Breakpoint;
 class BreakpointSite;
@@ -200,6 +153,22 @@ typedef JSNative             Native;
 typedef JSPropertyOp         PropertyOp;
 typedef JSStrictPropertyOp   StrictPropertyOp;
 typedef JSPropertyDescriptor PropertyDescriptor;
+
+namespace frontend {
+
+struct BytecodeEmitter;
+struct Definition;
+class FunctionBox;
+class ObjectBox;
+struct Token;
+struct TokenPos;
+struct TokenPtr;
+class TokenStream;
+struct Parser;
+class ParseMapPool;
+struct ParseNode;
+
+} /* namespace frontend */
 
 namespace analyze {
 
@@ -222,16 +191,19 @@ struct TypeCompartment;
 } /* namespace types */
 
 typedef JS::Handle<Shape*>             HandleShape;
-typedef JS::Handle<BaseShape*>         HandleBaseShape;
 typedef JS::Handle<types::TypeObject*> HandleTypeObject;
 typedef JS::Handle<JSAtom*>            HandleAtom;
 typedef JS::Handle<PropertyName*>      HandlePropertyName;
 
-typedef JS::Rooted<Shape*>             RootedShape;
-typedef JS::Rooted<BaseShape*>         RootedBaseShape;
-typedef JS::Rooted<types::TypeObject*> RootedTypeObject;
-typedef JS::Rooted<JSAtom*>            RootedAtom;
-typedef JS::Rooted<PropertyName*>      RootedPropertyName;
+typedef JS::MutableHandle<Shape*>      MutableHandleShape;
+typedef JS::MutableHandle<JSAtom*>     MutableHandleAtom;
+
+typedef JSAtom *                       RawAtom;
+
+typedef js::Rooted<Shape*>             RootedShape;
+typedef js::Rooted<types::TypeObject*> RootedTypeObject;
+typedef js::Rooted<JSAtom*>            RootedAtom;
+typedef js::Rooted<PropertyName*>      RootedPropertyName;
 
 enum XDRMode {
     XDR_ENCODE,
@@ -298,7 +270,7 @@ typedef JSBool
 typedef void
 (* JSNewScriptHook)(JSContext  *cx,
                     const char *filename,  /* URL of script */
-                    unsigned      lineno,     /* first line */
+                    unsigned   lineno,     /* first line */
                     JSScript   *script,
                     JSFunction *fun,
                     void       *callerdata);
@@ -306,8 +278,8 @@ typedef void
 /* called just before script destruction */
 typedef void
 (* JSDestroyScriptHook)(JSFreeOp *fop,
-                        JSScript  *script,
-                        void      *callerdata);
+                        JSScript *script,
+                        void     *callerdata);
 
 typedef void
 (* JSSourceHandler)(const char *filename, unsigned lineno, const jschar *str,
@@ -378,7 +350,7 @@ typedef JSObject *
 
 /* Signature for class initialization ops. */
 typedef JSObject *
-(* JSClassInitializerOp)(JSContext *cx, JSObject *obj);
+(* JSClassInitializerOp)(JSContext *cx, JSHandleObject obj);
 
 /*
  * Hook that creates an iterator object for a given object. Returns the
@@ -387,16 +359,5 @@ typedef JSObject *
 typedef JSObject *
 (* JSIteratorOp)(JSContext *cx, JSHandleObject obj, JSBool keysonly);
 
-/*
- * The following determines whether JS_EncodeCharacters and JS_DecodeBytes
- * treat char[] as utf-8 or simply as bytes that need to be inflated/deflated.
- */
-#ifdef JS_C_STRINGS_ARE_UTF8
-# define js_CStringsAreUTF8 JS_TRUE
-#else
-extern JSBool js_CStringsAreUTF8;
-#endif
-
-JS_END_EXTERN_C
 
 #endif /* jsprvtd_h___ */

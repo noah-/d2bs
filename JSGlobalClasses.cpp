@@ -35,7 +35,7 @@ JSClass global_obj = {
 
 JSClass sqlite_db = {
 	"SQLite", JSCLASS_HAS_PRIVATE ,
-    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, (JSPropertyOp) JS_PropertyStub, (JSStrictPropertyOp) JS_StrictPropertyStub,
 			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_finalize, sqlite_ctor)};
 
 JSClass sqlite_stmt = {

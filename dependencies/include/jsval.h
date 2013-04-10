@@ -12,11 +12,7 @@
  * Implementation details for js::Value in jsapi.h.
  */
 
-#include "mozilla/FloatingPoint.h"
-
 #include "js/Utility.h"
-
-JS_BEGIN_EXTERN_C
 
 /*
  * Try to get jsvals 64-bit aligned. We could almost assert that all values are
@@ -195,6 +191,11 @@ typedef uint64_t JSValueShiftedTag;
 #define JSVAL_TYPE_TO_TAG(type)      ((JSValueTag)(JSVAL_TAG_MAX_DOUBLE | (type)))
 #define JSVAL_TYPE_TO_SHIFTED_TAG(type) (((uint64_t)JSVAL_TYPE_TO_TAG(type)) << JSVAL_TAG_SHIFT)
 
+#define JSVAL_LOWER_INCL_TAG_OF_OBJ_OR_NULL_SET         JSVAL_TAG_NULL
+#define JSVAL_UPPER_EXCL_TAG_OF_PRIMITIVE_SET           JSVAL_TAG_OBJECT
+#define JSVAL_UPPER_INCL_TAG_OF_NUMBER_SET              JSVAL_TAG_INT32
+#define JSVAL_LOWER_INCL_TAG_OF_GCTHING_SET             JSVAL_TAG_STRING
+
 #define JSVAL_LOWER_INCL_SHIFTED_TAG_OF_OBJ_OR_NULL_SET  JSVAL_SHIFTED_TAG_NULL
 #define JSVAL_UPPER_EXCL_SHIFTED_TAG_OF_PRIMITIVE_SET    JSVAL_SHIFTED_TAG_OBJECT
 #define JSVAL_UPPER_EXCL_SHIFTED_TAG_OF_NUMBER_SET       JSVAL_SHIFTED_TAG_UNDEFINED
@@ -215,10 +216,14 @@ typedef enum JSWhyMagic
     JS_ARG_POISON,               /* used in debug builds to catch tracing errors */
     JS_SERIALIZE_NO_NODE,        /* an empty subnode in the AST serializer */
     JS_LAZY_ARGUMENTS,           /* lazy arguments value on the stack */
-    JS_UNASSIGNED_ARGUMENTS,     /* the initial value of callobj.arguments */
     JS_OPTIMIZED_ARGUMENTS,      /* optimized-away 'arguments' value */
     JS_IS_CONSTRUCTING,          /* magic value passed to natives to indicate construction */
     JS_OVERWRITTEN_CALLEE,       /* arguments.callee has been overwritten */
+    JS_FORWARD_TO_CALL_OBJECT,   /* args object element stored in call object */
+    JS_BLOCK_NEEDS_CLONE,        /* value of static block object slot */
+    JS_HASH_KEY_EMPTY,           /* see class js::HashableValue */
+    JS_ION_ERROR,                /* error while running Ion code */
+    JS_ION_BAILOUT,              /* status code to signal EnterIon will OSR into Interpret */
     JS_GENERIC_MAGIC             /* for local use */
 } JSWhyMagic;
 
@@ -827,8 +832,6 @@ JS_CANONICALIZE_NAN(double d)
     }
     return d;
 }
-
-JS_END_EXTERN_C
 
 #ifdef __cplusplus
 static jsval_layout JSVAL_TO_IMPL(JS::Value);

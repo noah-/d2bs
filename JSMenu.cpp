@@ -9,6 +9,7 @@
 
 JSAPI_FUNC(my_login)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
     if(ClientState() != ClientStateMenu)
         return JS_TRUE;
 

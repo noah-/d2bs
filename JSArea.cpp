@@ -71,7 +71,7 @@ JSAPI_PROP(area_getProperty)
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
 				}
-				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
+				vp.set(OBJECT_TO_JSVAL(pArea->ExitArray));
 				if(pArea->ExitArray)
 					JS_RemoveRoot(cx, &pArea->ExitArray);
 			}
@@ -81,23 +81,23 @@ JSAPI_PROP(area_getProperty)
 			{
 				LevelTxt* pTxt = D2COMMON_GetLevelText(pArea->AreaId);
 				if(pTxt)
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
+					vp.setString(JS_InternString(cx, pTxt->szName));
 			}
 			break;
 		case AUNIT_X:
-			*vp = INT_TO_JSVAL(pLevel->dwPosX);
+			vp.setInt32(pLevel->dwPosX);
 			break;
 		case AUNIT_Y:
-			*vp = INT_TO_JSVAL(pLevel->dwPosY);
+			vp.setInt32(pLevel->dwPosY);
 			break;
 		case AUNIT_XSIZE:
-			*vp = INT_TO_JSVAL(pLevel->dwSizeX);
+			vp.setInt32(pLevel->dwSizeX);
 			break;
 		case AUNIT_YSIZE:
-			*vp = INT_TO_JSVAL(pLevel->dwSizeY);
+			vp.setInt32(pLevel->dwSizeY);
 			break;
 		case AUNIT_ID:
-			*vp = INT_TO_JSVAL(pLevel->dwLevelNo);
+			vp.setInt32(pLevel->dwLevelNo);
 			break;
 	}
 

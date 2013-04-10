@@ -42,14 +42,14 @@ JSAPI_FUNC(my_print)
 				return JS_FALSE;
 			}
 
-			jsrefcount depth = JS_SuspendRequest(cx);
+//bob20				jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Print("undefined");
 			else {
 				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
 				Print(Text);
 			}
-			JS_ResumeRequest(cx, depth);
+//bob20				JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
 		}
 	}
@@ -124,6 +124,7 @@ JSAPI_FUNC(my_delay)
 	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
+	//JS_ClearRuntimeThread(JS_GetRuntime(cx));
 	if(nDelay)
 	{
 		while(GetTickCount() - start < nDelay)
@@ -134,18 +135,20 @@ JSAPI_FUNC(my_delay)
 					Event* evt = script->EventList.back();
 					script->EventList.pop_back();
 				LeaveCriticalSection(&Vars.cEventSection);
+				//JS_SetRuntimeThread(JS_GetRuntime(cx));
 				ExecScriptEvent(evt,false);
+				//JS_ClearRuntimeThread(JS_GetRuntime(cx));
 			}
 			
-			jsrefcount depth = JS_SuspendRequest(cx);			
+//bob20				jsrefcount depth = JS_SuspendRequest(cx);			
 			//JS_YieldRequest(cx);
 			SleepEx(10,true);		
-			JS_ResumeRequest(cx, depth);
+//bob20				JS_ResumeRequest(cx, depth);
 		}
 	}
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-
+	//JS_SetRuntimeThread(JS_GetRuntime(cx));
 	return JS_TRUE;
 }
 
@@ -180,7 +183,8 @@ JSAPI_FUNC(my_load)
 	if(newScript)
 	{
 		newScript->BeginThread(ScriptThread);
-		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext())));		
+		//JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext())));
+		JS_SET_RVAL(cx, vp,JSVAL_NULL );	
 	}
 	else
 	{
@@ -250,7 +254,7 @@ JSAPI_FUNC(my_getTickCount)
 {
 	JS_BeginRequest(cx);
 	jsval rval;
-	JS_NewNumberValue(cx, (jsdouble)GetTickCount(), &rval);
+	rval = JS_NumberValue((jsdouble)GetTickCount());
 	JS_SET_RVAL(cx, vp, rval);
 	JS_EndRequest(cx);
 	return JS_TRUE;
@@ -314,14 +318,14 @@ JSAPI_FUNC(my_debugLog)
 				return JS_FALSE;
 			}
 
-			jsrefcount depth = JS_SuspendRequest(cx);
+	//bob20			jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Log("undefined");
 			else {
 				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 				Log(Text);
 			}
-			JS_ResumeRequest(cx, depth);
+//bob20				JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
 		}
 	}
@@ -409,9 +413,9 @@ JSAPI_FUNC(my_sendCopyData)
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
 
-	 jsrefcount depth = JS_SuspendRequest(cx);
+	//bob20	 jsrefcount depth = JS_SuspendRequest(cx);
 	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
-	 JS_ResumeRequest(cx, depth);
+//bob20	 JS_ResumeRequest(cx, depth);
 	
 	JS_free(cx, data);
 	JS_free(cx,windowName);

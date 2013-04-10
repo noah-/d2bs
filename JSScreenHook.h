@@ -26,21 +26,21 @@ enum frame_tinyid {
 };
 
 static JSPropertySpec frame_props[] = {
-	{"x",		FRAME_X,		JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"y",		FRAME_Y,		JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"xsize",	FRAME_XSIZE,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"ysize",	FRAME_YSIZE,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"visible",	FRAME_VISIBLE,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"align",	FRAME_ALIGN,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"zorder",	FRAME_ZORDER,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"click",	FRAME_ONCLICK,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{"hover",	FRAME_ONHOVER,	JSPROP_STATIC_VAR,	frame_getProperty,	frame_setProperty},
-	{0},
+	{"x",		FRAME_X,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"y",		FRAME_Y,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"xsize",	FRAME_XSIZE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"ysize",	FRAME_YSIZE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"visible",	FRAME_VISIBLE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"align",	FRAME_ALIGN,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"zorder",	FRAME_ZORDER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"click",	FRAME_ONCLICK,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{"hover",	FRAME_ONHOVER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(frame_getProperty),	JSOP_WRAPPER(frame_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec frame_methods[] = {
-	{"remove",			hook_remove,			0},
-	{0},
+	JS_FS("remove",			hook_remove,			0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 /*********************************************************
@@ -65,23 +65,23 @@ enum box_tinyid {
 };
 
 static JSPropertySpec box_props[] = {
-	{"x",		BOX_X,			JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"y",		BOX_Y,			JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"xsize",	BOX_XSIZE,		JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"ysize",	BOX_YSIZE,		JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"visible",	BOX_VISIBLE,	JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"color",	BOX_COLOR,		JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"opacity",	BOX_OPACITY,	JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"align",	BOX_ALIGN,		JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"zorder",	BOX_ZORDER,		JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"click",	BOX_ONCLICK,	JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{"hover",	BOX_ONHOVER,	JSPROP_STATIC_VAR,	box_getProperty,	box_setProperty},
-	{0},
+	{"x",		BOX_X,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"y",		BOX_Y,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"xsize",	BOX_XSIZE,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"ysize",	BOX_YSIZE,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"visible",	BOX_VISIBLE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"color",	BOX_COLOR,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"opacity",	BOX_OPACITY,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"align",	BOX_ALIGN,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"zorder",	BOX_ZORDER,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"click",	BOX_ONCLICK,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{"hover",	BOX_ONHOVER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(box_getProperty),	JSOP_WRAPPER(box_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec box_methods[] = {
-	{"remove",			hook_remove,			0},
-	{0},
+	JS_FS("remove",			hook_remove,			0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 
@@ -105,21 +105,21 @@ enum line_tinyid {
 };
 
 static JSPropertySpec line_props[] = {
-	{"x",		LINE_X,			JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"y",		LINE_Y,			JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"x2",		LINE_XSIZE,		JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"y2",		LINE_YSIZE,		JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"visible",	LINE_VISIBLE,	JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"color",	LINE_COLOR,		JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"zorder",	LINE_ZORDER,	JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"click",	LINE_ONCLICK,	JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{"hover",	LINE_ONHOVER,	JSPROP_STATIC_VAR,	line_getProperty,	line_setProperty},
-	{0},
+	{"x",		LINE_X,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"y",		LINE_Y,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"x2",		LINE_XSIZE,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"y2",		LINE_YSIZE,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"visible",	LINE_VISIBLE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"color",	LINE_COLOR,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"zorder",	LINE_ZORDER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"click",	LINE_ONCLICK,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{"hover",	LINE_ONHOVER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(line_getProperty),	JSOP_WRAPPER(line_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec line_methods[] = {
-	{"remove",			hook_remove,			0},
-	{0},
+	JS_FS("remove",			hook_remove,			0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 /*********************************************************
@@ -143,22 +143,22 @@ enum text_tinyid {
 };
 
 static JSPropertySpec text_props[] = {
-	{"x",		TEXT_X,			JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"y",		TEXT_Y,			JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"color",	TEXT_COLOR,		JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"font",	TEXT_FONT,		JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"visible",	TEXT_VISIBLE,	JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"text",	TEXT_TEXT,		JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"align",	TEXT_ALIGN,		JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"zorder",	TEXT_ZORDER,	JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"click",	TEXT_ONCLICK,	JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{"hover",	TEXT_ONHOVER,	JSPROP_STATIC_VAR,	text_getProperty,	text_setProperty},
-	{0},
+	{"x",		TEXT_X,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"y",		TEXT_Y,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"color",	TEXT_COLOR,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"font",	TEXT_FONT,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"visible",	TEXT_VISIBLE,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"text",	TEXT_TEXT,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"align",	TEXT_ALIGN,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"zorder",	TEXT_ZORDER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"click",	TEXT_ONCLICK,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{"hover",	TEXT_ONHOVER,	JSPROP_STATIC_VAR,	JSOP_WRAPPER(text_getProperty),	JSOP_WRAPPER(text_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec text_methods[] = {
-	{"remove",			hook_remove,			0},
-	{0},
+	JS_FS("remove",			hook_remove,			0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 /*********************************************************
@@ -180,20 +180,20 @@ enum image_tinyid {
 };
 
 static JSPropertySpec image_props[] = {
-	{"x",		IMAGE_X,			JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"y",		IMAGE_Y,			JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"visible",	IMAGE_VISIBLE,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"location",IMAGE_LOCATION,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"align",	IMAGE_ALIGN,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"zorder",	IMAGE_ZORDER,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"click",	IMAGE_ONCLICK,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{"hover",	IMAGE_ONHOVER,		JSPROP_STATIC_VAR,	image_getProperty,	image_setProperty},
-	{0},
+	{"x",		IMAGE_X,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"y",		IMAGE_Y,			JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"visible",	IMAGE_VISIBLE,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"location",IMAGE_LOCATION,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"align",	IMAGE_ALIGN,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"zorder",	IMAGE_ZORDER,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"click",	IMAGE_ONCLICK,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{"hover",	IMAGE_ONHOVER,		JSPROP_STATIC_VAR,	JSOP_WRAPPER(image_getProperty),	JSOP_WRAPPER(image_setProperty)},
+	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 
 static JSFunctionSpec image_methods[] = {
-	{"remove",			hook_remove,			0},
-	{0},
+	JS_FS("remove",			hook_remove,			0, FUNCTION_FLAGS),
+	JS_FS_END
 };
 
 JSAPI_FUNC(screenToAutomap);
