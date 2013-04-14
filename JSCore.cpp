@@ -426,10 +426,24 @@ JSAPI_FUNC(my_sendDDE)
 {
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
+	JS_BeginRequest(cx);
 
-	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "issss", &mode, &pszDDEServer, &pszTopic, &pszItem, &pszData))
-		return JS_FALSE;
+	if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &mode);
 
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
+			pszDDEServer = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[2]))
+			pszTopic = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[2]));
+
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]))
+			pszItem = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
+	
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[4]))
+			pszData = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[4]));
+
+	JS_EndRequest(cx);
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
 	{

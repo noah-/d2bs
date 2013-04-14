@@ -11,6 +11,7 @@ JSAPI_FUNC(my_clickMap);
 JSAPI_FUNC(my_acceptTrade);
 JSAPI_FUNC(my_tradeOk);
 JSAPI_FUNC(my_getDialogLines);
+JSAPI_FUNC(my_clickDialog);
 JSAPI_FUNC(my_clickItem);
 JSAPI_FUNC(my_gold);
 JSAPI_FUNC(my_checkCollision);
