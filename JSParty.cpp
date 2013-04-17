@@ -92,6 +92,14 @@ JSAPI_FUNC(my_getParty)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+	JSObject* jUnit = BuildObject(cx, &party_class, party_methods, party_props, 0);
+	if(!jUnit)
+		return JS_TRUE;
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jUnit));
+//	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsUnit));
+
+
+
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 
 	RosterUnit* pUnit = *p_D2CLIENT_PlayerUnitList;

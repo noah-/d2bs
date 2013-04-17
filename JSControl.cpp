@@ -269,6 +269,7 @@ JSAPI_FUNC(control_setText)
 
 JSAPI_FUNC(control_getText)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_VOID); 
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 

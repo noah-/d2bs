@@ -50,9 +50,9 @@ Script::~Script(void)
 	
 	
 	EnterCriticalSection(&lock);
-	JS_SetRuntimeThread(rt);
+//	JS_SetRuntimeThread(rt);
 	JS_DestroyContext(context);
-	JS_ClearRuntimeThread(rt);
+	//JS_ClearRuntimeThread(rt);
 	JS_DestroyRuntime(rt);
 
 	
@@ -137,7 +137,7 @@ void Script::Run(void)
 	try
 	{
 		JSRuntime* runtime = JS_NewRuntime(Vars.dwMemUsage,JS_USE_HELPER_THREADS);   
-		JS_SetRuntimeThread(runtime);
+		//JS_SetRuntimeThread(runtime);
 		JS_SetContextCallback(runtime, contextCallback);
 				
 		context = JS_NewContext(runtime, 0x2000);
@@ -155,6 +155,7 @@ void Script::Run(void)
 
 		globalObject = JS_GetGlobalObject(context);
 		jsval meVal = JSVAL_VOID;
+		JS_AddNamedValueRoot(context, &meVal, "me");
 		if(JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE)
 		{
 			JSObject* meObject = JSVAL_TO_OBJECT(meVal);

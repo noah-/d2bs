@@ -124,31 +124,25 @@ JSAPI_FUNC(my_delay)
 	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
-	//JS_ClearRuntimeThread(JS_GetRuntime(cx));
+
+	JS_GC(JS_GetRuntime(cx));
 	if(nDelay)
-	{
-		while(GetTickCount() - start < nDelay)
+	{   // loop so we can exec events while in delay
+		while(GetTickCount() - start < nDelay)  
 		{
 			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
 			{
 				EnterCriticalSection(&Vars.cEventSection);
 					Event* evt = script->EventList.back();
 					script->EventList.pop_back();
-				LeaveCriticalSection(&Vars.cEventSection);
-				//JS_SetRuntimeThread(JS_GetRuntime(cx));
-				ExecScriptEvent(evt,false);
-				//JS_ClearRuntimeThread(JS_GetRuntime(cx));
+				LeaveCriticalSection(&Vars.cEventSection);				
+				ExecScriptEvent(evt,false);				
 			}
-			
-//bob20				jsrefcount depth = JS_SuspendRequest(cx);			
-			//JS_YieldRequest(cx);
-			SleepEx(10,true);		
-//bob20				JS_ResumeRequest(cx, depth);
+			SleepEx(10,true);	// ex for delayed setTimer
 		}
 	}
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-	//JS_SetRuntimeThread(JS_GetRuntime(cx));
 	return JS_TRUE;
 }
 
