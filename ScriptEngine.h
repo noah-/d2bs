@@ -34,6 +34,7 @@ class ScriptEngine
 	static EngineState state;
 	static std::list<Event*> DelayedExecList;
 	static int delayedExecKey;
+	static CRITICAL_SECTION scriptListLock;
 public:
 	friend class Script;
 	static ScriptMap scripts;
@@ -49,12 +50,15 @@ public:
 	static void RunCommand(const char* command);
 	static void DisposeScript(Script* script);
 
+	static void LockScriptList( char* loc);
+	static void UnLockScriptList( char* loc);
+
 	static bool ForEachScript(ScriptCallback callback, void* argv, uint argc);
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
 	static JSContext* GetGlobalContext(void) { return context; }
-	static void TriggerOperationCallbacks(void);
+	
 	static void StopAll(bool forceStop = false);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,

@@ -141,6 +141,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	
 	JS_RemoveRoot(cx, &pReturnArray);
 	JS_EndRequest(cx);
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -210,6 +211,7 @@ JSAPI_FUNC(my_getPresetUnit)
 					THROW_ERROR(cx, "Failed to create presetunit object");
 				}
 				JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
+				cRoom.LeaveSection();
 				return JS_TRUE;
 			}
 		}
@@ -221,5 +223,6 @@ JSAPI_FUNC(my_getPresetUnit)
 		}
 	}
 	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }

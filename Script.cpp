@@ -441,7 +441,7 @@ void Script::ClearAllEvents(void)
 }
 void Script::FireEvent(Event* evt)
 { 
-	EnterCriticalSection(&ScriptEngine::lock);
+	//EnterCriticalSection(&ScriptEngine::lock);
 	EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 	LeaveCriticalSection(&Vars.cEventSection);
@@ -450,7 +450,7 @@ void Script::FireEvent(Event* evt)
 	{		
 		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));		
 	}
-	LeaveCriticalSection(&ScriptEngine::lock);	
+	//LeaveCriticalSection(&ScriptEngine::lock);	
 }
 
 #ifdef DEBUG

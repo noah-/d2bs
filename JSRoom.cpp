@@ -139,7 +139,7 @@ JSAPI_FUNC(room_getPresetUnits)
 	
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(cx, &pReturnArray);
-
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }
 
@@ -523,6 +523,6 @@ JSAPI_FUNC(my_getRoom)
 		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsroom));
 		return JS_TRUE;
 	}
-
+	cRoom.LeaveSection();
 	return JS_TRUE;
 }

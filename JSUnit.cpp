@@ -459,17 +459,21 @@ JSAPI_PROP(unit_getProperty)
 			{
 				if(pUnit->dwType != UNIT_ITEM)
 					break;
+				CriticalMisc cMisc;
+				cMisc.EnterSection();
 
 				wchar_t wBuffer[2048] = L"";
 				wchar_t bBuffer[1] = {1};
+				if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) 
+				{
+					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB1C), bBuffer, 1, NULL); // d2client + 0x11cb1c
+					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB28), &pUnit, 4, NULL); // d2client + 0x11cb28
 
-				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB1C), bBuffer, 1, NULL); // d2client + 0x11cb1c
-				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB28), &pUnit, 4, NULL); // d2client + 0x11cb28
-
-				//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
-				D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
-				ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
-
+					//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
+					D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
+					ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
+				}
+				cMisc.LeaveSection();
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
 				{
@@ -1544,6 +1548,7 @@ JSAPI_FUNC(item_shop)
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
 		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+		myMisc.LeaveSection();
 		return JS_TRUE;
 	}
 
@@ -1626,7 +1631,7 @@ JSAPI_FUNC(item_shop)
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);*/
 	
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
-
+	myMisc.LeaveSection();
 	return JS_TRUE;
 }
 

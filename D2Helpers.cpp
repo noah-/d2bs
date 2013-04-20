@@ -1,7 +1,9 @@
-#include <io.h>
+﻿#include <io.h>
 #include <errno.h>
 #include <ctime>
 #include <cmath>
+#include <sstream>
+#include <string>
 
 #include "D2Helpers.h"
 #include "Constants.h"
@@ -352,7 +354,17 @@ void AutomapToScreen(POINT* pPos)
 
 void myDrawText(const char* szwText, int x, int y, int color, int font) 
 {
+	size_t found;
 	wchar_t* text = AnsiToUnicode(szwText);
+	std::string temp(szwText);
+	found=temp.find_first_of("˙");
+  
+	while (found!=std::string::npos)
+    {
+       text[found] = 0xff;
+       found=temp.find_first_of("˙",found+1);
+    }
+	
 
 	DWORD dwOld = D2WIN_SetTextSize(font);
 	D2WIN_DrawText(text, x, y, color, 0);

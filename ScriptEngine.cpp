@@ -19,6 +19,7 @@ JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
+CRITICAL_SECTION ScriptEngine::scriptListLock = {0};
 std::list<Event*> ScriptEngine::DelayedExecList ;
 int ScriptEngine::delayedExecKey;
 JSContext* ScriptEngine::context = NULL;
@@ -55,13 +56,13 @@ void ScriptEngine::RunCommand(const char* command)
 		return;
 	try
 	{
-		EnterCriticalSection(&lock);
+		//EnterCriticalSection(&lock);
 		console->RunCommand(command);
-		LeaveCriticalSection(&lock);
+		//LeaveCriticalSection(&lock);
 	}
 	catch(std::exception e)
 	{
-		LeaveCriticalSection(&lock);
+		//LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
 	}
 }
@@ -73,13 +74,22 @@ void ScriptEngine::DisposeScript(Script* script)
 	
 	delete script;
 }
-
+void ScriptEngine::LockScriptList(char* loc)
+{
+	EnterCriticalSection(&scriptListLock);
+	//Log(loc);
+}
+void ScriptEngine::UnLockScriptList(char* loc)
+{
+	//Log(loc);
+	LeaveCriticalSection(&scriptListLock);
+}
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
 	if(GetState() != Running)
 		return 0;
-
-	EnterCriticalSection(&lock);
+	LockScriptList("getCount");
+	//EnterCriticalSection(&lock);
 	int count = scripts.size();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
@@ -89,7 +99,8 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 			count--;
 	}
 	assert(count >= 0);
-	LeaveCriticalSection(&lock);
+	UnLockScriptList("getCount");
+	//LeaveCriticalSection(&lock);
 	return count;
 }
 
@@ -98,14 +109,16 @@ BOOL ScriptEngine::Startup(void)
 	if(GetState() == Stopped)
 	{
 		state = Starting;
-		InitializeCriticalSection(&lock);
-		EnterCriticalSection(&lock);
-	
+		InitializeCriticalSection(&scriptListLock);
+		//InitializeCriticalSection(&lock);
+		//EnterCriticalSection(&lock);
+		LockScriptList("startup - enter");
 
 		console = new Script("", Command);
 		console->BeginThread(ScriptThread);
 		state = Running;
-		LeaveCriticalSection(&lock);
+		//LeaveCriticalSection(&lock);
+		UnLockScriptList("startup - leave");
 	}
 	return TRUE;
 }
@@ -115,7 +128,8 @@ void ScriptEngine::Shutdown(void)
 	if(GetState() == Running)
 	{
 		// bring the engine down properly
-		EnterCriticalSection(&lock);
+		//EnterCriticalSection(&lock);
+		LockScriptList("Shutdown");
 		state = Stopping;
 		StopAll(true);
 		console->Stop(true, true);
@@ -133,8 +147,8 @@ void ScriptEngine::Shutdown(void)
 			JS_ShutDown();
 			runtime = NULL;
 		}
-
-		LeaveCriticalSection(&lock);
+		UnLockScriptList("shutdown");
+		//LeaveCriticalSection(&lock);
 		DeleteCriticalSection(&lock);
 		state = Stopped;
 	}
@@ -145,11 +159,10 @@ void ScriptEngine::StopAll(bool forceStop)
 	if(GetState() != Running)
 		return;
 
-	EnterCriticalSection(&lock);
-
+	//EnterCriticalSection(&lock);
 	ForEachScript(StopScript, &forceStop, 1);
 
-	LeaveCriticalSection(&lock);
+	//LeaveCriticalSection(&lock);
 }
 
 void ScriptEngine::UpdateConsole()
@@ -166,7 +179,7 @@ void ScriptEngine::FlushCache(void)
 	if(isFlushing || Vars.bDisableCache)
 		return;
 
-	EnterCriticalSection(&lock);
+	//EnterCriticalSection(&lock);
 	// TODO: examine if this lock is necessary any more
 	EnterCriticalSection(&Vars.cFlushCacheSection);
 
@@ -177,7 +190,7 @@ void ScriptEngine::FlushCache(void)
 	isFlushing = false;
 
 	LeaveCriticalSection(&Vars.cFlushCacheSection);
-	LeaveCriticalSection(&lock);
+	//LeaveCriticalSection(&lock);
 }
 
 bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
@@ -185,15 +198,18 @@ bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	if(callback == NULL || scripts.size() < 1)
 		return false;
 	bool block = false;
-	EnterCriticalSection(&lock);
+	//EnterCriticalSection(&lock);
+	
+	LockScriptList("forEachScript");
 
 	// damn std::list not supporting operator[]...
 	std::vector<Script*> list;
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 		list.push_back(it->second);
+	
+	UnLockScriptList("forEachScript");
 
-	LeaveCriticalSection(&lock);  // was previously locked after callback calls.  
-
+	
 	int count = list.size();
 	// damn std::iterator not supporting manipulating the list...
 	for(int i = 0; i < count; i++)
@@ -201,7 +217,8 @@ bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 		if(callback(list[i], argv, argc))
 			block = true;
 	}
-	
+	//LeaveCriticalSection(&lock);  // was previously locked after callback calls.  
+
 	
 	return block;
 }
@@ -417,19 +434,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	else
 		Console::ShowBuffer();
 }
-void ScriptEngine::TriggerOperationCallbacks(void)
-{
-	EnterCriticalSection(&lock);
 
-	// damn std::list not supporting operator[]...
-	
-	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
-		JS_TriggerOperationCallback(JS_GetRuntime(it->second->GetContext()));
-	
-
-	LeaveCriticalSection(&lock);  
-
-}
 bool ExecScriptEvent(Event* evt, bool clearList)
 {	
 	JSContext* cx;

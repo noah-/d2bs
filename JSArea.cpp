@@ -70,6 +70,7 @@ JSAPI_PROP(area_getProperty)
 						jsval a = OBJECT_TO_JSVAL(pExit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
+					cRoom.LeaveSection();
 				}
 				vp.set(OBJECT_TO_JSVAL(pArea->ExitArray));
 				if(pArea->ExitArray)
