@@ -42,7 +42,8 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	
 	if(bInit)
 		InitAutomapLayer(dwLevelNo);
-	
+
+	room.LeaveSection();
 	return true;
 }
 

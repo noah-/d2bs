@@ -480,15 +480,15 @@ void GameLeave(void)
 	else
 		Vars.bGameLoopEntered = true;
 
-	EnterCriticalSection(&ScriptEngine::lock);
+	/*EnterCriticalSection(&ScriptEngine::lock);
 	std::vector<Script*> list;
 	for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
 		if(it->second->GetState() == InGame)
 			it->second->Stop(true);
 
-	LeaveCriticalSection(&ScriptEngine::lock); 
+	LeaveCriticalSection(&ScriptEngine::lock); */
 
-	//ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
+	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 	ActMap::ClearCache();
 
 	EnterCriticalSection(&Vars.cGameLoopSection);

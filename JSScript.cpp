@@ -54,7 +54,8 @@ JSAPI_FUNC(script_getNext)
 {	
 	
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
-	EnterCriticalSection(&ScriptEngine::lock);
+	ScriptEngine::LockScriptList("scrip.getNext");
+	//EnterCriticalSection(&ScriptEngine::lock);
 		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
 			if(it->second->GetContext() == iterp )
 			{
@@ -63,12 +64,13 @@ JSAPI_FUNC(script_getNext)
 					break;
 				iterp= it->second->GetContext();
 				JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
-				JS_SET_RVAL(cx, vp, JSVAL_TRUE);	
-				LeaveCriticalSection(&ScriptEngine::lock);
+				JS_SET_RVAL(cx, vp, JSVAL_TRUE);
+				ScriptEngine::UnLockScriptList("scrip.getNext");
+				//LeaveCriticalSection(&ScriptEngine::lock);
 				return JS_TRUE;
 			}
-	LeaveCriticalSection(&ScriptEngine::lock);
-
+	//LeaveCriticalSection(&ScriptEngine::lock);
+	ScriptEngine::UnLockScriptList("scrip.getNext");
 	
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	return JS_TRUE;
@@ -179,9 +181,11 @@ JSAPI_FUNC(my_getScript)
 	{
 		if(ScriptEngine::scripts.size() >0)
 		{
-			EnterCriticalSection(&ScriptEngine::lock);
+		//	EnterCriticalSection(&ScriptEngine::lock);
+			ScriptEngine::LockScriptList("getScript");
 				iterp = ScriptEngine::scripts.begin()->second->GetContext();
-			LeaveCriticalSection(&ScriptEngine::lock);
+			ScriptEngine::UnLockScriptList("getScript");
+		//	LeaveCriticalSection(&ScriptEngine::lock);
 		}
 
 		if(iterp == NULL)

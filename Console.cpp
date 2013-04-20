@@ -113,6 +113,7 @@ void Console::AddLine(std::string line)
 {
 	EnterCriticalSection(&Vars.cConsoleSection);
 
+
 	// add the new line to the list
 	history.push_back(line);
 

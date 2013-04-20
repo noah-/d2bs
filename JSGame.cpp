@@ -163,6 +163,7 @@ JSAPI_FUNC(my_acceptTrade)
 			D2CLIENT_AcceptTrade();
 			JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 		}
+		myMisc.LeaveSection();
 		return JS_TRUE;
 	}
 
@@ -190,6 +191,7 @@ JSAPI_FUNC(my_tradeOk)
 				*p_D2CLIENT_TransactionDialogs == 1)
 			{
 				D2CLIENT_TradeOK();
+				myMisc.LeaveSection();
 				return JS_TRUE;
 			}
 		}
@@ -241,6 +243,7 @@ JSAPI_FUNC(my_getDialogLines)
 
 		JS_SET_RVAL(cx,vp, OBJECT_TO_JSVAL(pReturnArray));
 	}
+	myMisc.LeaveSection();
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_clickDialog)
@@ -651,7 +654,8 @@ JSAPI_FUNC(my_clickItem)
 					D2CLIENT_RightClickItem(x, y, clickTarget, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
 					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, clickTarget);
-			
+				
+				myMisc.LeaveSection();
 				return JS_TRUE;
 			}
 			else if(nLoc == LOCATION_BELT) // Belt
@@ -690,12 +694,13 @@ JSAPI_FUNC(my_clickItem)
 					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
 				else if(nButton == 2)
 					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
-
+				
+				myMisc.LeaveSection();
 				return JS_TRUE;
 			}	
 		}
 	}
-
+	myMisc.LeaveSection();
 	return JS_TRUE;
 }
 
