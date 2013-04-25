@@ -516,7 +516,8 @@ JSAPI_PROP(unit_getProperty)
 			vp.setInt32(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 			break;
 		case UNIT_DIRECTION:
-			if(pUnit->pPath && pUnit->pPath->bDirection)
+
+			if(pUnit->pPath && pUnit->pPath->pRoom1)
 				vp.setInt32(pUnit->pPath->bDirection);
 			break;
 		case OBJECT_TYPE:

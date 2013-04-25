@@ -217,7 +217,9 @@ JSAPI_FUNC(my_getDialogLines)
 
 	if(pTdi != NULL)
 	{
-		pReturnArray = JS_NewArrayObject(cx, pTdi->numLines, NULL);
+		
+		pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+		JS_AddObjectRoot(cx, &pReturnArray);
 		for(i = 0; i < pTdi->numLines; ++i)
 		{
 			ansi_text = UnicodeToAnsi(pTdi->dialogLines[i].text);
@@ -226,22 +228,25 @@ JSAPI_FUNC(my_getDialogLines)
 
 			js_selectable = BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
 
-			line = BuildObject(cx);
+			line = BuildObject(cx, &dialogLine_class, 0,0, 0,0);
 			JS_SetProperty(cx, line, "text", &js_text);
 			JS_SetProperty(cx, line, "selectable", &js_selectable);
+			
 			jsf_handler = JS_DefineFunction(cx, line, "handler",
 				my_clickDialog, 0, JSPROP_ENUMERATE);
-			js_addr = OBJECT_TO_JSVAL(jso_addr = JS_NewObject(cx, 0, 0, 0));
+			js_addr = OBJECT_TO_JSVAL(jso_addr = JS_NewObject(cx, 0, 0, pReturnArray));
 			// line -> JS_GetFunctionObject(jsf_handler) in 1.8.5
-			
-			//not sure why we need both of these setPrivates, getDialog()[1].handler() crashes otherwise
-			JS_SetPrivate(cx, JS_GetFunctionObject(jsf_handler), &pTdi->dialogLines[i]);
-			JS_SetPrivate(cx, line,  &pTdi->dialogLines[i]);
+
+			// handler() or clickDialog() needs the private handler val stored somewhere
+			JS_SetReservedSlot(line, 0, PRIVATE_TO_JSVAL(&pTdi->dialogLines[i]));
+			//these privates dident work dident have private slots 
+				//JS_SetPrivate(cx, JS_GetFunctionObject(jsf_handler), &pTdi->dialogLines[i]);
+				//JS_SetPrivate(cx, line,  &pTdi->dialogLines[i]);
 			js_line = OBJECT_TO_JSVAL(line);
 			JS_SetElement(cx, pReturnArray, i, &js_line);
-		}
-
+		}		
 		JS_SET_RVAL(cx,vp, OBJECT_TO_JSVAL(pReturnArray));
+		JS_RemoveObjectRoot(cx, &pReturnArray);
 	}
 	myMisc.LeaveSection();
 	return JS_TRUE;
@@ -252,7 +257,7 @@ JSAPI_FUNC(my_clickDialog)
 	TransactionDialogsLine_t* tdl;
 	
 	tdl = (TransactionDialogsLine_t*)
-		JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_CALLEE(cx,vp)));
+		 JSVAL_TO_PRIVATE (JS_GetReservedSlot(JSVAL_TO_OBJECT(JS_THIS(cx,vp)), 0));		
 
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 	if(tdl != NULL && tdl->bMaybeSelectable)

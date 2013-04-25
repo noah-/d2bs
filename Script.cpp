@@ -19,6 +19,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 {
 	InitializeCriticalSection(&lock);
 	// moved the runtime initilization to thread start	
+	LastGC = GetTickCount();
 	if(scriptState == Command)
 	{
 		fileName = string("Command Line");
@@ -413,7 +414,7 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 		}
 	}
 	functions[evtName].remove(func);
-	func->Release();
+	//func->Release();
 	delete func;
 	LeaveCriticalSection(&lock);
 }

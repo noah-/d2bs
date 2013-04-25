@@ -117,6 +117,25 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 	for(HookIterator it = visible.begin(); it != visible.end(); it++)
 		list.push_back(*it);
 	
+	std::sort(list.begin(), list.end(), zOrderSort);
+	int count = list.size();
+	for(int i = 0; i < count; i++)
+		if(proc(list[i], argv, argc))
+			result = true;
+
+	LeaveCriticalSection(&globalSection);
+	return result;
+}
+bool Genhook::ForEachVisibleHookUnLocked(HookCallback proc, void* argv, uint argc)
+{
+	// iterate the visible hooks  //unlocked to call funcs, locked to draw
+	EnterCriticalSection(&globalSection);
+
+	bool result = false;
+	std::vector<Genhook*> list;
+	for(HookIterator it = visible.begin(); it != visible.end(); it++)
+		list.push_back(*it);
+	
 	LeaveCriticalSection(&globalSection);
 
 	std::sort(list.begin(), list.end(), zOrderSort);
@@ -128,7 +147,6 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 	
 	return result;
 }
-
 bool Genhook::ForEachInvisibleHook(HookCallback proc, void* argv, uint argc)
 {
 	// iterate the invisible hooks

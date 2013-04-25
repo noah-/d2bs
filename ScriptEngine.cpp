@@ -264,10 +264,10 @@ JSBool operationCallback(JSContext* cx)
 	static int callBackCount = 0;
 	callBackCount ++;
 	
-	if (callBackCount % 30 == 0){		
+	/*if (callBackCount % 30 == 0){		
 		JS_GC(JS_GetRuntime(cx));		
 		callBackCount = 0;
-	}
+	}*/
 		
 	bool pause = script->IsPaused();
 

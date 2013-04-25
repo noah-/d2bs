@@ -124,8 +124,14 @@ JSAPI_FUNC(my_delay)
 	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
+	if (GetTickCount() - script->LastGC > 10000)
+	{
+		script->LastGC = GetTickCount();
+		JS_GC(JS_GetRuntime(cx));
+	}
+	else
+		JS_MaybeGC(cx);
 
-	JS_MaybeGC(cx);
 	if(nDelay)
 	{   // loop so we can exec events while in delay
 		while(GetTickCount() - start < nDelay)  

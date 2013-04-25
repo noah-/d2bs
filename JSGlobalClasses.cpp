@@ -138,7 +138,10 @@ JSClass profileType_class = {
    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, profileType_ctor)};
 
-	
+	JSClass dialogLine_class = {
+    "DailogLine", JSCLASS_HAS_PRIVATE | JSCLASS_HAS_RESERVED_SLOTS(1),
+   JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+   JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, NULL)};
 
 //JSExtendedClass unit_class_ex = {
 //	unit_class,

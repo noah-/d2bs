@@ -28,7 +28,7 @@ extern JSClass area_class;
 extern JSClass unit_class;
 extern JSClass profile_class;
 extern JSClass profileType_class;
-
+extern JSClass dialogLine_class;
 //extern JSExtendedClass unit_class_ex;
 //extern JSExtendedClass file_class_ex;
 //extern JSExtendedClass sqlite_db_ex;
