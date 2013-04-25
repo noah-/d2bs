@@ -85,6 +85,7 @@ public:
 	inline ScriptState GetState(void) { return scriptState; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
+	DWORD LastGC;
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
 	void UpdatePlayerGid(void);
 	// Hack. Include from console needs to run on the RunCommandThread / cx. 

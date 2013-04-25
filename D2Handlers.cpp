@@ -331,7 +331,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 			case WM_LBUTTONDOWN:
 				MouseClickEvent(0, pt, false);
 				helper.button = 0;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+				if(Genhook::ForEachVisibleHookUnLocked(ClickHook, &helper, 1))
 					clicked = true;
 				break;
 			case WM_LBUTTONUP:
@@ -340,7 +340,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 			case WM_RBUTTONDOWN:
 				MouseClickEvent(1, pt, false);
 				helper.button = 1;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+				if(Genhook::ForEachVisibleHookUnLocked(ClickHook, &helper, 1))
 					clicked = true;
 				break;
 			case WM_RBUTTONUP:
@@ -349,7 +349,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 			case WM_MBUTTONDOWN:
 				MouseClickEvent(2, pt, false);
 				helper.button = 2;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+				if(Genhook::ForEachVisibleHookUnLocked(ClickHook, &helper, 1))
 					clicked = true;
 				break;
 			case WM_MBUTTONUP:

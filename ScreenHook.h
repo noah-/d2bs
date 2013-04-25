@@ -65,7 +65,7 @@ public:
 	static bool ForEachHook(HookCallback proc, void* argv, uint argc);
 	static bool ForEachVisibleHook(HookCallback proc, void* argv, uint argc);
 	static bool ForEachInvisibleHook(HookCallback proc, void* argv, uint argc);
-
+	static bool ForEachVisibleHookUnLocked(HookCallback proc, void* argv, uint argc);
 	static void Clean(Script* owner);
 	static void Initialize(void) { InitializeCriticalSection(&globalSection); init = true; }
 	static void Destroy(void) { init = false; DeleteCriticalSection(&globalSection); }
