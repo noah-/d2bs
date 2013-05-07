@@ -363,7 +363,10 @@ JSAPI_FUNC(my_getPath)
 JSAPI_FUNC(my_getCollision)
 {	
 	if(!WaitForGameReady())
+	{
 		THROW_WARNING(cx, "Game not ready");
+		return JS_TRUE;
+	}
 
 	uint32 nLevelId, nX, nY;
 	JS_BeginRequest(cx);
@@ -379,6 +382,8 @@ JSAPI_FUNC(my_getCollision)
 
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
+	if(!level)
+		THROW_ERROR(cx, "Level Not loaded");
 
 	ActMap* map = ActMap::GetMap(level);
 	if(!map->IsValidPoint(point))

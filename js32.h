@@ -89,7 +89,7 @@ public:
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName);
 #define THROW_ERROR(cx, msg) { JS_ReportError(cx, msg); return JS_FALSE; }
-#define THROW_WARNING(cx, msg) { JS_ReportWarning(cx, msg); }
+#define THROW_WARNING(cx, msg) { JS_ReportWarning(cx, msg); return JS_TRUE; }
 
 //EXPORT JSBool JS_ThrowError(JSContext* cx, const char* message, ...);
 EXPORT void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes);

@@ -260,7 +260,7 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
 		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
-		WaitForSingleObject(evt->arg5, 3000);
+		WaitForSingleObjectEx(evt->arg5, 3000,true);
 		bool* global = (bool*) evt->arg4;
 		block = *global;
 		delete evt->arg1;

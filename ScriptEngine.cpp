@@ -26,7 +26,7 @@ JSContext* ScriptEngine::context = NULL;
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
-bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
+
 
 Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, jsval* argv, bool recompile)
 {
@@ -209,7 +209,6 @@ bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	
 	UnLockScriptList("forEachScript");
 
-	
 	int count = list.size();
 	// damn std::iterator not supporting manipulating the list...
 	for(int i = 0; i < count; i++)
@@ -264,6 +263,8 @@ JSBool operationCallback(JSContext* cx)
 	static int callBackCount = 0;
 	callBackCount ++;
 	
+	//moved this to delay. operation callback isnt a good spot for this anymore 
+	//event heavy stuff like shop bot would trigger gc alot while normal playing would not.
 	/*if (callBackCount % 30 == 0){		
 		JS_GC(JS_GetRuntime(cx));		
 		callBackCount = 0;
@@ -354,11 +355,13 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		DEFCONST(FILE_APPEND);
 #undef DEFCONST
 
-		JS_EndRequest(cx);			
+		JS_EndRequest(cx);		
+		
 	}
 	if(contextOp == JSCONTEXT_DESTROY)
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
+		script->hasActiveCX = false;
 		while(script->EventList.size() > 0)
 		{
 			EnterCriticalSection(&Vars.cEventSection);

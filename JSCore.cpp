@@ -124,18 +124,16 @@ JSAPI_FUNC(my_delay)
 	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
-	if (GetTickCount() - script->LastGC > 10000)
-	{
-		script->LastGC = GetTickCount();
-		JS_GC(JS_GetRuntime(cx));
-	}
-	else
-		JS_MaybeGC(cx);
+	
+	
+	int amt ;
 
 	if(nDelay)
 	{   // loop so we can exec events while in delay
 		while(GetTickCount() - start < nDelay)  
 		{
+			WaitForSingleObjectEx(script->eventSignal, nDelay -(GetTickCount() - start), true);
+			ResetEvent(script->eventSignal);
 			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
 			{
 				EnterCriticalSection(&Vars.cEventSection);
@@ -144,8 +142,17 @@ JSAPI_FUNC(my_delay)
 				LeaveCriticalSection(&Vars.cEventSection);				
 				ExecScriptEvent(evt,false);				
 			}
-			SleepEx(10,true);	// ex for delayed setTimer
+			if (GetTickCount() - script->LastGC > 5000)
+			{
+				script->LastGC = start;
+				JS_GC(JS_GetRuntime(cx));
+			}
+			else
+				JS_MaybeGC(cx);
+			
+			//SleepEx(10,true);	// ex for delayed setTimer
 		}
+		
 	}
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
