@@ -50,7 +50,7 @@ ActMap::ActMap(const Level* level)
 	
 	this->level = level;
 	this->act = level->pMisc->pAct;
-
+	
 	//RoomsAdded= roomsAdded;
 	// get the map size
 	height = level->dwSizeX * 5;
@@ -109,9 +109,14 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 				currLevel = *cLvl;
 		}
 	}
+	if(!this->act || !this->act->pMisc || !this->act->pRoom1)
+	{
+			Print("ÿc1ActMap Level Not Loaded");
+			return ActMap::Avoid;
+	}
 	if(!currLevel)
 	{
-		for(Level* lvl = this->act->pMisc->pLevelFirst; lvl; lvl = lvl->pNextLevel)
+		for(Level* lvl = this->act->pMisc->pLevelFirst ; lvl ;lvl = lvl->pNextLevel)
 		{
 			if(isPointInLevel(lvl, point)){
 				if(!lvl->pRoom2First)      
@@ -126,7 +131,7 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 	if (!currLevel)
 		return value;
 
-	EnterCriticalSection(lock); // not sure if this is needed or its correct lock now
+	//EnterCriticalSection(lock); // not sure if this is needed or its correct lock now
 	
 	
 	for(Room2* room = currLevel->pRoom2First; room; room = room->pRoom2Next)
@@ -140,7 +145,7 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 		}			
 	}
 
-	LeaveCriticalSection(lock);
+	//LeaveCriticalSection(lock);
 
 	return value;
 }

@@ -86,6 +86,9 @@ public:
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
 	DWORD LastGC;
+	bool hasActiveCX; //hack to get away from JS_IsRunning
+	HANDLE eventSignal;
+
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
 	void UpdatePlayerGid(void);
 	// Hack. Include from console needs to run on the RunCommandThread / cx. 

@@ -72,7 +72,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
 
 		script->FireEvent(evt);
-		if(WaitForSingleObject(evt->arg5, 1000) == WAIT_TIMEOUT)
+		if(WaitForSingleObjectEx(evt->arg5, 1000, false) == WAIT_TIMEOUT)
 			return false;
 		bool* global = (bool*) evt->arg4;
 		block = *global;
@@ -224,7 +224,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
 
 		script->FireEvent(evt);
-		if(WaitForSingleObject(evt->arg5, 5000) == WAIT_TIMEOUT)
+		if(WaitForSingleObjectEx(evt->arg5, 5000, true) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
 		delete evt->name;

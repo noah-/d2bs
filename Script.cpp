@@ -20,6 +20,8 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 	InitializeCriticalSection(&lock);
 	// moved the runtime initilization to thread start	
 	LastGC = GetTickCount();
+	hasActiveCX=false;
+	eventSignal = CreateEvent(nullptr, true, false, nullptr);
 	if(scriptState == Command)
 	{
 		fileName = string("Command Line");
@@ -61,7 +63,7 @@ Script::~Script(void)
 	scriptObject = NULL;
 	globalObject = NULL;
 	script = NULL;
-
+	CloseHandle(eventSignal);
 	includes.clear();
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
@@ -112,7 +114,7 @@ void Script::RunCommand(const char* command)
 			evt->owner->EventList.push_front(evt);
 			LeaveCriticalSection(&Vars.cEventSection);
 			JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
-		
+			SetEvent(evt->owner->eventSignal);
 		
 }
 
@@ -138,9 +140,10 @@ void Script::Run(void)
 	try
 	{
 		JSRuntime* runtime = JS_NewRuntime(Vars.dwMemUsage,JS_USE_HELPER_THREADS);   
+		
 		//JS_SetRuntimeThread(runtime);
 		JS_SetContextCallback(runtime, contextCallback);
-				
+			
 		context = JS_NewContext(runtime, 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
@@ -152,7 +155,9 @@ void Script::Run(void)
 //	
 		
 		JS_SetContextPrivate(context, this);
+		
 		JS_BeginRequest(context);
+		
 
 		globalObject = JS_GetGlobalObject(context);
 		jsval meVal = JSVAL_VOID;
@@ -164,7 +169,7 @@ void Script::Run(void)
 		}
 
 		if(scriptState == Command){
-			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(100000000)};} ";
+			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
 			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
 		}
 		else
@@ -189,7 +194,7 @@ void Script::Run(void)
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;
-	
+	hasActiveCX=true;	
 	isAborted = false;
 
 	jsval main = INT_TO_JSVAL(1), dummy = INT_TO_JSVAL(1);
@@ -214,7 +219,7 @@ void Script::Run(void)
 
 void Script::UpdatePlayerGid(void)
 {
-	me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
+		me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
 }
 
 void Script::Pause(void)
@@ -285,7 +290,7 @@ void Script::Stop(bool force, bool reallyForce)
 
 	//trigger call back so script ends
 	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
-	
+	SetEvent(eventSignal);
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	threadHandle = INVALID_HANDLE_VALUE;
@@ -356,7 +361,7 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return context && !(IsAborted() || IsPaused() || !JS_IsRunning(context) ); 
+	return context && !(IsAborted() || IsPaused() || !hasActiveCX); 
 }
 
 bool Script::IsAborted()
@@ -451,6 +456,7 @@ void Script::FireEvent(Event* evt)
 	{		
 		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));		
 	}
+	SetEvent(eventSignal);
 	//LeaveCriticalSection(&ScriptEngine::lock);	
 }
 
