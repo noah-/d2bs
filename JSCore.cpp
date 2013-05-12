@@ -126,13 +126,13 @@ JSAPI_FUNC(my_delay)
 	DWORD start = GetTickCount();
 	
 	
-	int amt ;
+	int amt = nDelay -(GetTickCount() - start);
 
 	if(nDelay)
 	{   // loop so we can exec events while in delay
-		while(GetTickCount() - start < nDelay)  
-		{
-			WaitForSingleObjectEx(script->eventSignal, nDelay -(GetTickCount() - start), true);
+		while(amt > 0 )  
+		{	// had a script deadlock here, make sure were positve with amt		
+			WaitForSingleObjectEx(script->eventSignal, amt, true);
 			ResetEvent(script->eventSignal);
 			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
 			{
@@ -149,7 +149,7 @@ JSAPI_FUNC(my_delay)
 			}
 			else
 				JS_MaybeGC(cx);
-			
+			amt = nDelay -(GetTickCount() - start);
 			//SleepEx(10,true);	// ex for delayed setTimer
 		}
 		
@@ -592,7 +592,7 @@ JSAPI_FUNC(my_sendPacket)
 	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	if(!Vars.bEnableUnsupported)
 	{
-		THROW_WARNING(cx, "sendPacket requires EnableUnsupported = true in d2bs.ini");
+		THROW_WARNING(cx, vp,  "sendPacket requires EnableUnsupported = true in d2bs.ini");
 		return JS_TRUE;
 	}
 	
@@ -619,7 +619,7 @@ JSAPI_FUNC(my_getPacket)
 	JS_SET_RVAL(cx,vp,JSVAL_NULL);
 	if(!Vars.bEnableUnsupported)
 	{
-		THROW_WARNING(cx, "getPacket requires EnableUnsupported = true in d2bs.ini");
+		THROW_WARNING(cx, vp,  "getPacket requires EnableUnsupported = true in d2bs.ini");
 		return JS_TRUE;
 	}
 	

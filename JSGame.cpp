@@ -73,7 +73,7 @@ JSAPI_FUNC(my_copyUnit)
 JSAPI_FUNC(my_clickMap)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
@@ -122,7 +122,7 @@ JSAPI_FUNC(my_clickMap)
 JSAPI_FUNC(my_acceptTrade)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	// TODO: Fix this nonsense.
 	if(argc > 0 && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == 1) // Called with a '1' it will return if we already accepted it or not
@@ -173,7 +173,7 @@ JSAPI_FUNC(my_acceptTrade)
 JSAPI_FUNC(my_tradeOk)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	CriticalMisc myMisc;
 	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
@@ -272,7 +272,7 @@ JSAPI_FUNC(my_clickDialog)
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
@@ -364,7 +364,7 @@ JSAPI_FUNC(my_getCollision)
 {	
 	if(!WaitForGameReady())
 	{
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 		return JS_TRUE;
 	}
 
@@ -404,7 +404,7 @@ JSAPI_FUNC(my_clickItem)
 	typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int loc);
 
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
@@ -778,7 +778,7 @@ JSAPI_FUNC(my_rand)
 JSAPI_FUNC(my_getDistance)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	// TODO: Add the type of distance to the api design
 	jsint nX1 = NULL;
@@ -890,7 +890,7 @@ JSAPI_FUNC(my_getDistance)
 JSAPI_FUNC(my_gold)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp, "Game not ready");
 
 	jsint nGold = NULL;
 	jsint nMode = 1;
@@ -908,7 +908,7 @@ JSAPI_FUNC(my_gold)
 JSAPI_FUNC(my_checkCollision)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(argc == 3 && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[1]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[2]))
 	{
@@ -1040,7 +1040,7 @@ JSAPI_FUNC(my_getTradeInfo)
 		return JS_TRUE;
 
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(!JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		return JS_TRUE;
@@ -1081,7 +1081,7 @@ JSAPI_FUNC(my_getUIFlag)
 	}
 
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	jsint nUIId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(D2CLIENT_GetUIState(nUIId)));
@@ -1098,7 +1098,7 @@ JSAPI_FUNC(my_getWaypoint)
 	}
 
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	jsint nWaypointId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
@@ -1187,7 +1187,7 @@ JSAPI_FUNC(my_clickParty)
 		return JS_TRUE;
 
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	UnitAny* myUnit = D2CLIENT_GetPlayerUnit();
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]));
@@ -1246,7 +1246,7 @@ JSAPI_FUNC(my_clickParty)
 JSAPI_FUNC(my_useStatPoint)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	WORD stat = 0;
 	int32 count = 1;
@@ -1264,7 +1264,7 @@ JSAPI_FUNC(my_useStatPoint)
 JSAPI_FUNC(my_useSkillPoint)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	WORD skill = 0;
 	int32 count = 1;
@@ -1338,7 +1338,7 @@ JSAPI_FUNC(my_weaponSwitch)
 	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	jsint nParameter = NULL;
 	if(argc > 0)
@@ -1379,7 +1379,7 @@ JSAPI_FUNC(my_transmute)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	bool cubeOn = !!D2CLIENT_GetUIState(UI_CUBE);
 	if(!cubeOn)
@@ -1399,7 +1399,7 @@ JSAPI_FUNC(my_getPlayerFlag)
 		return JS_TRUE;
 	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	uint32 nFirstUnitId = (uint32)-1;
 	uint32 nSecondUnitId = (uint32)-1;
@@ -1472,7 +1472,7 @@ JSAPI_FUNC(my_submitItem)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
@@ -1515,7 +1515,7 @@ JSAPI_FUNC(my_submitItem)
 JSAPI_FUNC(my_getIsTalkingNPC)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(IsScrollingText()));
 	return JS_TRUE;
@@ -1524,7 +1524,7 @@ JSAPI_FUNC(my_getIsTalkingNPC)
 JSAPI_FUNC(my_getInteractedNPC)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	if(!pNPC)
@@ -1561,11 +1561,11 @@ JSAPI_FUNC(my_takeScreenshot)
 JSAPI_FUNC(my_moveNPC)
 {   
 	if(!WaitForGameReady())
-        THROW_WARNING(cx, "Game not ready");
+        THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(!Vars.bEnableUnsupported)
 	{
-		THROW_WARNING(cx, "moveNPC requires EnableUnsupported = true in d2bs.ini");
+		THROW_WARNING(cx, vp,  "moveNPC requires EnableUnsupported = true in d2bs.ini");
 		return JS_TRUE;
 	}
 
@@ -1583,7 +1583,7 @@ JSAPI_FUNC(my_moveNPC)
     DWORD dwY = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 
     if(!WaitForGameReady())
-        THROW_WARNING(cx, "Game not ready");
+        THROW_WARNING(cx, vp,  "Game not ready");
 
     BYTE aPacket[17];
     aPacket[0] = 0x59;
