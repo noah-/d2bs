@@ -45,18 +45,20 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 Script::~Script(void)
 {
 	isAborted = true;
+	JS_TriggerOperationCallback(JS_GetRuntime(context));
+	SetEvent(eventSignal);
 	//JS_SetPendingException(context, JSVAL_NULL);
-	if(JS_IsInRequest(JS_GetRuntime(context)))
-		JS_EndRequest(context);
+	//if(JS_IsInRequest(JS_GetRuntime(context)))
+	//	JS_EndRequest(context);
 	
-	JSRuntime* rt = JS_GetRuntime(context);
+	//JSRuntime* rt = JS_GetRuntime(context);
 	
 	
 	EnterCriticalSection(&lock);
 //	JS_SetRuntimeThread(rt);
-	JS_DestroyContext(context);
+	//JS_DestroyContext(context);
 	//JS_ClearRuntimeThread(rt);
-	JS_DestroyRuntime(rt);
+	//JS_DestroyRuntime(rt);
 
 	
 	context = NULL;
@@ -91,7 +93,7 @@ void Script::RunCommand(const char* command)
 	rcs->script = this;
 	rcs->command = passCommand;
 	
-		if(!JS_IsRunning(GetContext())){
+		if(isAborted){  //this should never happen -bob
 			char* command = "delay(1000000);";
 			RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
 			size_t commandLength = strlen(command) + 1;
@@ -101,8 +103,8 @@ void Script::RunCommand(const char* command)
 			rcs->script = this;
 			rcs->command = passCommand;
 	
-			Print("Console Not running");
-			HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
+			Log("Console Aborted HELP!");
+			//HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
 			
 		}
 			Event* evt = new Event;

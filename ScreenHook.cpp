@@ -253,7 +253,7 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
  		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
-		AutoRoot* root = new AutoRoot(owner->GetContext(),clicked);
+		AutoRoot* root = new AutoRoot(clicked);
 		evt->functions.push_back(root);
 
 		EnterCriticalSection(&Vars.cEventSection);
@@ -306,14 +306,14 @@ void Genhook::SetClickHandler(jsval handler)
 	if(JSVAL_IS_VOID(handler))
 		return;
 	Lock();
-	if(!JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(owner->GetContext(), &clicked);
+	
+		
 	JSContext* cx = owner->GetContext();
-	
-	
+	if(JSVAL_IS_FUNCTION(cx, handler))
+		JS_RemoveRoot(owner->GetContext(), &clicked);
 	//JS_SetContextThread(cx);
 	JS_BeginRequest(cx);
-	if(JSVAL_IS_FUNCTION(cx, handler))
+	
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
 	{

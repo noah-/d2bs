@@ -59,7 +59,7 @@ JSAPI_PROP(party_getProperty)
 JSAPI_FUNC(party_getNext)
 {
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	RosterUnit *pUnit = (RosterUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
@@ -90,7 +90,7 @@ JSAPI_FUNC(party_getNext)
 JSAPI_FUNC(my_getParty)
 {	
 	if(!WaitForGameReady())
-		THROW_WARNING(cx, "Game not ready");
+		THROW_WARNING(cx, vp,  "Game not ready");
 
 	JSObject* jUnit = BuildObject(cx, &party_class, party_methods, party_props, 0);
 	if(!jUnit)
