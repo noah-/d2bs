@@ -71,8 +71,16 @@ void ScriptEngine::DisposeScript(Script* script)
 {
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	
-	delete script;
+	if(GetCurrentThreadId() == script->threadId)
+		delete script;
+	else
+	{	
+	  //bad things happen if we delete from another thread
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->name = strdup("DisposeMe");
+		script->FireEvent(evt);
+	}
 }
 void ScriptEngine::LockScriptList(char* loc)
 {
@@ -296,6 +304,7 @@ JSBool operationCallback(JSContext* cx)
 		return !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu));
 	} else {
 		return false;
+		
 	}
 	
 }
@@ -785,11 +794,14 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		if (strcmp(evtName, "setTimeout") == 0)
 		{
 			ScriptEngine::RemoveDelayedEvent(*(DWORD*) evt->arg1);
-		}
-	
+		}	
 
 		return true;	
-	}	
+	}
+	if (strcmp(evtName, "DisposeMe") == 0)
+	{
+			ScriptEngine::DisposeScript(evt->owner);
+	}
 }
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 {	

@@ -55,7 +55,7 @@ private:
 	IncludeList includes, inProgress;
 	
 	HANDLE threadHandle;
-	DWORD threadId;
+	
 	CRITICAL_SECTION lock;
 
 	Script(const char* file, ScriptState state, uintN argc = 0, jsval* argv = NULL);
@@ -64,6 +64,7 @@ private:
 	~Script(void);
 
 public:
+	DWORD threadId;
 	friend class ScriptEngine;
 	FunctionMap functions;
 	void Run(void);

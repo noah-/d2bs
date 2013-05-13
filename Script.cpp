@@ -44,33 +44,31 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 
 Script::~Script(void)
 {
-	isAborted = true;
-	JS_TriggerOperationCallback(JS_GetRuntime(context));
-	SetEvent(eventSignal);
-	//JS_SetPendingException(context, JSVAL_NULL);
-	//if(JS_IsInRequest(JS_GetRuntime(context)))
-	//	JS_EndRequest(context);
-	
-	//JSRuntime* rt = JS_GetRuntime(context);
-	
-	
-	EnterCriticalSection(&lock);
-//	JS_SetRuntimeThread(rt);
-	//JS_DestroyContext(context);
-	//JS_ClearRuntimeThread(rt);
-	//JS_DestroyRuntime(rt);
+    isAborted = true;
+    //JS_SetPendingException(context, JSVAL_NULL);
+    if(JS_IsInRequest(JS_GetRuntime(context)))
+        JS_EndRequest(context);
 
-	
-	context = NULL;
-	scriptObject = NULL;
-	globalObject = NULL;
-	script = NULL;
-	CloseHandle(eventSignal);
-	includes.clear();
-	if(threadHandle != INVALID_HANDLE_VALUE)
-		CloseHandle(threadHandle);
-	LeaveCriticalSection(&lock);
-	DeleteCriticalSection(&lock);
+    JSRuntime* rt = JS_GetRuntime(context);
+
+
+    EnterCriticalSection(&lock);
+//    JS_SetRuntimeThread(rt);
+    JS_DestroyContext(context);
+    //JS_ClearRuntimeThread(rt);
+    JS_DestroyRuntime(rt);
+
+
+    context = NULL;
+    scriptObject = NULL;
+    globalObject = NULL;
+    script = NULL;
+    CloseHandle(eventSignal);
+    includes.clear();
+    if(threadHandle != INVALID_HANDLE_VALUE)
+        CloseHandle(threadHandle);
+    LeaveCriticalSection(&lock);
+    DeleteCriticalSection(&lock);
 }
 
 int Script::GetExecutionCount(void)
@@ -163,7 +161,6 @@ void Script::Run(void)
 
 		globalObject = JS_GetGlobalObject(context);
 		jsval meVal = JSVAL_VOID;
-		JS_AddNamedValueRoot(context, &meVal, "me");
 		if(JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE)
 		{
 			JSObject* meObject = JSVAL_TO_OBJECT(meVal);
