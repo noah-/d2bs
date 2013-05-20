@@ -20,6 +20,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand);
 void GameJoined(void);
 void MenuEntered(bool beginStarter);
 
+char* DllLoadAddrStrs();
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs);
 
 #endif

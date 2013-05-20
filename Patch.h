@@ -28,6 +28,8 @@ PatchHook Patches[] = {
 	{PatchCall,	GetDllOffset("D2Win.dll", 0xEC68),		(DWORD)GameDrawOOG_Intercept,			5},//1.13d
 
 	{PatchCall,	GetDllOffset("D2CMP.dll", 0x14CD5),		(DWORD)GameCrashFix_Intercept,			10},//1.13d
+
+	{PatchCall, GetDllOffset("Fog.dll", 0xDE51),		(DWORD)LogMessageBoxA_Intercept,		6},
 };
 
 PatchHook Conditional[] = {

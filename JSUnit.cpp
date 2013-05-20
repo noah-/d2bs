@@ -579,18 +579,8 @@ JSAPI_STRICT_PROP(unit_setProperty)
 			if(vp.isBoolean())
 				Vars.bBlockMouse = vp.toBoolean();
 			break;
-		case ME_RUNWALK:
-			{
-				myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, &vp.get()));
-				if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-					return JS_TRUE;
-				
-				UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-				if(!pUnit)
-					return JS_TRUE;
-				if(pUnit == D2CLIENT_GetPlayerUnit())
-					*p_D2CLIENT_AlwaysRun = !!vp.toInt32();
-			}
+		case ME_RUNWALK:			
+			*p_D2CLIENT_AlwaysRun = !!vp.toInt32();			
 			break;
 		case ME_AUTOMAP:
 			*p_D2CLIENT_AutomapOn = vp.toBoolean() ? 1 : 0;

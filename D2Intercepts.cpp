@@ -1,6 +1,7 @@
 #include "D2Handlers.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
+#include "Helpers.h"
 
 void __declspec(naked) GamePacketReceived_Intercept()
 {
@@ -317,4 +318,26 @@ VOID __declspec(naked) __fastcall LodSTUB()
 		jmp DLod;
 	}
 	
+}
+
+WINUSERAPI
+int
+WINAPI
+MessageBoxA(
+    __in_opt HWND hWnd,
+    __in_opt LPCSTR lpText,
+    __in_opt LPCSTR lpCaption,
+    __in UINT uType);
+
+int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
+    UINT uType)
+{
+	char* dllAddrs;
+
+	Log("Error message box, caption: \"%s\", message:\n%s\n%s", lpCaption,
+		lpText, dllAddrs = DllLoadAddrStrs());
+
+	free(dllAddrs);
+
+	return MessageBoxA(hWnd, lpText, lpCaption, uType);
 }
