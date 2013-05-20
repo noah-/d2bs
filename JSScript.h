@@ -17,7 +17,7 @@ JSAPI_FUNC(script_pause);
 JSAPI_FUNC(script_resume);
 JSAPI_FUNC(script_join);
 JSAPI_FUNC(my_getScript);
-
+JSAPI_FUNC(my_getScripts);
 enum script_tinyid {
 	SCRIPT_FILENAME,
 	SCRIPT_GAMETYPE,
@@ -31,7 +31,7 @@ static JSPropertySpec script_props[] = {
 	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
 	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
 	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
-	{"memory",  		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
+	{"memory",  		SCRIPT_MEMORY,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(script_getProperty), JSOP_NULLWRAPPER },
 	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 

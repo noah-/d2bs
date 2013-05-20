@@ -48,7 +48,7 @@ Script::~Script(void)
     //JS_SetPendingException(context, JSVAL_NULL);
     if(JS_IsInRequest(JS_GetRuntime(context)))
         JS_EndRequest(context);
-
+	
     JSRuntime* rt = JS_GetRuntime(context);
 
 
@@ -139,7 +139,7 @@ void Script::Run(void)
 {
 	try
 	{
-		JSRuntime* runtime = JS_NewRuntime(Vars.dwMemUsage,JS_USE_HELPER_THREADS);   
+		JSRuntime* runtime = JS_NewRuntime(Vars.dwMemUsage,JS_NO_HELPER_THREADS);   
 		
 		//JS_SetRuntimeThread(runtime);
 		JS_SetContextCallback(runtime, contextCallback);
@@ -170,6 +170,7 @@ void Script::Run(void)
 		if(scriptState == Command){
 			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
 			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
+			JS_AddNamedScriptRoot(context, &script, "console script");
 		}
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
@@ -178,6 +179,7 @@ void Script::Run(void)
 			throw std::exception("Couldn't compile the script");
 	
 		JS_EndRequest(context);
+		//JS_RemoveScriptRoot(context, &script);
 	
 	} catch(std::exception&) {
 		if(scriptObject)
@@ -353,6 +355,7 @@ bool Script::Include(const char* file)
 	} else JS_ReportPendingException(cx);
 
 	JS_EndRequest(cx);
+	//JS_RemoveScriptRoot(cx, &script);
 	LeaveCriticalSection(&lock);
 	free(fname);
 	return rval;

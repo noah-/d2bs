@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1773" //uptodate with d branch 1765 ff 20b
+#define D2BS_VERSION "1.5.1775" //uptodate with d branch 1765 ff 20b
 
 #include <windows.h>
 #include <vector>
@@ -58,6 +58,7 @@ struct Variables
 	BOOL	bLoadedWithCGuard;
 	BOOL	bLogConsole;
 	BOOL	bEnableUnsupported;
+	BOOL	bForwardMessageBox;
 	BOOL	bUseRawCDKey;
 	int		dwMemUsage;
 

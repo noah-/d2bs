@@ -77,9 +77,12 @@ bool SwitchToProfile(const char* profile)
 
 void InitSettings(void)
 {
-	char fname[_MAX_FNAME+MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME],
-		 debug[6], quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
-		 startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6], enableUnsupported [6];
+	char fname[_MAX_FNAME+MAX_PATH], scriptPath[_MAX_PATH],
+		defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], debug[6],
+		quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
+		startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6],
+		useProfilePath[6], logConsole[6], enableUnsupported[6],
+		forwardMessageBox[6];
 
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
@@ -98,6 +101,7 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "UseProfileScript", "false", useProfilePath, 6, fname);
 	GetPrivateProfileString("settings", "LogConsoleOutput", "false", logConsole, 6, fname);
 	GetPrivateProfileString("settings", "EnableUnsupported", "false", enableUnsupported, 6, fname);
+	GetPrivateProfileString("settings", "ForwardMessageBox", "false", forwardMessageBox, 6, fname);
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 	strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
 	strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
@@ -114,6 +118,7 @@ void InitSettings(void)
 	Vars.bUseProfileScript = StringToBool(useProfilePath);
 	Vars.bLogConsole = StringToBool(logConsole);
 	Vars.bEnableUnsupported = StringToBool(enableUnsupported);
+	Vars.bForwardMessageBox = StringToBool(forwardMessageBox);
 
 	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)
@@ -364,12 +369,37 @@ IMAGEHLP_LINE64* GetLineFromAddr(HANDLE hProcess, DWORD64 addr)
 	return line;
 }
 
-LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
+char* DllLoadAddrStrs()
 {
 	const char *dlls[] = {"D2Client.DLL", "D2Common.DLL", "D2Gfx.DLL", "D2Lang.DLL", 
 			       "D2Win.DLL", "D2Net.DLL", "D2Game.DLL", "D2Launch.DLL", "Fog.DLL", "BNClient.DLL",
 					"Storm.DLL", "D2Cmp.DLL", "D2Multi.DLL"};
+	size_t strMaxLen;
+	char* result;
+	char lineBuf[80];
+	unsigned int i;
+	
+	strMaxLen = sizeof(lineBuf) * sizeof(dlls) / sizeof(dlls[0]);
+	result = (char*)malloc(strMaxLen);
 
+	result[0] = '\0';
+
+	for(i = 0; i < sizeof(dlls) / sizeof(dlls[0]); ++i)
+	{
+		sprintf_s(lineBuf, sizeof(lineBuf), "%s loaded at: 0x%08x.", dlls[i],
+			GetModuleHandle(dlls[i]));
+		strcat_s(result, strMaxLen, lineBuf);
+		if(i != (sizeof(dlls) / sizeof(dlls[0]) - 1))
+		{
+			strcat_s(result, strMaxLen, "\n");
+		}
+	}
+
+	return result;
+}
+
+LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
+{
 	EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
 	CONTEXT* ctx = ptrs->ContextRecord;
 	DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
@@ -382,6 +412,9 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 	CONTEXT context = *ctx;
 
 	unsigned int i;
+	int len;
+	char* szString;
+	char* dllAddrs;
 
 	SymSetOptions(SYMOPT_LOAD_LINES|SYMOPT_FAIL_CRITICAL_ERRORS|SYMOPT_NO_PROMPTS|SYMOPT_DEFERRED_LOADS);
 	SymInitialize(hProcess, Vars.szPath, TRUE);
@@ -440,7 +473,24 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 
 	IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
 
-	Log("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+	len = _scprintf("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+		"D2BS loaded at: 0x%08x\n"
+		"Registers:\n"
+		"\tEIP: 0x%08x, ESP: 0x%08x\n"
+		"\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
+		"\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
+		"Stack Trace:\n%s\nEnd of stack trace.",
+			rec->ExceptionCode, rec->ExceptionAddress,
+			sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\')+1 : "Unknown", line != NULL ? line->LineNumber : 0,
+			base,
+			ctx->Eip, ctx->Esp,
+			ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs,
+			ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags,
+			trace.c_str());
+	dllAddrs = DllLoadAddrStrs();
+
+	szString = new char[len+1];
+	sprintf_s(szString, len+1, "EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
 		"D2BS loaded at: 0x%08x\n"
 		"Registers:\n"
 		"\tEIP: 0x%08x, ESP: 0x%08x\n"
@@ -455,11 +505,11 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 			ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags,
 			trace.c_str());
 
-	for(i = 0; i < sizeof(dlls) / sizeof(dlls[0]); ++i)
-	{
-		Log("%s loaded at: 0x%08x.", dlls[i], GetModuleHandle(dlls[i]));
-	}
+	Log("%s\n%s", szString, dllAddrs);
 
+	free(dllAddrs);
+
+	delete[] szString;
 	delete[] (char*)sym;
 	delete line;
 

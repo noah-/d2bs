@@ -222,6 +222,7 @@ JSAPI_FUNC(sandbox_include)
 					//nolonger needed?
 					//JS_DestroyScript(cx, tmp);
 				}
+			//JS_RemoveScriptRoot(cx, &tmp);
 			}
 		}
 	}

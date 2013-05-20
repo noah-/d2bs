@@ -21,5 +21,7 @@ void ChannelChat_Intercept(void);
 void ChannelEmote_Intercept(void);
 void AddUnit_Intercept(UnitAny* lpUnit);
 void RemoveUnit_Intercept(UnitAny* lpUnit);
+int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
+    UINT uType);
 
 #endif

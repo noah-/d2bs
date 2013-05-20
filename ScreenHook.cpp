@@ -384,12 +384,12 @@ bool TextHook::IsInRange(int dx, int dy)
 
 void TextHook::SetText(const char* ntext)
 {
-	Lock();
+	EnterGlobalSection();
 	free(text);
 	text = NULL;
 	if(ntext)
 		text = _strdup(ntext);
-	Unlock();
+	LeaveGlobalSection();
 }
 
 void ImageHook::Draw(void)

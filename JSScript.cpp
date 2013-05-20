@@ -200,7 +200,26 @@ JSAPI_FUNC(my_getScript)
 
 	return JS_TRUE;
 }
+JSAPI_FUNC(my_getScripts)
+{
+	
+	DWORD dwArrayCount = NULL;
 
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	JS_BeginRequest(cx);
+	JS_AddRoot(cx, &pReturnArray);
+		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
+		{
+			JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, it->second->GetContext());
+			jsval a = OBJECT_TO_JSVAL(res);
+			JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
+			dwArrayCount++;	
+		}		
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
+	JS_RemoveRoot(cx, &pReturnArray);
+	JS_EndRequest(cx);
+	return JS_TRUE;
+}
 bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;

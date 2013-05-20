@@ -39,8 +39,8 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string file
             std::istreambuf_iterator<char>());
 
 	JSScript* rval = JS_CompileScript(cx, globalObject,str.c_str(), str.size() , fileName.c_str(),1);
-	
-
+	JS_AddNamedScriptRoot (cx, &rval, fileName.c_str());
+	JS_RemoveScriptRoot(cx, &rval);
 	
 return rval;
 }
