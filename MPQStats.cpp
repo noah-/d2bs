@@ -1,7 +1,6 @@
 #include "MPQStats.h"
 #include "D2Ptrs.h"
 #include "Core.h"
-
 MPQTable BaseStatTable[] = {
 	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, char szTableName, WORD wTableSize, WORD wUnknown
 	{0x6FDF4CB4,	0x6FDF4CB0,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
@@ -44,9 +43,15 @@ DWORD GetBaseTable(int table, int row)
 
 		if(dwTableOffset <= 0xFFFF)
 			dwD2MPQTable = (*p_D2COMMON_sgptDataTable);
-		else dwD2MPQTable = NULL;
-
+		else 
+		{
+			dwD2MPQTable = NULL;  //d2common loading at a diffrent address crash fix
+			dwTableOffset = DWORD ((dwTableOffset - 0x6fd50000 ) + (DWORD)GetModuleHandle("D2Common.DLL"));
+		}
+		
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
+		if (dwMaxEntriesOffset > 0xFFFF)
+			dwMaxEntriesOffset = DWORD ((dwMaxEntriesOffset - 0x6fd50000 ) + (DWORD)GetModuleHandle("D2Common.DLL"));
 
 		DWORD dwMaxEntries;
 		if(dwMaxEntriesOffset)

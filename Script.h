@@ -45,6 +45,7 @@ private:
 	ScriptState scriptState;
 	JSContext* context;
 	JSScript* script;
+	JSRuntime* runtime;
 	myUnit* me;
 	uintN argc;
 	jsval* argv;
@@ -81,6 +82,7 @@ public:
 	inline const char* GetFilename(void) { return fileName.c_str(); }
 	const char* GetShortFilename(void);
 	inline JSContext* GetContext(void) { return context; }
+	inline JSRuntime* GetRuntime(void) { return runtime; }
 	inline JSObject* GetGlobalObject(void) { return globalObject; }
 	inline JSObject* GetScriptObject(void) { return scriptObject; }
 	inline ScriptState GetState(void) { return scriptState; }

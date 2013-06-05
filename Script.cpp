@@ -46,17 +46,14 @@ Script::~Script(void)
 {
     isAborted = true;
     //JS_SetPendingException(context, JSVAL_NULL);
-    if(JS_IsInRequest(JS_GetRuntime(context)))
+    if(JS_IsInRequest(runtime))
         JS_EndRequest(context);
 	
-    JSRuntime* rt = JS_GetRuntime(context);
-
-
     EnterCriticalSection(&lock);
 //    JS_SetRuntimeThread(rt);
     JS_DestroyContext(context);
     //JS_ClearRuntimeThread(rt);
-    JS_DestroyRuntime(rt);
+    JS_DestroyRuntime(runtime);
 
 
     context = NULL;
@@ -113,7 +110,7 @@ void Script::RunCommand(const char* command)
 			EnterCriticalSection(&Vars.cEventSection);
 			evt->owner->EventList.push_front(evt);
 			LeaveCriticalSection(&Vars.cEventSection);
-			JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));
+			JS_TriggerOperationCallback(evt->owner->GetRuntime());
 			SetEvent(evt->owner->eventSignal);
 		
 }
@@ -139,7 +136,7 @@ void Script::Run(void)
 {
 	try
 	{
-		JSRuntime* runtime = JS_NewRuntime(Vars.dwMemUsage,JS_NO_HELPER_THREADS);   
+		runtime = JS_NewRuntime(Vars.dwMemUsage,JS_NO_HELPER_THREADS);   
 		
 		//JS_SetRuntimeThread(runtime);
 		JS_SetContextCallback(runtime, contextCallback);
@@ -167,7 +164,7 @@ void Script::Run(void)
 			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
 		}
 
-		if(scriptState == Command){
+		if(scriptState == Command){			
 			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
 			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
 			JS_AddNamedScriptRoot(context, &script, "console script");
@@ -227,7 +224,7 @@ void Script::Pause(void)
 {
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
-	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
+	JS_TriggerOperationCallback(runtime);
 }
 
 void Script::Join()
@@ -244,7 +241,7 @@ void Script::Resume(void)
 {
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
-	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));	
+	JS_TriggerOperationCallback(runtime);	
 }
 
 bool Script::IsPaused(void)
@@ -290,7 +287,7 @@ void Script::Stop(bool force, bool reallyForce)
 	}
 
 	//trigger call back so script ends
-	JS_TriggerOperationCallback(JS_GetRuntime(GetContext()));
+	JS_TriggerOperationCallback(runtime);
 	SetEvent(eventSignal);
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
@@ -456,7 +453,7 @@ void Script::FireEvent(Event* evt)
 
 	if (evt->owner && evt->owner->IsRunning())
 	{		
-		JS_TriggerOperationCallback(JS_GetRuntime(evt->owner->GetContext()));		
+		JS_TriggerOperationCallback(evt->owner->GetRuntime());		
 	}
 	SetEvent(eventSignal);
 	//LeaveCriticalSection(&ScriptEngine::lock);	
