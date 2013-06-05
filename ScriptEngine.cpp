@@ -126,7 +126,7 @@ BOOL ScriptEngine::Startup(void)
 		console->BeginThread(ScriptThread);
 		state = Running;
 		//LeaveCriticalSection(&lock);
-		UnLockScriptList("startup - leave");
+		UnLockScriptList("startup - leave");		
 	}
 	return TRUE;
 }
@@ -253,7 +253,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	JS_TriggerOperationCallback(JS_GetRuntime(script->GetContext()));
+	JS_TriggerOperationCallback(script->GetRuntime());
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }
