@@ -150,7 +150,7 @@ void ScriptEngine::Shutdown(void)
 
 		if(runtime)
 		{
-			JS_DestroyContextNoGC(context);
+			JS_DestroyContext(context);
 			JS_DestroyRuntime(runtime);
 			JS_ShutDown();
 			runtime = NULL;
@@ -253,7 +253,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	JS_TriggerOperationCallback(script->GetRuntime());
+	script->TriggerOperationCallback();
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }

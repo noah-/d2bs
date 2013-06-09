@@ -62,6 +62,7 @@ JSAPI_PROP(area_getProperty)
 						JSObject* pExit = BuildObject(cx, &exit_class, NULL, exit_props, exit);
 						if(!pExit)
 						{
+							cRoom.LeaveSection();
 							delete exit;
 							JS_EndRequest(cx);
 							THROW_ERROR(cx, "Failed to create exit object!");

@@ -110,7 +110,7 @@ void Script::RunCommand(const char* command)
 			EnterCriticalSection(&Vars.cEventSection);
 			evt->owner->EventList.push_front(evt);
 			LeaveCriticalSection(&Vars.cEventSection);
-			JS_TriggerOperationCallback(evt->owner->GetRuntime());
+			evt->owner->TriggerOperationCallback();
 			SetEvent(evt->owner->eventSignal);
 		
 }
@@ -224,7 +224,7 @@ void Script::Pause(void)
 {
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
-	JS_TriggerOperationCallback(runtime);
+	TriggerOperationCallback();
 }
 
 void Script::Join()
@@ -241,7 +241,7 @@ void Script::Resume(void)
 {
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
-	JS_TriggerOperationCallback(runtime);	
+	TriggerOperationCallback();	
 }
 
 bool Script::IsPaused(void)
@@ -287,13 +287,14 @@ void Script::Stop(bool force, bool reallyForce)
 	}
 
 	//trigger call back so script ends
-	JS_TriggerOperationCallback(runtime);
+	TriggerOperationCallback();
 	SetEvent(eventSignal);
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	threadHandle = INVALID_HANDLE_VALUE;
 	LeaveCriticalSection(&lock);
 }
+
 
 bool Script::IsIncluded(const char* file)
 {
@@ -453,7 +454,7 @@ void Script::FireEvent(Event* evt)
 
 	if (evt->owner && evt->owner->IsRunning())
 	{		
-		JS_TriggerOperationCallback(evt->owner->GetRuntime());		
+		evt->owner->TriggerOperationCallback();
 	}
 	SetEvent(eventSignal);
 	//LeaveCriticalSection(&ScriptEngine::lock);	
