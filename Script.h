@@ -78,7 +78,7 @@ public:
 	inline void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
 	inline bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
-
+	
 	inline const char* GetFilename(void) { return fileName.c_str(); }
 	const char* GetShortFilename(void);
 	inline JSContext* GetContext(void) { return context; }
@@ -86,6 +86,7 @@ public:
 	inline JSObject* GetGlobalObject(void) { return globalObject; }
 	inline JSObject* GetScriptObject(void) { return scriptObject; }
 	inline ScriptState GetState(void) { return scriptState; }
+	inline void TriggerOperationCallback(void) {if (hasActiveCX) JS_TriggerOperationCallback(runtime);}
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
 	DWORD LastGC;

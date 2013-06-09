@@ -9,7 +9,9 @@ private:
 
 public:
 	CriticalRoom() : bEnteredCriticalSection(false) {}
-	~CriticalRoom() { LeaveSection(); }
+	~CriticalRoom() {
+		LeaveSection(); 
+	}
 
 	void EnterSection() {
 		InterlockedIncrement(&Vars.SectionCount); 
@@ -26,26 +28,3 @@ public:
 	}
 };
 
-class CriticalMisc
-{
-private:
-	bool bEnteredCriticalSection;
-
-public:
-	CriticalMisc() : bEnteredCriticalSection(false) {}
-	~CriticalMisc()  { LeaveSection(); }
-
-	void EnterSection() {
-		InterlockedIncrement(&Vars.SectionCount);
-		EnterCriticalSection(&Vars.cGameLoopSection);		
-		bEnteredCriticalSection = true;
-	}
-
-	void LeaveSection() {
-		if(bEnteredCriticalSection) {
-			bEnteredCriticalSection = false;
-			LeaveCriticalSection(&Vars.cGameLoopSection);
-			InterlockedDecrement(&Vars.SectionCount);			
-		}
-	}
-};

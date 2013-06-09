@@ -459,7 +459,7 @@ JSAPI_PROP(unit_getProperty)
 			{
 				if(pUnit->dwType != UNIT_ITEM)
 					break;
-				CriticalMisc cMisc;
+				CriticalRoom cMisc;
 				cMisc.EnterSection();
 
 				wchar_t wBuffer[2048] = L"";
@@ -1530,15 +1530,14 @@ JSAPI_FUNC(unit_getSkill)
 
 JSAPI_FUNC(item_shop)
 {	
-	CriticalMisc myMisc;
+	CriticalRoom myMisc;
 	myMisc.EnterSection();
-
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
-	{
-		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	{		
 		myMisc.LeaveSection();
 		return JS_TRUE;
 	}
@@ -1546,33 +1545,33 @@ JSAPI_FUNC(item_shop)
 	myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
 	if(!lpItem || (lpItem->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-		return JS_TRUE;
+		{myMisc.LeaveSection(); return JS_TRUE;}
 
 	UnitAny* pItem = D2CLIENT_FindUnit(lpItem->dwUnitId, lpItem->dwType);
 
 	if(!pItem || pItem->dwType != UNIT_ITEM)
-		return JS_TRUE;
+		{myMisc.LeaveSection(); return JS_TRUE;}
 
 	if(!D2CLIENT_GetUIState(UI_NPCSHOP))
-		return JS_TRUE;
+		{myMisc.LeaveSection(); return JS_TRUE;}
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	DWORD dwMode = JSVAL_TO_INT(JS_ARGV(cx, vp)[argc - 1]);
 
 	//Check if we are interacted.
 	if(!pNPC)
-		return JS_TRUE;
+		{myMisc.LeaveSection(); return JS_TRUE;}
 
 	//Check for proper mode.
 	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
-		return JS_TRUE;
+		{myMisc.LeaveSection(); return JS_TRUE;}
 
 	//Selling an Item 
 	if(dwMode == 1)
 	{
 		//Check if we own the item!
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
-			return JS_TRUE;
+			{myMisc.LeaveSection(); return JS_TRUE;}
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, 0, 1, 1, NULL);
 	}
@@ -1580,7 +1579,7 @@ JSAPI_FUNC(item_shop)
 	{
 		//Make sure the item is owned by the NPC interacted with.
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
-			return JS_TRUE;
+			{myMisc.LeaveSection(); return JS_TRUE;}
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, 0, dwMode, 1, NULL);
 	}

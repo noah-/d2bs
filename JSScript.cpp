@@ -126,11 +126,11 @@ JSAPI_FUNC(script_send)
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetRuntime());
+		evt->owner->TriggerOperationCallback();
 		
 	return JS_TRUE;
 }
-
+	
 JSAPI_FUNC(script_join)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);

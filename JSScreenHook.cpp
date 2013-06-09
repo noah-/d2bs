@@ -23,7 +23,7 @@ JSAPI_FUNC(hook_remove)
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
 	{
-		hook->SetIsVisible(false);
+		//hook->SetIsVisible(false);
 		delete hook;
 	}
 

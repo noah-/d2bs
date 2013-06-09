@@ -46,12 +46,12 @@ DWORD GetBaseTable(int table, int row)
 		else 
 		{
 			dwD2MPQTable = NULL;  //d2common loading at a diffrent address crash fix
-			dwTableOffset = DWORD ((dwTableOffset - 0x6fd50000 ) + (DWORD)GetModuleHandle("D2Common.DLL"));
+			dwTableOffset = DWORD ((dwTableOffset - 0x6fd50000 ) + d2CommonOff);
 		}
 		
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
 		if (dwMaxEntriesOffset > 0xFFFF)
-			dwMaxEntriesOffset = DWORD ((dwMaxEntriesOffset - 0x6fd50000 ) + (DWORD)GetModuleHandle("D2Common.DLL"));
+			dwMaxEntriesOffset = DWORD ((dwMaxEntriesOffset - 0x6fd50000 ) + d2CommonOff);
 
 		DWORD dwMaxEntries;
 		if(dwMaxEntriesOffset)

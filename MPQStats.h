@@ -7,6 +7,7 @@
 // Information taken from
 // http://phrozenkeep.planetdiablo.gamespy.com/forum/viewtopic.php?t=48175
 
+static DWORD d2CommonOff = GetModuleHandle("D2Common.DLL") ? (DWORD) GetModuleHandle("D2Common.DLL") : (DWORD) LoadLibrary("D2Common.DLL") ;
 enum
 {
 	FIELDTYPE_END			  =			 0,

@@ -179,7 +179,11 @@ void Genhook::Clean(Script* owner)
 	while(it != visible.end())
 	{
 		if( (*it)->owner != owner)
-				it = visible.erase(it);
+		{
+			Genhook* i = *it;
+			it = invisible.erase(it);
+		//	delete(i);
+		}
 		else
 			it++;
 	}
@@ -188,7 +192,12 @@ void Genhook::Clean(Script* owner)
 	while(it != invisible.end())
 	{
 		if( (*it)->owner != owner)
-				it = invisible.erase(it);
+		{
+			Genhook* i = *it;
+			it = invisible.erase(it);
+			//delete(i);
+		
+		}
 		else
 			it++;
 	}
@@ -203,7 +212,7 @@ Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacit
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
 	self = nself;
-	JS_AddObjectRoot(owner->GetContext(),&self);
+	//JS_AddObjectRoot(owner->GetContext(),&self);
 	//JS_AddRoot(&self);
 	SetX(x); SetY(y);
 	EnterCriticalSection(&globalSection);
@@ -213,11 +222,11 @@ Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacit
 
 Genhook::~Genhook(void) {
 	Lock();
-	if(owner && !JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(owner->GetContext(), &clicked);
-	if(owner && !JSVAL_IS_VOID(hovered))
-		JS_RemoveRoot(owner->GetContext(), &hovered);
-	JS_RemoveObjectRoot(owner->GetContext(), &self);
+	//if(owner && !JSVAL_IS_FUNCTION(owner->GetContext(), clicked))
+	//	JS_RemoveRoot(owner->GetContext(), &clicked);
+	//if(owner && !JSVAL_IS_FUNCTION(owner->GetContext(), hovered))
+	//	JS_RemoveRoot(owner->GetContext(), &hovered);
+	//JS_RemoveObjectRoot(owner->GetContext(), &self);
 	//JS_RemoveRoot(&self);
 
 	EnterCriticalSection(&globalSection);
@@ -253,13 +262,13 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
  		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
-		AutoRoot* root = new AutoRoot(clicked);
+		AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
 		evt->functions.push_back(root);
 
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetRuntime());
+		evt->owner->TriggerOperationCallback();
 		WaitForSingleObjectEx(evt->arg5, 3000,true);
 		bool* global = (bool*) evt->arg4;
 		block = *global;
@@ -294,7 +303,7 @@ void Genhook::Hover(POINT* loc)
 		EnterCriticalSection(&Vars.cEventSection);
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
-		JS_TriggerOperationCallback(evt->owner->GetRuntime());
+		evt->owner->TriggerOperationCallback();
 
 	}
 }
@@ -309,23 +318,23 @@ void Genhook::SetClickHandler(jsval handler)
 	
 		
 	JSContext* cx = owner->GetContext();
-	if(JSVAL_IS_FUNCTION(cx, handler))
-		JS_RemoveRoot(owner->GetContext(), &clicked);
+	//if(JSVAL_IS_FUNCTION(cx, handler))
+	//	JS_RemoveRoot(owner->GetContext(), &clicked);
 	//JS_SetContextThread(cx);
-	JS_BeginRequest(cx);
+	//JS_BeginRequest(cx);
 	
 		clicked = handler;
-	if(!JSVAL_IS_VOID(clicked))
-	{
-		if(JS_AddRoot(owner->GetContext(),&clicked) == JS_FALSE)
-		{
-			Unlock();
-			JS_EndRequest(cx);
-//bob1.8.8			JS_ClearContextThread(cx);
-			return;
-		}
-	}
-	JS_EndRequest(cx);
+//	if(!JSVAL_IS_VOID(clicked))
+//	{
+//		if(JS_AddRoot(owner->GetContext(),&clicked) == JS_FALSE)
+//		{
+//			Unlock();
+//			JS_EndRequest(cx);
+////bob1.8.8			JS_ClearContextThread(cx);
+//			return;
+//		}
+//	}
+//	JS_EndRequest(cx);
 	//JS_ClearContextThread(cx);
 	Unlock();
 }

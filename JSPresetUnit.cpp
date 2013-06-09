@@ -121,6 +121,7 @@ JSAPI_FUNC(my_getPresetUnits)
 				{
 					delete mypUnit;
 					JS_EndRequest(cx);
+					cRoom.LeaveSection();
 					THROW_ERROR(cx, "Failed to build object?");
 				}
 
@@ -207,6 +208,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 				if(!obj)
 				{
+					cRoom.LeaveSection();
 					delete mypUnit;
 					THROW_ERROR(cx, "Failed to create presetunit object");
 				}
