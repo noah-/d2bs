@@ -468,7 +468,7 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 	while(Vars.SectionCount)
 		Sleep(0);
-
+	Sleep(10);
 	EnterCriticalSection(&Vars.cGameLoopSection);	
 }
 

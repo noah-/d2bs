@@ -27,7 +27,7 @@ JSAPI_PROP(area_getProperty)
 	Level* pLevel = GetLevel(pArea->AreaId);
 	if(!pLevel)
 		return JS_FALSE;
-
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID))
@@ -39,9 +39,6 @@ JSAPI_PROP(area_getProperty)
 				{
 					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
 					JS_AddRoot(cx, &pArea->ExitArray);
-
-					CriticalRoom cRoom;
-					cRoom.EnterSection();
 
 					ActMap* map = ActMap::GetMap(pLevel);
 					
@@ -62,16 +59,15 @@ JSAPI_PROP(area_getProperty)
 						JSObject* pExit = BuildObject(cx, &exit_class, NULL, exit_props, exit);
 						if(!pExit)
 						{
-							cRoom.LeaveSection();
+							delete cRoom;
 							delete exit;
 							JS_EndRequest(cx);
 							THROW_ERROR(cx, "Failed to create exit object!");
 						}
-
 						jsval a = OBJECT_TO_JSVAL(pExit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
-					cRoom.LeaveSection();
+				
 				}
 				vp.set(OBJECT_TO_JSVAL(pArea->ExitArray));
 				if(pArea->ExitArray)
@@ -102,7 +98,7 @@ JSAPI_PROP(area_getProperty)
 			vp.setInt32(pLevel->dwLevelNo);
 			break;
 	}
-
+	delete cRoom;
 	return JS_TRUE;
 }
 

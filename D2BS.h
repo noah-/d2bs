@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1777" //uptodate with d branch 1765 ff 20b
+#define D2BS_VERSION "1.5.1778" //uptodate with d branch 1765 ff 20b
 
 #include <windows.h>
 #include <vector>
@@ -44,7 +44,7 @@ struct Variables
 	BOOL	bShutdownFromDllMain;
 	BOOL	bChangedAct;
 	BOOL	bGameLoopEntered;
-
+	
 	DWORD	dwMaxGameTime;
 	DWORD	dwGameTimeout;
 	BOOL	bQuitOnError;
@@ -82,7 +82,7 @@ struct Variables
 
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 	std::vector<std::pair<DWORD, DWORD> > vUnitList;
-	std::list<Event*> EventList;
+	//std::list<Event*> EventList;
 	CRITICAL_SECTION	cEventSection;
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;

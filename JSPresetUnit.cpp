@@ -82,8 +82,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	if(argc >= 3)
 		nClassId = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 
-	CriticalRoom cRoom;
-	cRoom.EnterSection();
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	bool bAddedRoom = FALSE;
 	DWORD dwArrayCount = NULL;
@@ -121,7 +120,7 @@ JSAPI_FUNC(my_getPresetUnits)
 				{
 					delete mypUnit;
 					JS_EndRequest(cx);
-					cRoom.LeaveSection();
+					delete cRoom;
 					THROW_ERROR(cx, "Failed to build object?");
 				}
 
@@ -142,7 +141,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	
 	JS_RemoveRoot(cx, &pReturnArray);
 	JS_EndRequest(cx);
-	cRoom.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
 
@@ -174,8 +173,7 @@ JSAPI_FUNC(my_getPresetUnit)
 	if(argc >= 3)
 		nClassId = JSVAL_TO_INT(JS_ARGV(cx, vp)[2]);
 
-	CriticalRoom cRoom;
-	cRoom.EnterSection();
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	bool bAddedRoom = FALSE;
 
@@ -208,12 +206,12 @@ JSAPI_FUNC(my_getPresetUnit)
 				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 				if(!obj)
 				{
-					cRoom.LeaveSection();
+					delete cRoom;
 					delete mypUnit;
 					THROW_ERROR(cx, "Failed to create presetunit object");
 				}
 				JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
-				cRoom.LeaveSection();
+				delete cRoom;
 				return JS_TRUE;
 			}
 		}
@@ -225,6 +223,6 @@ JSAPI_FUNC(my_getPresetUnit)
 		}
 	}
 	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
-	cRoom.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
