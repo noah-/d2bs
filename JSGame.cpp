@@ -141,8 +141,7 @@ JSAPI_FUNC(my_acceptTrade)
 		return JS_TRUE;
 	}
 
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	if((*p_D2CLIENT_RecentTradeId) == 3 || (*p_D2CLIENT_RecentTradeId) == 5 || (*p_D2CLIENT_RecentTradeId) == 7)
 	{
@@ -163,10 +162,10 @@ JSAPI_FUNC(my_acceptTrade)
 			D2CLIENT_AcceptTrade();
 			JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 		}
-		myMisc.LeaveSection();
+		delete cRoom;
 		return JS_TRUE;
 	}
-	myMisc.LeaveSection();
+	delete cRoom;
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
@@ -175,11 +174,11 @@ JSAPI_FUNC(my_tradeOk)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 
-	CriticalRoom myMisc;
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
 	unsigned int i;
 
-	myMisc.EnterSection();
+	
 
 	if(pTdi != NULL)
 	{
@@ -191,19 +190,19 @@ JSAPI_FUNC(my_tradeOk)
 				*p_D2CLIENT_TransactionDialogs == 1)
 			{
 				D2CLIENT_TradeOK();
-				myMisc.LeaveSection();
+				delete cRoom;
 				return JS_TRUE;
 			}
 		}
 	}
-	myMisc.LeaveSection();
+	delete cRoom;
 	THROW_ERROR(cx, "Not in proper state to click ok to trade.");
 }
 
 JSAPI_FUNC(my_getDialogLines)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
-	CriticalRoom myMisc;
+	
 	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
 	unsigned int i;
 	JSObject* pReturnArray;
@@ -213,7 +212,7 @@ JSAPI_FUNC(my_getDialogLines)
 	JSFunction* jsf_handler;
 	JSObject* jso_addr;
 
-	myMisc.EnterSection();
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	if(pTdi != NULL)
 	{
@@ -248,7 +247,7 @@ JSAPI_FUNC(my_getDialogLines)
 		JS_SET_RVAL(cx,vp, OBJECT_TO_JSVAL(pReturnArray));
 		JS_RemoveObjectRoot(cx, &pReturnArray);
 	}
-	myMisc.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_clickDialog)
@@ -277,15 +276,14 @@ JSAPI_FUNC(my_getPath)
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
 
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	uint lvl = 0, x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
 	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 	{
-		myMisc.LeaveSection();
+		delete cRoom;
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
@@ -293,12 +291,12 @@ JSAPI_FUNC(my_getPath)
 	if(reductionType == 3 &&
 		!(JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[9])))
 	{
-		myMisc.LeaveSection();
+		delete cRoom;
 		THROW_ERROR(cx, "Invalid function values for reduction type");
 	}
 	if (lvl == 0)
 	{
-		myMisc.LeaveSection();
+		delete cRoom;
 		THROW_ERROR(cx, "Invalid level passed to getPath");
 	}
 	Level* level = GetLevel(lvl);
@@ -314,7 +312,7 @@ JSAPI_FUNC(my_getPath)
 		case 1: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
 		case 2: reducer = new NoPathReducer(map); break;
 		case 3: reducer = new JSPathReducer(map, cx, JS_THIS_OBJECT(cx, vp), JS_ARGV(cx, vp)[7], JS_ARGV(cx, vp)[8], JS_ARGV(cx, vp)[9]); break;
-		default: myMisc.LeaveSection(); THROW_ERROR(cx, "Invalid path reducer value!"); break;
+		default: delete cRoom; THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
 
 	PointList list;
@@ -328,7 +326,7 @@ JSAPI_FUNC(my_getPath)
 	
 	path.GetPath(start, end, list, true);
 	map->CleanUp();
-	myMisc.LeaveSection();
+	delete cRoom;
 	//box18JS_ResumeRequest(cx, depth);
 #if defined(_TIME)
 	char p[510];
@@ -382,18 +380,18 @@ JSAPI_FUNC(my_getCollision)
 		return JS_FALSE;
 	}
 	JS_EndRequest(cx);
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
+
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
 	if(!level)
-		{ myMisc.LeaveSection(); THROW_ERROR(cx, "Level Not loaded");}
+		{ delete cRoom; THROW_ERROR(cx, "Level Not loaded");}
 
 	ActMap* map = ActMap::GetMap(level);
 	if(!map->IsValidPoint(point))
-		{ myMisc.LeaveSection(); THROW_ERROR(cx, "Invalid point!");}
+		{ delete cRoom; THROW_ERROR(cx, "Invalid point!");}
 	 
 	jsval rval;
 	JS_BeginRequest(cx);
@@ -401,7 +399,7 @@ JSAPI_FUNC(my_getCollision)
 	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp,rval );
 	map->CleanUp();
-	myMisc.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
 
@@ -412,12 +410,12 @@ JSAPI_FUNC(my_clickItem)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 	JS_SET_RVAL(cx, vp , JSVAL_NULL);
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
+	
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
-		myMisc.LeaveSection();
+		delete cRoom;
 		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
@@ -458,20 +456,20 @@ JSAPI_FUNC(my_clickItem)
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]));
 		
 		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
 		if(!pUnit)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * pUnit->pItemData->BodyLocation));
 		
 		if(!click)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, pUnit->pItemData->BodyLocation);
-		myMisc.LeaveSection();
+		delete cRoom;
 		return JS_TRUE;
 	}
 	else if(argc == 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
@@ -485,7 +483,7 @@ JSAPI_FUNC(my_clickItem)
 			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * nBodyLoc));
 			
 			if(!click)
-				{myMisc.LeaveSection(); return JS_TRUE;}
+				{delete cRoom; return JS_TRUE;}
 
 			click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, nBodyLoc);	
 
@@ -504,7 +502,7 @@ JSAPI_FUNC(my_clickItem)
 				}
 			}
 		}
-
+		delete cRoom;
 		return JS_TRUE;
 	}
 	else if(argc == 2 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[1]))
@@ -512,14 +510,14 @@ JSAPI_FUNC(my_clickItem)
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[1]));
 		
 		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
 		jsint nClickType = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
 		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
-			{myMisc.LeaveSection(); THROW_ERROR(cx, "Object is not an item!");}
+			{delete cRoom; THROW_ERROR(cx, "Object is not an item!");}
 
 		int InventoryLocation = GetItemLocation(pUnit);
 		int ClickLocation = LOCATION_NULL;
@@ -543,7 +541,7 @@ JSAPI_FUNC(my_clickItem)
 						JS_SET_RVAL(cx, vp , JSVAL_TRUE);
 						D2CLIENT_MercItemAction(0x61, pUnit->pItemData->BodyLocation);
 					}
-			myMisc.LeaveSection();
+			delete cRoom;
 			return JS_TRUE;
 		}
 		else if(InventoryLocation == LOCATION_INVENTORY || InventoryLocation == LOCATION_STASH || InventoryLocation == LOCATION_CUBE)
@@ -580,7 +578,7 @@ JSAPI_FUNC(my_clickItem)
 			int i = x;
 
 			if( i < 0 || i > 0x0F)
-				{myMisc.LeaveSection(); return JS_TRUE;}
+				{delete cRoom; return JS_TRUE;}
 
 			if(D2GFX_GetScreenSize() == 2)
 			{
@@ -599,12 +597,12 @@ JSAPI_FUNC(my_clickItem)
 		else if(D2CLIENT_GetCursorItem() == pUnit)
 		{
 			if(nClickType < 1 || nClickType > 12)
-				{myMisc.LeaveSection(); return JS_TRUE;}
+				{delete cRoom; return JS_TRUE;}
 
 			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * nClickType));
 
 			if(!click)
-				{myMisc.LeaveSection(); return JS_TRUE;}
+				{delete cRoom; return JS_TRUE;}
 			
 			click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, nClickType);			
 		}
@@ -675,7 +673,7 @@ JSAPI_FUNC(my_clickItem)
 				else if(nButton == 2) // Shift Left Click
 					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, clickTarget);
 				
-				myMisc.LeaveSection();
+				delete cRoom;
 				JS_SET_RVAL(cx, vp , JSVAL_TRUE);
 				return JS_TRUE;
 			}
@@ -694,7 +692,7 @@ JSAPI_FUNC(my_clickItem)
 				}
 
 				if(z == -1)
-					{myMisc.LeaveSection(); return JS_TRUE;}
+					{delete cRoom; return JS_TRUE;}
 
 				int x = NULL;
 				int y = NULL;
@@ -716,14 +714,14 @@ JSAPI_FUNC(my_clickItem)
 				else if(nButton == 2)
 					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
 				
-				myMisc.LeaveSection();
+				delete cRoom;
 				JS_SET_RVAL(cx, vp , JSVAL_TRUE);
 				return JS_TRUE;
 			}	
 		}
 	}
 	JS_SET_RVAL(cx, vp , JSVAL_TRUE);
-	myMisc.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
 

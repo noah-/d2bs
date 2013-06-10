@@ -142,7 +142,7 @@ JSAPI_FUNC(my_delay)
 				LeaveCriticalSection(&Vars.cEventSection);				
 				ExecScriptEvent(evt,false);				
 			}
-			if (GetTickCount() - script->LastGC > 5000)
+			if (GetTickCount() - script->LastGC > 2000)
 			{
 				script->LastGC = start;
 				JS_GC(JS_GetRuntime(cx));

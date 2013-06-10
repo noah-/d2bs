@@ -163,7 +163,7 @@ inline JSBool __fastcall JS_ArrayToVector(JSContext* cx, JSObject* arr, std::vec
 {
 	Converter<T> converter;
 	if(!JS_IsArrayObject(cx, arr))
-		return JS_ThrowError(cx, "Object must be an Array");
+		THROW_ERROR(cx, "Object must be an Array");
 
 	jsuint len = 0;
 	JS_GetArrayLength(cx, arr, &len);

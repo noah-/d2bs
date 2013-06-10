@@ -28,3 +28,30 @@ public:
 	}
 };
 
+class AutoCriticalRoom
+{
+private:
+	bool bEnteredCriticalSection;
+	void  EnterSection() {
+		InterlockedIncrement(&Vars.SectionCount); 
+		bEnteredCriticalSection = true;
+		EnterCriticalSection(&Vars.cGameLoopSection);		
+	
+	}
+	
+	void LeaveSection() {
+		if(bEnteredCriticalSection) {
+			bEnteredCriticalSection = false;
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+			InterlockedDecrement(&Vars.SectionCount);			
+		}
+	}
+
+public:
+	AutoCriticalRoom() : bEnteredCriticalSection(false) {EnterSection();}
+	~AutoCriticalRoom() {LeaveSection(); }
+
+	
+
+	
+};

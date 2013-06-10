@@ -459,8 +459,8 @@ JSAPI_PROP(unit_getProperty)
 			{
 				if(pUnit->dwType != UNIT_ITEM)
 					break;
-				CriticalRoom cMisc;
-				cMisc.EnterSection();
+
+				AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
 				wchar_t wBuffer[2048] = L"";
 				wchar_t bBuffer[1] = {1};
@@ -473,7 +473,7 @@ JSAPI_PROP(unit_getProperty)
 					D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
 					ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
 				}
-				cMisc.LeaveSection();
+				delete cRoom;
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
 				{
@@ -1530,48 +1530,49 @@ JSAPI_FUNC(unit_getSkill)
 
 JSAPI_FUNC(item_shop)
 {	
-	CriticalRoom myMisc;
-	myMisc.EnterSection();
+	
 	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{		
-		myMisc.LeaveSection();
+		delete cRoom;
 		return JS_TRUE;
 	}
 
 	myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
 	if(!lpItem || (lpItem->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-		{myMisc.LeaveSection(); return JS_TRUE;}
+		{delete cRoom; return JS_TRUE;}
 
 	UnitAny* pItem = D2CLIENT_FindUnit(lpItem->dwUnitId, lpItem->dwType);
 
 	if(!pItem || pItem->dwType != UNIT_ITEM)
-		{myMisc.LeaveSection(); return JS_TRUE;}
+		{delete cRoom; return JS_TRUE;}
 
 	if(!D2CLIENT_GetUIState(UI_NPCSHOP))
-		{myMisc.LeaveSection(); return JS_TRUE;}
+		{delete cRoom; return JS_TRUE;}
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	DWORD dwMode = JSVAL_TO_INT(JS_ARGV(cx, vp)[argc - 1]);
 
 	//Check if we are interacted.
 	if(!pNPC)
-		{myMisc.LeaveSection(); return JS_TRUE;}
+		{delete cRoom; return JS_TRUE;}
 
 	//Check for proper mode.
 	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
-		{myMisc.LeaveSection(); return JS_TRUE;}
+		{delete cRoom; return JS_TRUE;}
 
 	//Selling an Item 
 	if(dwMode == 1)
 	{
 		//Check if we own the item!
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, 0, 1, 1, NULL);
 	}
@@ -1579,7 +1580,7 @@ JSAPI_FUNC(item_shop)
 	{
 		//Make sure the item is owned by the NPC interacted with.
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
-			{myMisc.LeaveSection(); return JS_TRUE;}
+			{delete cRoom; return JS_TRUE;}
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, 0, dwMode, 1, NULL);
 	}
@@ -1621,7 +1622,7 @@ JSAPI_FUNC(item_shop)
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);*/
 	
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
-	myMisc.LeaveSection();
+	delete cRoom;
 	return JS_TRUE;
 }
 
