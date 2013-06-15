@@ -148,18 +148,18 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 			Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
 			TerminateProcess(GetCurrentProcess(), 0);
 		break;
-		case 0x15: return ReassignPlayerHandler(pPacket, dwSize);
-		case 0x26: return ChatEventHandler(pPacket, dwSize);
-		case 0x2A: return NPCTransactionHandler(pPacket, dwSize);
-		case 0x5A: return EventMessagesHandler(pPacket, dwSize);
-		case 0x18:
-		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
-		case 0x9C:
-		case 0x9D: return ItemActionHandler(pPacket, dwSize);
-		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
+		case 0x15: return !GamePacketEvent(pPacket, dwSize) || ReassignPlayerHandler(pPacket, dwSize);
+		case 0x26: return !GamePacketEvent(pPacket, dwSize) || ChatEventHandler(pPacket, dwSize);
+		case 0x2A: return !GamePacketEvent(pPacket, dwSize) || NPCTransactionHandler(pPacket, dwSize);
+		case 0x5A: return !GamePacketEvent(pPacket, dwSize) || EventMessagesHandler(pPacket, dwSize);
+		case 0x18:											
+		case 0x95: return !GamePacketEvent(pPacket, dwSize) || HPMPUpdateHandler(pPacket, dwSize);
+		case 0x9C:											
+		case 0x9D: return !GamePacketEvent(pPacket, dwSize) || ItemActionHandler(pPacket, dwSize);
+		case 0xA7: return !GamePacketEvent(pPacket, dwSize) || DelayedStateHandler(pPacket, dwSize);
 	}
 
-	return TRUE;
+	return !GamePacketEvent(pPacket, dwSize);;
 }
 
 LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -458,7 +458,6 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
-
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	if(Vars.bGameLoopEntered)
@@ -468,10 +467,9 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 	while(Vars.SectionCount)
 		Sleep(0);
-	Sleep(10);
+
 	EnterCriticalSection(&Vars.cGameLoopSection);	
 }
-
 
 void GameLeave(void)
 {

@@ -16,6 +16,7 @@ void MouseMoveEvent(POINT pt);
 void ScriptBroadcastEvent(JSContext* cx, uintN argc, jsval* argv);
 void GoldDropEvent(DWORD GID, BYTE Mode);
 void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
+bool GamePacketEvent(BYTE* pPacket, DWORD dwSize);
 struct ChatEventHelper
 {
 	char *event, *nick, *msg;
@@ -72,4 +73,9 @@ struct BCastEventHelper
 	JSContext* cx;
 	jsval* argv;
 	uintN argc;
+};
+struct GamePacketHelper
+{
+	BYTE* pPacket;
+	DWORD dwSize;
 };
