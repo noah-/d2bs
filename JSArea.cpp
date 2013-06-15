@@ -27,7 +27,7 @@ JSAPI_PROP(area_getProperty)
 	Level* pLevel = GetLevel(pArea->AreaId);
 	if(!pLevel)
 		return JS_FALSE;
-	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+	
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
 	switch(JSVAL_TO_INT(ID))
@@ -59,7 +59,6 @@ JSAPI_PROP(area_getProperty)
 						JSObject* pExit = BuildObject(cx, &exit_class, NULL, exit_props, exit);
 						if(!pExit)
 						{
-							delete cRoom;
 							delete exit;
 							JS_EndRequest(cx);
 							THROW_ERROR(cx, "Failed to create exit object!");
@@ -98,7 +97,7 @@ JSAPI_PROP(area_getProperty)
 			vp.setInt32(pLevel->dwLevelNo);
 			break;
 	}
-	delete cRoom;
+	
 	return JS_TRUE;
 }
 

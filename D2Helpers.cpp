@@ -12,6 +12,7 @@
 #include "D2Intercepts.h"
 #include "D2BS.h"
 #include "stringhash.h"
+#include "CriticalSections.h"
 
 void Log(char* szFormat, ...)
 {
@@ -180,13 +181,15 @@ DWORD GetPlayerArea(void)
 
 Level* GetLevel(DWORD dwLevelNo)
 {
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 	for(Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
 		if(pLevel->dwLevelNo == dwLevelNo) {
 			if (!pLevel->pRoom2First)
 				D2COMMON_InitLevel(pLevel);
+			delete cRoom;
 			return pLevel;
 		}
-
+		delete cRoom;
 		return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 }
 

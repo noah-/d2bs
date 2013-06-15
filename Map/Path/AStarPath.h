@@ -3,7 +3,7 @@
 #include "Path.h"
 #include "..\Map.h"
 #include "Reduction\PathReducer.h"
-
+#include "D2Structs.h"
 #include <vector>
 #include <set>
 #include <queue>
@@ -72,6 +72,9 @@ private:
 		std::set<Point> closed;
 		PointList newNodes;
 		Node* begin = alloc.allocate(1);
+		UnitAny* player = D2CLIENT_GetPlayerUnit();
+		DWORD startLvl = player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+		
 		// if we don't get a valid node, just return
 		if(!begin) return;
 
@@ -93,14 +96,12 @@ private:
 			}
 			// this is to make d2 not completly freeze on long paths. 
 			if (GetTickCount() - ticks > 500){
-				map->CleanUp();
-				LeaveCriticalSection(&Vars.cGameLoopSection);
-				InterlockedDecrement(&Vars.SectionCount);  
-					Sleep(1);
-				
-				EnterCriticalSection(&Vars.cGameLoopSection);
-				InterlockedIncrement(&Vars.SectionCount);    //^^
+				map->AllowCritSpace();
 				ticks=GetTickCount();
+			}
+			if (startLvl != D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
+				Log("Pather lvl change while pathing");
+				return;
 			}
 			bool result = closed.insert(current->point).second;
 			assert(result == true);

@@ -9,6 +9,7 @@
 #include "D2Structs.h"
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
+#include "CriticalSections.h"
 
 namespace Mapping
 {
@@ -44,7 +45,7 @@ static RoomPointSet avoidRoomPointSet;
 static RoomList RoomsAdded;
 static RoomList roomCache;
 static LevelList levelCache;
-
+	
 
 class ActMap : public Map
 {
@@ -114,7 +115,8 @@ private:
 
 public:
 	void CleanUp(void) const;
-		
+	void AllowCritSpace(void) const;
+	CriticalRoom* actCrit;	
 	static ActMap* GetMap(Level* level);
 	static void ClearCache(void);
 	void Dump(const char* file, const PointList& points) const;
@@ -131,7 +133,7 @@ public:
 	/* If these are backwards, it's not me. */
 	inline int GetMaxX(void) const { return posX + height; }
 	inline int GetMaxY(void) const { return posY + width; }
-
+	
 	int GetMapData(const Point& point, bool abs = true) const;
 	bool IsValidPoint(const Point& point, bool abs = true) const;
 	

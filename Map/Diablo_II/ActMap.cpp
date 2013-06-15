@@ -4,6 +4,7 @@
 #include "D2Structs.h"
 #include "Core.h"
 #include "MPQStats.h"
+#include "CriticalSections.h"
 
 namespace Mapping
 {
@@ -14,20 +15,21 @@ DWORD ActMap::previousLevelNo = 0;
 ActMap* ActMap::GetMap(Level* level)
 {
 	ActMap* map = NULL;
-	if (previousLevelNo != level->dwLevelNo)
-	{
+	/*if (previousLevelNo != level->dwLevelNo)
+	{*/
 		if (previousLevelNo != 0)
 		{
 			cache[0]->CleanUp();
+			delete cache[0];
 		}
 		previousLevelNo = level->dwLevelNo;
 		map = new ActMap(level);
 		cache[0] = map;
-	}
+	/*}
 	else
 	{
 		map = cache[0];
-	}
+	}*/
 	return map;
 }
 
@@ -44,13 +46,13 @@ ActMap::ActMap(const Level* level)
 {
 	lock = new CRITICAL_SECTION;
 	InitializeCriticalSection(lock);
-
+	actCrit = new CriticalRoom;
+	actCrit->EnterSection();
 	assert(act != NULL);
 	assert(level != NULL);
 	
 	this->level = level;
 	this->act = level->pMisc->pAct;
-	
 	//RoomsAdded= roomsAdded;
 	// get the map size
 	height = level->dwSizeX * 5;
@@ -73,6 +75,7 @@ ActMap::~ActMap(void)
 {
 	DeleteCriticalSection(lock);
 	delete lock;
+	delete actCrit;
 	lock = NULL;
 }
 
@@ -214,17 +217,23 @@ WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 }
 
 void ActMap::CleanUp(void) const
-{
-	
+{	
 	for(RoomList::iterator it = RoomsAdded.begin(); it != RoomsAdded.end(); it++)
 		RemoveRoomData(*it);
 	RoomsAdded.clear();
 	levelCache.clear();
 	roomCache.clear();
 	avoidRoomPointSet.clear();
-
+	actCrit->LeaveSection();
+	
 }
-
+void ActMap::AllowCritSpace(void) const
+{	
+	CleanUp();
+	actCrit->LeaveSection();
+	Sleep(5);
+	actCrit->EnterSection();
+}
 void ActMap::GetExits(ExitArray& exits) const
 {
 	static const Point empty(0,0);

@@ -36,7 +36,7 @@ public:
 			it--;
 			out.push_back(*it);
 			it++;
-		}
+		}		
 	}
 	// this should be in actMap with a filter setting
 	// put it here because expanding telport nodes is diffrent for teleport

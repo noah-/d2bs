@@ -23,6 +23,7 @@ public:
 
 	virtual bool SpaceHasFlag(int flag, const Point& point, bool abs) const = 0;
 	virtual bool PathHasFlag(int flag, const PointList& points, bool abs) const = 0;
+	virtual void AllowCritSpace(void) const =0;
 };
 
 template <typename T>

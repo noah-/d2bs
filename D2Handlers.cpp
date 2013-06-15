@@ -458,6 +458,7 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
+
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	if(Vars.bGameLoopEntered)
@@ -465,11 +466,13 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 	else
 		Vars.bGameLoopEntered = true;
 
-	while(Vars.SectionCount)
-		Sleep(0);
+	//while(Vars.SectionCount)
+		//Sleep(0);
 
+	Sleep(0);
 	EnterCriticalSection(&Vars.cGameLoopSection);	
 }
+
 
 void GameLeave(void)
 {
@@ -488,6 +491,6 @@ void GameLeave(void)
 
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 	ActMap::ClearCache();
-
+	
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }
