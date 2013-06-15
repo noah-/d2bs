@@ -2,6 +2,7 @@
 #include "D2BS.h"
 
 
+
 bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 {
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
@@ -320,4 +321,48 @@ void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* n
 {
 	GameActionEventHelper helper = {mode, param1, param2, name1, name2};
 	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 5);
+}
+bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
+{
+	GamePacketHelper* helper = (GamePacketHelper*)argv;
+	
+	if(script->IsRunning() && script->IsListenerRegistered("gamepacket"))
+	{
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->arg2 = new DWORD(helper->dwSize);
+		evt->arg1 = new BYTE[helper->dwSize];
+		memcpy(evt->arg1, helper->pPacket, helper->dwSize);
+		evt->name = "gamepacket";
+		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
+
+		script->FireEvent(evt);
+		if(WaitForSingleObjectEx(evt->arg5, 5000, true) == WAIT_TIMEOUT)
+			return false;
+		if (*(DWORD*) evt->arg4 )
+		{
+			delete evt->arg1;
+			delete evt->arg2;
+			delete evt->arg4;
+			CloseHandle(evt->arg5);
+			delete evt;
+			return true;
+		}
+		else 
+		{
+			delete evt->arg1;
+			delete evt->arg2;
+			delete evt->arg4;
+			CloseHandle(evt->arg5);
+			delete evt;
+		}
+	}
+	return false;
+}
+
+bool GamePacketEvent(BYTE* pPacket, DWORD dwSize)
+{
+	GamePacketHelper helper = {pPacket, dwSize};
+	return ScriptEngine::ForEachScript(GamePacketCallback, &helper, 2);
 }

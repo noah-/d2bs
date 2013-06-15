@@ -747,6 +747,44 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		delete evt;		
 		return true;	
 	}	
+	if (strcmp(evtName, "gamepacket") == 0) {
+		bool block = false;
+		if(!clearList)
+		{
+			BYTE* help = (BYTE*) evt->arg1;
+			DWORD* size = (DWORD*) evt->arg2;
+			DWORD* argc = (DWORD*) 1;
+			JS_BeginRequest(cx);
+
+			jsval* jsarr = new jsval[*size];
+
+			int i = 0;
+			for(i=0; i< *size; i++) jsarr[i] = UINT_TO_JSVAL(help[i]);;
+			JSObject* arr = JS_NewArrayObject(cx, *size, jsarr);
+			
+			jsval argv =  OBJECT_TO_JSVAL(arr);
+			//evt->argv[0]->read(cx, &argv[0]);			
+			//JS_AddValueRoot(cx, &argv[0]);
+		
+				jsval rval;	
+				for(FunctionList::iterator it = evt->owner->functions[evtName].begin(); it != evt->owner->functions[evtName].end(); it++)
+				{
+					JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 1, &argv, &rval);	
+					block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
+				}
+			evt->arg4 =  new DWORD(block);
+			
+			SetEvent(evt->arg5);
+			JS_EndRequest(cx);
+		//	for(int j = 0 ; j < *argc; j++)
+			//	JS_RemoveValueRoot(cx, &argv[j]);
+		}
+		
+		//delete evt->arg1;
+		//delete evt->arg2;
+		
+		return true;	
+	}	
 	if (strcmp(evtName, "setTimeout") == 0 || strcmp(evtName, "setInterval") == 0) {
 		if(!clearList)
 		{
