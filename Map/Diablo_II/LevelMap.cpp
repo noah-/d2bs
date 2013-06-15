@@ -8,14 +8,14 @@ namespace Mapping
 
 LevelMapList LevelMap::cache = LevelMapList();
 
-LevelMap* LevelMap::GetMap(Level* level)
-{
-	if(cache.count(level->dwLevelNo) > 0)
-		return cache[level->dwLevelNo];
-	LevelMap* map = new LevelMap(level);
-	cache[level->dwLevelNo] = map;
-	return map;
-}
+//LevelMap* LevelMap::GetMap(Level* level) // commit easier than fix error
+//{
+//	if(cache.count(level->dwLevelNo) > 0)
+//		return cache[level->dwLevelNo];
+//	LevelMap* map = new LevelMap(level);
+//	cache[level->dwLevelNo] = map;
+//	return map;
+//}
 void LevelMap::CleanUp(void) const
 {
 	//Dummy Sub here because act map has it

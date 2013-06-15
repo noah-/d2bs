@@ -276,14 +276,11 @@ JSAPI_FUNC(my_getPath)
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
 
-	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-
 	uint lvl = 0, x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
 	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 	{
-		delete cRoom;
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
@@ -291,12 +288,10 @@ JSAPI_FUNC(my_getPath)
 	if(reductionType == 3 &&
 		!(JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[9])))
 	{
-		delete cRoom;
 		THROW_ERROR(cx, "Invalid function values for reduction type");
 	}
 	if (lvl == 0)
 	{
-		delete cRoom;
 		THROW_ERROR(cx, "Invalid level passed to getPath");
 	}
 	Level* level = GetLevel(lvl);
@@ -312,7 +307,7 @@ JSAPI_FUNC(my_getPath)
 		case 1: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
 		case 2: reducer = new NoPathReducer(map); break;
 		case 3: reducer = new JSPathReducer(map, cx, JS_THIS_OBJECT(cx, vp), JS_ARGV(cx, vp)[7], JS_ARGV(cx, vp)[8], JS_ARGV(cx, vp)[9]); break;
-		default: delete cRoom; THROW_ERROR(cx, "Invalid path reducer value!"); break;
+		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
 
 	PointList list;
@@ -326,7 +321,6 @@ JSAPI_FUNC(my_getPath)
 	
 	path.GetPath(start, end, list, true);
 	map->CleanUp();
-	delete cRoom;
 	//box18JS_ResumeRequest(cx, depth);
 #if defined(_TIME)
 	char p[510];
@@ -360,7 +354,7 @@ JSAPI_FUNC(my_getPath)
 //	JS_LeaveLocalRootScope(cx);
 
 	delete reducer;
-
+	map->CleanUp();
 	return JS_TRUE;
 }
 
@@ -381,17 +375,14 @@ JSAPI_FUNC(my_getCollision)
 	}
 	JS_EndRequest(cx);
 
-	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-
-
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
 	if(!level)
-		{ delete cRoom; THROW_ERROR(cx, "Level Not loaded");}
+		{ THROW_ERROR(cx, "Level Not loaded");}
 
 	ActMap* map = ActMap::GetMap(level);
 	if(!map->IsValidPoint(point))
-		{ delete cRoom; THROW_ERROR(cx, "Invalid point!");}
+		{ map->CleanUp(); THROW_ERROR(cx, "Invalid point!");}
 	 
 	jsval rval;
 	JS_BeginRequest(cx);
@@ -399,7 +390,7 @@ JSAPI_FUNC(my_getCollision)
 	JS_EndRequest(cx);
 	JS_SET_RVAL(cx, vp,rval );
 	map->CleanUp();
-	delete cRoom;
+	
 	return JS_TRUE;
 }
 
