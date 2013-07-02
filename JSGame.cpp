@@ -1126,6 +1126,7 @@ JSAPI_FUNC(my_quitGame)
 
 JSAPI_FUNC(my_quit)
 {
+	Vars.bQuitting = true;
 	if(ClientState() != ClientStateMenu)
 		D2CLIENT_ExitGame();
 

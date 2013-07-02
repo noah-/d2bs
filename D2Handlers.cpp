@@ -148,15 +148,15 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 			Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
 			TerminateProcess(GetCurrentProcess(), 0);
 		break;
-		case 0x15: return !GamePacketEvent(pPacket, dwSize) || ReassignPlayerHandler(pPacket, dwSize);
-		case 0x26: return !GamePacketEvent(pPacket, dwSize) || ChatEventHandler(pPacket, dwSize);
-		case 0x2A: return !GamePacketEvent(pPacket, dwSize) || NPCTransactionHandler(pPacket, dwSize);
-		case 0x5A: return !GamePacketEvent(pPacket, dwSize) || EventMessagesHandler(pPacket, dwSize);
+		case 0x15: return !GamePacketEvent(pPacket, dwSize) && ReassignPlayerHandler(pPacket, dwSize);
+		case 0x26: return !GamePacketEvent(pPacket, dwSize) && ChatEventHandler(pPacket, dwSize);
+		case 0x2A: return !GamePacketEvent(pPacket, dwSize) && NPCTransactionHandler(pPacket, dwSize);
+		case 0x5A: return !GamePacketEvent(pPacket, dwSize) && EventMessagesHandler(pPacket, dwSize);
 		case 0x18:											
-		case 0x95: return !GamePacketEvent(pPacket, dwSize) || HPMPUpdateHandler(pPacket, dwSize);
+		case 0x95: return !GamePacketEvent(pPacket, dwSize) && HPMPUpdateHandler(pPacket, dwSize);
 		case 0x9C:											
-		case 0x9D: return !GamePacketEvent(pPacket, dwSize) || ItemActionHandler(pPacket, dwSize);
-		case 0xA7: return !GamePacketEvent(pPacket, dwSize) || DelayedStateHandler(pPacket, dwSize);
+		case 0x9D: return !GamePacketEvent(pPacket, dwSize) && ItemActionHandler(pPacket, dwSize);
+		case 0xA7: return !GamePacketEvent(pPacket, dwSize) && DelayedStateHandler(pPacket, dwSize);
 	}
 
 	return !GamePacketEvent(pPacket, dwSize);;
@@ -376,7 +376,16 @@ void GameDraw(void)
 		DrawLogo();
 		Console::Draw();
 	}
-	Sleep(10);
+	if(Vars.SectionCount)
+	{
+		if(Vars.bGameLoopEntered)
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+		else
+			Vars.bGameLoopEntered = true;
+		Sleep(0);
+		EnterCriticalSection(&Vars.cGameLoopSection);	
+	} else
+		Sleep(10);
 }
 
 void GameDrawOOG(void)
@@ -461,25 +470,25 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	if(Vars.bGameLoopEntered)
-		LeaveCriticalSection(&Vars.cGameLoopSection);
-	else
-		Vars.bGameLoopEntered = true;
+	if(Vars.SectionCount)
+	{
+		if(Vars.bGameLoopEntered)
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+		else
+			Vars.bGameLoopEntered = true;
 
-	//while(Vars.SectionCount)
-		//Sleep(0);
-
-	Sleep(0);
-	EnterCriticalSection(&Vars.cGameLoopSection);	
+		Sleep(0);
+		EnterCriticalSection(&Vars.cGameLoopSection);	
+	}
 }
 
 
 void GameLeave(void)
 {
-	if(Vars.bGameLoopEntered)
-		LeaveCriticalSection(&Vars.cGameLoopSection);
-	else
-		Vars.bGameLoopEntered = true;
+//	if(Vars.bGameLoopEntered)
+	//	LeaveCriticalSection(&Vars.cGameLoopSection);
+//	else
+//		Vars.bGameLoopEntered = true;
 
 	/*EnterCriticalSection(&ScriptEngine::lock);
 	std::vector<Script*> list;
@@ -488,9 +497,9 @@ void GameLeave(void)
 			it->second->Stop(true);
 
 	LeaveCriticalSection(&ScriptEngine::lock); */
-
+	Vars.bQuitting = false;
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 	ActMap::ClearCache();
 	
-	EnterCriticalSection(&Vars.cGameLoopSection);
+//	EnterCriticalSection(&Vars.cGameLoopSection);
 }

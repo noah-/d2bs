@@ -126,7 +126,7 @@ bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
 		LeaveCriticalSection(&lock);
 		return true;
 	}
-
+	
 	threadHandle = INVALID_HANDLE_VALUE;
 	LeaveCriticalSection(&lock);
 	return false;
@@ -260,7 +260,6 @@ void Script::Stop(bool force, bool reallyForce)
 	// if we've already stopped, just return
 	if(isAborted)
 		return;
-
 	EnterCriticalSection(&lock);
 
 	// tell everyone else that the script is aborted FIRST
