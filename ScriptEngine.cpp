@@ -123,6 +123,7 @@ BOOL ScriptEngine::Startup(void)
 		LockScriptList("startup - enter");
 
 		console = new Script("", Command);
+		scripts["console"] = console;
 		console->BeginThread(ScriptThread);
 		state = Running;
 		//LeaveCriticalSection(&lock);
@@ -166,7 +167,7 @@ void ScriptEngine::StopAll(bool forceStop)
 {
 	if(GetState() != Running)
 		return;
-
+	
 	//EnterCriticalSection(&lock);
 	ForEachScript(StopScript, &forceStop, 1);
 
@@ -254,6 +255,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
 	script->TriggerOperationCallback();
+	if(script->GetState() != Command)
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }

@@ -17,13 +17,14 @@ public:
 		InterlockedIncrement(&Vars.SectionCount); 
 		EnterCriticalSection(&Vars.cGameLoopSection);		
 		bEnteredCriticalSection = true;
+		InterlockedDecrement(&Vars.SectionCount);	
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
 			bEnteredCriticalSection = false;
 			LeaveCriticalSection(&Vars.cGameLoopSection);
-			InterlockedDecrement(&Vars.SectionCount);			
+					
 		}
 	}
 };
@@ -36,14 +37,14 @@ private:
 		InterlockedIncrement(&Vars.SectionCount); 
 		bEnteredCriticalSection = true;
 		EnterCriticalSection(&Vars.cGameLoopSection);		
-	
+		InterlockedDecrement(&Vars.SectionCount);	
 	}
 	
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
 			bEnteredCriticalSection = false;
 			LeaveCriticalSection(&Vars.cGameLoopSection);
-			InterlockedDecrement(&Vars.SectionCount);			
+					
 		}
 	}
 

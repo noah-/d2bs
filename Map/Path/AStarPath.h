@@ -103,6 +103,9 @@ private:
 				Log("Pather lvl change while pathing");
 				return;
 			}
+			if (Vars.bQuitting)
+				return;
+
 			bool result = closed.insert(current->point).second;
 			assert(result == true);
 			(void)(result); // shut up compiler about unused variable warning
