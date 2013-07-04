@@ -147,8 +147,8 @@ JSAPI_FUNC(my_delay)
 				script->LastGC = start;
 				JS_GC(JS_GetRuntime(cx));
 			}
-			/*else
-				JS_MaybeGC(cx);*/
+			else
+				JS_MaybeGC(cx);
 			amt = nDelay -(GetTickCount() - start);
 			//SleepEx(10,true);	// ex for delayed setTimer
 		}
