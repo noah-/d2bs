@@ -43,6 +43,7 @@ static JSFunctionSpec global_funcs[] = {
 	JS_FN("getArea",			my_getArea,				0, FUNCTION_FLAGS),
 	JS_FN("getBaseStat",		my_getBaseStat,			0, FUNCTION_FLAGS),
 	JS_FN("getControl",			my_getControl,			0, FUNCTION_FLAGS),
+	JS_FN("getControls",		my_getControls,			0, FUNCTION_FLAGS),
 	JS_FN("getPlayerFlag",		my_getPlayerFlag,		2, FUNCTION_FLAGS),
 	JS_FN("getTickCount",		my_getTickCount,		0, FUNCTION_FLAGS),
 	JS_FN("getInteractedNPC",	my_getInteractedNPC,	0, FUNCTION_FLAGS),
