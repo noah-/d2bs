@@ -5,6 +5,7 @@
 #include "js32.h"
 
 JSAPI_FUNC(my_getControl);
+JSAPI_FUNC(my_getControls);
 JSAPI_FUNC(my_login);
 JSAPI_FUNC(my_selectChar);
 JSAPI_FUNC(my_createGame);

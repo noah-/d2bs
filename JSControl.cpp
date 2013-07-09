@@ -343,3 +343,36 @@ JSAPI_FUNC(my_getControl)
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(control));
 	return JS_TRUE;
 }
+JSAPI_FUNC(my_getControls)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_VOID);
+
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;	
+
+	DWORD dwArrayCount = NULL;
+
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	JS_BeginRequest(cx);
+	JS_AddRoot(cx, &pReturnArray);
+		for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
+		{
+			ControlData* data = new ControlData;
+			data->dwType = pControl->dwType;
+			data->dwX = pControl->dwPosX;
+			data->dwY = pControl->dwPosY;
+			data->dwSizeX = pControl->dwSizeX;
+			data->dwSizeY = pControl->dwSizeY;
+			data->pControl =pControl;
+			
+			JSObject* res = BuildObject(cx, &control_class, control_funcs, control_props, data);
+			jsval a = OBJECT_TO_JSVAL(res);
+			JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
+			dwArrayCount++;	
+		}		
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
+	JS_RemoveRoot(cx, &pReturnArray);
+	JS_EndRequest(cx);
+	return JS_TRUE;
+	
+}

@@ -261,26 +261,19 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg1 =  new DWORD((DWORD)button);
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
- 		evt->arg5 =  CreateEvent(nullptr, false, false, nullptr);
+ 		ResetEvent(Vars.eventSignal);
 		AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
 		evt->functions.push_back(root);
-
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		evt->owner->TriggerOperationCallback();
-		WaitForSingleObjectEx(evt->arg5, 3000,true);
-		bool* global = (bool*) evt->arg4;
-		block = *global;
+		owner->FireEvent(evt);
+		
+		WaitForSingleObjectEx(Vars.eventSignal, 3000,true);
+		block = (bool*) evt->arg4;
 		delete evt->arg1;
 		delete evt->arg2;
 		delete evt->arg3;
 		delete evt->arg4;
 		delete root;
-		delete evt;
-		if(block)
-			return true;
-		
+		delete evt;		
 	}
 	return block;
 }
@@ -300,10 +293,7 @@ void Genhook::Hover(POINT* loc)
 		evt->arg1 =  new DWORD((DWORD)loc->x);
 		evt->arg2 =  new DWORD((DWORD)loc->y);
 		
-		EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		evt->owner->TriggerOperationCallback();
+		owner->FireEvent(evt);
 
 	}
 }

@@ -570,7 +570,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		}
 		if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
 			evt->arg4 =  new bool(block);
-			SetEvent(evt->arg5);
+			SetEvent(Vars.eventSignal);
 		}else{
 			free(evt->arg1);
 			free(evt->arg2);
@@ -656,7 +656,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		}
 		if (strcmp(evtName, "keydownblocker") == 0 ){
 			evt->arg4 =  new bool(block);
-			SetEvent(evt->arg5);
+			SetEvent(Vars.eventSignal);
 		}else{
 			delete evt->arg1;
 			free (evt->name);
@@ -689,7 +689,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
 		evt->arg4 =  new bool(block);
-		SetEvent(evt->arg5);
+		SetEvent(Vars.eventSignal);
 		
 		return true;	
 	}
@@ -776,7 +776,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 				}
 			evt->arg4 =  new DWORD(block);
 			
-			SetEvent(evt->arg5);
+			SetEvent(Vars.eventSignal);
 			JS_EndRequest(cx);
 		//	for(int j = 0 ; j < *argc; j++)
 			//	JS_RemoveValueRoot(cx, &argv[j]);

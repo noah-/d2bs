@@ -119,7 +119,7 @@ void InitSettings(void)
 	Vars.bLogConsole = StringToBool(logConsole);
 	Vars.bEnableUnsupported = StringToBool(enableUnsupported);
 	Vars.bForwardMessageBox = StringToBool(forwardMessageBox);
-
+	Vars.eventSignal = CreateEventA(false, true, false, nullptr);
 	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;
