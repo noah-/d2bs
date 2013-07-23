@@ -224,7 +224,7 @@ int GetSkill(WORD wSkillId)
 	return 0;
 }
 
-BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
+BOOL SetSkill(JSContext* cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 {
 	if(ClientState() != ClientStateInGame) 
 		return FALSE;
@@ -257,7 +257,26 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 		}
 		else
 			return TRUE;
-		Sleep(100);
+
+	Script* script = (Script*)JS_GetContextPrivate(cx);  // run events to avoid packet block deadlock
+	DWORD start = GetTickCount();
+	int amt = 100 -(GetTickCount() - start);
+
+		while(amt > 0 )  
+		{	// had a script deadlock here, make sure were positve with amt		
+			WaitForSingleObjectEx(script->eventSignal, amt, true);
+			ResetEvent(script->eventSignal);
+			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
+			{
+				EnterCriticalSection(&Vars.cEventSection);
+					Event* evt = script->EventList.back();
+					script->EventList.pop_back();
+				LeaveCriticalSection(&Vars.cEventSection);				
+				ExecScriptEvent(evt,false);				
+			}			
+			amt = 100 -(GetTickCount() - start);
+			//SleepEx(10,true);	// ex for delayed setTimer
+		}		
 	}
 
 	return FALSE;

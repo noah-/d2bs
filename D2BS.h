@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1783" //uptodate with d branch 1765 ff 20b
+#define D2BS_VERSION "1.5.1784" //uptodate with d branch 1765 ff 20b
 
 #include <windows.h>
 #include <vector>
@@ -99,9 +99,10 @@ struct Variables
 	CRITICAL_SECTION	cGameLoopSection;
 	CRITICAL_SECTION	cUnitListSection;
 
-	DWORD dwSelectedUnitId;
+	DWORD dwSelectedUnitId;	
 	DWORD dwSelectedUnitType;
 	POINT pMouseCoords;
+
 };
 
 extern Variables Vars;

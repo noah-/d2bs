@@ -1794,7 +1794,7 @@ JSAPI_FUNC(unit_setskill)
 	}
 		
 
-	if(SetSkill(nSkillId, nHand, itemId))
+	if(SetSkill(cx, nSkillId, nHand, itemId))
 		JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 
 	return JS_TRUE;
