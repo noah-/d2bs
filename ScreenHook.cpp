@@ -261,13 +261,16 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg1 =  new DWORD((DWORD)button);
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
+		*(DWORD*)  evt->arg4 = block;
  		ResetEvent(Vars.eventSignal);
 		AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
 		evt->functions.push_back(root);
 		owner->FireEvent(evt);
 		
-		WaitForSingleObjectEx(Vars.eventSignal, 3000,true);
-		block = (bool*) evt->arg4;
+		if (WaitForSingleObject(Vars.eventSignal, 3000) == WAIT_TIMEOUT)
+			return false;
+		bool* global = (bool*) evt->arg4;
+		block = *global;
 		delete evt->arg1;
 		delete evt->arg2;
 		delete evt->arg3;

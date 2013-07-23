@@ -70,16 +70,18 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->argc = argc;
 		evt->name = strdup(event); 
 		evt->arg1 =  new DWORD((DWORD)helper->key);
-		
+		evt->arg4 = new DWORD(false);
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
 		
-		if(WaitForSingleObjectEx(Vars.eventSignal, 1000, false) == WAIT_TIMEOUT)
+		if(WaitForSingleObject(Vars.eventSignal, 1000) == WAIT_TIMEOUT)
 			return false;
+			
 		bool* global = (bool*) evt->arg4;
 		block = *global;
 		delete evt->name;
 		delete evt->arg1;
+		delete evt->arg4;
 		delete evt;
 	}
 
@@ -222,16 +224,17 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		evt->name = strdup(evtname.c_str()); 
 		evt->arg1 = strdup(helper->nick);
  		evt->arg2 = strdup(helper->msg);
+		evt->arg4 = new DWORD(false);
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
-		
-		
-		if(WaitForSingleObjectEx(Vars.eventSignal, 5000, true) == WAIT_TIMEOUT)
+				
+		if(WaitForSingleObject(Vars.eventSignal, 500) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
 		delete evt->name;
 		delete evt->arg1;
 		delete evt->arg2;
+		delete evt->arg4;
 		delete evt;
 
 	}
@@ -327,39 +330,33 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 {
 	GamePacketHelper* helper = (GamePacketHelper*)argv;
 	
-	if(script->IsRunning() && script->IsListenerRegistered("gamepacket"))
+	if(ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered("gamepacket"))
 	{
+	
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
 		evt->arg2 = new DWORD(helper->dwSize);
 		evt->arg1 = new BYTE[helper->dwSize];
+		evt->arg4 = new DWORD(false);
 		memcpy(evt->arg1, helper->pPacket, helper->dwSize);
 		evt->name = "gamepacket";
 		
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
-				
-		if(WaitForSingleObject(Vars.eventSignal, 5000) == WAIT_TIMEOUT)
-		{					
+		static DWORD result;
+		if(Vars.bGameLoopEntered)
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+		result = WaitForSingleObject(Vars.eventSignal, 500);		
+		EnterCriticalSection(&Vars.cGameLoopSection);		
+		if (result= WAIT_TIMEOUT)	
 			return false;
-		}
-		if (*(DWORD*) evt->arg4 )
-		{
-			delete evt->arg1;
-			delete evt->arg2;
-			delete evt->arg4;			
-			delete evt;
-			return true;
-		}
-		else 
-		{
-			delete evt->arg1;
-			delete evt->arg2;
-			delete evt->arg4;			
-			delete evt;
-			return false;
-		}
+		bool retval = (*(DWORD*) evt->arg4 );		
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg4;			
+		delete evt;
+		return retval;		
 	}
 	return false;
 }

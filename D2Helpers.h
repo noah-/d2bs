@@ -3,6 +3,7 @@
 
 #include "D2Structs.h"
 #include "D2Ptrs.h"
+#include "js32.h"
 
 enum DistanceType
 {
@@ -40,7 +41,7 @@ int		GetItemLocation(UnitAny *pItem);
 //void	SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation);
 
 int		GetSkill(WORD wSkillId);
-BOOL	SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId = 0xFFFFFFFF);
+BOOL	SetSkill(JSContext* cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId = 0xFFFFFFFF);
 char*	GetSkillByID(WORD id);
 WORD	GetSkillByName(char* szSkillName);
 

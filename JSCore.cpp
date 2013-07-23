@@ -351,7 +351,7 @@ JSAPI_FUNC(my_copy)
 	char* tempData;
 	
 
-//	strcpy_s(pText,strlen(data)+1, tempData);
+	strcpy_s(pText,strlen(data)+1, data);
 	GlobalUnlock(hText);
 
 	OpenClipboard(NULL);

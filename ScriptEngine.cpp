@@ -452,6 +452,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 bool ExecScriptEvent(Event* evt, bool clearList)
 {	
 	JSContext* cx;
+
 	if (!clearList)
 		cx = evt->owner->GetContext();
 	char* evtName = (char*) evt->name;
@@ -569,7 +570,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
 		if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
-			evt->arg4 =  new bool(block);
+			*(DWORD*)  evt->arg4 = block;
 			SetEvent(Vars.eventSignal);
 		}else{
 			free(evt->arg1);
@@ -655,7 +656,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			JS_RemoveValueRoot(cx, &argv[0]);
 		}
 		if (strcmp(evtName, "keydownblocker") == 0 ){
-			evt->arg4 =  new bool(block);
+			*(DWORD*)  evt->arg4 = block;
 			SetEvent(Vars.eventSignal);
 		}else{
 			delete evt->arg1;
@@ -688,7 +689,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 3; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		evt->arg4 =  new bool(block);
+		*(DWORD*)  evt->arg4 = block;
 		SetEvent(Vars.eventSignal);
 		
 		return true;	
@@ -774,7 +775,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 					JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 1, &argv, &rval);	
 					block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 				}
-			evt->arg4 =  new DWORD(block);
+			*(DWORD*)  evt->arg4 = block;
 			
 			SetEvent(Vars.eventSignal);
 			JS_EndRequest(cx);
