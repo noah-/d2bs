@@ -349,8 +349,10 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 			LeaveCriticalSection(&Vars.cGameLoopSection);
 		result = WaitForSingleObject(Vars.eventSignal, 500);		
 		EnterCriticalSection(&Vars.cGameLoopSection);		
+		
 		if (result= WAIT_TIMEOUT)	
 			return false;
+		
 		bool retval = (*(DWORD*) evt->arg4 );		
 		delete evt->arg1;
 		delete evt->arg2;
