@@ -182,15 +182,26 @@ DWORD GetPlayerArea(void)
 Level* GetLevel(DWORD dwLevelNo)
 {
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-	for(Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
-		if(pLevel->dwLevelNo == dwLevelNo) {
-			if (!pLevel->pRoom2First)
-				D2COMMON_InitLevel(pLevel);
+	Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst;
+
+    while(pLevel)
+    {
+        if(pLevel->dwLevelNo == dwLevelNo)
+        {
+            if (!pLevel->pRoom2First)
+                D2COMMON_InitLevel(pLevel);
+
+            if (!pLevel->pRoom2First)
+                break;
 			delete cRoom;
-			return pLevel;
-		}
-		delete cRoom;
-		return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
+            return pLevel;
+        }
+        pLevel = pLevel->pNextLevel;
+    }
+	pLevel = D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
+	delete cRoom;
+	return pLevel;
+
 }
 
 // TODO: make this use SIZE for clarity
@@ -379,12 +390,12 @@ void myDrawText(const char* szwText, int x, int y, int color, int font)
 	size_t found;
 	wchar_t* text = AnsiToUnicode(szwText);
 	std::string temp(szwText);
-	found=temp.find_first_of("˙");
+	found=temp.find_first_of(-1);
   
 	while (found!=std::string::npos)
     {
        text[found] = 0xff;
-       found=temp.find_first_of("˙",found+1);
+       found=temp.find_first_of(-1,found+1);
     }
 	
 

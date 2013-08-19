@@ -19,7 +19,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 {
 	InitializeCriticalSection(&lock);
 	// moved the runtime initilization to thread start	
-	LastGC = GetTickCount();
+	LastGC = 0;
 	hasActiveCX=false;
 	eventSignal = CreateEvent(nullptr, true, false, nullptr);
 	if(scriptState == Command)

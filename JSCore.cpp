@@ -142,13 +142,13 @@ JSAPI_FUNC(my_delay)
 				LeaveCriticalSection(&Vars.cEventSection);				
 				ExecScriptEvent(evt,false);				
 			}
-			if (GetTickCount() - script->LastGC > 2000)
+			if (JS_GetGCParameter (script->GetRuntime(), JSGC_BYTES)  - script->LastGC > 524288) // gc every .5 mb
 			{
-				script->LastGC = start;
 				JS_GC(JS_GetRuntime(cx));
+				script->LastGC = JS_GetGCParameter (script->GetRuntime(), JSGC_BYTES);
 			}
-			else
-				JS_MaybeGC(cx);
+			/*else
+				JS_MaybeGC(cx);*/
 			amt = nDelay -(GetTickCount() - start);
 			//SleepEx(10,true);	// ex for delayed setTimer
 		}

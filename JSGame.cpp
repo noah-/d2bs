@@ -296,6 +296,9 @@ JSAPI_FUNC(my_getPath)
 	}
 	Level* level = GetLevel(lvl);
 	
+	if(!level)
+		return JS_FALSE;
+
 	ActMap* map = ActMap::GetMap(level);
 
 	Point start(x, y), end(dx, dy);

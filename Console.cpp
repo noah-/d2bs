@@ -242,7 +242,7 @@ void Console::Draw(void)
 		int linelen = 115;
 		Console::height = height;
 
-		int cmdsize = CalculateTextLen(cmd.str().c_str(), 0).x;
+		int cmdsize = CalculateTextLen(cmd.str().c_str(), Vars.dwConsoleFont).x;
 		if((cmdsize/xsize) > 0)
 			Console::height += (cmdsize/xsize)*charheight + 1;
 
@@ -257,9 +257,9 @@ void Console::Draw(void)
 				std::list<std::string> buf;
 				SplitLines(*it, linelen, ' ', buf);
 				for(std::list<std::string>::iterator it2 = buf.begin(); it2 != buf.end(); it2++)
-					myDrawText(it2->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, 0);
+					myDrawText(it2->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, Vars.dwConsoleFont);
 			} else
-				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, 0);
+				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, Vars.dwConsoleFont);
 		}
 
 		if(IsEnabled())
@@ -279,9 +279,9 @@ void Console::Draw(void)
 					SplitLines(cmdstr, linelen, ' ', lines);
 					int i = 0;
 					for(std::list<std::string>::iterator it2 = lines.begin(); it2 != lines.end(); it2++, i++)
-						myDrawText(it2->c_str(), charsize+5, height+(charheight*i)+1, 0, 0);
+						myDrawText(it2->c_str(), charsize+5, height+(charheight*i)+1, 0, Vars.dwConsoleFont);
 				} else
-					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, 0);
+					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, Vars.dwConsoleFont);
 			}
 		}
 	}

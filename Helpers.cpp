@@ -82,7 +82,7 @@ void InitSettings(void)
 		quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
 		startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6],
 		useProfilePath[6], logConsole[6], enableUnsupported[6],
-		forwardMessageBox[6];
+		forwardMessageBox[6], consoleFont[6];
 
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
@@ -102,6 +102,7 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "LogConsoleOutput", "false", logConsole, 6, fname);
 	GetPrivateProfileString("settings", "EnableUnsupported", "false", enableUnsupported, 6, fname);
 	GetPrivateProfileString("settings", "ForwardMessageBox", "false", forwardMessageBox, 6, fname);
+	GetPrivateProfileString("settings", "ConsoleFont", "0", consoleFont, 6, fname);
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 	strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
 	strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
@@ -121,6 +122,7 @@ void InitSettings(void)
 	Vars.bForwardMessageBox = StringToBool(forwardMessageBox);
 	Vars.eventSignal = CreateEventA(false, true, false, nullptr);
 	Vars.dwMemUsage = abs(atoi(memUsage));
+	Vars.dwConsoleFont =  abs(atoi(consoleFont));
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;
