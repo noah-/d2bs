@@ -65,6 +65,7 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</IgnoreImportLibrary>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Program Files %28x86%29\boost\boost_1_46_1;$(ProgramFiles)\boost;$(IncludePath);$(SolutionDir)\Engine;$(SolutionDir)\Engine\dependencies\include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -159,7 +160,7 @@
       <Culture>0x0407</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shlwapi.lib;advapi32.lib;dbghelp.lib;Winmm.lib;dependencies\libs\release\js_static.lib;dependencies\libs\release\libnspr4.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shlwapi.lib;advapi32.lib;dbghelp.lib;Winmm.lib;dependencies\libs\release\js_static.lib</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -320,12 +321,16 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClCompile Include="Map\Diablo_II\LevelMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\bob-18_ff20\Pipe.h" />
+    <ClInclude Include="..\bob-18_ff20\Socket.h" />
+    <ClInclude Include="..\bob-18_ff20\Stream.h" />
     <ClInclude Include="D2BS.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="D2Helpers.h" />
     <ClInclude Include="D2Ptrs.h" />
     <ClInclude Include="D2Skills.h" />
     <ClInclude Include="D2Structs.h" />
+    <ClInclude Include="dependencies\include\jsfriendapi.h" />
     <ClInclude Include="JSProfile.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="D2Intercepts.h" />

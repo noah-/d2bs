@@ -13,7 +13,7 @@
    and installed along with jsapi.h.  */
 
 /* Define to 1 if SpiderMonkey should support multi-threaded clients.  */
-#define JS_THREADSAFE 1
+/* #undef JS_THREADSAFE */
 
 /* Define to 1 if SpiderMonkey should include ctypes support.  */
 /* #undef JS_HAS_CTYPES */
@@ -61,8 +61,5 @@
 /* Some mozilla code uses JS-friend APIs that depend on JS_METHODJIT being
    correct. */
 #define JS_METHODJIT 1
-
-/* Define to 1 to enable support for E4X (ECMA-357), 0 to disable it. */
-#define JS_HAS_XML_SUPPORT 1
 
 #endif /* js_config_h___ */

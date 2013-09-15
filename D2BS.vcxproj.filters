@@ -432,6 +432,18 @@
     <ClInclude Include="Profile.h">
       <Filter>Spidermonkey Engine\Core\C</Filter>
     </ClInclude>
+    <ClInclude Include="..\bob-18_ff20\Stream.h">
+      <Filter>Spidermonkey Engine\Core\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\bob-18_ff20\Socket.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\bob-18_ff20\Pipe.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\include\jsfriendapi.h">
+      <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\jsproto.tbl">

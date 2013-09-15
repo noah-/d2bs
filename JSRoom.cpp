@@ -142,7 +142,87 @@ JSAPI_FUNC(room_getPresetUnits)
 	delete cRoom;
 	return JS_TRUE;
 }
+JSAPI_FUNC(room_getCollisionTypeArray)
+{
+		Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	if(!pRoom2)
+		return JS_TRUE;
 
+	JSObject* jsobjy = JS_NewInt16Array(cx, (pRoom2->dwSizeX * 5) * (pRoom2->dwSizeY*5));
+	JS_AddRoot(cx, &jsobjy);
+	if(!jsobjy)
+		return JS_TRUE;
+
+	bool bAdded = FALSE;
+	CollMap* pCol = NULL;
+
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+
+	if(!pRoom2->pRoom1)
+	{
+		bAdded = TRUE;
+		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+	}
+
+	if(pRoom2->pRoom1)
+		pCol = pRoom2->pRoom1->Coll;
+
+	if(!pCol)
+	{
+		JS_RemoveRoot(cx, &jsobjy);
+		if(bAdded)
+			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		delete cRoom;
+		return JS_TRUE;
+	}
+
+	int x = pCol->dwPosGameX - pRoom2->pLevel->dwPosX * 5;
+	int y = pCol->dwPosGameY - pRoom2->pLevel->dwPosY * 5;
+	int nCx = pCol->dwSizeGameX;
+	int nCy = pCol->dwSizeGameY;
+
+	int nLimitX = x + nCx;
+	int nLimitY = y + nCy;
+
+	int nCurrentArrayY = NULL;
+
+	WORD* p = pCol->pMapStart;
+	JS_BeginRequest(cx);
+	for(int j = y; j < nLimitY; j++)		
+	{
+		
+		
+		int nCurrentArrayX = 0;
+		for (int i = x; i < nLimitX; i++)
+		{
+			jsval nNode = INT_TO_JSVAL(*p);
+
+			if(!JS_SetElement(cx, jsobjy, nCurrentArrayY * nCx +nCurrentArrayX, &nNode))
+			{
+				if(bAdded)
+					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+				JS_RemoveRoot(cx, &jsobjy);
+				JS_EndRequest(cx);
+				delete cRoom;
+				return JS_TRUE;
+			}
+
+			nCurrentArrayX++;
+			p++;
+		}		
+		nCurrentArrayY++;
+	}
+	
+	if(bAdded)
+		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+
+	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsobjy));
+	JS_RemoveRoot(cx, &jsobjy);
+	JS_EndRequest(cx);
+	delete cRoom;
+	return JS_TRUE;
+
+}
 JSAPI_FUNC(room_getCollision)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));

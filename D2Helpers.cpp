@@ -181,6 +181,9 @@ DWORD GetPlayerArea(void)
 
 Level* GetLevel(DWORD dwLevelNo)
 {
+	if (!GameReady())
+		return nullptr;
+
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 	Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst;
 

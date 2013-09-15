@@ -8,8 +8,10 @@
 #ifndef js_HashTable_h__
 #define js_HashTable_h__
 
+#include "mozilla/Assertions.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/DebugOnly.h"
+#include "mozilla/TypeTraits.h"
 #include "mozilla/Util.h"
 
 #include "js/TemplateLib.h"
@@ -66,7 +68,15 @@ class HashMap
 
     // HashMap construction is fallible (due to OOM); thus the user must call
     // init after constructing a HashMap and check the return value.
-    HashMap(AllocPolicy a = AllocPolicy()) : impl(a)  {}
+    HashMap(AllocPolicy a = AllocPolicy())
+      : impl(a)
+    {
+        MOZ_STATIC_ASSERT(tl::IsRelocatableHeapType<Key>::result,
+                          "Key type must be relocatable");
+        MOZ_STATIC_ASSERT(tl::IsRelocatableHeapType<Value>::result,
+                          "Value type must be relocatable");
+    }
+
     bool init(uint32_t len = 16)                      { return impl.init(len); }
     bool initialized() const                          { return impl.initialized(); }
 
@@ -83,6 +93,10 @@ class HashMap
     // Also see the definition of Ptr in HashTable above (with T = Entry).
     typedef typename Impl::Ptr Ptr;
     Ptr lookup(const Lookup &l) const                 { return impl.lookup(l); }
+
+    // Like lookup, but does not assert if two threads call lookup at the same
+    // time. Only use this method when none of the threads will modify the map.
+    Ptr readonlyThreadsafeLookup(const Lookup &l) const { return impl.readonlyThreadsafeLookup(l); }
 
     // Assuming |p.found()|, remove |*p|.
     void remove(Ptr p)                                { impl.remove(p); }
@@ -170,6 +184,9 @@ class HashMap
     // using the finish() method.
     void clear()                                      { impl.clear(); }
 
+    // Remove all entries without triggering destructors. This method is unsafe.
+    void clearWithoutCallingDestructors()             { impl.clearWithoutCallingDestructors(); }
+
     // Remove all the entries and release all internal buffers. The map must
     // be initialized again before any use.
     void finish()                                     { impl.finish(); }
@@ -236,15 +253,16 @@ class HashMap
             remove(p);
     }
 
+    // HashMap is movable
+    HashMap(MoveRef<HashMap> rhs) : impl(Move(rhs->impl)) {}
+    void operator=(MoveRef<HashMap> rhs) { impl = Move(rhs->impl); }
+
   private:
-    // Not implicitly copyable (expensive). May add explicit |clone| later.
+    // HashMap is not copyable or assignable
     HashMap(const HashMap &hm) MOZ_DELETE;
     HashMap &operator=(const HashMap &hm) MOZ_DELETE;
 
     friend class Impl::Enum;
-
-    typedef typename tl::StaticAssert<tl::IsRelocatableHeapType<Key>::result>::result keyAssert;
-    typedef typename tl::StaticAssert<tl::IsRelocatableHeapType<Value>::result>::result valAssert;
 };
 
 /*****************************************************************************/
@@ -285,7 +303,11 @@ class HashSet
 
     // HashSet construction is fallible (due to OOM); thus the user must call
     // init after constructing a HashSet and check the return value.
-    HashSet(AllocPolicy a = AllocPolicy()) : impl(a)  {}
+    HashSet(AllocPolicy a = AllocPolicy()) : impl(a)
+    {
+        MOZ_STATIC_ASSERT(tl::IsRelocatableHeapType<T>::result,
+                          "Set element type must be relocatable");
+    }
     bool init(uint32_t len = 16)                      { return impl.init(len); }
     bool initialized() const                          { return impl.initialized(); }
 
@@ -426,14 +448,16 @@ class HashSet
             remove(p);
     }
 
+    // HashSet is movable
+    HashSet(MoveRef<HashSet> rhs) : impl(Move(rhs->impl)) {}
+    void operator=(MoveRef<HashSet> rhs) { impl = Move(rhs->impl); }
+
   private:
-    // Not implicitly copyable (expensive). May add explicit |clone| later.
+    // HashSet is not copyable or assignable
     HashSet(const HashSet &hs) MOZ_DELETE;
     HashSet &operator=(const HashSet &hs) MOZ_DELETE;
 
     friend class Impl::Enum;
-
-    typedef typename tl::StaticAssert<tl::IsRelocatableHeapType<T>::result>::result _;
 };
 
 /*****************************************************************************/
@@ -470,7 +494,7 @@ struct PointerHasher
 {
     typedef Key Lookup;
     static HashNumber hash(const Lookup &l) {
-        JS_ASSERT(!js::IsPoisonedPtr(l));
+        JS_ASSERT(!JS::IsPoisonedPtr(l));
         size_t word = reinterpret_cast<size_t>(l) >> zeroBits;
         JS_STATIC_ASSERT(sizeof(HashNumber) == 4);
 #if JS_BYTES_PER_WORD == 4
@@ -481,8 +505,8 @@ struct PointerHasher
 #endif
     }
     static bool match(const Key &k, const Lookup &l) {
-        JS_ASSERT(!js::IsPoisonedPtr(k));
-        JS_ASSERT(!js::IsPoisonedPtr(l));
+        JS_ASSERT(!JS::IsPoisonedPtr(k));
+        JS_ASSERT(!JS::IsPoisonedPtr(l));
         return k == l;
     }
 };
@@ -511,6 +535,28 @@ template <class T>
 struct DefaultHasher<T *> : PointerHasher<T *, tl::FloorLog2<sizeof(void *)>::result>
 {};
 
+// For doubles, we can xor the two uint32s.
+template <>
+struct DefaultHasher<double>
+{
+    typedef double Lookup;
+    static HashNumber hash(double d) {
+        JS_STATIC_ASSERT(sizeof(HashNumber) == 4);
+        union {
+            struct {
+                uint32_t lo;
+                uint32_t hi;
+            } s;
+            double d;
+        } u;
+        u.d = d;
+        return u.s.lo ^ u.s.hi;
+    }
+    static bool match(double lhs, double rhs) {
+        return lhs == rhs;
+    }
+};
+
 /*****************************************************************************/
 
 // Both HashMap and HashSet are implemented by a single HashTable that is even
@@ -538,20 +584,21 @@ class HashMapEntry
     Value value;
 };
 
-namespace tl {
+} // namespace js
 
-template <class T>
-struct IsPodType<detail::HashTableEntry<T> > {
-    static const bool result = IsPodType<T>::result;
-};
+namespace mozilla {
 
-template <class K, class V>
-struct IsPodType<HashMapEntry<K, V> >
-{
-    static const bool result = IsPodType<K>::result && IsPodType<V>::result;
-};
+template <typename T>
+struct IsPod<js::detail::HashTableEntry<T> > : IsPod<T> {};
 
-} // namespace tl
+template <typename K, typename V>
+struct IsPod<js::HashMapEntry<K, V> >
+  : IntegralConstant<bool, IsPod<K>::value && IsPod<V>::value>
+{};
+
+} // namespace mozilla
+
+namespace js {
 
 namespace detail {
 
@@ -606,6 +653,7 @@ class HashTableEntry
     bool isFree() const    { return keyHash == sFreeKey; }
     void clearLive()       { JS_ASSERT(isLive()); keyHash = sFreeKey; mem.addr()->~T(); }
     void clear()           { if (isLive()) mem.addr()->~T(); keyHash = sFreeKey; }
+    void clearNoDtor()     { keyHash = sFreeKey; }
     bool isRemoved() const { return keyHash == sRemovedKey; }
     void removeLive()      { JS_ASSERT(isLive()); keyHash = sRemovedKey; mem.addr()->~T(); }
     bool isLive() const    { return isLiveHash(keyHash); }
@@ -646,26 +694,26 @@ class HashTable : private AllocPolicy
         typedef void (Ptr::* ConvertibleToBool)();
         void nonNull() {}
 
-        Entry *entry;
+        Entry *entry_;
 
       protected:
-        Ptr(Entry &entry) : entry(&entry) {}
+        Ptr(Entry &entry) : entry_(&entry) {}
 
       public:
         // Leaves Ptr uninitialized.
         Ptr() {
 #ifdef DEBUG
-            entry = (Entry *)0xbad;
+            entry_ = (Entry *)0xbad;
 #endif
         }
 
-        bool found() const                    { return entry->isLive(); }
+        bool found() const                    { return entry_->isLive(); }
         operator ConvertibleToBool() const    { return found() ? &Ptr::nonNull : 0; }
-        bool operator==(const Ptr &rhs) const { JS_ASSERT(found() && rhs.found()); return entry == rhs.entry; }
+        bool operator==(const Ptr &rhs) const { JS_ASSERT(found() && rhs.found()); return entry_ == rhs.entry_; }
         bool operator!=(const Ptr &rhs) const { return !(*this == rhs); }
 
-        T &operator*() const                  { return entry->get(); }
-        T *operator->() const                 { return &entry->get(); }
+        T &operator*() const                  { return entry_->get(); }
+        T *operator->() const                 { return &entry_->get(); }
     };
 
     // A Ptr that can be used to add a key after a failed lookup.
@@ -721,11 +769,9 @@ class HashTable : private AllocPolicy
 
     // A Range whose lifetime delimits a mutating enumeration of a hash table.
     // Since rehashing when elements were removed during enumeration would be
-    // bad, it is postponed until |endEnumeration()| is called. If
-    // |endEnumeration()| is not called before an Enum's constructor, it will
-    // be called automatically. Since |endEnumeration()| touches the hash
-    // table, the user must ensure that the hash table is still alive when this
-    // happens.
+    // bad, it is postponed until the Enum is destructed.  Since the Enum's
+    // destructor touches the hash table, the user must ensure that the hash
+    // table is still alive when the destructor runs.
     class Enum : public Range
     {
         friend class HashTable;
@@ -773,12 +819,34 @@ class HashTable : private AllocPolicy
 
         // Potentially rehashes the table.
         ~Enum() {
-            if (rekeyed)
+            if (rekeyed) {
+                table.gen++;
                 table.checkOverRemoved();
+            }
+
             if (removed)
-                table.checkUnderloaded();
+                table.compactIfUnderloaded();
         }
     };
+
+    // HashTable is movable
+    HashTable(MoveRef<HashTable> rhs)
+      : AllocPolicy(*rhs)
+    {
+        PodAssign(this, &*rhs);
+        rhs->table = NULL;
+    }
+    void operator=(MoveRef<HashTable> rhs) {
+        if (table)
+            destroyTable(*this, table, capacity());
+        PodAssign(this, &*rhs);
+        rhs->table = NULL;
+    }
+
+  private:
+    // HashTable is not copyable or assignable
+    HashTable(const HashTable &) MOZ_DELETE;
+    void operator=(const HashTable &) MOZ_DELETE;
 
   private:
     uint32_t    hashShift;      // multiplicative hash shift
@@ -816,9 +884,10 @@ class HashTable : private AllocPolicy
     mutable mozilla::DebugOnly<bool> entered;
     mozilla::DebugOnly<uint64_t>     mutationCount;
 
-    // The default initial capacity is 16, but you can ask for as small as 4.
-    static const unsigned sMinSizeLog2  = 2;
-    static const unsigned sMinSize      = 1 << sMinSizeLog2;
+    // The default initial capacity is 32 (enough to hold 16 elements), but it
+    // can be as low as 4.
+    static const unsigned sMinCapacityLog2 = 2;
+    static const unsigned sMinCapacity  = 1 << sMinCapacityLog2;
     static const unsigned sMaxInit      = JS_BIT(23);
     static const unsigned sMaxCapacity  = JS_BIT(24);
     static const unsigned sHashBits     = tl::BitSize<HashNumber>::result;
@@ -887,22 +956,22 @@ class HashTable : private AllocPolicy
             this->reportAllocOverflow();
             return false;
         }
-        uint32_t capacity = (length * sInvMaxAlpha) >> 7;
+        uint32_t newCapacity = (length * sInvMaxAlpha) >> 7;
 
-        if (capacity < sMinSize)
-            capacity = sMinSize;
+        if (newCapacity < sMinCapacity)
+            newCapacity = sMinCapacity;
 
         // FIXME: use JS_CEILING_LOG2 when PGO stops crashing (bug 543034).
-        uint32_t roundUp = sMinSize, roundUpLog2 = sMinSizeLog2;
-        while (roundUp < capacity) {
+        uint32_t roundUp = sMinCapacity, roundUpLog2 = sMinCapacityLog2;
+        while (roundUp < newCapacity) {
             roundUp <<= 1;
             ++roundUpLog2;
         }
 
-        capacity = roundUp;
-        JS_ASSERT(capacity <= sMaxCapacity);
+        newCapacity = roundUp;
+        JS_ASSERT(newCapacity <= sMaxCapacity);
 
-        table = createTable(*this, capacity);
+        table = createTable(*this, newCapacity);
         if (!table)
             return false;
 
@@ -954,11 +1023,15 @@ class HashTable : private AllocPolicy
         return entryCount + removedCount >= ((sMaxAlphaFrac * capacity()) >> 8);
     }
 
+    // Would the table be underloaded if it had the given capacity and entryCount?
+    static bool wouldBeUnderloaded(uint32_t capacity, uint32_t entryCount)
+    {
+        return capacity > sMinCapacity && entryCount <= ((sMinAlphaFrac * capacity) >> 8);
+    }
+
     bool underloaded()
     {
-        uint32_t tableCapacity = capacity();
-        return tableCapacity > sMinSize &&
-               entryCount <= ((sMinAlphaFrac * tableCapacity) >> 8);
+        return wouldBeUnderloaded(capacity(), entryCount);
     }
 
     static bool match(Entry &e, const Lookup &l)
@@ -1122,9 +1195,8 @@ class HashTable : private AllocPolicy
     void checkOverRemoved()
     {
         if (overloaded()) {
-            METER(stats.rehashes++);
-            rehashTable();
-            JS_ASSERT(!overloaded());
+            if (checkOverloaded() == RehashFailed)
+                rehashTableInPlace();
         }
     }
 
@@ -1152,13 +1224,31 @@ class HashTable : private AllocPolicy
         }
     }
 
+    // Resize the table down to the largest capacity which doesn't underload the
+    // table.  Since we call checkUnderloaded() on every remove, you only need
+    // to call this after a bulk removal of items done without calling remove().
+    void compactIfUnderloaded()
+    {
+        int32_t resizeLog2 = 0;
+        uint32_t newCapacity = capacity();
+        while (wouldBeUnderloaded(newCapacity, entryCount)) {
+            newCapacity = newCapacity >> 1;
+            resizeLog2--;
+        }
+
+        if (resizeLog2 != 0) {
+            changeTableSize(resizeLog2);
+        }
+    }
+
     // This is identical to changeTableSize(currentSize), but without requiring
     // a second table.  We do this by recycling the collision bits to tell us if
     // the element is already inserted or still waiting to be inserted.  Since
     // already-inserted elements win any conflicts, we get the same table as we
     // would have gotten through random insertion order.
-    void rehashTable()
+    void rehashTableInPlace()
     {
+        METER(stats.rehashes++);
         removedCount = 0;
         for (size_t i = 0; i < capacity(); ++i)
             table[i].unsetCollision();
@@ -1197,12 +1287,26 @@ class HashTable : private AllocPolicy
   public:
     void clear()
     {
-        if (tl::IsPodType<Entry>::result) {
+        if (mozilla::IsPod<Entry>::value) {
             memset(table, 0, sizeof(*table) * capacity());
         } else {
             uint32_t tableCapacity = capacity();
             for (Entry *e = table, *end = table + tableCapacity; e < end; ++e)
                 e->clear();
+        }
+        removedCount = 0;
+        entryCount = 0;
+        mutationCount++;
+    }
+
+    void clearWithoutCallingDestructors()
+    {
+        if (mozilla::IsPod<Entry>::value) {
+            memset(table, 0, sizeof(*table) * capacity());
+        } else {
+            uint32_t tableCapacity = capacity();
+            for (Entry *e = table, *end = table + tableCapacity; e < end; ++e)
+                e->clearNoDtor();
         }
         removedCount = 0;
         entryCount = 0;
@@ -1271,6 +1375,12 @@ class HashTable : private AllocPolicy
         return Ptr(lookup(l, keyHash, 0));
     }
 
+    Ptr readonlyThreadsafeLookup(const Lookup &l) const
+    {
+        HashNumber keyHash = prepareHash(l);
+        return Ptr(lookup(l, keyHash, 0));
+    }
+
     AddPtr lookupForAdd(const Lookup &l) const
     {
         ReentrancyGuard g(*this);
@@ -1292,20 +1402,20 @@ class HashTable : private AllocPolicy
 
         // Changing an entry from removed to live does not affect whether we
         // are overloaded and can be handled separately.
-        if (p.entry->isRemoved()) {
+        if (p.entry_->isRemoved()) {
             METER(stats.addOverRemoved++);
             removedCount--;
             p.keyHash |= sCollisionBit;
         } else {
-            // Preserve the validity of |p.entry|.
+            // Preserve the validity of |p.entry_|.
             RebuildStatus status = checkOverloaded();
             if (status == RehashFailed)
                 return false;
             if (status == Rehashed)
-                p.entry = &findFreeEntry(p.keyHash);
+                p.entry_ = &findFreeEntry(p.keyHash);
         }
 
-        p.entry->setLive(p.keyHash, rhs);
+        p.entry_->setLive(p.keyHash, rhs);
         entryCount++;
         mutationCount++;
         return true;
@@ -1346,7 +1456,7 @@ class HashTable : private AllocPolicy
         p.mutationCount = mutationCount;
         {
             ReentrancyGuard g(*this);
-            p.entry = &lookup(l, p.keyHash, sCollisionBit);
+            p.entry_ = &lookup(l, p.keyHash, sCollisionBit);
         }
         return p.found() || add(p, u);
     }
@@ -1356,7 +1466,7 @@ class HashTable : private AllocPolicy
         JS_ASSERT(table);
         ReentrancyGuard g(*this);
         JS_ASSERT(p.found());
-        remove(*p.entry);
+        remove(*p.entry_);
         checkUnderloaded();
     }
 
