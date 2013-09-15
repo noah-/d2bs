@@ -127,8 +127,8 @@ JSAPI_PROP(unit_getProperty)
 			//*vp = *p_D2CLIENT_AutomapOn;
 			break;
 		case ME_LADDER:
-			if(pData)
-				vp.setBoolean(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
+			if(pData)														// 8 = char created for ladder but expired to non-ladder
+				vp.setBoolean(!!(pData->nCharFlags & PLAYER_TYPE_LADDER) && !(pData->nCharFlags & 8));
 			break;
 		case ME_QUITONHOSTILE:
 			vp.setBoolean(Vars.bQuitOnHostile);
