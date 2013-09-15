@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * vim: set ts=8 sw=4 et tw=99 ft=cpp:
+ * vim: set ts=4 sw=4 et tw=99 ft=cpp:
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #define jsvector_h_
 
 #include "mozilla/Attributes.h"
+#include "mozilla/TypeTraits.h"
 
 #include "TemplateLib.h"
 #include "Utility.h"
@@ -29,8 +30,21 @@ template <class T,
 class Vector;
 
 /*
+ * Check that the given capacity wastes the minimal amount of space if
+ * allocated on the heap.  This means that cap*sizeof(T) is as close to a
+ * power-of-two as possible.  growStorageBy() is responsible for ensuring
+ * this.
+ */
+template <typename T>
+static bool CapacityHasExcessSpace(size_t cap)
+{
+    size_t size = cap * sizeof(T);
+    return RoundUpPow2(size) - size >= sizeof(T);
+}
+
+/*
  * This template class provides a default implementation for vector operations
- * when the element type is not known to be a POD, as judged by IsPodType.
+ * when the element type is not known to be a POD, as judged by IsPod.
  */
 template <class T, size_t N, class AP, bool IsPod>
 struct VectorImpl
@@ -78,14 +92,15 @@ struct VectorImpl
     }
 
     /*
-     * Grows the given buffer to have capacity newcap, preserving the objects
+     * Grows the given buffer to have capacity newCap, preserving the objects
      * constructed in the range [begin, end) and updating v. Assumes that (1)
-     * newcap has not overflowed, and (2) multiplying newcap by sizeof(T) will
+     * newCap has not overflowed, and (2) multiplying newCap by sizeof(T) will
      * not overflow.
      */
-    static inline bool growTo(Vector<T,N,AP> &v, size_t newcap) {
+    static inline bool growTo(Vector<T,N,AP> &v, size_t newCap) {
         JS_ASSERT(!v.usingInlineStorage());
-        T *newbuf = reinterpret_cast<T *>(v.malloc_(newcap * sizeof(T)));
+        JS_ASSERT(!CapacityHasExcessSpace<T>(newCap));
+        T *newbuf = reinterpret_cast<T *>(v.malloc_(newCap * sizeof(T)));
         if (!newbuf)
             return false;
         for (T *dst = newbuf, *src = v.beginNoCheck(); src != v.endNoCheck(); ++dst, ++src)
@@ -94,7 +109,7 @@ struct VectorImpl
         v.free_(v.mBegin);
         v.mBegin = newbuf;
         /* v.mLength is unchanged. */
-        v.mCapacity = newcap;
+        v.mCapacity = newCap;
         return true;
     }
 };
@@ -102,7 +117,7 @@ struct VectorImpl
 /*
  * This partial template specialization provides a default implementation for
  * vector operations when the element type is known to be a POD, as judged by
- * IsPodType.
+ * IsPod.
  */
 template <class T, size_t N, class AP>
 struct VectorImpl<T, N, AP, true>
@@ -145,16 +160,17 @@ struct VectorImpl<T, N, AP, true>
             *p = t;
     }
 
-    static inline bool growTo(Vector<T,N,AP> &v, size_t newcap) {
+    static inline bool growTo(Vector<T,N,AP> &v, size_t newCap) {
         JS_ASSERT(!v.usingInlineStorage());
-        size_t bytes = sizeof(T) * newcap;
-        size_t oldBytes = sizeof(T) * v.mCapacity;
-        T *newbuf = reinterpret_cast<T *>(v.realloc_(v.mBegin, oldBytes, bytes));
+        JS_ASSERT(!CapacityHasExcessSpace<T>(newCap));
+        size_t oldSize = sizeof(T) * v.mCapacity;
+        size_t newSize = sizeof(T) * newCap;
+        T *newbuf = reinterpret_cast<T *>(v.realloc_(v.mBegin, oldSize, newSize));
         if (!newbuf)
             return false;
         v.mBegin = newbuf;
         /* v.mLength is unchanged. */
-        v.mCapacity = newcap;
+        v.mCapacity = newCap;
         return true;
     }
 };
@@ -184,14 +200,12 @@ class Vector : private AllocPolicy
 
     /* utilities */
 
-    static const bool sElemIsPod = tl::IsPodType<T>::result;
+    static const bool sElemIsPod = mozilla::IsPod<T>::value;
     typedef VectorImpl<T, N, AllocPolicy, sElemIsPod> Impl;
     friend struct VectorImpl<T, N, AllocPolicy, sElemIsPod>;
 
-    bool calculateNewCapacity(size_t curLength, size_t lengthInc, size_t &newCap);
-    bool growStorageBy(size_t lengthInc);
-    bool growHeapStorageBy(size_t lengthInc);
-    bool convertToHeapStorage(size_t lengthInc);
+    bool growStorageBy(size_t incr);
+    bool convertToHeapStorage(size_t newCap);
 
     template <bool InitNewElems> inline bool growByImpl(size_t inc);
 
@@ -283,7 +297,7 @@ class Vector : private AllocPolicy
 #endif
 
     /* Append operations guaranteed to succeed due to pre-reserved space. */
-    template <class U> void internalAppend(U t);
+    template <class U> void internalAppend(U u);
     void internalAppendN(const T &t, size_t n);
     template <class U> void internalAppend(const U *begin, size_t length);
     template <class U, size_t O, class BP> void internalAppend(const Vector<U,O,BP> &other);
@@ -364,15 +378,15 @@ class Vector : private AllocPolicy
 
     class Range {
         friend class Vector;
-        T *cur, *end;
-        Range(T *cur, T *end) : cur(cur), end(end) {}
+        T *cur_, *end_;
+        Range(T *cur, T *end) : cur_(cur), end_(end) {}
       public:
         Range() {}
-        bool empty() const { return cur == end; }
-        size_t remain() const { return end - cur; }
-        T &front() const { return *cur; }
-        void popFront() { JS_ASSERT(!empty()); ++cur; }
-        T popCopyFront() { JS_ASSERT(!empty()); return *cur++; }
+        bool empty() const { return cur_ == end_; }
+        size_t remain() const { return end_ - cur_; }
+        T &front() const { return *cur_; }
+        void popFront() { JS_ASSERT(!empty()); ++cur_; }
+        T popCopyFront() { JS_ASSERT(!empty()); return *cur_++; }
     };
 
     Range all() {
@@ -381,8 +395,11 @@ class Vector : private AllocPolicy
 
     /* mutators */
 
+    /* Given that the Vector is empty and has no inline storage, grow to |capacity|. */
+    bool initCapacity(size_t request);
+
     /* If reserve(length() + N) succeeds, the N next appends are guaranteed to succeed. */
-    bool reserve(size_t capacity);
+    bool reserve(size_t request);
 
     /*
      * Destroy elements in the range [end() - incr, end()). Does not deallocate
@@ -406,6 +423,9 @@ class Vector : private AllocPolicy
     /* Clears and releases any heap-allocated storage. */
     void clearAndFree();
 
+    /* If true, appending |needed| elements will not call realloc(). */
+    bool canAppendWithoutRealloc(size_t needed) const;
+
     /*
      * Potentially fallible append operations.
      *
@@ -424,17 +444,17 @@ class Vector : private AllocPolicy
      * Guaranteed-infallible append operations for use upon vectors whose
      * memory has been pre-reserved.
      */
-    void infallibleAppend(const T &t) {
-        internalAppend(t);
+    template <class U> void infallibleAppend(const U &u) {
+        internalAppend(u);
     }
     void infallibleAppendN(const T &t, size_t n) {
         internalAppendN(t, n);
     }
-    template <class U> void infallibleAppend(const U *begin, const U *end) {
-        internalAppend(begin, mozilla::PointerRangeSize(begin, end));
+    template <class U> void infallibleAppend(const U *aBegin, const U *aEnd) {
+        internalAppend(aBegin, mozilla::PointerRangeSize(aBegin, aEnd));
     }
-    template <class U> void infallibleAppend(const U *begin, size_t length) {
-        internalAppend(begin, length);
+    template <class U> void infallibleAppend(const U *aBegin, size_t aLength) {
+        internalAppend(aBegin, aLength);
     }
     template <class U, size_t O, class BP> void infallibleAppend(const Vector<U,O,BP> &other) {
         internalAppend(other);
@@ -462,10 +482,19 @@ class Vector : private AllocPolicy
     void replaceRawBuffer(T *p, size_t length);
 
     /*
-     * Places |val| at position |p|, shifting existing elements
-     * from |p| onward one position higher.
+     * Places |val| at position |p|, shifting existing elements from |p|
+     * onward one position higher.  On success, |p| should not be reused
+     * because it will be a dangling pointer if reallocation of the vector
+     * storage occurred;  the return value should be used instead.  On failure,
+     * NULL is returned.
+     *
+     * Example usage:
+     *
+     *   if (!(p = vec.insert(p, val)))
+     *       <handle failure>
+     *   <keep working with p>
      */
-    bool insert(T *p, const T &val);
+    T *insert(T *p, const T &val);
 
     /*
      * Removes the element |t|, which must fall in the bounds [begin, end),
@@ -503,7 +532,7 @@ Vector<T,N,AllocPolicy>::Vector(AllocPolicy ap)
   : AllocPolicy(ap), mBegin((T *)storage.addr()), mLength(0),
     mCapacity(sInlineCapacity)
 #ifdef DEBUG
-  , mReserved(0), entered(false)
+  , mReserved(sInlineCapacity), entered(false)
 #endif
 {}
 
@@ -540,7 +569,7 @@ Vector<T, N, AllocPolicy>::Vector(MoveRef<Vector> rhs)
         rhs->mCapacity = sInlineCapacity;
         rhs->mLength = 0;
 #ifdef DEBUG
-        rhs->mReserved = 0;
+        rhs->mReserved = sInlineCapacity;
 #endif
     }
 }
@@ -567,75 +596,18 @@ Vector<T,N,AP>::~Vector()
 }
 
 /*
- * Calculate a new capacity that is at least lengthInc greater than
- * curLength and check for overflow.
- */
-template <class T, size_t N, class AP>
-STATIC_POSTCONDITION(!return || newCap >= curLength + lengthInc)
-#ifdef DEBUG
-/* gcc (ARM, x86) compiler bug workaround - See bug 694694 */
-JS_NEVER_INLINE bool
-#else
-inline bool
-#endif
-Vector<T,N,AP>::calculateNewCapacity(size_t curLength, size_t lengthInc,
-                                     size_t &newCap)
-{
-    size_t newMinCap = curLength + lengthInc;
-
-    /*
-     * Check for overflow in the above addition, below CEILING_LOG2, and later
-     * multiplication by sizeof(T).
-     */
-    if (newMinCap < curLength ||
-        newMinCap & tl::MulOverflowMask<2 * sizeof(T)>::result) {
-        this->reportAllocOverflow();
-        return false;
-    }
-
-    /* Round up to next power of 2. */
-    newCap = RoundUpPow2(newMinCap);
-
-    /*
-     * Do not allow a buffer large enough that the expression ((char *)end() -
-     * (char *)begin()) overflows ptrdiff_t. See Bug 510319.
-     */
-    if (newCap & tl::UnsafeRangeSizeMask<T>::result) {
-        this->reportAllocOverflow();
-        return false;
-    }
-    return true;
-}
-
-/*
- * This function will grow the current heap capacity to have capacity
- * (mLength + lengthInc) and fail on OOM or integer overflow.
- */
-template <class T, size_t N, class AP>
-JS_ALWAYS_INLINE bool
-Vector<T,N,AP>::growHeapStorageBy(size_t lengthInc)
-{
-    JS_ASSERT(!usingInlineStorage());
-    size_t newCap;
-    return calculateNewCapacity(mLength, lengthInc, newCap) &&
-           Impl::growTo(*this, newCap);
-}
-
-/*
- * This function will create a new heap buffer with capacity (mLength +
- * lengthInc()), move all elements in the inline buffer to this new buffer,
- * and fail on OOM or integer overflow.
+ * This function will create a new heap buffer with capacity newCap,
+ * move all elements in the inline buffer to this new buffer,
+ * and fail on OOM.
  */
 template <class T, size_t N, class AP>
 inline bool
-Vector<T,N,AP>::convertToHeapStorage(size_t lengthInc)
+Vector<T,N,AP>::convertToHeapStorage(size_t newCap)
 {
     JS_ASSERT(usingInlineStorage());
-    size_t newCap;
-    if (!calculateNewCapacity(mLength, lengthInc, newCap))
-        return false;
 
     /* Allocate buffer. */
+    JS_ASSERT(!CapacityHasExcessSpace<T>(newCap));
     T *newBuf = reinterpret_cast<T *>(this->malloc_(newCap * sizeof(T)));
     if (!newBuf)
         return false;
@@ -656,9 +628,97 @@ JS_NEVER_INLINE bool
 Vector<T,N,AP>::growStorageBy(size_t incr)
 {
     JS_ASSERT(mLength + incr > mCapacity);
-    return usingInlineStorage()
-         ? convertToHeapStorage(incr)
-         : growHeapStorageBy(incr);
+    JS_ASSERT_IF(!usingInlineStorage(), !CapacityHasExcessSpace<T>(mCapacity));
+
+    /*
+     * When choosing a new capacity, its size should is as close to 2^N bytes
+     * as possible.  2^N-sized requests are best because they are unlikely to
+     * be rounded up by the allocator.  Asking for a 2^N number of elements
+     * isn't as good, because if sizeof(T) is not a power-of-two that would
+     * result in a non-2^N request size.
+     */
+
+    size_t newCap;
+
+    if (incr == 1) {
+        if (usingInlineStorage()) {
+            /* This case occurs in ~70--80% of the calls to this function. */
+            size_t newSize = tl::RoundUpPow2<(sInlineCapacity + 1) * sizeof(T)>::result;
+            newCap = newSize / sizeof(T);
+            goto convert;
+        }
+
+        if (mLength == 0) {
+            /* This case occurs in ~0--10% of the calls to this function. */
+            newCap = 1;
+            goto grow;
+        }
+
+        /* This case occurs in ~15--20% of the calls to this function. */
+
+        /*
+         * Will mLength*4*sizeof(T) overflow?  This condition limits a Vector
+         * to 1GB of memory on a 32-bit system, which is a reasonable limit.
+         * It also ensures that the ((char *)end() - (char *)begin()) does not
+         * overflow ptrdiff_t (see Bug 510319).
+         */
+        if (mLength & tl::MulOverflowMask<4 * sizeof(T)>::result) {
+            this->reportAllocOverflow();
+            return false;
+        }
+
+        /*
+         * If we reach here, the existing capacity will have a size that is
+         * already as close to 2^N as sizeof(T) will allow.  Just double the
+         * capacity, and then there might be space for one more element.
+         */
+        newCap = mLength * 2;
+        if (CapacityHasExcessSpace<T>(newCap))
+            newCap += 1;
+
+    } else {
+        /* This case occurs in ~2% of the calls to this function. */
+        size_t newMinCap = mLength + incr;
+
+        /* Did mLength+incr overflow?  Will newCap*sizeof(T) overflow? */
+        if (newMinCap < mLength ||
+            newMinCap & tl::MulOverflowMask<2 * sizeof(T)>::result)
+        {
+            this->reportAllocOverflow();
+            return false;
+        }
+
+        size_t newMinSize = newMinCap * sizeof(T);
+        size_t newSize = RoundUpPow2(newMinSize);
+        newCap = newSize / sizeof(T);
+    }
+
+    if (usingInlineStorage()) {
+      convert:
+        return convertToHeapStorage(newCap);
+    }
+
+  grow:
+    return Impl::growTo(*this, newCap);
+}
+
+template <class T, size_t N, class AP>
+inline bool
+Vector<T,N,AP>::initCapacity(size_t request)
+{
+    JS_ASSERT(empty());
+    JS_ASSERT(usingInlineStorage());
+    if (request == 0)
+        return true;
+    T *newbuf = reinterpret_cast<T *>(this->malloc_(request * sizeof(T)));
+    if (!newbuf)
+        return false;
+    mBegin = newbuf;
+    mCapacity = request;
+#ifdef DEBUG
+    mReserved = request;
+#endif
+    return true;
 }
 
 template <class T, size_t N, class AP>
@@ -768,8 +828,15 @@ Vector<T,N,AP>::clearAndFree()
     mBegin = (T *)storage.addr();
     mCapacity = sInlineCapacity;
 #ifdef DEBUG
-    mReserved = 0;
+    mReserved = sInlineCapacity;
 #endif
+}
+
+template <class T, size_t N, class AP>
+inline bool
+Vector<T,N,AP>::canAppendWithoutRealloc(size_t needed) const
+{
+    return mLength + needed <= mCapacity;
 }
 
 template <class T, size_t N, class AP>
@@ -792,11 +859,11 @@ Vector<T,N,AP>::append(U t)
 template <class T, size_t N, class AP>
 template <class U>
 JS_ALWAYS_INLINE void
-Vector<T,N,AP>::internalAppend(U t)
+Vector<T,N,AP>::internalAppend(U u)
 {
     JS_ASSERT(mLength + 1 <= mReserved);
     JS_ASSERT(mReserved <= mCapacity);
-    new(endNoCheck()) T(t);
+    new(endNoCheck()) T(u);
     ++mLength;
 }
 
@@ -827,24 +894,25 @@ Vector<T,N,AP>::internalAppendN(const T &t, size_t needed)
 }
 
 template <class T, size_t N, class AP>
-inline bool
+inline T *
 Vector<T,N,AP>::insert(T *p, const T &val)
 {
     JS_ASSERT(begin() <= p && p <= end());
     size_t pos = p - begin();
     JS_ASSERT(pos <= mLength);
     size_t oldLength = mLength;
-    if (pos == oldLength)
-        return append(val);
-    {
+    if (pos == oldLength) {
+        if (!append(val))
+            return NULL;
+    } else {
         T oldBack = back();
         if (!append(oldBack)) /* Dup the last element. */
-            return false;
+            return NULL;
+        for (size_t i = oldLength; i > pos; --i)
+            (*this)[i] = (*this)[i - 1];
+        (*this)[pos] = val;
     }
-    for (size_t i = oldLength; i > pos; --i)
-        (*this)[i] = (*this)[i - 1];
-    (*this)[pos] = val;
-    return true;
+    return begin() + pos;
 }
 
 template<typename T, size_t N, class AP>
@@ -880,12 +948,12 @@ Vector<T,N,AP>::append(const U *insBegin, const U *insEnd)
 template <class T, size_t N, class AP>
 template <class U>
 JS_ALWAYS_INLINE void
-Vector<T,N,AP>::internalAppend(const U *insBegin, size_t length)
+Vector<T,N,AP>::internalAppend(const U *insBegin, size_t insLength)
 {
-    JS_ASSERT(mLength + length <= mReserved);
+    JS_ASSERT(mLength + insLength <= mReserved);
     JS_ASSERT(mReserved <= mCapacity);
-    Impl::copyConstruct(endNoCheck(), insBegin, insBegin + length);
-    mLength += length;
+    Impl::copyConstruct(endNoCheck(), insBegin, insBegin + insLength);
+    mLength += insLength;
 }
 
 template <class T, size_t N, class AP>
@@ -907,9 +975,9 @@ Vector<T,N,AP>::internalAppend(const Vector<U,O,BP> &other)
 template <class T, size_t N, class AP>
 template <class U>
 JS_ALWAYS_INLINE bool
-Vector<T,N,AP>::append(const U *insBegin, size_t length)
+Vector<T,N,AP>::append(const U *insBegin, size_t insLength)
 {
-    return this->append(insBegin, insBegin + length);
+    return this->append(insBegin, insBegin + insLength);
 }
 
 template <class T, size_t N, class AP>
@@ -950,7 +1018,7 @@ Vector<T,N,AP>::extractRawBuffer()
         mLength = 0;
         mCapacity = sInlineCapacity;
 #ifdef DEBUG
-        mReserved = 0;
+        mReserved = sInlineCapacity;
 #endif
     }
     return ret;
@@ -958,7 +1026,7 @@ Vector<T,N,AP>::extractRawBuffer()
 
 template <class T, size_t N, class AP>
 inline void
-Vector<T,N,AP>::replaceRawBuffer(T *p, size_t length)
+Vector<T,N,AP>::replaceRawBuffer(T *p, size_t aLength)
 {
     REENTRANCY_GUARD_ET_AL;
 
@@ -968,25 +1036,25 @@ Vector<T,N,AP>::replaceRawBuffer(T *p, size_t length)
         this->free_(beginNoCheck());
 
     /* Take in the new buffer. */
-    if (length <= sInlineCapacity) {
+    if (aLength <= sInlineCapacity) {
         /*
          * We convert to inline storage if possible, even though p might
          * otherwise be acceptable.  Maybe this behaviour should be
          * specifiable with an argument to this function.
          */
         mBegin = (T *)storage.addr();
-        mLength = length;
+        mLength = aLength;
         mCapacity = sInlineCapacity;
-        Impl::moveConstruct(mBegin, p, p + length);
-        Impl::destroy(p, p + length);
+        Impl::moveConstruct(mBegin, p, p + aLength);
+        Impl::destroy(p, p + aLength);
         this->free_(p);
     } else {
         mBegin = p;
-        mLength = length;
-        mCapacity = length;
+        mLength = aLength;
+        mCapacity = aLength;
     }
 #ifdef DEBUG
-    mReserved = length;
+    mReserved = aLength;
 #endif
 }
 

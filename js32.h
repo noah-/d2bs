@@ -4,6 +4,7 @@
 #define XP_WIN
 
 #include "dependencies\include\jsapi.h"
+#include "dependencies\include\jsfriendapi.h"
 //#include "Exports.hpp"
 #include <vector>
 #include <io.h>

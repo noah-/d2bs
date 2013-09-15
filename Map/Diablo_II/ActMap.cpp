@@ -63,8 +63,8 @@ ActMap::ActMap(const Level* level)
 	if(!level->pRoom2First)
 		D2COMMON_InitLevel(const_cast<Level *> (level));
 
-	Room2* room = level->pRoom2First;	
-	cachedLevel = room->pLevel;
+	//Room2* room = level->pRoom2First;	//unused
+	//cachedLevel = room->pLevel;
 
 	posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
 	posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);

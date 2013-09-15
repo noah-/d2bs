@@ -1,5 +1,6 @@
 #include "ScriptEngine.h"
 #include "js32.h"
+
 //#include <cstdarg>
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)

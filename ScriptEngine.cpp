@@ -326,8 +326,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 					  JSOPTION_TYPE_INFERENCE|
 					  JSOPTION_ION|
 					  JSOPTION_VAROBJFIX|
-					  JSOPTION_ALLOW_XML|
-					  JSOPTION_MOAR_XML|
+					  JSOPTION_ASMJS|
 					  JSOPTION_STRICT);
 
 		//JS_SetGCZeal(cx, 2, 1);
