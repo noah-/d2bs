@@ -189,9 +189,9 @@ JSAPI_FUNC(filetools_readText)
 	}
 
 	// Convert to JSVAL cleanup and return
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	delete[] contents;
 	return JS_TRUE;
 }

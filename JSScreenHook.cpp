@@ -829,25 +829,25 @@ JSAPI_FUNC(automapToScreen)
 			if(!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y))
 				THROW_ERROR(cx, "Input has an x or y, but they aren't the correct type!");
 			int32 ix, iy;
-			JS_BeginRequest(cx);
+			// 22 JS_BeginRequest(cx);
 			if(JS_ValueToInt32(cx, x, &ix) == JS_FALSE || JS_ValueToInt32(cx, y, &iy))
 			{
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			}
-			JS_EndRequest(cx);
+			/* 22 JS_EndRequest(cx);*/
 			// convert the values
 			POINT result = {ix,iy};
 			AutomapToScreen(&result);
 			x = INT_TO_JSVAL(ix);
 			y = INT_TO_JSVAL(iy);
-			JS_BeginRequest(cx);
+			// 22 JS_BeginRequest(cx);
 			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
 			{
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 				THROW_ERROR(cx, "Failed to set x and/or y values");
 			}
-			JS_EndRequest(cx);
+			/* 22 JS_EndRequest(cx);*/
 			JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(arg));
 		}
 		else
@@ -859,13 +859,13 @@ JSAPI_FUNC(automapToScreen)
 		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 		{
 			int32 ix, iy;
-			JS_BeginRequest(cx);
+			// 22 JS_BeginRequest(cx);
 			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 			{
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			}
-			JS_EndRequest(cx);
+			/* 22 JS_EndRequest(cx);*/
 			// convert the values
 			POINT result = {ix,iy};
 			AutomapToScreen(&result);

@@ -5,7 +5,7 @@
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 
@@ -23,7 +23,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 			JS_SetPrivate(cx, obj, priv);
 		JS_RemoveObjectRoot(cx, &obj);
 	}
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	return obj;
 }
 JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName)

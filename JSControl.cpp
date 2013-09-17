@@ -31,7 +31,7 @@ JSAPI_PROP(control_getProperty)
 
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 
 	JSType a = JS_TypeOfValue(cx, ID);
 
@@ -96,7 +96,7 @@ JSAPI_PROP(control_getProperty)
 			vp.setNumber((double) ctrl->dwDisabled);
 			break;
 	}
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	return JS_TRUE;
 }
 
@@ -133,27 +133,27 @@ JSAPI_STRICT_PROP(control_setProperty)
 			if(vp.isInt32())
 			{
 				int32 nState;
-				JS_BeginRequest(cx);
+				// 22 JS_BeginRequest(cx);
 				if(!JS_ValueToECMAInt32(cx, vp.get(), &nState) || nState < 0 || nState > 3)
 				{
-					JS_EndRequest(cx);
+					/* 22 JS_EndRequest(cx);*/
 					THROW_ERROR(cx, "Invalid state value");
 				}
 				memset((void*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 			}
 			break;
 		case CONTROL_CURSORPOS:
 			if(vp.isInt32())
 			{
-				JS_BeginRequest(cx);
+				// 22 JS_BeginRequest(cx);
 				uint32 dwPos;
 				if(!JS_ValueToECMAUint32(cx, vp.get(), &dwPos))
 				{
-					JS_EndRequest(cx);
+					/* 22 JS_EndRequest(cx);*/
 					THROW_ERROR(cx, "Invalid cursor position value");
 				}
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 				memset((void*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;
@@ -226,10 +226,10 @@ JSAPI_FUNC(control_click)
 
 	if(argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
 	{
-		JS_BeginRequest(cx);
+		// 22 JS_BeginRequest(cx);
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &x);
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &y);
-		JS_EndRequest(cx);
+		/* 22 JS_EndRequest(cx);*/
 	}
 
 	clickControl(pControl, x, y);
@@ -286,7 +286,7 @@ JSAPI_FUNC(control_getText)
 
 	if(pControl->dwType != 4 || !pControl->pFirstText)
 		return JS_TRUE;
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	
@@ -304,7 +304,7 @@ JSAPI_FUNC(control_getText)
 
 		nArrayCount++;
 	}
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	return JS_TRUE;
 }
 
@@ -318,11 +318,11 @@ JSAPI_FUNC(my_getControl)
 
 	int32 nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
 	int32 *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	for(uintN i = 0; i < argc; i++)
 		if(JSVAL_IS_INT(JS_ARGV(cx, vp)[i]))
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[i], args[i]);
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 
 	Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
 	if(!pControl)
@@ -353,7 +353,7 @@ JSAPI_FUNC(my_getControls)
 	DWORD dwArrayCount = NULL;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	JS_AddRoot(cx, &pReturnArray);
 		for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
 		{
@@ -372,7 +372,7 @@ JSAPI_FUNC(my_getControls)
 		}		
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(cx, &pReturnArray);
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	return JS_TRUE;
 	
 }
