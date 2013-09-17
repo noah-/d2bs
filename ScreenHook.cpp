@@ -314,7 +314,7 @@ void Genhook::SetClickHandler(jsval handler)
 	//if(JSVAL_IS_FUNCTION(cx, handler))
 	//	JS_RemoveRoot(owner->GetContext(), &clicked);
 	//JS_SetContextThread(cx);
-	//JS_BeginRequest(cx);
+	//// 22 JS_BeginRequest(cx);
 	
 		clicked = handler;
 //	if(!JSVAL_IS_VOID(clicked))
@@ -322,12 +322,12 @@ void Genhook::SetClickHandler(jsval handler)
 //		if(JS_AddRoot(owner->GetContext(),&clicked) == JS_FALSE)
 //		{
 //			Unlock();
-//			JS_EndRequest(cx);
+//			/* 22 JS_EndRequest(cx);*/
 ////bob1.8.8			JS_ClearContextThread(cx);
 //			return;
 //		}
 //	}
-//	JS_EndRequest(cx);
+//	/* 22 JS_EndRequest(cx);*/
 	//JS_ClearContextThread(cx);
 	Unlock();
 }

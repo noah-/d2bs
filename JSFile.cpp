@@ -58,7 +58,7 @@ JSAPI_PROP(file_getProperty)
 	{
 		jsval ID;
 		JS_IdToValue(cx,id,&ID);
-		JS_BeginRequest(cx);
+		// 22 JS_BeginRequest(cx);
 		switch(JSVAL_TO_INT(ID))
 		{
 			case FILE_READABLE:
@@ -130,7 +130,7 @@ JSAPI_PROP(file_getProperty)
 				else vp.setInt32(0);
 				break;
 		}
-		JS_EndRequest(cx);
+		/* 22 JS_EndRequest(cx);*/
 	}
 	else
 		THROW_ERROR(cx, "Couldn't get file object");
@@ -332,14 +332,14 @@ JSAPI_FUNC(file_read)
 				JS_SET_RVAL(cx, vp, INT_TO_JSVAL(result[0]));
 			else
 			{
-				JS_BeginRequest(cx);
+				// 22 JS_BeginRequest(cx);
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 				JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(arr));
 				for(int i = 0; i < count; i++) {
 					jsval val = INT_TO_JSVAL(result[i]);
 					JS_SetElement(cx, arr, i, &val);
 				}
-				JS_EndRequest(cx);
+				/* 22 JS_EndRequest(cx);*/
 			}
 		}
 		else
@@ -390,7 +390,7 @@ JSAPI_FUNC(file_readAllLines)
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		JS_SET_RVAL(cx, vp,  OBJECT_TO_JSVAL(arr));
 		int i = 0;
-		JS_BeginRequest(cx);
+		// 22 JS_BeginRequest(cx);
 		while(!feof(fdata->fptr)) {
 			const char* line = readLine(fdata->fptr, fdata->locked);
 			if(!line)
@@ -399,7 +399,7 @@ JSAPI_FUNC(file_readAllLines)
 			JS_SetElement(cx, arr, i++, &val);
 			delete[] line;
 		}
-		JS_EndRequest(cx);
+		/* 22 JS_EndRequest(cx);*/
 	}
 	return JS_TRUE;
 }
@@ -437,9 +437,9 @@ JSAPI_FUNC(file_readAll)
 			delete[] contents;
 			THROW_ERROR(cx, _strerror("Read failed"));
 		}
-		JS_BeginRequest(cx);
+		// 22 JS_BeginRequest(cx);
 		JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
-		JS_EndRequest(cx);
+		/* 22 JS_EndRequest(cx);*/
 		delete[] contents;
 	}
 	return JS_TRUE;

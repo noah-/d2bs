@@ -350,7 +350,7 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 		result = WaitForSingleObject(Vars.eventSignal, 500);		
 		EnterCriticalSection(&Vars.cGameLoopSection);		
 		
-		if (result= WAIT_TIMEOUT)	
+		if (result == WAIT_TIMEOUT)	
 			return false;
 		
 		bool retval = (*(DWORD*) evt->arg4 );		

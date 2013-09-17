@@ -191,13 +191,13 @@ JSAPI_FUNC(my_createCharacter)
 	jschar* jsname= NULL;
 	int32 type = -1;
 	JSBool hc = JS_FALSE, ladder = JS_FALSE;
-	JS_BeginRequest(cx);
+	// 22 JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Wi/bb", &jsname, &type, &hc, &ladder))
 	{
-		JS_EndRequest(cx);
+		/* 22 JS_EndRequest(cx);*/
 		THROW_ERROR(cx, "Failed to Convert Args createCharacter");
 	}
-	JS_EndRequest(cx);
+	/* 22 JS_EndRequest(cx);*/
 	name = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder)));
