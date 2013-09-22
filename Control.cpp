@@ -110,9 +110,9 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 
 		if(Text && pControl->dwType == CONTROL_TEXTBOX)
 		{
-			if(pControl->pFirstText != NULL && pControl->pFirstText->wText != NULL)
+			if(pControl->pFirstText != NULL && pControl->pFirstText->wText[0] != NULL)
 			{
-				char* text2 = UnicodeToAnsi(pControl->pFirstText->wText);
+				char* text2 = UnicodeToAnsi(pControl->pFirstText->wText[0]);
 				if(!text2)
 					return NULL;
 				if(strstr(Text, text2) != 0)
@@ -199,7 +199,7 @@ BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder
 	// verify that the correct type got selected
 	ctrl = findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 0, 180, 800, 100);
 	wchar_t* name = D2LANG_GetLocaleText((WORD)locs[type][4]);
-	if(_wcsicmp(name, ctrl->pFirstText->wText) != 0)
+	if(_wcsicmp(name, ctrl->pFirstText->wText[0]) != 0)
 		return FALSE; // something bad happened?
 
 	// set the name
@@ -228,7 +228,7 @@ BOOL OOG_SelectCharacter(char* szCharacter)
 
 		if(cText != NULL)
 		{
-			char * szLine = UnicodeToAnsi(cText->wText);
+			char * szLine = UnicodeToAnsi(cText->wText[0]);
 			if(!szLine)
 				return FALSE;
 			if(strlen(szLine) == strlen(szCharacter) && strstr(szLine,szCharacter) != NULL)
@@ -317,7 +317,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 				cText = pControl->pFirstText;
 				while(cText)
 				{
-					char * szGatelist = UnicodeToAnsi(cText->wText);
+					char * szGatelist = UnicodeToAnsi(cText->wText[0]);
 					if(!szGatelist)
 						return FALSE;
 
