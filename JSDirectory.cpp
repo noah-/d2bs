@@ -92,7 +92,7 @@ JSAPI_FUNC(dir_getFiles)
 	
 	if((hFile = _findfirst(search, &found)) != -1L)
 	{
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		jsint element = 0;
 		do
 		{
@@ -101,7 +101,7 @@ JSAPI_FUNC(dir_getFiles)
 			jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
 			JS_SetElement(cx, jsarray, element++, &file);
 		} while(_findnext(hFile, &found) == 0);
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 	}
 	JS_free(cx, search);
 	_chdir(oldpath);
@@ -135,7 +135,7 @@ JSAPI_FUNC(dir_getFolders)
 	if((hFile = _findfirst(search, &found)) != -1L)
 	{
 		jsint element = 0;
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		do
 		{
 			if(!strcmp(found.name, "..") || !strcmp(found.name, ".") || !(found.attrib & _A_SUBDIR))
@@ -143,7 +143,7 @@ JSAPI_FUNC(dir_getFolders)
 			jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
 			JS_SetElement(cx, jsarray, element++, &file);
 		} while(_findnext(hFile, &found) == 0);
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 
 	}
 

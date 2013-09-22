@@ -55,7 +55,7 @@ JSAPI_PROP(unit_getProperty)
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	switch(JSVAL_TO_INT(ID))
 	{
 		case ME_PID:
@@ -174,7 +174,7 @@ JSAPI_PROP(unit_getProperty)
 		default:
 			break;
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	if(ClientState() != ClientStateInGame)
 		return JS_TRUE;
 	//JSObject* obj ;
@@ -221,9 +221,9 @@ JSAPI_PROP(unit_getProperty)
 				vp.setInt32(pRoom->pRoom2->pLevel->dwLevelNo);
 			break;
 		case UNIT_ID:
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			vp.setNumber((jsdouble)pUnit->dwUnitId);
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			break;
 		case UNIT_XPOS:
 			vp.setInt32(D2CLIENT_GetUnitX(pUnit));
@@ -610,7 +610,7 @@ JSAPI_FUNC(unit_getUnit)
 
 	if(argc > 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
 		strcpy_s(szName, sizeof(szName), JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[1])));
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nClassId);
 
@@ -619,7 +619,7 @@ JSAPI_FUNC(unit_getUnit)
 
 	if(argc > 3 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[3], &nUnitId);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	UnitAny* pUnit = NULL;
 	
 	if(nType == 100)
@@ -673,7 +673,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(!pUnit)
 			return JS_TRUE;
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 			strcpy_s(lpUnit->szName, 128, JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
@@ -682,7 +682,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1],(uint32*) &(lpUnit->dwMode));
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
 
 		if(!pUnit)
@@ -710,7 +710,7 @@ JSAPI_FUNC(unit_getNext)
 		UnitAny* pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
 		if(!pUnit || !pOwner)
 			return JS_TRUE;
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		if(argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 			strcpy_s(pmyUnit->szName, 128, JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
@@ -719,7 +719,7 @@ JSAPI_FUNC(unit_getNext)
 
 		if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1],(uint32*) &(pmyUnit->dwMode));
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
 		{
@@ -857,13 +857,13 @@ JSAPI_FUNC(unit_interact)
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game - Done! TechnoHunter
 		jsint nWaypointID;
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		if(!JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nWaypointID))
 		{
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			return JS_TRUE;
 		}
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		int retVal = 0;
 		if(FillBaseStat("levels", nWaypointID, "Waypoint", &retVal, sizeof(int)))
 			if(retVal == 255)
@@ -912,13 +912,13 @@ JSAPI_FUNC(unit_getStat)
 
 	jsint nStat = 0;
 	jsint nSubIndex = 0;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "i/i", &nStat, &nSubIndex))
 	{
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		return JS_TRUE;
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 
 	if(nStat >= STAT_HP && nStat <= STAT_MAXSTAMINA)
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8));
@@ -961,7 +961,7 @@ JSAPI_FUNC(unit_getStat)
 				}
 			for(UINT i = 0; i < dwStats; i++)
 			{
-				// 22 JS_BeginRequest(cx);
+				JS_BeginRequest(cx);
 				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 				JS_AddRoot(cx, &pArrayInsert);
 
@@ -980,7 +980,7 @@ JSAPI_FUNC(unit_getStat)
 
 				JS_SetElement(cx, pReturnArray, i, &aObj);
 				JS_RemoveRoot(cx, &pArrayInsert);
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 			}
 		}
 	}
@@ -1083,7 +1083,7 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 			if(!JS_IsArrayObject(cx, JSVAL_TO_OBJECT(index)))
 			{
 				// it's not an array, build one
-				// 22 JS_BeginRequest(cx);
+				JS_BeginRequest(cx);
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 				JS_AddRoot(cx, &arr);
 				JS_SetElement(cx, arr, 0, &index);
@@ -1091,7 +1091,7 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 				jsval arr2 = OBJECT_TO_JSVAL(arr);
 				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
 				JS_RemoveRoot(cx, &arr);
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 			}
 			else
 			{
@@ -1101,15 +1101,15 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 				if(!JS_GetArrayLength(cx, arr, &len))
 					return;
 				len++;
-				// 22 JS_BeginRequest(cx);
+				JS_BeginRequest(cx);
 				JS_SetElement(cx, arr, len, &obj);
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 			}
 		}
 		else
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 	}
 	else
 	{
@@ -1125,17 +1125,17 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 		{
 			// the array index doesn't exist, make it
 			index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index)){
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 				return;
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 		}
 		// index now points to the correct array index
-		// 22 JS_BeginRequest(cx);
+		JS_BeginRequest(cx);
 		JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 	}
 }
 
@@ -1157,13 +1157,13 @@ JSAPI_FUNC(unit_getState)
 		return JS_TRUE;
 
 	jsint nState;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	if(JS_ValueToInt32(cx, JS_ARGV(cx, vp)[0], &nState) == JS_FALSE)
 	{
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		return JS_TRUE;
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 
 	// TODO: make these constants so we know what we're checking here
 	if(nState > 159 || nState < 0)
@@ -1312,13 +1312,13 @@ JSAPI_FUNC(item_getItemCost)
 		}
 		else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			if(!JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nNpcClassId))
 			{
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 				return JS_TRUE;
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 		}
 		//TODO:: validate the base stat table sizes to make sure the game doesn't crash with checking values past the end of the table
 		int retVal = 0;
@@ -1359,12 +1359,12 @@ JSAPI_FUNC(unit_getItems)
 
 	if(!pUnit || !pUnit->pInventory || !pUnit->pInventory->pFirstItem)
 		return JS_TRUE;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	if(!pReturnArray)
 	{
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		return JS_TRUE;
 	}
 	JS_AddRoot(cx, &pReturnArray);
@@ -1390,7 +1390,7 @@ JSAPI_FUNC(unit_getItems)
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			JS_RemoveRoot(cx, &pReturnArray);
 			THROW_ERROR(cx, "Failed to build item array");
 		}		
@@ -1400,7 +1400,7 @@ JSAPI_FUNC(unit_getItems)
 	
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(cx, &pReturnArray);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	return JS_TRUE;
 }
 
@@ -1487,7 +1487,7 @@ JSAPI_FUNC(unit_getSkill)
 					jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
 					jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
 					jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
-					// 22 JS_BeginRequest(cx);
+					JS_BeginRequest(cx);
 					JS_SetElement(cx, pArrayInsert, 0, &nId);
 					JS_SetElement(cx, pArrayInsert, 1, &nBase);
 					JS_SetElement(cx, pArrayInsert, 2, &nTotal);
@@ -1496,7 +1496,7 @@ JSAPI_FUNC(unit_getSkill)
 
 					JS_SetElement(cx, pReturnArray, i, &aObj);
 					JS_RemoveRoot(cx, &pArrayInsert);
-					/* 22 JS_EndRequest(cx);*/
+					JS_EndRequest(cx);
 					i++;
 				}
 				break;

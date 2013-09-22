@@ -11,9 +11,9 @@ AutoRoot::~AutoRoot() {
 		exit(3);
 	}
 	//JS_RemoveRoot(cx, &var);
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	JS_RemoveValueRoot(cx, &var);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 }
 
 void AutoRoot::Take() 

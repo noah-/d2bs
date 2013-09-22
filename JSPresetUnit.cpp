@@ -66,9 +66,9 @@ JSAPI_FUNC(my_getPresetUnits)
 	}
 
 	uint32 levelId;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
@@ -88,7 +88,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	DWORD dwArrayCount = NULL;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	JS_AddRoot(cx, &pReturnArray);
 	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
 	{
@@ -119,7 +119,7 @@ JSAPI_FUNC(my_getPresetUnits)
 				if(!unit)
 				{
 					delete mypUnit;
-					/* 22 JS_EndRequest(cx);*/
+					JS_EndRequest(cx);
 					delete cRoom;
 					THROW_ERROR(cx, "Failed to build object?");
 				}
@@ -140,7 +140,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	
 	JS_RemoveRoot(cx, &pReturnArray);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	delete cRoom;
 	return JS_TRUE;
 }
@@ -157,9 +157,9 @@ JSAPI_FUNC(my_getPresetUnit)
 	}
 
 	uint32 levelId;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &levelId);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)

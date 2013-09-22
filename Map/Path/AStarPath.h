@@ -99,7 +99,7 @@ private:
 				map->AllowCritSpace();
 				ticks=GetTickCount();
 			}
-			if (startLvl != D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
+			if (!GameReady() || startLvl != D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
 				Log("Pather lvl change while pathing");
 				return;
 			}
