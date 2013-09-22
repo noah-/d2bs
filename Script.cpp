@@ -335,7 +335,7 @@ bool Script::Include(const char* file)
 
 	JSContext* cx = GetContext();
 
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 
 	JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
 	if(script)
@@ -351,7 +351,7 @@ bool Script::Include(const char* file)
 		//JS_RemoveRoot(&scriptObj);
 	} else JS_ReportPendingException(cx);
 
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	//JS_RemoveScriptRoot(cx, &script);
 	LeaveCriticalSection(&lock);
 	free(fname);
@@ -490,7 +490,7 @@ DWORD WINAPI RunCommandThread(void* data)
 {
 	RUNCOMMANDSTRUCT* rcs = (RUNCOMMANDSTRUCT*) data;
 	JSContext* cx = rcs->script->GetContext();
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	jsval rval;
 	JS_AddNamedValueRoot(cx, &rval, "Cmd line rtl");
 	if(JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval))
@@ -505,7 +505,7 @@ DWORD WINAPI RunCommandThread(void* data)
 		}
 	}
 	JS_RemoveRoot(cx, &rval);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	JS_TriggerOperationCallback(JS_GetRuntime(cx));
 	return 0;
 }

@@ -16,7 +16,7 @@ JSAPI_PROP(party_getProperty)
 
 	jsval ID;
 	JS_IdToValue(cx,id,&ID);
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	switch(JSVAL_TO_INT(ID))
 	{
 		case PARTY_NAME:
@@ -52,7 +52,7 @@ JSAPI_PROP(party_getProperty)
 		default:
 			break;
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	return JS_TRUE;
 }
 
@@ -119,14 +119,14 @@ JSAPI_FUNC(my_getParty)
 		}
 		else if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nPlayerId))
 			{
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 				THROW_ERROR(cx, "Unable to get ID");
 				
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 		}
 		else if(JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0]))
 		{

@@ -27,14 +27,14 @@ JSAPI_FUNC(my_print)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
@@ -116,13 +116,13 @@ JSAPI_FUNC(my_clearInterval)
 JSAPI_FUNC(my_delay)
 {
 	uint32 nDelay = 0;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nDelay))
 	{
-		/* 22 JS_EndRequest(cx);*/
+		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	DWORD start = GetTickCount();
 	
@@ -260,11 +260,11 @@ JSAPI_FUNC(my_beep)
 
 JSAPI_FUNC(my_getTickCount)
 {
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	jsval rval;
 	rval = JS_NumberValue((jsdouble)GetTickCount());
 	JS_SET_RVAL(cx, vp, rval);
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	return JS_TRUE;
 }
 
@@ -311,14 +311,14 @@ JSAPI_FUNC(my_debugLog)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
 		{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i])))
 			{
-				/* 22 JS_EndRequest(cx);*/
+				JS_EndRequest(cx);
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
 			if(Text == NULL)
 			{
@@ -384,7 +384,7 @@ JSAPI_FUNC(my_sendCopyData)
 	BOOL bwinNam = false, bdata = false, bWinClassName = false;
 	jsint nModeId = NULL;
 	HWND hWnd = NULL;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 
 	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
@@ -408,7 +408,7 @@ JSAPI_FUNC(my_sendCopyData)
 			data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
 			bdata = true;
 		}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	
 	if(windowClassName && _strcmpi(windowClassName, "null") == 0)
 		windowClassName = NULL;
@@ -445,7 +445,7 @@ JSAPI_FUNC(my_sendDDE)
 {
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 
 	if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &mode);
@@ -462,7 +462,7 @@ JSAPI_FUNC(my_sendDDE)
 	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[4]))
 			pszData = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[4]));
 
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
 	{
@@ -611,7 +611,7 @@ JSAPI_FUNC(my_sendPacket)
 	BYTE* aPacket = new BYTE[20];
 	BYTE* pPacket = aPacket;
 	uint type = 1;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	for(uint i = 0; i < argc; i++){
 		if(i%2 == 0){ 
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
@@ -619,7 +619,7 @@ JSAPI_FUNC(my_sendPacket)
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
 	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
@@ -638,7 +638,7 @@ JSAPI_FUNC(my_getPacket)
 	BYTE* aPacket = new BYTE[20];
 	BYTE* pPacket = aPacket;
 	uint type = 1;
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
 	for(uint i = 0; i < argc; i++){
 		if(i%2 == 0)
 		{ 
@@ -647,7 +647,7 @@ JSAPI_FUNC(my_getPacket)
 		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
 		aPacket += type; 
 	}
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
 	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
 	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
@@ -668,8 +668,8 @@ JSAPI_FUNC(my_getIP)
 
     InternetCloseHandle(hFile);
     InternetCloseHandle(hInternet);
-	// 22 JS_BeginRequest(cx);
+	JS_BeginRequest(cx);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
-	/* 22 JS_EndRequest(cx);*/
+	JS_EndRequest(cx);
         return JS_TRUE;
 }

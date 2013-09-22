@@ -34,7 +34,7 @@ JSAPI_PROP(area_getProperty)
 	{
 		case AUNIT_EXITS:
 			{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 				if(pArea->ExitArray == NULL)
 				{
 					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
@@ -60,7 +60,7 @@ JSAPI_PROP(area_getProperty)
 						if(!pExit)
 						{
 							delete exit;
-							/* 22 JS_EndRequest(cx);*/
+							JS_EndRequest(cx);
 							THROW_ERROR(cx, "Failed to create exit object!");
 						}
 						jsval a = OBJECT_TO_JSVAL(pExit);
@@ -72,7 +72,7 @@ JSAPI_PROP(area_getProperty)
 				if(pArea->ExitArray)
 					JS_RemoveRoot(cx, &pArea->ExitArray);
 			}
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 			break;
 		case AUNIT_NAME:
 			{
@@ -115,9 +115,9 @@ JSAPI_FUNC(my_getArea)
 	
 		if(JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		{
-			// 22 JS_BeginRequest(cx);
+			JS_BeginRequest(cx);
 			JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[0], &nArea);
-			/* 22 JS_EndRequest(cx);*/
+			JS_EndRequest(cx);
 		}
 		else
 			THROW_ERROR(cx, "Invalid parameter passed to getArea!");

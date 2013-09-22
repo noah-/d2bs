@@ -88,7 +88,7 @@ private:
 	RoomList addedRooms;
 	
 	
-	 Level* cachedLevel;
+	 //Level* cachedLevel;
 	CRITICAL_SECTION* lock;
 
 	void Build(void);
