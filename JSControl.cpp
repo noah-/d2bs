@@ -294,16 +294,38 @@ JSAPI_FUNC(control_getText)
 	
 	for(ControlText* pText = pControl->pFirstText; pText; pText = pText->pNext)
 	{
-		if(!pText->wText)
+		if(!pText->wText[0])
 			continue;
 
-		char* tmp = UnicodeToAnsi(pText->wText);
-		jsval aString = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
-		delete[] tmp;
-		JS_SetElement(cx, pReturnArray, nArrayCount, &aString); 
+		if (pText->wText[1])
+		{
+			JSObject* pSubArray = JS_NewArrayObject(cx, 0, NULL);
+
+			for (int i = 0; i < 5; i++)
+			{
+				if (pText->wText[i])
+				{
+					char* tmp = UnicodeToAnsi(pText->wText[i]);
+					jsval aString = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
+					delete[] tmp;
+					JS_SetElement(cx, pSubArray, i, &aString); 
+				}
+			}
+
+			jsval sub = OBJECT_TO_JSVAL(pSubArray);
+			JS_SetElement(cx, pReturnArray, nArrayCount, &sub); 
+		}
+		else
+		{
+			char* tmp = UnicodeToAnsi(pText->wText[0]);
+			jsval aString = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
+			delete[] tmp;
+			JS_SetElement(cx, pReturnArray, nArrayCount, &aString); 
+		}
 
 		nArrayCount++;
 	}
+
 	/* 22 JS_EndRequest(cx);*/
 	return JS_TRUE;
 }

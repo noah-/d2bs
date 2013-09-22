@@ -123,12 +123,12 @@ struct LevelTxt {
 	BYTE nObjPrb[8];				//0x19E
 };
 
-struct ControlText {
-	wchar_t* wText; //0x00
-	DWORD _1[4];	//0x04
+struct ControlText // size = 0x20
+{
+	wchar_t* wText[5]; //0x00 for each field
 	DWORD dwColor;	//0x14
-	DWORD _2;		//0x18
-	ControlText* pNext;//0x1C
+	DWORD dwAlign;	//0x18
+	ControlText* pNext;	//0x1C
 };
 
 struct Control {
