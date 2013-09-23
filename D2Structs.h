@@ -199,9 +199,13 @@ struct BnetData {
 	BYTE _13;					//0x228
 	char szRealmName2[0x18];	//0x229
 	char szGamePass[0x18];		//0x241
-	char szGameDesc[0x100];		//0x259
-	WORD _14;					//0x359
-	BYTE _15;					//0x35B
+	char szGameDesc[0x104];		//0x259
+	char channelname[0x20];		//+0x35b
+	BYTE _14[0x40];				//+0x37b
+	BYTE charlevel;				//+0x3bb
+	BYTE ladderflag;			//+0x3bc
+	DWORD passhash;				//+0x3bd
+	BYTE passlength;			//+0x3c1
 };
 
 struct RoomTile {
