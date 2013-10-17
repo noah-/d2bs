@@ -225,6 +225,7 @@ void Script::Pause(void)
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
 	TriggerOperationCallback();
+	SetEvent(eventSignal);
 }
 
 void Script::Join()
@@ -242,6 +243,7 @@ void Script::Resume(void)
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
 	TriggerOperationCallback();	
+	SetEvent(eventSignal);
 }
 
 bool Script::IsPaused(void)

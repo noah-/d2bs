@@ -135,6 +135,8 @@ JSAPI_FUNC(my_delay)
 		{	// had a script deadlock here, make sure were positve with amt		
 			WaitForSingleObjectEx(script->eventSignal, amt, true);
 			ResetEvent(script->eventSignal);
+			if(script->IsAborted())
+				JS_ReportError(cx, "Script Ended");
 			while(script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu)))
 			{
 				EnterCriticalSection(&Vars.cEventSection);
