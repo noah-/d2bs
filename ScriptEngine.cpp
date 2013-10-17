@@ -256,7 +256,7 @@ bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
 	script->TriggerOperationCallback();
 	if(script->GetState() != Command)
-	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
+		script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }
 
