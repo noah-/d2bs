@@ -675,3 +675,20 @@ JSAPI_FUNC(my_getIP)
 	JS_EndRequest(cx);
         return JS_TRUE;
 }
+JSAPI_FUNC(my_sendClick)
+{
+	uint32 x = 0;
+	uint32 y = 0;
+	JS_BeginRequest(cx);
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uu", &x, &y))
+	{
+		JS_EndRequest(cx);
+		return JS_FALSE;
+	}
+	JS_EndRequest(cx);
+	Sleep(100);
+	SendMouseClick(x, y, 0);
+	Sleep(100);
+	SendMouseClick(x, y, 1);
+	Sleep(100);
+}
