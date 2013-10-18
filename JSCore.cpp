@@ -677,6 +677,7 @@ JSAPI_FUNC(my_getIP)
 }
 JSAPI_FUNC(my_sendClick)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	uint32 x = 0;
 	uint32 y = 0;
 	JS_BeginRequest(cx);
@@ -691,4 +692,5 @@ JSAPI_FUNC(my_sendClick)
 	Sleep(100);
 	SendMouseClick(x, y, 1);
 	Sleep(100);
+	return JS_TRUE;
 }
