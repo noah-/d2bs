@@ -757,13 +757,19 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			DWORD* size = (DWORD*) evt->arg2;
 			DWORD* argc = (DWORD*) 1;
 			JS_BeginRequest(cx);
-
-			jsval* jsarr = new jsval[*size];
-
-			int i = 0;
-			for(i=0; i< *size; i++) jsarr[i] = UINT_TO_JSVAL(help[i]);;
-			JSObject* arr = JS_NewArrayObject(cx, *size, jsarr);
-			
+							
+			JSObject* arr = JS_NewUint8Array(cx, *size);
+			//JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+			JS_BeginRequest(cx);
+			JS_AddRoot(cx, &arr);
+			for(int i=0; i< *size; i++) 
+			{				
+				jsval jsarr = UINT_TO_JSVAL(help[i]);
+				JS_SetElement(cx, arr, i, &jsarr);
+				
+			}	
+			JS_RemoveRoot(cx, &arr);
+			JS_EndRequest(cx);
 			jsval argv =  OBJECT_TO_JSVAL(arr);
 			//evt->argv[0]->read(cx, &argv[0]);			
 			//JS_AddValueRoot(cx, &argv[0]);
