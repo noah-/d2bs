@@ -99,6 +99,7 @@ struct Variables
 	CRITICAL_SECTION	cConsoleSection;
 	CRITICAL_SECTION	cGameLoopSection;
 	CRITICAL_SECTION	cUnitListSection;
+	CRITICAL_SECTION	cFileSection;
 
 	DWORD dwSelectedUnitId;	
 	DWORD dwSelectedUnitType;
