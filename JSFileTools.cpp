@@ -201,6 +201,8 @@ JSAPI_FUNC(filetools_writeText)
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "You must supply a file name");
 
+	EnterCriticalSection(&Vars.cFileSection);
+
 	char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 	FILE* fptr = fileOpenRelScript(fname, "w", cx);
 	bool result = true;
@@ -216,6 +218,8 @@ JSAPI_FUNC(filetools_writeText)
 	fflush(fptr);
 	fclose(fptr);
 
+	LeaveCriticalSection(&Vars.cFileSection);
+
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
 	JS_free(cx, fname);
 	return JS_TRUE;
@@ -225,6 +229,8 @@ JSAPI_FUNC(filetools_appendText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
 		THROW_ERROR(cx, "You must supply a file name");
+
+	EnterCriticalSection(&Vars.cFileSection);
 
 	char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 	FILE* fptr = fileOpenRelScript(fname, "a+", cx);
@@ -241,7 +247,9 @@ JSAPI_FUNC(filetools_appendText)
 	fflush(fptr);
 	fclose(fptr);
 
-	 JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
+	LeaveCriticalSection(&Vars.cFileSection);
+
+	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
 
 	return JS_TRUE;
 }

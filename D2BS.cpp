@@ -90,6 +90,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cConsoleSection);
 	InitializeCriticalSection(&Vars.cGameLoopSection);
 	InitializeCriticalSection(&Vars.cUnitListSection);
+	InitializeCriticalSection(&Vars.cFileSection);
 
 	Vars.bNeedShutdown = TRUE;	
 	Vars.bChangedAct = FALSE;
@@ -141,6 +142,7 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cConsoleSection);
 	DeleteCriticalSection(&Vars.cGameLoopSection);
 	DeleteCriticalSection(&Vars.cUnitListSection);
+	DeleteCriticalSection(&Vars.cFileSection);
 
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;
