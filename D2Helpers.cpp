@@ -24,7 +24,7 @@ void Log(char* szFormat, ...)
 	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
-	LogNoFormat(szFormat);
+	LogNoFormat(szString);
 
 	delete[] szString;
 }
