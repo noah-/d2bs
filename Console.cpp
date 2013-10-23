@@ -121,7 +121,7 @@ void Console::AddLine(std::string line)
 		history.pop_front();
 
 	if(Vars.bLogConsole)
-		Log(const_cast<char*>(line.c_str()));
+		LogNoFormat(const_cast<char*>(line.c_str()));
 
 	scrollIndex =history.size() < lineCount ? 0 : history.size() - lineCount ;
 	Console::UpdateLines();
