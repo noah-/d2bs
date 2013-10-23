@@ -16,6 +16,7 @@ enum ClientGameState
 };
 
 void	Log(char* szFormat, ...);
+void	LogNoFormat(char* szString);
 
 ClientGameState ClientState(void);
 bool	GameReady(void);

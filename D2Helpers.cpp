@@ -24,6 +24,13 @@ void Log(char* szFormat, ...)
 	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
+	LogNoFormat(szFormat);
+
+	delete[] szString;
+}
+
+void LogNoFormat(char* szString)
+{
 	time_t tTime;
 	time(&tTime);
 	char szTime[128] = "";
@@ -44,7 +51,6 @@ void Log(char* szFormat, ...)
 	fflush(log);
 	fclose(log);
 #endif
-	delete[] szString;
 }
 
 // NOTE TO CALLERS: szTmp must be a PRE-INITIALIZED string.
