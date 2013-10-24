@@ -760,16 +760,14 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 							
 			JSObject* arr = JS_NewUint8Array(cx, *size);
 			//JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
-			JS_BeginRequest(cx);
+			
 			JS_AddRoot(cx, &arr);
 			for(int i=0; i< *size; i++) 
 			{				
 				jsval jsarr = UINT_TO_JSVAL(help[i]);
 				JS_SetElement(cx, arr, i, &jsarr);
 				
-			}	
-			JS_RemoveRoot(cx, &arr);
-			JS_EndRequest(cx);
+			}				
 			jsval argv =  OBJECT_TO_JSVAL(arr);
 			//evt->argv[0]->read(cx, &argv[0]);			
 			//JS_AddValueRoot(cx, &argv[0]);
@@ -781,7 +779,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 					block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 				}
 			*(DWORD*)  evt->arg4 = block;
-			
+			JS_RemoveRoot(cx, &arr);	
 			SetEvent(Vars.eventSignal);
 			JS_EndRequest(cx);
 		//	for(int j = 0 ; j < *argc; j++)
