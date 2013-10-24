@@ -209,7 +209,7 @@ JSAPI_FUNC(filetools_writeText)
 
 	// If fileOpenRelScript failed, it already reported the error
 	if(fptr == NULL)
-		return JS_FALSE;
+		{LeaveCriticalSection(&Vars.cFileSection); return JS_FALSE;}
 
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
@@ -238,7 +238,7 @@ JSAPI_FUNC(filetools_appendText)
 
 	// If fileOpenRelScript failed, it already reported the error
 	if(fptr == NULL)
-		return JS_FALSE;
+		{LeaveCriticalSection(&Vars.cFileSection); return JS_FALSE;}
 
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx,JS_ARGV(cx, vp)[i], false, true))
