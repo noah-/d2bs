@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
+Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
 			threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv)
@@ -196,19 +196,36 @@ void Script::Run(void)
 	isAborted = false;
 
 	jsval main = INT_TO_JSVAL(1), dummy = INT_TO_JSVAL(1);
-	
 	JS_BeginRequest(GetContext());
+	
+	//args passed from load
+	jsval* argvalue = new jsval[argc];
+			for(uintN i = 0; i < argc; i++)
+				argv[i]->read(context, &argvalue[i]);			
+				
+			for(int j = 0 ; j < argc; j++)
+				JS_AddValueRoot(context, &argvalue[j]);
+
+
+	
 	JS_AddValueRoot(GetContext(), &main);
 	JS_AddValueRoot(GetContext(), &dummy);
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) != JS_FALSE &&
 	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE && 
 	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{	
-		JS_CallFunctionValue(GetContext(), globalObject, main, this->argc, this->argv, &dummy);			
+		JS_CallFunctionValue(GetContext(), globalObject, main, this->argc, argvalue, &dummy);			
 	}
 	JS_RemoveValueRoot(GetContext(), &main);
 	JS_RemoveValueRoot(GetContext(), &dummy);
-	
+	for(int j = 0 ; j < argc; j++)
+		JS_RemoveValueRoot(GetContext(), &argvalue[j]);
+	for(uintN i = 0; i < argc; i++)
+	{
+		argv[i]->clear();
+		delete argv[i];
+	}
+
 	JS_EndRequest(GetContext());
 	
 	execCount++;

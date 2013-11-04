@@ -48,7 +48,7 @@ private:
 	JSRuntime* runtime;
 	myUnit* me;
 	uintN argc;
-	jsval* argv;
+	JSAutoStructuredCloneBuffer** argv;
 
 	JSObject *globalObject, *scriptObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted;
@@ -59,7 +59,7 @@ private:
 	
 	CRITICAL_SECTION lock;
 
-	Script(const char* file, ScriptState state, uintN argc = 0, jsval* argv = NULL);
+	Script(const char* file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);

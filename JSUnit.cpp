@@ -188,7 +188,10 @@ JSAPI_PROP(unit_getProperty)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 	if(!pUnit)
+	{
+		JS_THIS(cx, vp.address()).setBoolean(false);
 		return JS_TRUE;
+	}
 	Room1* pRoom = NULL;
 	
 	switch(JSVAL_TO_INT(ID))

@@ -28,12 +28,13 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, jsval* argv, bool recompile)
+Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
 	char* fileName = _strdup(file);
 	_strlwr_s(fileName, strlen(file)+1);
+	
 	try
 	{
 		Script* script = new Script(fileName, state, argc, argv);
