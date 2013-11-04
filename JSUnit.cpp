@@ -171,6 +171,9 @@ JSAPI_PROP(unit_getProperty)
 		case ME_BLOCKMOUSE:
 			vp.setBoolean(Vars.bBlockMouse);
 			break;
+		case ME_UNSUPPORTED:
+			vp.setBoolean(Vars.bEnableUnsupported);
+			break;
 		default:
 			break;
 	}

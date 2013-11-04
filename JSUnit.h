@@ -110,7 +110,8 @@ enum me_tinyid {
 	ME_GAMEREADY,
 	ME_PROFILE,
 	ME_NOPICKUP,
-	ME_PID
+	ME_PID,
+	ME_UNSUPPORTED
 };
 
 static JSPropertySpec me_props[] = {
@@ -143,6 +144,7 @@ static JSPropertySpec me_props[] = {
 	{"profile",			ME_PROFILE,			JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(unit_getProperty), JSOP_NULLWRAPPER },
 	{"nopickup",		ME_NOPICKUP,		JSPROP_STATIC_VAR,		JSOP_WRAPPER(unit_getProperty),	JSOP_WRAPPER(unit_setProperty)},
 	{"pid",				ME_PID,				JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(unit_getProperty), JSOP_NULLWRAPPER },
+	{"unsupported",		ME_UNSUPPORTED,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(unit_getProperty), JSOP_NULLWRAPPER },
 
 	{"screensize",		OOG_SCREENSIZE,		JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(unit_getProperty), JSOP_NULLWRAPPER },
 	{"windowtitle",		OOG_WINDOWTITLE,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(unit_getProperty), JSOP_NULLWRAPPER },
