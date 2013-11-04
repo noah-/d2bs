@@ -46,7 +46,7 @@ public:
 
 	static void FlushCache(void);
 
-	static Script* CompileFile(const char* file, ScriptState state, uintN argc = 0, jsval* argv = NULL, bool recompile = false);
+	static Script* CompileFile(const char* file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer** argv = NULL, bool recompile = false);
 	static void RunCommand(const char* command);
 	static void DisposeScript(Script* script);
 
