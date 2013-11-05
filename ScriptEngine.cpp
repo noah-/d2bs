@@ -37,8 +37,12 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN arg
 	
 	try
 	{
+		if(scripts.count(fileName))
+			scripts[fileName]->Stop();			
+		
 		Script* script = new Script(fileName, state, argc, argv);
 		scripts[fileName] = script;
+		
 		free(fileName);
 		return script;
 	}
@@ -844,8 +848,8 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		return true;	
 	}
 	if (strcmp(evtName, "DisposeMe") == 0)
-	{
-			ScriptEngine::DisposeScript(evt->owner);
+	{		
+		ScriptEngine::DisposeScript(evt->owner);
 	}
 }
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
