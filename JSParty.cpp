@@ -65,7 +65,7 @@ JSAPI_FUNC(party_getNext)
 
 	if(!pUnit)
 	{
-		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
 
@@ -78,10 +78,10 @@ JSAPI_FUNC(party_getNext)
 	}
 	else
 	{
-		JSObject* obj = JS_THIS_OBJECT(cx, vp);
+		//JSObject* obj = JS_THIS_OBJECT(cx, vp);
 //		JS_ClearScope(cx, obj);
-		if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
-			JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
+		//if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
+		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 	}
 	
 	return JS_TRUE;
@@ -91,14 +91,6 @@ JSAPI_FUNC(my_getParty)
 {	
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
-
-	JSObject* jUnit = BuildObject(cx, &party_class, party_methods, party_props, 0);
-	if(!jUnit)
-		return JS_TRUE;
-	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jUnit));
-//	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsUnit));
-
-
 
 	JS_SET_RVAL(cx, vp, JSVAL_VOID);
 

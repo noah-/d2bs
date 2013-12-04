@@ -271,12 +271,9 @@ bool Genhook::Click(int button, POINT* loc)
 			return false;
 		bool* global = (bool*) evt->arg4;
 		block = *global;
-		delete evt->arg1;
-		delete evt->arg2;
-		delete evt->arg3;
-		delete evt->arg4;
+		evt->threadFinished();
 		delete root;
-		delete evt;		
+		
 	}
 	return block;
 }
@@ -297,7 +294,7 @@ void Genhook::Hover(POINT* loc)
 		evt->arg2 =  new DWORD((DWORD)loc->y);
 		
 		owner->FireEvent(evt);
-
+		evt->threadFinished();
 	}
 }
 void Genhook::SetClickHandler(jsval handler)

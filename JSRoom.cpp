@@ -81,9 +81,7 @@ JSAPI_FUNC(room_getNext)
 JSAPI_FUNC(room_getPresetUnits)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
-
+	
 	DWORD nType = NULL;
 	DWORD nClass = NULL;
 
@@ -96,7 +94,8 @@ JSAPI_FUNC(room_getPresetUnits)
 	DWORD dwArrayCount = NULL;
 
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-
+	if(!pRoom2 || !GameReady())
+		{delete cRoom; return JS_TRUE;}
 	if(!pRoom2->pRoom1)
 	{
 		bAdded = TRUE;
@@ -144,19 +143,14 @@ JSAPI_FUNC(room_getPresetUnits)
 }
 JSAPI_FUNC(room_getCollisionTypeArray)
 {
-		Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
-
-	JSObject* jsobjy = JS_NewUint16Array(cx, (pRoom2->dwSizeX * 5) * (pRoom2->dwSizeY*5));
-	JS_AddRoot(cx, &jsobjy);
-	if(!jsobjy)
-		return JS_TRUE;
-
+	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+	
 	bool bAdded = FALSE;
 	CollMap* pCol = NULL;
 
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+	if(!pRoom2 || !GameReady())
+		{delete cRoom; return JS_TRUE;}
 
 	if(!pRoom2->pRoom1)
 	{
@@ -164,6 +158,12 @@ JSAPI_FUNC(room_getCollisionTypeArray)
 		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 	}
 
+	JSObject* jsobjy = JS_NewUint16Array(cx, (pRoom2->dwSizeX * 5) * (pRoom2->dwSizeY*5));
+	JS_AddRoot(cx, &jsobjy);
+	
+	if(!jsobjy)
+		return JS_TRUE;
+	
 	if(pRoom2->pRoom1)
 		pCol = pRoom2->pRoom1->Coll;
 
@@ -226,19 +226,19 @@ JSAPI_FUNC(room_getCollisionTypeArray)
 JSAPI_FUNC(room_getCollision)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
+	
+	bool bAdded = FALSE;
+	CollMap* pCol = NULL;
+
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+	if(!pRoom2 || !GameReady())
+		{delete cRoom; return JS_TRUE;}
 
 	JSObject* jsobjy = JS_NewArrayObject(cx, NULL, NULL);
 	JS_AddRoot(cx, &jsobjy);
 	if(!jsobjy)
 		return JS_TRUE;
-
-	bool bAdded = FALSE;
-	CollMap* pCol = NULL;
-
-	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-
+	
 	if(!pRoom2->pRoom1)
 	{
 		bAdded = TRUE;
@@ -320,8 +320,6 @@ JSAPI_FUNC(room_getCollision)
 JSAPI_FUNC(room_getNearby)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
 	JSObject* jsobj = JS_NewArrayObject(cx, NULL, NULL);
 
 	if(!jsobj)
@@ -352,8 +350,7 @@ JSAPI_FUNC(room_getNearby)
 JSAPI_FUNC(room_getStat)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
+	
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if(argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 		return JS_TRUE;
@@ -363,7 +360,8 @@ JSAPI_FUNC(room_getStat)
 	bool bAdded = false;
 
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-
+	if(!pRoom2 || !GameReady())
+		{delete cRoom; return JS_TRUE;}
 	if(!pRoom2->pRoom1)
 	{
 		bAdded = true;
