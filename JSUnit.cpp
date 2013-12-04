@@ -188,8 +188,7 @@ JSAPI_PROP(unit_getProperty)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 	if(!pUnit)
-	{
-		JS_THIS(cx, vp.address()).setBoolean(false);
+	{		
 		return JS_TRUE;
 	}
 	Room1* pRoom = NULL;
@@ -728,11 +727,14 @@ JSAPI_FUNC(unit_getNext)
 		JS_EndRequest(cx);
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
-		{
-			JSObject* obj = JS_THIS_OBJECT(cx, vp);
+		{   
+			//set current object to null breaks the unit_finilize cleanup cycle
+			/*JSObject* obj = JS_THIS_OBJECT(cx, vp);			
 			//JS_ClearScope(cx, obj);
+			
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-				return JS_TRUE;
+				return JS_TRUE;			
+			*/
 			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		}
 		else

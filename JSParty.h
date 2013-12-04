@@ -4,7 +4,6 @@
 #include "js32.h"
 
 CLASS_CTOR(party);
-
 JSAPI_PROP(party_getProperty);
 
 JSAPI_FUNC(party_getNext);

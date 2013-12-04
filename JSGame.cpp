@@ -365,8 +365,7 @@ JSAPI_FUNC(my_getCollision)
 {	
 	if(!WaitForGameReady())
 	{
-		THROW_WARNING(cx, vp,  "Game not ready");
-		return JS_TRUE;
+		THROW_WARNING(cx, vp,  "Game not ready");		
 	}
 
 	uint32 nLevelId, nX, nY;
