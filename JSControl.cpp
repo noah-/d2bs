@@ -196,10 +196,10 @@ JSAPI_FUNC(control_getNext)
 	}
 	else
 	{
-		JSObject* obj = JS_THIS_OBJECT(cx, vp);
-//		JS_ClearScope(cx, obj);
-		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			return JS_TRUE;
+//		JSObject* obj = JS_THIS_OBJECT(cx, vp);
+////		JS_ClearScope(cx, obj);
+//		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)  //leaks, prevents finilize
+//			return JS_TRUE;
 		JS_SET_RVAL(cx, vp, JSVAL_FALSE); 
 	}
 	
