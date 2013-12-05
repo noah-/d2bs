@@ -37,15 +37,12 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN arg
 	
 	try
 	{
-		//LockScriptList("Compile File");
-		
 		if(scripts.count(fileName))
 			scripts[fileName]->Stop();			
 		
 		Script* script = new Script(fileName, state, argc, argv);
 		scripts[fileName] = script;
 		
-		//UnLockScriptList("Compile File");
 		free(fileName);
 		return script;
 	}
@@ -77,11 +74,8 @@ void ScriptEngine::RunCommand(const char* command)
 
 void ScriptEngine::DisposeScript(Script* script)
 {
-	LockScriptList("DisposeScript");
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	UnLockScriptList("DisposeScript");
-
 	if(GetCurrentThreadId() == script->threadId)
 		delete script;
 	else
@@ -91,7 +85,6 @@ void ScriptEngine::DisposeScript(Script* script)
 		evt->owner = script;
 		evt->name = strdup("DisposeMe");
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 }
 void ScriptEngine::LockScriptList(char* loc)
@@ -150,7 +143,7 @@ void ScriptEngine::Shutdown(void)
 	{
 		// bring the engine down properly
 		//EnterCriticalSection(&lock);
-		
+		LockScriptList("Shutdown");
 		state = Stopping;
 		StopAll(true);
 		console->Stop(true, true);
@@ -158,10 +151,8 @@ void ScriptEngine::Shutdown(void)
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);
 
-		LockScriptList("Shutdown");
 		if(!scripts.empty())
 			scripts.clear();
-
 
 		if(runtime)
 		{
@@ -497,7 +488,11 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 4; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		evt->threadFinished();
+		delete evt->arg1;
+		free (evt->arg2);
+		delete evt->arg3;
+		delete evt->arg4;
+		delete evt;
 		return true;		
 	}
 	if (strcmp(evtName, "gameevent") == 0){
@@ -523,7 +518,12 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 5; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		evt->threadFinished();
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg3;
+		free(evt->arg4);
+		free(evt->arg5);
+		delete evt;
 		return true;	
 	}
 	if (strcmp(evtName, "copydata") == 0){
@@ -546,7 +546,9 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 2; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		evt->threadFinished();
+		delete evt->arg1;
+		free (evt->arg2);
+		delete evt;
 		return true;	
 	}
 	if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
@@ -574,8 +576,12 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
 			*(DWORD*)  evt->arg4 = block;
 			SetEvent(Vars.eventSignal);
+		}else{
+			free(evt->arg1);
+			free(evt->arg2);
+			free(evt->name);
+			delete evt;
 		}
-		evt->threadFinished();		
 		return true;	
 	}
 	if (strcmp(evtName, "mousemove") == 0 || strcmp(evtName, "ScreenHookHover") == 0) {
@@ -594,7 +600,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 				{
 					for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)				
 						JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(),  evt->argc+1, argv, &rval);					
-				}else{					
+				}else{
 					for(FunctionList::iterator it = evt->owner->functions[evtName].begin(); it != evt->owner->functions[evtName].end(); it++)					
 						JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 2, argv, &rval);	
 				}
@@ -602,7 +608,9 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 2; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}		
-		evt->threadFinished();	
+		delete evt->arg1;
+		delete evt->arg2;		
+		delete evt;		
 		return true;	
 	}
 	if (strcmp(evtName, "mouseclick") == 0) {
@@ -627,7 +635,11 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 4; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		evt->threadFinished();
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg3;
+		delete evt->arg4;
+		delete evt;
 		return true;	
 	}
 	if (strcmp(evtName, "keyup") == 0 || strcmp(evtName, "keydownblocker") == 0  || strcmp(evtName, "keydown") == 0 || strcmp(evtName, "memana") == 0 || strcmp(evtName, "melife" ) == 0 || strcmp(evtName, "playerassign") == 0) {
@@ -650,8 +662,11 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		if (strcmp(evtName, "keydownblocker") == 0 ){
 			*(DWORD*)  evt->arg4 = block;
 			SetEvent(Vars.eventSignal);
+		}else{
+			delete evt->arg1;
+			free (evt->name);
+			delete evt;
 		}
-		evt->threadFinished();		
 		return true;	
 	}
 	if (strcmp(evtName, "ScreenHookClick") == 0 ) {
@@ -680,7 +695,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		}
 		*(DWORD*)  evt->arg4 = block;
 		SetEvent(Vars.eventSignal);
-		evt->threadFinished();
+		
 		return true;	
 	}
 	
@@ -709,7 +724,6 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		JS_EndRequest(cx);
 		free(evt->arg1);
 		delete evt;
-	
 	}
 	if (strcmp(evtName, "scriptmsg") == 0) {
 		if(!clearList)
@@ -736,7 +750,8 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 				evt->argv[i]->clear();
 				delete evt->argv[i];
 		}		
-		evt->threadFinished();	
+		delete evt->arg1;
+		delete evt;		
 		return true;	
 	}	
 	if (strcmp(evtName, "gamepacket") == 0) {
@@ -747,7 +762,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			DWORD* size = (DWORD*) evt->arg2;
 			DWORD* argc = (DWORD*) 1;
 			JS_BeginRequest(cx);
-				
+							
 			JSObject* arr = JS_NewUint8Array(cx, *size);
 			//JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 			
@@ -774,8 +789,11 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			JS_EndRequest(cx);
 		//	for(int j = 0 ; j < *argc; j++)
 			//	JS_RemoveValueRoot(cx, &argv[j]);
-			evt->threadFinished();
 		}
+		
+		//delete evt->arg1;
+		//delete evt->arg2;
+		
 		return true;	
 	}	
 	if (strcmp(evtName, "setTimeout") == 0 || strcmp(evtName, "setInterval") == 0) {
@@ -832,7 +850,6 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 	if (strcmp(evtName, "DisposeMe") == 0)
 	{		
 		ScriptEngine::DisposeScript(evt->owner);
-		evt->threadFinished();
 	}
 }
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
@@ -892,5 +909,4 @@ int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
  {
 	Event* evt = (Event*) lpArg;
 	evt->owner->FireEvent(evt);
-	
  }

@@ -15,7 +15,6 @@ bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD(helper->arg1);
  		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -38,7 +37,6 @@ bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD(helper->arg1);
  		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -60,8 +58,8 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 		evt->argc = argc;
 		evt->name = strdup(event); 
 		evt->arg1 =  new DWORD((DWORD)helper->key);
- 		script->FireEvent(evt);
-		evt->threadFinished();
+ 		
+		script->FireEvent(evt);
 	}
 	bool block = false;
 	event = (helper->up ? "keyupblocker" : "keydownblocker");
@@ -81,7 +79,10 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 			
 		bool* global = (bool*) evt->arg4;
 		block = *global;
-		evt->threadFinished();
+		delete evt->name;
+		delete evt->arg1;
+		delete evt->arg4;
+		delete evt;
 	}
 
 	return block;
@@ -105,7 +106,6 @@ bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
 		evt->arg1 =  new DWORD((DWORD)helper->arg1);
  		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}		
 	return true;
 }
@@ -131,7 +131,6 @@ bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
  		evt->arg4 =  new DWORD(helper->arg4);
 		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -155,7 +154,6 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
  		evt->arg2 =  new DWORD(helper->arg2);
 		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -185,8 +183,8 @@ bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
 			evt->argv[i] = new JSAutoStructuredCloneBuffer;
 			evt->argv[i]->write(helper->cx, helper->argv[i]);
 		}
+		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -212,7 +210,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
  		evt->arg2 = strdup(helper->msg);
 		
 		script->FireEvent(evt);
-		evt->threadFinished();
+		
 	}
 	std::string evtname = helper->event;
 	evtname = evtname + "blocker";
@@ -233,7 +231,11 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		if(WaitForSingleObject(Vars.eventSignal, 500) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
-		evt->threadFinished();
+		delete evt->name;
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg4;
+		delete evt;
 
 	}
 	return block;
@@ -264,7 +266,6 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
  		evt->arg2 = strdup(helper->msg);
 		
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -290,7 +291,6 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 		evt->arg4 = new bool(helper->global);
 
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -317,7 +317,6 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
  		evt->arg5 = strdup(helper->name2);
 
 		script->FireEvent(evt);
-		evt->threadFinished();
 	}
 	return true;
 }
@@ -351,10 +350,14 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 		result = WaitForSingleObject(Vars.eventSignal, 500);		
 		EnterCriticalSection(&Vars.cGameLoopSection);		
 		
-		bool retval = (*(DWORD*) evt->arg4 );		
-		evt->threadFinished();
 		if (result == WAIT_TIMEOUT)	
 			return false;
+		
+		bool retval = (*(DWORD*) evt->arg4 );		
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg4;			
+		delete evt;
 		return retval;		
 	}
 	return false;
