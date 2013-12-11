@@ -383,8 +383,8 @@ JSAPI_FUNC(my_getCollision)
 		{ THROW_ERROR(cx, "Level Not loaded");}
 
 	ActMap* map = ActMap::GetMap(level);
-	if(!map->IsValidPoint(point))
-		{ map->CleanUp(); THROW_ERROR(cx, "Invalid point!");}
+	//if(!map->IsValidPoint(point))  //return avoid instead and make it not lvl depenant
+	//	{ map->CleanUp(); THROW_ERROR(cx, "Invalid point!");}
 	 
 	jsval rval;
 	JS_BeginRequest(cx);
@@ -1621,10 +1621,13 @@ JSAPI_FUNC(my_revealLevel)
 	if (argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0])) {
 		bDrawPresets = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]);
 	}
+	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
+	if(!GameReady())
+		{delete cRoom; return JS_TRUE;}
 
 	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next) {
 		RevealRoom(room, bDrawPresets);
 	}
-
+	delete cRoom;
 	return JS_TRUE;
 }
