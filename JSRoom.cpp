@@ -96,6 +96,7 @@ JSAPI_FUNC(room_getPresetUnits)
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 	if(!pRoom2 || !GameReady())
 		{delete cRoom; return JS_TRUE;}
+	
 	if(!pRoom2->pRoom1)
 	{
 		bAdded = TRUE;
@@ -457,15 +458,15 @@ JSAPI_FUNC(room_unitInRoom)
 JSAPI_FUNC(room_reveal)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-	if(!pRoom2)
-		return JS_TRUE;
-
+	
 	BOOL bDrawPresets = false;
 	if (argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]))
 		bDrawPresets = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]);
 
 	AutoCriticalRoom* cRoom = new AutoCriticalRoom;
-	
+	if(!pRoom2 || !GameReady())
+		{delete cRoom; return JS_TRUE;}
+
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(RevealRoom(pRoom2, bDrawPresets)));
 	delete cRoom;
 	return JS_TRUE;
