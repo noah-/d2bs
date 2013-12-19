@@ -77,9 +77,9 @@ JSAPI_PROP(unit_getProperty)
 			//vp.setString(JS_NewStringCopyZ(cx, pData->szAccountName));
 			break;
 		case ME_CHARNAME:
-			if(!pInfo)
+			if(!pData)
 				return JS_TRUE;
-			vp.setString(JS_NewStringCopyZ(cx, pInfo->szCharName));
+			vp.setString(JS_NewStringCopyZ(cx, pData->szPlayerName));
 			break;
 		case ME_CHICKENHP:
 			vp.setInt32(Vars.nChickenHP);
