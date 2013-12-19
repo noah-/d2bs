@@ -112,6 +112,9 @@ JSAPI_FUNC(script_send)
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 		Event* evt = new Event;
+		if (!script || !script->IsRunning())
+			return JS_TRUE;
+		ScriptEngine::LockScriptList("script.send");
 		evt->owner = script;
 		evt->argc = argc;
 		evt->arg1 = new DWORD(argc);
@@ -127,6 +130,7 @@ JSAPI_FUNC(script_send)
 		evt->owner->EventList.push_front(evt);
 		LeaveCriticalSection(&Vars.cEventSection);
 		evt->owner->TriggerOperationCallback();
+		ScriptEngine::UnLockScriptList("script.send");
 		
 	return JS_TRUE;
 }
