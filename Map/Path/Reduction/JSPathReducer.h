@@ -70,7 +70,7 @@ public:
 		JS_CallFunctionValue(cx, obj, reject, 2, argv, &rval);
 		return !!JSVAL_TO_BOOLEAN(rval);
 	}
-	void GetOpenNodes(Point const & center, PointList& out)
+void GetOpenNodes(Point const & center, PointList& out, Point const & endpoint)
 	{
 		for(int i = 1; i >= -1; i--)
 		{

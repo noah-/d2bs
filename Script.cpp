@@ -220,11 +220,12 @@ void Script::Run(void)
 	JS_RemoveValueRoot(GetContext(), &dummy);
 	for(int j = 0 ; j < argc; j++)
 		JS_RemoveValueRoot(GetContext(), &argvalue[j]);
-	for(uintN i = 0; i < argc; i++)
+	
+	/*for(uintN i = 0; i < argc; i++)  //crashes spidermonkey cleans itself up?
 	{
 		argv[i]->clear();
 		delete argv[i];
-	}
+	}*/
 
 	JS_EndRequest(GetContext());
 	
