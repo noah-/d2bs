@@ -169,7 +169,7 @@ public:
 			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
 	}
 
-void GetOpenNodes(Point const & center, PointList& out, Point const & endpoint)
+	void GetOpenNodes(Point const & center, PointList& out)
 	{
 		for(int i = 1; i >= -1; i--)
 		{
@@ -177,8 +177,7 @@ void GetOpenNodes(Point const & center, PointList& out, Point const & endpoint)
 			{
 				if( i == 0 && j == 0)
 					continue;
-				if(!Reject(Point(center.first+i, center.second+j),true))
-					out.push_back(Point(center.first+i, center.second+j));
+				out.push_back(Point(center.first+i, center.second+j));
 			}
 		}		
 	}

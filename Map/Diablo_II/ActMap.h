@@ -10,7 +10,7 @@
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
 #include "CriticalSections.h"
-#include "D2Helpers.h"
+
 namespace Mapping
 {
 
@@ -69,9 +69,8 @@ public:
 		FriendlyNPC			= 0x2000,
 		Unknown				= 0x4000,
 		DeadBody			= 0x8000, // also portal
-		//ThickenedWall		= 0xfefe,
-		Avoid				= 0xffff,
-		Special				= 0xf000
+		ThickenedWall		= 0xfefe,
+		Avoid				= 0xffff
 	};
 
 private:
@@ -109,7 +108,6 @@ private:
 	bool isPointInLevel(const Level* level, const Point& pt) const;
 
 	WORD getAvoidLayerPoint(Room2* room, const Point& pt) const;
-	
 	WORD getCollFromRoom(Room2* room, const Point& pt) const;
 	
 	ActMap(const Level* level);
@@ -126,7 +124,7 @@ public:
 
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
-	Point ActMap::FindMatchingPortal(Point in) const;
+	
 	inline const Level* GetLevel(void) const { return level; }
 	inline int GetWidth(void) const { return width; }
 	inline int GetHeight(void) const { return height; }
@@ -154,6 +152,6 @@ public:
 	bool PathIsWalkable(const PointList& points, bool abs = true) const;
 	bool PathHasLineOfSight(const PointList& points, bool abs = true) const;
 
-	std::set<Point> PathingPointList;
+
 };
 }
