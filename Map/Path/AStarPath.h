@@ -111,17 +111,17 @@ private:
 			(void)(result); // shut up compiler about unused variable warning
 
 			// getOpenNodes should be in map along with a filter
-			reducer->GetOpenNodes(current->point, newNodes ,end);
+			reducer->GetOpenNodes(current->point,newNodes);
 			while (!newNodes.empty())
 			{
 				Point point = newNodes.back();
 				newNodes.pop_back();
-				
-				/*if (reducer->Reject(point, abs) && point != end)
+				//Point point(current->point.first + i, current->point.second + j);
+				if (reducer->Reject(point, abs) && point != end)
 				{
 					closed.insert(point);				
 					continue;
-				}*/
+				}
 				Node* next = alloc.allocate(1);
 				// if we don't get a valid node, just return
 				if(!next) return;
