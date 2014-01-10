@@ -1,11 +1,11 @@
-#include <algorithm>
+ï»¿#include <algorithm>
 #include <assert.h>
 #include "ActMap.h"
 #include "D2Structs.h"
 #include "Core.h"
 #include "MPQStats.h"
 #include "CriticalSections.h"
-
+#include "D2Helpers.h"
 namespace Mapping
 {
 
@@ -77,6 +77,7 @@ ActMap::~ActMap(void)
 	delete lock;
 	delete actCrit;
 	lock = NULL;
+	PathingPointList.clear();
 }
 
 Point ActMap::AbsToRelative(const Point& point) const
@@ -114,7 +115,7 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 	}
 	if(!this->act || !this->act->pMisc || !this->act->pRoom1)
 	{
-			Print("ÿc1ActMap Level Not Loaded");
+			Print("ï¿½c1ActMap Level Not Loaded");
 			return ActMap::Avoid;
 	}
 	if(!currLevel)
@@ -186,6 +187,10 @@ WORD ActMap::getAvoidLayerPoint(Room2* room, const Point& pt) const
 			{
 				pointSet.insert(loc);
 			}
+			if(room->pLevel->dwLevelNo == 74 &&  //arcane sant
+				((room->dwPosX*5)+preset->dwPosX == pt.first && (room->dwPosY*5)+preset->dwPosY == pt.second) && //mactch point
+				(preset->dwTxtFileNo == 304 || preset->dwTxtFileNo == 305 || preset->dwTxtFileNo == 306 ) )		//tele pad
+				return ActMap::Special;
 		}
 		avoidRoomPointSet[room] = pointSet;
 		it = avoidRoomPointSet.find(room);
@@ -196,6 +201,48 @@ WORD ActMap::getAvoidLayerPoint(Room2* room, const Point& pt) const
 	}
 	return ActMap::Avoid;
 }
+Point ActMap::FindMatchingPortal(Point in) const 
+{
+	
+	double val=1000000;
+	Point best(0,0);
+	Point Match(0,0);
+	DWORD id;
+	Room2* room = this->level->pRoom2First;
+	for(Room2 *pRoom = GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
+		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
+		{
+			if(preset->dwTxtFileNo == 304 || preset->dwTxtFileNo == 305 || preset->dwTxtFileNo == 306 ) 
+			{
+				Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);			
+				if( GetDistance(loc.first,loc.second, in.first, in.second) < val)
+				{
+					val = GetDistance(loc.first, loc.second, in.first, in.second) ;
+					id = preset->dwTxtFileNo;
+					Match.first = loc.first; Match.second = loc.second;
+				}
+			}	
+		}
+	val = 100000;
+	for(Room2 *pRoom = this->level->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
+		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
+		{
+			if(preset->dwTxtFileNo == id)
+			{
+				Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);
+				if (loc.first != Match.first && loc.second != Match.second)
+				{
+					if( GetDistance(loc.first,loc.second, Match.first, Match.second) < val)
+					{
+						val = GetDistance(loc.first, loc.second, in.first, in.second) ;
+						best.first = loc.first;
+						best.second = loc.second;
+					}
+				}
+			}	
+		}
+		return Point(best.first,best.second);
+	}
 
 WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 {
@@ -209,7 +256,7 @@ WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 
 	// todo: avoid layer could be used in every area, we can add unwalkable objects like torches, chests etc
 	// but for now, just try it with barricade wall in Frigid Highlands (111), Arreat Plateau (112) and Frozen Tundra (117)
-	if (room->pLevel->dwLevelNo == 111 || room->pLevel->dwLevelNo == 112 || room->pLevel->dwLevelNo == 117)
+	if (room->pLevel->dwLevelNo == 111 || room->pLevel->dwLevelNo == 112 || room->pLevel->dwLevelNo == 117 || room->pLevel->dwLevelNo == 74 )
 	{
 		val |= getAvoidLayerPoint(room, pt);
 	}
@@ -382,12 +429,12 @@ void ActMap::FindRoomLinkageExits(ExitArray& exits) const
 	
 			if (overlappingX < 0 || overlappingY < 0)
 			{
-				// Print("ÿc1d2bsÿc3ActMap::GetExitsÿc0 adjecent room is out of reach - it's not even touching local room in corner!");
+				// Print("ï¿½c1d2bsï¿½c3ActMap::GetExitsï¿½c0 adjecent room is out of reach - it's not even touching local room in corner!");
 				continue;
 			}
 			if (overlappingX > 0 && overlappingY > 0)
 			{
-				// Print("ÿc1d2bsÿc3ActMap::GetExitsÿc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				// Print("ï¿½c1d2bsï¿½c3ActMap::GetExitsï¿½c0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
 				continue;             
 			}
 			if (overlappingX < 3 && overlappingY < 3)
@@ -592,8 +639,8 @@ bool ActMap::SpaceIsWalkable(const Point& point, bool abs) const
 		     SpaceHasFlag(ActMap::BlockWalk, point, abs)    ||
 			 SpaceHasFlag(ActMap::BlockPlayer, point, abs)  ||
 			 SpaceHasFlag(ActMap::NPCCollision, point, abs) ||
-		     SpaceHasFlag(ActMap::Object, point, abs)       ||
-			 SpaceHasFlag(ActMap::ThickenedWall, point, abs)
+		     SpaceHasFlag(ActMap::Object, point, abs)   //    ||
+			// SpaceHasFlag(ActMap::ThickenedWall, point, abs)
 			 );
 }
 
