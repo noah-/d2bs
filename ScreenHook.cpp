@@ -178,7 +178,7 @@ void Genhook::Clean(Script* owner)
 	HookIterator it = visible.begin();
 	while(it != visible.end())
 	{
-		if( (*it)->owner == owner)
+		if( (*it)->owner->IsAborted())
 		{
 			Genhook* i = *it;
 			it = invisible.erase(it);
