@@ -600,6 +600,13 @@ JSAPI_FUNC(my_hideConsole)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_handler)
+{
+	char buffer[20];  
+	itoa((int)Vars.hHandle, buffer, 10);
+	JS_SET_RVAL(cx,vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
+	return JS_TRUE;
+}
 JSAPI_FUNC(my_loadMpq)
 {
 	JS_SET_RVAL(cx,vp,JSVAL_NULL);

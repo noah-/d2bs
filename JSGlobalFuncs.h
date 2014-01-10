@@ -79,6 +79,7 @@ static JSFunctionSpec global_funcs[] = {
 	JS_FN("debugLog",			my_debugLog,			1, FUNCTION_FLAGS),
 	JS_FN("showConsole",		my_showConsole,			0, FUNCTION_FLAGS),
 	JS_FN("hideConsole",		my_hideConsole,			0, FUNCTION_FLAGS),
+	JS_FN("handler",            my_handler,             0, FUNCTION_FLAGS),
 
 	// out of game functions
 	JS_FN("login",				my_login,				1, FUNCTION_FLAGS),

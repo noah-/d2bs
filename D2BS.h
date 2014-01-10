@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1814" //uptodate with d branch 1765 ff 20b
+#define D2BS_VERSION "1.5.1818" //uptodate with d branch 1765 ff 20b
 
 #include <windows.h>
 #include <vector>
@@ -66,6 +66,7 @@ struct Variables
 	HANDLE eventSignal;
 	Module* pModule;
 	HMODULE hModule;
+	HWND    hHandle;
 
 	char	szPath[_MAX_PATH];
 	char	szScriptPath[_MAX_PATH];

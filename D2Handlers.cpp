@@ -15,6 +15,7 @@
 #include "D2BS.h"
 #include "MapHeader.h"
 #include "Offset.h"
+#include "CommandLine.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ bool __fastcall UpdatePlayerGid(Script* script, void*, uint) { script->UpdatePla
 
 DWORD WINAPI D2Thread(LPVOID lpParam)
 {
+	sLine* command;
 	bool beginStarter = true;
 	bool bInGame = false;
 	Vars.bUseRawCDKey = 0; 
@@ -36,6 +38,94 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		Log("D2BS Engine startup failed.");
 		Print("ÿc2D2BSÿc0 :: Engine startup failed!");
 		return FALSE;
+	}
+
+	ParseCommandLine(GetCommandLineA()); 
+
+	command = GetCommand("-c0");
+
+	if(command) 
+	{
+		Vars.bUseRawCDKey = 1; 
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szClassic, keys, len);
+	}
+
+	command = GetCommand("-c1");
+
+	if(command) 
+	{
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szClassic, keys, len);
+	}
+
+	command = GetCommand("-c2");
+
+	if(command) 
+	{
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szClassic, keys, len);
+	}
+
+	command = GetCommand("-e0");
+
+	if(command) 
+	{
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szLod, keys, len);
+	}
+
+	command = GetCommand("-e1");
+
+	if(command) 
+	{
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szLod, keys, len);
+	}
+
+	command = GetCommand("-e2");
+
+	if(command) 
+	{
+		const char *keys = (char*)command->szText;
+		int len = strlen(keys); 
+		strncat_s(Vars.szLod, keys, len);
+	}
+
+	if (Vars.bUseRawCDKey == 1) 
+	{
+		InstallConditional(); 
+	}
+
+	command = GetCommand("-handle");
+
+	if(command) 
+	{
+		Vars.hHandle = (HWND)atoi(command->szText); 
+	}
+
+	command = GetCommand("-mpq");
+
+	if(command) 
+	{
+		LoadMPQ(command->szText); 
+	}
+
+	command = GetCommand("-profile");
+
+	if(command) 
+	{
+		const char* profile = (char*)command->szText;
+
+		if(SwitchToProfile(profile))
+			Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+		else
+			Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
 	}
 
 	while(Vars.bActive)

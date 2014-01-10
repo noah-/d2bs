@@ -219,43 +219,55 @@ BOOL OOG_SelectCharacter(char* szCharacter)
 	Control* pControl = findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 237, 178, 72, 93);
 	ControlText* cText;
 
-	while (pControl != NULL)
-	{
-		if(pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
-			cText = pControl->pFirstText->pNext;
-		else
-			cText = NULL;
+	 while (pControl != NULL)
+    {
+        if(pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+            cText = pControl->pFirstText->pNext;
+        else
+            cText = NULL;
 
-		if(cText != NULL)
-		{
+        if(cText != NULL)
+        {
 			char * szLine = UnicodeToAnsi(cText->wText[0]);
-			if(!szLine)
-				return FALSE;
-			if(strlen(szLine) == strlen(szCharacter) && strstr(szLine,szCharacter) != NULL)
-			{
-				delete[] szLine;
-				if(!clickControl(pControl))
-					return FALSE;
+            if(!szLine)
+                return FALSE;
 
-				// OK Button
-				pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 627, 572, 128, 35);
-				if(pControl)
-				{
-					if(!clickControl(pControl))
-						return FALSE;
+            char* cLine = strdup(szLine);
+            char* cCharacter = strdup(szCharacter);
+            StringToLower(cLine);
+            StringToLower(cCharacter);
 
-					return TRUE;
-				}
-				else
-					return FALSE;
+            if(strlen(szLine) == strlen(szCharacter) && strstr(cLine,cCharacter) != NULL)
+            {
+                delete[] szLine;
+                delete[] cLine;
+                delete[] cCharacter;
+                if(!clickControl(pControl))
+                    return FALSE;
 
-			}
-			else
-				delete[] szLine;
-		}
-		pControl = pControl->pNext;
-	}
-	return FALSE;
+                // OK Button
+                pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 627, 572, 128, 35);
+                if(pControl)
+                {
+                    if(!clickControl(pControl))
+                        return FALSE;
+
+                    return TRUE;
+                }
+                else
+                    return FALSE;
+
+            }
+            else
+            {
+                delete[] szLine;
+                delete[] cLine;
+                delete[] cCharacter;
+            }
+        }
+        pControl = pControl->pNext;
+    }
+    return FALSE;
 }
 
 void SetControlText(Control* pControl, const char* Text)
