@@ -253,6 +253,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="D2BS.cpp" />
     <ClCompile Include="D2Helpers.cpp" />
     <ClCompile Include="D2Intercepts.cpp" />
@@ -324,6 +325,8 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="..\bob-18_ff20\Pipe.h" />
     <ClInclude Include="..\bob-18_ff20\Socket.h" />
     <ClInclude Include="..\bob-18_ff20\Stream.h" />
+    <ClInclude Include="ArrayEx.h" />
+    <ClInclude Include="CommandLine.h" />
     <ClInclude Include="D2BS.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="D2Helpers.h" />
@@ -347,6 +350,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="Profile.h" />
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="stringhash.h" />
+    <ClInclude Include="SyncObj.h" />
     <ClInclude Include="TimedAlloc.h" />
     <ClInclude Include="dependencies\include\js-config.h" />
     <ClInclude Include="dependencies\include\jsapi.h" />

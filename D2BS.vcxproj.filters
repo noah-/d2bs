@@ -195,6 +195,9 @@
     <ClCompile Include="Profile.cpp">
       <Filter>Spidermonkey Engine\Core\C</Filter>
     </ClCompile>
+    <ClCompile Include="CommandLine.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2BS.h">
@@ -443,6 +446,15 @@
     </ClInclude>
     <ClInclude Include="dependencies\include\jsfriendapi.h">
       <Filter>Spidermonkey Engine\Engine Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="ArrayEx.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandLine.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncObj.h">
+      <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
