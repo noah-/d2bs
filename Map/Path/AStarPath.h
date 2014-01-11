@@ -16,8 +16,9 @@ namespace Pathing
 
 inline int __fastcall Manhattan(Point const & start, Point const & end)
 {
-	return 10*(std::abs(start.first-end.first) + std::abs(start.second-end.second));
+	return 10*(std::abs(start.first-end.first) + std::abs(start.second-end.second));	
 }
+
 inline int __fastcall DiagonalShortcut(Point const & start, Point const & end)
 {
 	int xdist = std::abs(start.first-end.first);
@@ -30,6 +31,16 @@ inline int __fastcall Chebyshev(Point const & start, Point const & end)
 	int ydist = (start.second-end.second);
 	return (xdist > ydist ? xdist : ydist);
 }
+inline int __fastcall Euclidean(Point const & start, Point const & end)
+{
+	double dx = (double)(end.first - start.first);
+	double dy = (double)(end.second - start.second);
+	dx = pow(dx, 2);
+	dy = pow(dy, 2);
+	return sqrt(dx + dy)*10; 
+	
+}
+
 inline int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end) { return DiagonalShortcut(point, end); }
 
 #pragma warning ( disable: 4512 )
@@ -111,12 +122,12 @@ private:
 			(void)(result); // shut up compiler about unused variable warning
 
 			// getOpenNodes should be in map along with a filter
-			reducer->GetOpenNodes(current->point,newNodes);
+			reducer->GetOpenNodes(current->point, newNodes ,end);
 			while (!newNodes.empty())
 			{
 				Point point = newNodes.back();
 				newNodes.pop_back();
-				//Point point(current->point.first + i, current->point.second + j);
+				
 				if (reducer->Reject(point, abs) && point != end)
 				{
 					closed.insert(point);				
