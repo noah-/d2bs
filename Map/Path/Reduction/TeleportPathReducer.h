@@ -58,18 +58,19 @@ public:
 			return;
 		}
 		// find best tele spot, this dosent help in arcane sant
+	
 		Point best(0,0);
 		bool needExraExpand = false;
 		int val=1000000;			
 		int r = range / 10; 
-		r = r-2;
+		
 		
 		int x,y;
 		for(int x = center.first - r; x <= center.first + r; x ++)
 		{
 			for(int y = center.second - r; y <= center.second + r; y++)
 			{					
-				if( Euclidean(Point(x, y),center) < range && Euclidean(Point(x, y),center) > range-20 )
+				if( Euclidean(Point(x, y),center) < range && Euclidean(Point(x, y),center) > range-5 )
 				{
 					if(!Reject(Point(x, y),true))
 					{						
@@ -82,12 +83,13 @@ public:
 				}
 			}		
 		}
-		if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() &&  Euclidean(best, endpoint) < Euclidean(center, endpoint))
+		if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
 		{		
 			map->PathingPointList.insert(best);
 			out.push_back(best);
 			return;
 		}
+		
 		//expand point normally if smart tele isnt found
 		for(int i = 1; i >= -1; i--)
 		{
@@ -95,14 +97,14 @@ public:
 			{
 				if( i == 0 && j == 0 || Reject(Point(center.first+i, center.second+j), true))
 					continue;
-				if(map->PathingPointList.find(Point(center.first+i, center.second+j)) != map->PathingPointList.end()) 
-					continue;
+				//if(map->PathingPointList.find(Point(center.first+i, center.second+j)) != map->PathingPointList.end()) 
+					//continue;
 				out.push_back(Point(center.first+i, center.second+j));
 				map->PathingPointList.insert(Point(center.first+i, center.second+j));
 			}
 		}		
 	
-		if(map->GetLevel()->dwLevelNo != 74)
+		//if(map->GetLevel()->dwLevelNo != 74)
 			return;
 		for(int i = range/10; i >= range/10*-1; i =i-4)
 		{
