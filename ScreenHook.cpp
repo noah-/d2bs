@@ -261,7 +261,8 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->arg1 =  new DWORD((DWORD)button);
 		evt->arg2 =  new DWORD((DWORD)loc->x);
 		evt->arg3 =  new DWORD((DWORD)loc->y);
-		*(DWORD*)  evt->arg4 = block;
+		evt->arg4 = new DWORD(false);
+
  		ResetEvent(Vars.eventSignal);
 		AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
 		evt->functions.push_back(root);
