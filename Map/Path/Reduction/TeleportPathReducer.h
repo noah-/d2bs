@@ -19,11 +19,31 @@ private:
 	ActMap* map;
 	Distance distance;
 	int range;
-
+	bool justExpand;
+	PointList distanceList;
+	std::set<Point> VisitedPointList;
+	Point bestPtSoFar;
 public:
 	TeleportPathReducer(const TeleportPathReducer&);
 	TeleportPathReducer& operator=(const TeleportPathReducer&);
-	TeleportPathReducer(ActMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
+	TeleportPathReducer(ActMap* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {
+	distanceList.clear();
+	justExpand = false;
+	bestPtSoFar = Point(0,0);
+	
+	int r = range / 10; 
+	for(int x = 0 - r; x <= 0 + r; x ++)
+		{
+			for(int y = 0 - r; y <= 0 + r; y++)
+			{					
+				if( Euclidean(Point(x, y),Point(0,0)) < range && Euclidean(Point(x, y),Point(0,0)) > range-5 )
+				{
+					distanceList.push_back(Point(x,y));
+				}
+			}		
+		}
+	
+	}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
@@ -58,38 +78,38 @@ public:
 			return;
 		}
 		// find best tele spot, this dosent help in arcane sant
+		if(bestPtSoFar.first==0)
+			bestPtSoFar = center;
 	
-		Point best(0,0);
-		bool needExraExpand = false;
 		int val=1000000;			
-		int r = range / 10; 
-		
-		
-		int x,y;
-		for(int x = center.first - r; x <= center.first + r; x ++)
+		Point best(0,0);
+		int x, y;
+		if(Euclidean(bestPtSoFar,center) < 500)
 		{
-			for(int y = center.second - r; y <= center.second + r; y++)
-			{					
-				if( Euclidean(Point(x, y),center) < range && Euclidean(Point(x, y),center) > range-5 )
-				{
-					if(!Reject(Point(x, y),true))
-					{						
-						if( val > Euclidean(Point(x, y), endpoint))
-							{
-							val = Euclidean(Point(x, y), endpoint);
-							best = Point(x, y);
-							}
+		for(int j = 0; j < distanceList.size(); j++)
+		{
+			x=distanceList[j].first + center.first;
+			y=distanceList[j].second + center.second;
+			if(!Reject(Point(x, y),true))
+			{						
+				if( val > Euclidean(Point(x, y), endpoint))
+					{
+						val = Euclidean(Point(x, y), endpoint);
+						best = Point(x, y);
+						out.push_back(best);
 					}
-				}
-			}		
+			}
 		}
-		if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
+		if (best.first != 0 && VisitedPointList.find(best) == VisitedPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
 		{		
-			map->PathingPointList.insert(best);
+			VisitedPointList.insert(best);
 			out.push_back(best);
+			if(Euclidean(best,endpoint) < Euclidean(bestPtSoFar , endpoint) )
+				bestPtSoFar = best;
 			return;
 		}
-		
+		}
+		justExpand = true;
 		//expand point normally if smart tele isnt found
 		for(int i = 1; i >= -1; i--)
 		{
@@ -100,11 +120,11 @@ public:
 				//if(map->PathingPointList.find(Point(center.first+i, center.second+j)) != map->PathingPointList.end()) 
 					//continue;
 				out.push_back(Point(center.first+i, center.second+j));
-				map->PathingPointList.insert(Point(center.first+i, center.second+j));
+				VisitedPointList.insert(Point(center.first+i, center.second+j));
 			}
 		}		
 	
-		//if(map->GetLevel()->dwLevelNo != 74)
+		/*if(map->GetLevel()->dwLevelNo != 74)
 			return;
 		for(int i = range/10; i >= range/10*-1; i =i-4)
 		{
@@ -119,7 +139,8 @@ public:
 					map->PathingPointList.insert(Point(center.first+i, center.second+j));
 				}
 			}
-		}	
+		}
+		*/
 	} 
 	
 	bool Reject(Point const & pt, bool abs)
