@@ -126,7 +126,7 @@ public:
 
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
-	Point ActMap::FindMatchingPortal(Point in) const;
+
 	inline const Level* GetLevel(void) const { return level; }
 	inline int GetWidth(void) const { return width; }
 	inline int GetHeight(void) const { return height; }
@@ -154,6 +154,6 @@ public:
 	bool PathIsWalkable(const PointList& points, bool abs = true) const;
 	bool PathHasLineOfSight(const PointList& points, bool abs = true) const;
 
-	std::set<Point> PathingPointList;
+	
 };
 }

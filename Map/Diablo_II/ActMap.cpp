@@ -77,7 +77,7 @@ ActMap::~ActMap(void)
 	delete lock;
 	delete actCrit;
 	lock = NULL;
-	PathingPointList.clear();
+	
 }
 
 Point ActMap::AbsToRelative(const Point& point) const
@@ -186,11 +186,7 @@ WORD ActMap::getAvoidLayerPoint(Room2* room, const Point& pt) const
 			if (preset->dwTxtFileNo == 435) // barricade tower
 			{
 				pointSet.insert(loc);
-			}
-			if(room->pLevel->dwLevelNo == 74 &&  //arcane sant
-				((room->dwPosX*5)+preset->dwPosX == pt.first && (room->dwPosY*5)+preset->dwPosY == pt.second) && //mactch point
-				(preset->dwTxtFileNo == 304 || preset->dwTxtFileNo == 305 || preset->dwTxtFileNo == 306 ) )		//tele pad
-				return ActMap::Special;
+			}			
 		}
 		avoidRoomPointSet[room] = pointSet;
 		it = avoidRoomPointSet.find(room);
@@ -201,48 +197,6 @@ WORD ActMap::getAvoidLayerPoint(Room2* room, const Point& pt) const
 	}
 	return ActMap::Avoid;
 }
-Point ActMap::FindMatchingPortal(Point in) const 
-{
-	
-	double val=1000000;
-	Point best(0,0);
-	Point Match(0,0);
-	DWORD id;
-	Room2* room = this->level->pRoom2First;
-	for(Room2 *pRoom = GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
-		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
-		{
-			if(preset->dwTxtFileNo == 304 || preset->dwTxtFileNo == 305 || preset->dwTxtFileNo == 306 ) 
-			{
-				Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);			
-				if( GetDistance(loc.first,loc.second, in.first, in.second) < val)
-				{
-					val = GetDistance(loc.first, loc.second, in.first, in.second) ;
-					id = preset->dwTxtFileNo;
-					Match.first = loc.first; Match.second = loc.second;
-				}
-			}	
-		}
-	val = 100000;
-	for(Room2 *pRoom = this->level->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
-		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
-		{
-			if(preset->dwTxtFileNo == id)
-			{
-				Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);
-				if (loc.first != Match.first && loc.second != Match.second)
-				{
-					if( GetDistance(loc.first,loc.second, Match.first, Match.second) < val)
-					{
-						val = GetDistance(loc.first, loc.second, in.first, in.second) ;
-						best.first = loc.first;
-						best.second = loc.second;
-					}
-				}
-			}	
-		}
-		return Point(best.first,best.second);
-	}
 
 WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 {
