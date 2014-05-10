@@ -55,19 +55,23 @@ JSAPI_FUNC(script_getNext)
 	Script* iterp = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 	ScriptEngine::LockScriptList("scrip.getNext");
 	//EnterCriticalSection(&ScriptEngine::lock);
-		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
-			if(it->second == iterp )
-			{
-				it++;
-				if(it ==ScriptEngine::scripts.end() )
-					break;
-				iterp= it->second;
-				JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
-				JS_SET_RVAL(cx, vp, JSVAL_TRUE);
-				ScriptEngine::UnLockScriptList("scrip.getNext");
-				//LeaveCriticalSection(&ScriptEngine::lock);
-				return JS_TRUE;
-			}
+
+	for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
+	{
+		if(it->second == iterp )
+		{
+			it++;
+			if(it ==ScriptEngine::scripts.end() )
+				break;
+			iterp= it->second;
+			JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), iterp);
+			JS_SET_RVAL(cx, vp, JSVAL_TRUE);
+			ScriptEngine::UnLockScriptList("scrip.getNext");
+			//LeaveCriticalSection(&ScriptEngine::lock);
+			return JS_TRUE;
+		}
+	}
+
 	//LeaveCriticalSection(&ScriptEngine::lock);
 	ScriptEngine::UnLockScriptList("scrip.getNext");
 	
@@ -206,13 +210,17 @@ JSAPI_FUNC(my_getScripts)
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	JS_BeginRequest(cx);
 	JS_AddRoot(cx, &pReturnArray);
-		for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
-		{
-			JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, it->second);
-			jsval a = OBJECT_TO_JSVAL(res);
-			JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
-			dwArrayCount++;	
-		}		
+	ScriptEngine::LockScriptList("getScripts");
+
+	for(ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++)
+	{
+		JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, it->second);
+		jsval a = OBJECT_TO_JSVAL(res);
+		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
+		dwArrayCount++;	
+	}
+
+	ScriptEngine::UnLockScriptList("getScripts");
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 	JS_RemoveRoot(cx, &pReturnArray);
 	JS_EndRequest(cx);

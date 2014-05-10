@@ -74,8 +74,13 @@ void ScriptEngine::RunCommand(const char* command)
 
 void ScriptEngine::DisposeScript(Script* script)
 {
+	LockScriptList("DisposeScript");
+
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
+
+	UnLockScriptList("DisposeScript");
+
 	if(GetCurrentThreadId() == script->threadId)
 		delete script;
 	else
