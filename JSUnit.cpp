@@ -128,7 +128,8 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_LADDER:
 			if(pData)
-				vp.setBoolean(!!(pData->ladderflag & (LADDERFLAG_SET|LADDERFLAG_EXPANSION_NORMAL)));
+				//vp.setBoolean(!!(pData->ladderflag & (LADDERFLAG_SET|LADDERFLAG_EXPANSION_NORMAL)));
+				vp.setDouble((jsdouble)pData->ladderflag);
 			break;
 		case ME_QUITONHOSTILE:
 			vp.setBoolean(Vars.bQuitOnHostile);
