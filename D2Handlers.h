@@ -10,6 +10,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam);
 void GameDraw(void);
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize);
+DWORD __fastcall GamePacketSent(BYTE* pPacket, DWORD dwSize);
 void __fastcall GameResetFrames(UnitAny* pOwner);
 void GameDrawOOG(void);
 void __stdcall AddUnit(UnitAny* lpUnit);
