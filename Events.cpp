@@ -345,10 +345,9 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
 		static DWORD result;
-		if(Vars.bGameLoopEntered)
-			LeaveCriticalSection(&Vars.cGameLoopSection);
-		result = WaitForSingleObject(Vars.eventSignal, 500);		
-		EnterCriticalSection(&Vars.cGameLoopSection);		
+		ReleaseGameLock();
+			result = WaitForSingleObject(Vars.eventSignal, 500);		
+		TakeGameLock();
 		
 		if (result == WAIT_TIMEOUT)	
 			return false;
@@ -382,10 +381,9 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
 		static DWORD result;
-		if(Vars.bGameLoopEntered)
-			LeaveCriticalSection(&Vars.cGameLoopSection);
-		result = WaitForSingleObject(Vars.eventSignal, 500);		
-		EnterCriticalSection(&Vars.cGameLoopSection);		
+		ReleaseGameLock();
+			result = WaitForSingleObject(Vars.eventSignal, 500);		
+		TakeGameLock();
 		
 		if (result == WAIT_TIMEOUT)	
 			return false;
@@ -410,4 +408,17 @@ bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize)
 {
 	GamePacketHelper helper = {pPacket, dwSize};
 	return ScriptEngine::ForEachScript(GamePacketSentCallback, &helper, 2);
+}
+
+
+
+void ReleaseGameLock(void)
+{
+	if(Vars.bGameLoopEntered && Vars.dwGameThreadId == GetCurrentThreadId())
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+}
+void TakeGameLock(void)
+{
+	if(Vars.bGameLoopEntered && Vars.dwGameThreadId == GetCurrentThreadId())
+		EnterCriticalSection(&Vars.cGameLoopSection);
 }
