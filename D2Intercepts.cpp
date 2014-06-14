@@ -26,6 +26,23 @@ OldCode:
 	}
 }
 
+void __declspec(naked) GamePacketSent_Interception() 
+{
+	__asm
+	{
+		pushad;
+		mov ecx, [esp + 0x2C];
+		mov edx, [esp + 0x24];
+		call GamePacketSent;
+		test eax, eax;
+		popad;
+		jnz send;
+		mov [esp + 0x4], 0;
+send:
+		jmp D2NET_SendPacket;
+	}
+}
+
 void __declspec(naked) GameDraw_Intercept()
 {
 	__asm

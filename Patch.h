@@ -8,6 +8,7 @@ PatchHook Patches[] = {
 	{PatchCall,	GetDllOffset("D2Client.dll", 0xB2342),	(DWORD)GameInput_Intercept,				5},//1.13d
 	{PatchJmp,	GetDllOffset("D2Client.dll", 0x1D7B4),	(DWORD)GameDraw_Intercept,				6},//1.13d
 	{PatchCall,	GetDllOffset("D2Client.dll", 0x83301),	(DWORD)GamePacketReceived_Intercept,	5},//1.13d
+	{PatchJmp,  GetDllOffset("D2Client.dll", 0xD13C),   (DWORD)GamePacketSent_Interception,		6},
 	{PatchCall,	GetDllOffset("D2Client.dll", 0x2B494),	(DWORD)GetSelectedUnit_Intercept,		5},//1.13d
 	{PatchJmp,	GetDllOffset("D2Client.dll", 0x84417),	(DWORD)PlayerAssignment_Intercept,		5},//1.13d
 	{PatchBytes,GetDllOffset("D2Client.dll", 0x14630),	(DWORD)0xc3,							1},//1.13d

@@ -250,7 +250,12 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		case 0xA7: return !GamePacketEvent(pPacket, dwSize) && DelayedStateHandler(pPacket, dwSize);
 	}
 
-	return !GamePacketEvent(pPacket, dwSize);;
+	return !GamePacketEvent(pPacket, dwSize);
+}
+
+DWORD __fastcall GamePacketSent(BYTE* pPacket, DWORD dwSize)
+{
+	return !GamePacketSentEvent(pPacket, dwSize);
 }
 
 LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

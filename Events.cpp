@@ -363,8 +363,51 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 	return false;
 }
 
+bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
+{
+	GamePacketHelper* helper = (GamePacketHelper*)argv;
+	
+	if(ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered("gamepacketsent"))
+	{
+	
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->arg2 = new DWORD(helper->dwSize);
+		evt->arg1 = new BYTE[helper->dwSize];
+		evt->arg4 = new DWORD(false);
+		memcpy(evt->arg1, helper->pPacket, helper->dwSize);
+		evt->name = "gamepacketsent";
+		
+		ResetEvent(Vars.eventSignal);
+		script->FireEvent(evt);
+		static DWORD result;
+		if(Vars.bGameLoopEntered)
+			LeaveCriticalSection(&Vars.cGameLoopSection);
+		result = WaitForSingleObject(Vars.eventSignal, 500);		
+		EnterCriticalSection(&Vars.cGameLoopSection);		
+		
+		if (result == WAIT_TIMEOUT)	
+			return false;
+		
+		bool retval = (*(DWORD*) evt->arg4 );		
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg4;			
+		delete evt;
+		return retval;		
+	}
+	return false;
+}
+
 bool GamePacketEvent(BYTE* pPacket, DWORD dwSize)
 {
 	GamePacketHelper helper = {pPacket, dwSize};
 	return ScriptEngine::ForEachScript(GamePacketCallback, &helper, 2);
+}
+
+bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize)
+{
+	GamePacketHelper helper = {pPacket, dwSize};
+	return ScriptEngine::ForEachScript(GamePacketSentCallback, &helper, 2);
 }

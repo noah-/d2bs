@@ -759,7 +759,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		delete evt;		
 		return true;	
 	}	
-	if (strcmp(evtName, "gamepacket") == 0) {
+	if (strcmp(evtName, "gamepacket") == 0 || strcmp(evtName, "gamepacketsent") == 0) {
 		bool block = false;
 		if(!clearList)
 		{

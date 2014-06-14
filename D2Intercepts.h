@@ -6,6 +6,7 @@
 void GameDraw_Intercept();
 void GameInput_Intercept();
 void GamePacketReceived_Intercept();
+void GamePacketSent_Interception();
 UnitAny* GetSelectedUnit_Intercept(void);
 void Whisper_Intercept();
 void GameAttack_Intercept();
