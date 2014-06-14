@@ -44,6 +44,7 @@ struct Variables
 	BOOL	bShutdownFromDllMain;
 	BOOL	bChangedAct;
 	BOOL	bGameLoopEntered;
+	DWORD	dwGameThreadId;
 	
 	DWORD	dwMaxGameTime;
 	DWORD	dwGameTimeout;

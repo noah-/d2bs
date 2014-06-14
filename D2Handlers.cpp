@@ -569,8 +569,10 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 	if(Vars.bGameLoopEntered)
 		LeaveCriticalSection(&Vars.cGameLoopSection);
 	else
+	{
 		Vars.bGameLoopEntered = true;
-	
+		Vars.dwGameThreadId = GetCurrentThreadId();
+	}
 	if(Vars.SectionCount)
 			Sleep(5);
 	

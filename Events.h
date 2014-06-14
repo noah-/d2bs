@@ -18,6 +18,10 @@ void GoldDropEvent(DWORD GID, BYTE Mode);
 void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
 bool GamePacketEvent(BYTE* pPacket, DWORD dwSize);
 bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize);
+void ReleaseGameLock(void);
+
+void TakeGameLock(void);
+
 
 struct ChatEventHelper
 {
@@ -81,3 +85,4 @@ struct GamePacketHelper
 	BYTE* pPacket;
 	DWORD dwSize;
 };
+
