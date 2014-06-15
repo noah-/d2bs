@@ -345,16 +345,14 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
 		static DWORD result;
-
 		ReleaseGameLock();
 		result = WaitForSingleObject(Vars.eventSignal, 500);		
 		TakeGameLock();
 		
-		bool retval = false; 
+		if (result == WAIT_TIMEOUT)	
+			return false;
 		
-		if (result != WAIT_TIMEOUT)	
-			retval = (*(DWORD*) evt->arg4 );	
-
+		bool retval = (*(DWORD*) evt->arg4 );		
 		delete evt->arg1;
 		delete evt->arg2;
 		delete evt->arg4;			
@@ -370,6 +368,7 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 	
 	if(ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered("gamepacketsent"))
 	{
+	
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
@@ -382,16 +381,14 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
 		static DWORD result;
-
 		ReleaseGameLock();
 		result = WaitForSingleObject(Vars.eventSignal, 500);		
 		TakeGameLock();
-
-		bool retval = false;
 		
-		if (result != WAIT_TIMEOUT)	
-			retval = (*(DWORD*) evt->arg4 );	
+		if (result == WAIT_TIMEOUT)	
+			return false;
 		
+		bool retval = (*(DWORD*) evt->arg4 );		
 		delete evt->arg1;
 		delete evt->arg2;
 		delete evt->arg4;			
