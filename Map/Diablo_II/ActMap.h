@@ -154,6 +154,6 @@ public:
 	bool PathIsWalkable(const PointList& points, bool abs = true) const;
 	bool PathHasLineOfSight(const PointList& points, bool abs = true) const;
 
-	
+	std::set<Point> PathingPointList;
 };
 }

@@ -77,6 +77,7 @@ ActMap::~ActMap(void)
 	delete lock;
 	delete actCrit;
 	lock = NULL;
+	PathingPointList.clear();
 	
 }
 
