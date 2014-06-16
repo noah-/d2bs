@@ -378,16 +378,20 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 		memcpy(evt->arg1, helper->pPacket, helper->dwSize);
 		evt->name = "gamepacketsent";
 		
-		ResetEvent(Vars.eventSignal);
-		script->FireEvent(evt);
-		static DWORD result;
-		ReleaseGameLock();
-		result = WaitForSingleObject(Vars.eventSignal, 500);		
-		TakeGameLock();
+		if(GetCurrentThreadId() == evt->owner->threadId)
+			ExecScriptEvent(evt, false);
+		else 
+		{
+			ResetEvent(Vars.eventSignal);
+			script->FireEvent(evt);
+			static DWORD result;
+			ReleaseGameLock();
+			result = WaitForSingleObject(Vars.eventSignal, 500);		
+			TakeGameLock();
 		
-		if (result == WAIT_TIMEOUT)	
-			return false;
-		
+			if (result == WAIT_TIMEOUT)	
+				return false;
+		}
 		bool retval = (*(DWORD*) evt->arg4 );		
 		delete evt->arg1;
 		delete evt->arg2;
