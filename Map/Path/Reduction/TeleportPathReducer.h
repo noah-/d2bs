@@ -21,7 +21,7 @@ private:
 	int range;
 	bool justExpand;
 	PointList distanceList;
-	std::set<Point> VisitedPointList;
+	
 	Point bestPtSoFar;
 public:
 	TeleportPathReducer(const TeleportPathReducer&);
@@ -100,9 +100,9 @@ public:
 					}
 			}
 		}
-		if (best.first != 0 && VisitedPointList.find(best) == VisitedPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
+		if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
 		{		
-			VisitedPointList.insert(best);
+			map->PathingPointList.insert(best);
 			out.push_back(best);
 			if(Euclidean(best,endpoint) < Euclidean(bestPtSoFar , endpoint) )
 				bestPtSoFar = best;
@@ -120,7 +120,7 @@ public:
 				//if(map->PathingPointList.find(Point(center.first+i, center.second+j)) != map->PathingPointList.end()) 
 					//continue;
 				out.push_back(Point(center.first+i, center.second+j));
-				VisitedPointList.insert(Point(center.first+i, center.second+j));
+				map->PathingPointList.insert(Point(center.first+i, center.second+j));
 			}
 		}		
 	
