@@ -292,22 +292,25 @@ void Script::Stop(bool force, bool reallyForce)
 		Print("Script %s ended", displayName);
 	}
 
-	//ClearAllEvents();  //moved to cx callback
-	//Genhook::Clean(this);
 	
+	//trigger call back so script ends
+	TriggerOperationCallback();
+	SetEvent(eventSignal);
+
 	// normal wait: 500ms, forced wait: 300ms, really forced wait: 100ms
 	int maxCount = (force ? (reallyForce ? 10 : 30) : 50);
-	for(int i = 0; IsRunning(); i++)
+	for(int i = 0; JS_IsRunning(context); i++)
 	{
 		// if we pass the time frame, just ignore the wait because the thread will end forcefully anyway
 		if(i >= maxCount)
 			break;
+		//trigger call back so script ends
+		TriggerOperationCallback();
+		SetEvent(eventSignal);
 		Sleep(10);
 	}
 
-	//trigger call back so script ends
-	TriggerOperationCallback();
-	SetEvent(eventSignal);
+	
 	if(threadHandle != INVALID_HANDLE_VALUE)
 		CloseHandle(threadHandle);
 	threadHandle = INVALID_HANDLE_VALUE;
