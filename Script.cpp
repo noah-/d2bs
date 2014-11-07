@@ -45,7 +45,7 @@ Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructured
 Script::~Script(void)
 {
     isAborted = true;
-	
+	hasActiveCX = false;
     //JS_SetPendingException(context, JSVAL_NULL);
     if(JS_IsInRequest(runtime))
         JS_EndRequest(context);
@@ -292,12 +292,10 @@ void Script::Stop(bool force, bool reallyForce)
 		Print("Script %s ended", displayName);
 	}
 
-	
 	//trigger call back so script ends
 	TriggerOperationCallback();
 	SetEvent(eventSignal);
 
-	LeaveCriticalSection(&lock);
 	// normal wait: 500ms, forced wait: 300ms, really forced wait: 100ms
 	int maxCount = (force ? (reallyForce ? 10 : 30) : 50);
 	if (GetCurrentThreadId() != GetThreadId()){
@@ -306,10 +304,10 @@ void Script::Stop(bool force, bool reallyForce)
 			// if we pass the time frame, just ignore the wait because the thread will end forcefully anyway
 			if(i >= maxCount)
 				break;
-		
 			Sleep(10);
 		}
 	}
+	LeaveCriticalSection(&lock);
 }
 
 
