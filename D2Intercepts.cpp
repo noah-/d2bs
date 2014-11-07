@@ -313,16 +313,17 @@ void __declspec(naked) RemoveUnit_Intercept(UnitAny* lpUnit)
 		retn
 	}
 }
-
-DWORD DClass = 0x6FF35EB8; 
-DWORD DLod = 0x6FF361BD;
-
+//BNClient.DLL loaded at: 0x6ff20000.
+DWORD DClass = 0x6FF35EB8; //15eb8
+DWORD DLod = 0x6FF361BD; //161bd
+//0x6FF3E928 //1e928
+//0x6FF3E930 //1e930
 VOID __declspec(naked) __fastcall ClassicSTUB()
 {
 	__asm{
 		lea eax,dword ptr ss:[Vars.szClassic]
-		mov dword ptr ds:[0x6FF3E928],eax
-		jmp DClass;
+		mov dword ptr ds:[p_BNCLIENT_ClassicKey],eax
+		jmp [BNCLIENT_DClass];
 	}
 	
 }
@@ -331,8 +332,8 @@ VOID __declspec(naked) __fastcall LodSTUB()
 { 
 	__asm{
 		lea eax,dword ptr ss:[Vars.szLod]
-		mov dword ptr ds:[0x6FF3E930],eax
-		jmp DLod;
+		mov dword ptr ds:[p_BNCLIENT_XPacKey],eax
+		jmp [BNCLIENT_DLod];
 	}
 	
 }
