@@ -25,3 +25,4 @@ void GameLeave(void);
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 VOID __fastcall ClassicSTUB();
 VOID __fastcall LodSTUB();
+void SetKeys(void);

@@ -599,3 +599,9 @@ void GameLeave(void)
 	
 //	EnterCriticalSection(&Vars.cGameLoopSection);
 }
+
+void SetKeys()
+{
+	*p_BNCLIENT_XPacKey = Vars.szLod;
+	*p_BNCLIENT_ClassicKey = Vars.szClassic;
+}
