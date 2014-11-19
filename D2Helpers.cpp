@@ -208,7 +208,9 @@ Level* GetLevel(DWORD dwLevelNo)
         }
         pLevel = pLevel->pNextLevel;
     }
-	pLevel = D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
+
+	// this crashes pretty much every time it's called
+	//pLevel = D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 	delete cRoom;
 	return pLevel;
 

@@ -436,6 +436,11 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 	functions[evtName].remove(func);
 	//func->Release();
 	delete func;
+
+	// Remove event completely if there are no listeners for it.
+	if (functions.count(evtName) > 0 && functions[evtName].size() == 0)
+		functions.erase(evtName);
+
 	LeaveCriticalSection(&lock);
 }
 

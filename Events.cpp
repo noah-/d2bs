@@ -79,7 +79,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 			
 		bool* global = (bool*) evt->arg4;
 		block = *global;
-		delete evt->name;
+		free (evt->name);
 		delete evt->arg1;
 		delete evt->arg4;
 		delete evt;
@@ -231,9 +231,9 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		if(WaitForSingleObject(Vars.eventSignal, 500) == WAIT_TIMEOUT)
 			return false;
 		block = (bool*) evt->arg4;
-		delete evt->name;
-		delete evt->arg1;
-		delete evt->arg2;
+		free(evt->name);
+		free(evt->arg1);
+		free(evt->arg2);
 		delete evt->arg4;
 		delete evt;
 

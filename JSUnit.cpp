@@ -693,10 +693,11 @@ JSAPI_FUNC(unit_getNext)
 
 		if(!pUnit)
 		{
-			JSObject* obj = JS_THIS_OBJECT(cx, vp);
+			// Same thing as bobode's fix for finalize
+			/*JSObject* obj = JS_THIS_OBJECT(cx, vp);
 			//JS_ClearScope(cx, obj);
 			if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-				return JS_TRUE;
+				return JS_TRUE;*/
 			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		}
 		else
