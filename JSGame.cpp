@@ -1498,7 +1498,7 @@ JSAPI_FUNC(my_submitItem)
 			else
 				JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		}
-		else if(D2CLIENT_GetPlayerUnit()->dwAct == 1 || D2CLIENT_GetPlayerUnit()->dwAct == 5)
+		else if(D2CLIENT_GetPlayerUnit()->dwAct == 0 || D2CLIENT_GetPlayerUnit()->dwAct == 4) // dwAct is 0-4, not 1-5
 		{
 			if(*p_D2CLIENT_RecentInteractId && D2COMMON_IsTownByLevelNo(GetPlayerArea()))
 			{
