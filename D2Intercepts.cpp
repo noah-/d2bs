@@ -317,8 +317,9 @@ void __declspec(naked) RemoveUnit_Intercept(UnitAny* lpUnit)
 
 VOID __declspec(naked) __fastcall ClassicSTUB()
 {
+	*p_BNCLIENT_ClassicKey = Vars.szClassic;
 	__asm{
-		call SetKeys
+		
 		jmp BNCLIENT_DClass;
 	}
 	
@@ -326,8 +327,9 @@ VOID __declspec(naked) __fastcall ClassicSTUB()
 
 VOID __declspec(naked) __fastcall LodSTUB()
 { 
+	*p_BNCLIENT_XPacKey = Vars.szLod;
 	__asm{
-		call SetKeys		
+		
 		jmp BNCLIENT_DLod;
 	}
 	
