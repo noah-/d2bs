@@ -600,3 +600,24 @@ void GameLeave(void)
 //	EnterCriticalSection(&Vars.cGameLoopSection);
 }
 
+BOOL __fastcall RealmPacketRecv(BYTE* pPacket) {
+	bool blockPacket = false;
+	//__raise BH::moduleManager->OnRealmPacketRecv(pPacket, &blockPacket);
+	return !blockPacket;
+}
+BOOL ChatPacketRecv(BYTE* pPacket) {
+	bool blockPacket = false;
+	
+
+	if(pPacket[0] == 4)
+	{
+		char* who = (char*) pPacket+24;
+		char* said = (char*) pPacket+ 25+strlen(who) ;
+		if(strlen(who) > 0)
+			WhisperEvent(who,said);
+
+	}
+
+
+	return !blockPacket;
+}

@@ -3,6 +3,7 @@
 
 #include "D2Structs.h"
 
+void RealmPacketRecv_Interception();
 void GameDraw_Intercept();
 void GameInput_Intercept();
 void GamePacketReceived_Intercept();
@@ -18,6 +19,7 @@ void GameActChange2_Intercept(void);
 void GameLeave_Intercept(void);
 void ChannelInput_Intercept(void);
 void ChannelWhisper_Intercept(void);
+void ChatPacketRecv_Interception();
 void ChannelChat_Intercept(void);
 void ChannelEmote_Intercept(void);
 void AddUnit_Intercept(UnitAny* lpUnit);
