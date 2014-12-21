@@ -25,4 +25,5 @@ void GameLeave(void);
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 VOID __fastcall ClassicSTUB();
 VOID __fastcall LodSTUB();
-
+BOOL __fastcall RealmPacketRecv(BYTE* pPacket);
+BOOL ChatPacketRecv(BYTE* pPacket);

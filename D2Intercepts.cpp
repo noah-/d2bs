@@ -3,6 +3,22 @@
 #include "D2BS.h"
 #include "Helpers.h"
 
+void __declspec(naked) RealmPacketRecv_Interception()
+{
+	__asm
+	{
+		LEA ECX,DWORD PTR SS:[ESP+4]
+		PUSHAD
+		CALL RealmPacketRecv
+		CMP EAX, 0
+		POPAD
+		JE Block
+		CALL EAX
+Block:
+		RETN
+	}
+}
+
 void __declspec(naked) GamePacketReceived_Intercept()
 {
 	__asm
@@ -106,7 +122,41 @@ void __declspec(naked) Whisper_Intercept()
 		retn
 	}
 }
+VOID __declspec(naked) ChatPacketRecv_Interception()
+{
+   __asm
+   {
+	pushad;
+	   push ecx
+			mov ecx, esi
 
+				call ChatPacketRecv;
+
+			test eax, eax
+		pop ecx
+	popad;
+
+
+    //  pushad;
+	//  push EAX;
+     // call ChatPacketRecv;
+	// pop EAX;
+     // TEST EAX,EAX;
+	  
+   //   popad;
+
+      jnz oldCall;
+
+        MOV EAX,0;
+      MOV DWORD PTR DS:[EBX+0x6FF3f100],1
+      ret;
+oldCall:
+        CALL eax;
+        MOV DWORD PTR DS:[EBX+0x6FF3f100],1
+        ret;
+
+   }
+}
 void __declspec(naked) GameAttack_Intercept()
 {
 	__asm 
