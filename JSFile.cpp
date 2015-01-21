@@ -479,25 +479,28 @@ JSAPI_FUNC(file_seek)
 			if(argc > 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1]))
 				isLines = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[1]);
 			if(argc > 2 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[2]))
-				fromStart = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[1]);
-			if(!isLines)
-			{
-				if(fdata->locked && fseek(fdata->fptr, _ftell_nolock(fdata->fptr)+bytes, SEEK_CUR)) {
-					THROW_ERROR(cx, _strerror("Seek failed"));
-				} else if(_fseek_nolock(fdata->fptr, ftell(fdata->fptr)+bytes, SEEK_CUR))
-					THROW_ERROR(cx, _strerror("Seek failed"));
-			}
-			else
-			{
-				if(fromStart)
-					rewind(fdata->fptr);
-				// semi-ugly hack to seek to the specified line
-				// if I were unlazy I wouldn't be allocating/deallocating all this memory, but for now it's ok
-				while(bytes--)
-					delete[] readLine(fdata->fptr, fdata->locked);
-			}
+				fromStart = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[2]);
+
+
+			 if(fromStart)
+                 rewind(fdata->fptr);
+ 
+			 if(!isLines)
+			 {
+			         if(fdata->locked && fseek(fdata->fptr, bytes, SEEK_CUR)) {
+			                 THROW_ERROR(cx, _strerror("Seek failed"));
+			         } else if(_fseek_nolock(fdata->fptr, bytes, SEEK_CUR))
+			                 THROW_ERROR(cx, _strerror("Seek failed"));
+			 }
+			 else
+			 {
+			         // semi-ugly hack to seek to the specified line
+			         // if I were unlazy I wouldn't be allocating/deallocating all this memory, but for now it's ok
+			         while(bytes--)
+			                 delete[] readLine(fdata->fptr, fdata->locked);
+			 }
 		}
-		else
+        else
 			THROW_ERROR(cx, "Not enough parameters");
 	}
 	JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_THIS_OBJECT(cx, vp)));
