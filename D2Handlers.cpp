@@ -526,22 +526,6 @@ void __fastcall WhisperHandler(char* szAcc, char* szText)
 		Vars.bDontCatchNextMsg = FALSE;
 }
 
-void __fastcall ChannelWhisperHandler(char* szAcc, char* szText)
-{
-	if(!Vars.bDontCatchNextMsg)
-		WhisperEvent(szAcc, szText);
-	else
-		Vars.bDontCatchNextMsg = FALSE;
-}
-
-void __fastcall ChannelChatHandler(char* szAcc, char* szText)
-{
-	if(!Vars.bDontCatchNextMsg)
-		ChatEvent(szAcc, szText);
-	else
-		Vars.bDontCatchNextMsg = FALSE;
-}
-
 DWORD __fastcall GameAttack(UnitInteraction* pAttack)
 {
 	if(!pAttack || !pAttack->lpTargetUnit || pAttack->lpTargetUnit->dwType != UNIT_MONSTER)
@@ -605,19 +589,39 @@ BOOL __fastcall RealmPacketRecv(BYTE* pPacket) {
 	//__raise BH::moduleManager->OnRealmPacketRecv(pPacket, &blockPacket);
 	return !blockPacket;
 }
-BOOL ChatPacketRecv(BYTE* pPacket) {
-	bool blockPacket = false;
-	
 
-	if(pPacket[0] == 4)
-	{
-		char* who = (char*) pPacket+24;
-		char* said = (char*) pPacket+ 25+strlen(who) ;
-		if(strlen(who) > 0)
-			WhisperEvent(who,said);
+BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len) {
+    bool blockPacket = false;
 
+    if(pPacket[1] == 0xF)
+    {
+			DWORD mode = pPacket[4];
+			char* who = (char*) pPacket + 28;
+			char* said = (char*) pPacket + 29 + strlen(who);
+			
+			switch(pPacket[4])
+			{
+				case 0x02:  //channel join
+					ChatEvent(who, "joined the channel");
+					break;
+				case 0x03: //channel leave
+					ChatEvent(who, "left the channel");
+					break;
+				case 0x04: // whispers
+				case 0x0A:
+					WhisperEvent(who, said);
+					break;
+				case 0x05: // normal text
+				case 0x12: // info blue text
+				case 0x13: // error message
+				case 0x17: // emoted text
+					ChatEvent(who, said);
+					break;
+				default:
+					break;
+			}
+			//ChannelEvent(mode,who,said);
 	}
 
-
-	return !blockPacket;
+    return !blockPacket;
 }

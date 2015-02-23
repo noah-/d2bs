@@ -21,14 +21,14 @@ PatchHook Patches[] = {
 //	{PatchCall,	GetDllOffset("D2Client.dll", 0xA6F25),	(DWORD)RemoveUnit_Intercept,			9},
 
 	// this patch needs a constant in ChatPacketRecv_Interception updated also
-	{PatchCall, GetDllOffset("BNCLIENT.DLL", 0xCEBC),   (DWORD)ChatPacketRecv_Interception,		12},
+	{PatchCall, GetDllOffset("BNCLIENT.DLL", 0xCEB9),   (DWORD)ChatPacketRecv_Interception,     5},
 
 	{PatchCall,	GetDllOffset("D2Multi.dll", 0x142FC),	(DWORD)Whisper_Intercept,				7},//1.13d
 	{PatchCall, GetDllOffset("D2Multi.dll", 0x11D63),	(DWORD)ChannelInput_Intercept,			5},//1.13d
 	
 	//{PatchCall,	GetDllOffset("D2Multi.dll", 0x14A9A),	(DWORD)ChannelWhisper_Intercept,		5},//1.13d //not used
-	{PatchJmp,	GetDllOffset("D2Multi.dll", 0x14BE0),	(DWORD)ChannelChat_Intercept,			6},//1.13d
-	{PatchJmp,	GetDllOffset("D2Multi.dll", 0x14850),	(DWORD)ChannelEmote_Intercept,			6},//1.13d
+	//{PatchJmp,	GetDllOffset("D2Multi.dll", 0x14BE0),	(DWORD)ChannelChat_Intercept,			6},//1.13d
+	//{PatchJmp,	GetDllOffset("D2Multi.dll", 0x14850),	(DWORD)ChannelEmote_Intercept,			6},//1.13d
 	
 	{PatchCall,	GetDllOffset("D2Win.dll", 0xEC68),		(DWORD)GameDrawOOG_Intercept,			5},//1.13d
 

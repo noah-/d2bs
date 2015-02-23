@@ -264,6 +264,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="js32.cpp" />
     <ClCompile Include="JSProfile.cpp" />
+    <ClCompile Include="JSSocket.cpp" />
     <ClCompile Include="Offset.cpp" />
     <ClCompile Include="Profile.cpp" />
     <ClCompile Include="sqlite3.c">
@@ -335,6 +336,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="D2Structs.h" />
     <ClInclude Include="dependencies\include\jsfriendapi.h" />
     <ClInclude Include="JSProfile.h" />
+    <ClInclude Include="JSSocket.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="D2Intercepts.h" />
     <ClInclude Include="D2Handlers.h" />

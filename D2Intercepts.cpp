@@ -124,37 +124,21 @@ void __declspec(naked) Whisper_Intercept()
 }
 VOID __declspec(naked) ChatPacketRecv_Interception()
 {
-   __asm
-   {
-	pushad;
-	   push ecx
-			mov ecx, esi
-
-				call ChatPacketRecv;
-
-			test eax, eax
-		pop ecx
-	popad;
-
-
-    //  pushad;
-	//  push EAX;
-     // call ChatPacketRecv;
-	// pop EAX;
-     // TEST EAX,EAX;
-	  
-   //   popad;
-
-      jnz oldCall;
-
-        MOV EAX,0;
-      MOV DWORD PTR DS:[EBX+0x6FF3f100],1
-      ret;
-oldCall:
-        CALL eax;
-        MOV DWORD PTR DS:[EBX+0x6FF3f100],1
-        ret;
-
+        __asm
+        {
+                lea     ecx, [esi+4]
+                pushad
+                mov     edx, ebp
+                mov     ecx, esi
+ 
+                call ChatPacketRecv
+                test eax, eax
+                popad
+ 
+                je Block
+                call eax
+Block:
+                ret
    }
 }
 void __declspec(naked) GameAttack_Intercept()
@@ -263,77 +247,6 @@ void __declspec(naked) ChannelInput_Intercept(void)
 
 SkipInput:
 		ret 4
-	}
-}
-
-void __declspec(naked) ChannelWhisper_Intercept(void)
-{
-	__asm
-	{
-		push ecx
-		push edx
-		mov ecx, edi
-		mov edx, ebx
-
-		call ChannelWhisperHandler
-
-		//test eax, eax
-		pop edx
-		pop ecx
-
-		//jz SkipWhisper
-		jmp D2MULTI_ChannelWhisper_I
-
-//SkipWhisper:
-		ret 4
-	}
-}
-
-void __declspec(naked) ChannelChat_Intercept(void)
-{
-	__asm
-	{
-		push ecx
-		push edx
-		mov ecx, dword ptr ss:[esp+0xC]
-		mov edx, dword ptr ss:[esp+0x10]
-
-		call ChannelChatHandler
-
-		//test eax, eax
-		pop edx
-		pop ecx
-
-		//jz SkipChat
-		sub esp, 0x308
-		jmp D2MULTI_ChannelChat_I
-
-//SkipChat:
-		ret 8
-	}
-}
-
-void __declspec(naked) ChannelEmote_Intercept(void)
-{
-	__asm
-	{
-		push ecx
-		push edx
-		mov ecx, dword ptr ss:[esp+0xC]
-		mov edx, dword ptr ss:[esp+0x10]
-
-		call ChannelChatHandler
-
-		//test eax, eax
-		pop edx
-		pop ecx
-
-		//jz SkipChat
-		sub esp, 0x4F8
-		jmp D2MULTI_ChannelEmote_I
-
-//SkipChat:
-		ret 8
 	}
 }
 
