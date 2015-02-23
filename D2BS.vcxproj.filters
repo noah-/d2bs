@@ -198,6 +198,9 @@
     <ClCompile Include="CommandLine.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="JSSocket.cpp">
+      <Filter>Spidermonkey Engine\Core\JS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2BS.h">
@@ -455,6 +458,9 @@
     </ClInclude>
     <ClInclude Include="SyncObj.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="JSSocket.h">
+      <Filter>Spidermonkey Engine\Core\API</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

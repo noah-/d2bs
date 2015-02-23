@@ -1,5 +1,6 @@
 #include "js32.h"
 #include "JSFile.h"
+#include "JSSocket.h"
 #include "JSSQLite.h"
 #include "JSSandbox.h"
 #include "JSUnit.h"
@@ -103,6 +104,11 @@ JSClass file_class = {
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
 			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, file_finalize, file_ctor)};
 
+JSClass socket_class = {
+	"Socket", JSCLASS_HAS_PRIVATE ,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+			 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, socket_finalize, socket_ctor)};
+
 JSClass exit_class = {
 	"Exit", JSCLASS_HAS_PRIVATE ,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
@@ -173,7 +179,9 @@ JSClassSpec global_classes[] = {
 	{&party_class,			0,	party_ctor,			0,	party_methods,	party_props,			NULL,	NULL},
 	{&room_class,			0,	room_ctor,			0,	room_methods,	room_props,				NULL,	NULL},
 
+	
 	{&file_class,			0,	file_ctor,			0,	file_methods,	file_props,				file_s_methods,	NULL},
+	{&socket_class,			0,	socket_ctor,			0,	socket_methods,	socket_props,				socket_s_methods,	NULL},
 	{&filetools_class,		0,	filetools_ctor,		0,	NULL,			NULL,					filetools_s_methods,	NULL},
 	{&sqlite_db,			0,	sqlite_ctor,		0,	sqlite_methods,	sqlite_props,			NULL,	NULL},
 	{&sqlite_stmt,			0,	sqlite_stmt_ctor,	0,	sqlite_stmt_methods,	sqlite_stmt_props,			NULL,	NULL},

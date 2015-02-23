@@ -21,6 +21,7 @@ extern JSClass presetunit_class;
 extern JSClass party_class;
 extern JSClass filetools_class;
 extern JSClass file_class;
+extern JSClass socket_class;
 extern JSClass exit_class;
 extern JSClass folder_class;
 extern JSClass control_class;

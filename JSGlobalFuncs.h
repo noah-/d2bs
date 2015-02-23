@@ -7,6 +7,7 @@
 #include "JSHash.h"
 
 #include "JSFile.h"
+#include "JSSocket.h"
 #include "JSFileTools.h"
 #include "JSDirectory.h"
 #include "JSSQLite.h"
