@@ -224,7 +224,7 @@ ASMPTR(D2CLIENT, Say_I, 0xB27A6)
 
 ASMPTR(D2CLIENT, BodyClickTable, 0xEE4B8)
 
-ASMPTR(D2CLIENT, LoadUIImage_I, 0xA93E0)
+//ASMPTR(D2CLIENT, LoadUIImage_I, 0xA93E0) switch to d2win LoadCellFile
 
 ASMPTR(D2CLIENT, GetMinionCount_I, 0x8E5B0)
 
@@ -402,7 +402,7 @@ VARPTR(D2LAUNCH, BnData, BnetData *, 0x25B30)
 
 FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), 0x10680)
 FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0xEAA0)
-
+FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), -10023)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Win Ordinals
@@ -463,7 +463,7 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1050)
 #define D2CLIENT_InitAutomapLayer(layerlvl)				((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))
 #define D2CLIENT_GetUnitName(x)							(wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
 #define D2CLIENT_SetSelectedUnit(x)						(D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
-#define D2CLIENT_LoadUIImage(x)							((CellFile*)D2CLIENT_LoadUIImage_ASM(x))
+//#define D2CLIENT_LoadUIImage(x)							((CellFile*)D2CLIENT_LoadUIImage_ASM(x))
 #define D2CLIENT_Interact_STUB(x)						(D2CLIENT_Interact_ASM((DWORD)x))
 #define D2CLIENT_ClickParty(x,y)						(D2CLIENT_ClickParty_ASM((DWORD)x, (DWORD)y))
 #define D2CLIENT_RightClickItem(x, y, loc, player, invdata) D2CLIENT_ClickItemRight_ASM(x,y, loc, (DWORD)player, (DWORD)invdata)

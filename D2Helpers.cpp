@@ -569,13 +569,16 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 	if(bMPQ == 3)
 	{
 		// Check in our directory first
+		char path[_MAX_FNAME+_MAX_PATH];
+		sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, lpszPath);
 
-		HANDLE hFile = OpenFileRead(lpszPath);
+
+		HANDLE hFile = OpenFileRead(path);
 
 		if(hFile != INVALID_HANDLE_VALUE)
 		{
 			CloseHandle(hFile);
-			return LoadCellFile(lpszPath, FALSE);
+			return LoadCellFile(path, FALSE);
 		}
 		else
 		{
@@ -590,7 +593,7 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 		return Vars.mCachedCellFiles[hash];
 	if(bMPQ == TRUE)
 	{
-		CellFile* result = (CellFile*)D2CLIENT_LoadUIImage_ASM(lpszPath);
+		CellFile* result = (CellFile*)D2WIN_LoadCellFile(lpszPath, 0);		
 		Vars.mCachedCellFiles[hash] = result;
 		return result;
 	}
@@ -758,15 +761,15 @@ void __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny)
 			jmp D2CLIENT_SetSelectedUnit_I
 	}
 }
-DWORD __declspec(naked) __fastcall D2CLIENT_LoadUIImage_ASM(char* Path) 
-{
-	__asm {
-		mov eax, ecx
-			push 0
-			call D2CLIENT_LoadUIImage_I
-			retn
-	}
-}
+//DWORD __declspec(naked) __fastcall D2CLIENT_LoadUIImage_ASM(char* Path) 
+//{
+//	__asm {
+//		mov eax, ecx
+//			push 0
+//			call D2CLIENT_LoadUIImage_I
+//			retn
+//	}
+//}
 
 void __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
 {

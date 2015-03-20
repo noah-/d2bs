@@ -85,7 +85,7 @@ struct CellFile {
 	DWORD termination;				//0x0C
 	DWORD numdirs;					//0x10
 	DWORD numcells;					//0x14
-	GfxCell *cells[1];				//0x18
+	GfxCell *cells[255];			//0x18
 };
 
 struct CellContext {

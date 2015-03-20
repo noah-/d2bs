@@ -329,7 +329,7 @@ JSAPI_STRICT_PROP(box_setProperty)
 JSAPI_FUNC(line_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
+	
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
 	int x = 0, y = 0, x2 = 0, y2 = 0;
 	ushort color = 0;
@@ -650,15 +650,16 @@ JSAPI_FUNC(image_ctor)
 	if(argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
 		hover = JS_ARGV(cx, vp)[7];
 
-	if(!isValidPath(path))
+	if(isValidPath(path))
+		sprintf_s(path, sizeof(path), "%s", szText);
+	else
 		THROW_ERROR(cx, "Invalid image file path");
 
 	JSObject* hook = BuildObject(cx, &image_class, image_methods, image_props);
 	if(!hook)
 		THROW_ERROR(cx, "Failed to create image object");
 
-	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, szText);
-	ImageHook* pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state);
+	ImageHook* pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state, 3);
 
 	if(!pImageHook)
 		THROW_ERROR(cx, "Failed to create ImageHook");
