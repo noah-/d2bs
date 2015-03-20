@@ -179,7 +179,10 @@ public:
 	ImageHook(Script* owner, JSObject* nself, const char* nloc, uint x, uint y, ushort ncolor,
 			bool automap = false, Align align = Left, ScreenhookState state = Perm, bool fromFile = true) :
 		Genhook(owner, nself, x, y, 0, automap, align, state), color(ncolor), image(NULL), location(NULL)
-	{ location = _strdup(nloc); image = LoadCellFile(location, fromFile); }
+	{
+		location = _strdup(nloc); 
+		image = LoadCellFile(location, 3); 
+		}
 	~ImageHook(void) { free(location); delete[] image; }
 
 protected:
