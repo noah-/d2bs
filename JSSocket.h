@@ -22,6 +22,7 @@ void socket_finalize(JSFreeOp *fop, JSObject *obj);
 
 enum {
 	SOCKET_READABLE,
+	SOCKET_WRITEABLE
 };
 
 static JSFunctionSpec socket_methods[] = {
@@ -40,6 +41,7 @@ static JSFunctionSpec socket_s_methods[] = {
 
 static JSPropertySpec socket_props[] = {
 	{"readable",	SOCKET_READABLE,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(socket_getProperty), JSOP_NULLWRAPPER },
+	{"writeable",	SOCKET_WRITEABLE,	JSPROP_PERMANENT_VAR,	JSOP_WRAPPER(socket_getProperty), JSOP_NULLWRAPPER },
 	{ 0, 0, 0, JSOP_NULLWRAPPER, JSOP_NULLWRAPPER }
 };
 

@@ -34,10 +34,32 @@ JSAPI_PROP(socket_getProperty)
 		JS_BeginRequest(cx);
 		switch(JSVAL_TO_INT(ID))
 		{
+			struct timeval timeout;
+			int result; 
 			case SOCKET_READABLE:
-				char buffer[10000];
-				vp.setInt32(recv(sdata->socket, buffer, 10000, MSG_PEEK));
+				fd_set read_set;				
+				timeout.tv_sec = 0;
+				timeout.tv_usec = 100; //100 ms				
+				FD_ZERO(&read_set);
+				FD_SET(sdata->socket, &read_set);
+				
+				result = select(1, &read_set,NULL, NULL,&timeout);
+				vp.setInt32(result);
 				break;
+			
+			case SOCKET_WRITEABLE:
+				fd_set write_set;
+
+				timeout.tv_sec = 0;
+				timeout.tv_usec = 100; //100 ms				
+				FD_ZERO(&write_set);
+				FD_SET(sdata->socket, &write_set);
+				
+				result = select(1, NULL, &write_set, NULL,&timeout);
+				
+				vp.setInt32(result);
+				break;
+
 		}
 	}
 	
@@ -87,7 +109,7 @@ JSAPI_FUNC(socket_open)
 	Sdata->mode = Sdata->socket;
 	
 	if(connect(Sdata->socket,(SOCKADDR*)(&SockAddr),sizeof(SockAddr)) != 0){
-		return JS_TRUE;
+		THROW_ERROR(cx, "Failed to connect");
 	}
 
 	JSObject* res = BuildObject(cx, &socket_class, socket_methods, socket_props, Sdata);
@@ -132,7 +154,7 @@ JSAPI_FUNC(socket_read)
 {
 	SocketData* sData = (SocketData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
 	
-	char buffer[10000];
+	char buffer[10000] ={0};
 	std::string returnVal; 
 	int nDataLength;
 
