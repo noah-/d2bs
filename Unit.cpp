@@ -167,6 +167,9 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId,
 
 	if(!pUnit)
 		return NULL;
+	if(dwType == 3)
+		return GetNextUnitFromTables(pUnit, p_D2CLIENT_ClientSideUnitHashTables,
+				dwType, dwType, szName, dwClassId, dwType, dwMode);
 
 	if(dwType >= 0 && dwType <= 5)
 		return GetNextUnitFromTables(pUnit, p_D2CLIENT_ServerSideUnitHashTables,
