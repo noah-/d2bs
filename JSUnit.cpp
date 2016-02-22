@@ -175,6 +175,10 @@ JSAPI_PROP(unit_getProperty)
 		case ME_UNSUPPORTED:
 			vp.setBoolean(Vars.bEnableUnsupported);
 			break;
+		case ME_CHARFLAGS:
+			if(pData)
+				vp.setInt32(pData->nCharFlags);
+			break;
 		default:
 			break;
 	}
@@ -1176,7 +1180,7 @@ JSAPI_FUNC(unit_getState)
 	JS_EndRequest(cx);
 
 	// TODO: make these constants so we know what we're checking here
-	if(nState > 159 || nState < 0)
+	if(nState > 183 || nState < 0)
 		return JS_TRUE;
 
 	JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!D2COMMON_GetUnitState(pUnit, nState)));
