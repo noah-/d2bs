@@ -3,8 +3,17 @@
 
 #define XP_WIN
 
+//#ifndef DEBUG
+//#define DEBUG
+//#define WDEBUG
+//#endif
+
 #include "dependencies\include\jsapi.h"
 #include "dependencies\include\jsfriendapi.h"
+//#ifdef WDEBUG
+//#undef DEBUG
+//#undef WDEBUG
+//#endif
 //#include "Exports.hpp"
 #include <vector>
 #include <io.h>

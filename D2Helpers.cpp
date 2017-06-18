@@ -739,7 +739,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_GetUnitName_STUB(DWORD UnitAny)
 {
 	__asm
 	{
-		mov eax, ecx
+		//mov eax, ecx
 			jmp D2CLIENT_GetUnitName_I
 	}
 }
@@ -820,19 +820,49 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory
 	}
 }
 
+void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location)
+{
+	__asm
+	{
+		/*mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18]
+		push eax
+		mov eax, [esp + 0x18 + 0x18 + 4]*/
+		mov eax, [esp + 0x1C]
+		push eax
+		mov eax, [esp + 4] // return addr
+		mov [esp + 0x1C + 4], eax // store ret addr
+		pop eax
+		add esp, 4
+		call D2CLIENT_LeftClickItem_I
+		ret
+	}
+}
+
 void __declspec(naked) __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD Player, DWORD pUnitInventory)
 {
 	__asm
 	{
 		// ECX = y, EDX = x - Blizzard is weird :D
 		MOV EAX, ECX
-			MOV ECX, EDX
+		MOV ECX, EDX
 			MOV EDX, EAX
 
+			MOV EAX, [ESP + 4] //  location
+			PUSH EAX // save
+			MOV EAX, [ESP + 4] // ret addr
+			MOV [ESP + 8], EAX // overwrite location with ret addr
 			POP EAX
-			MOV EBX,EAX
-			POP EAX
-			PUSH EBX
+			ADD ESP, 4 // pop ret addr copy
 			jmp D2CLIENT_ClickItemRight_I
 	}
 }
@@ -841,11 +871,11 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, 
 {
 	__asm
 	{
-		POP EAX
-			MOV EBX,EAX
-			POP EAX
-			PUSH EBX
-			JMP D2CLIENT_ClickBeltRight_I
+		mov eax, [esp + 4]
+		push eax
+		mov eax, [esp + 8 + 4]
+		call D2CLIENT_ClickBeltRight_I
+		retn 8
 	}
 }
 
@@ -883,8 +913,8 @@ void __declspec(naked) __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType,
 {
 	__asm 
 	{
-		mov eax, ecx
-			mov ecx, edx
+		//mov eax, ecx
+			//mov ecx, edx
 			jmp D2CLIENT_MercItemAction_I
 	}
 }
@@ -919,42 +949,41 @@ __declspec(naked) void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD
 			AND DWORD PTR SS:[EBP-0x20],0
 			PUSH 0
 			CALL _TakeWaypoint
-			JMP _Exit
-
-_TakeWaypoint:
-		PUSH EBP
-			PUSH ESI
-			PUSH EDI
-			PUSH EBX
-			XOR EDI, EDI
-			MOV EBX, 1
-			MOV ECX,DWORD PTR SS:[EBP+8]
-		MOV EDX,DWORD PTR SS:[EBP+0xC]
-		LEA EBP,DWORD PTR SS:[EBP-0x20]
-		JMP [D2CLIENT_TakeWaypoint_I]
-
-
-_Exit:
-		POP EDI
+			POP EDI
 			POP ESI
 			POP EBX
 			LEAVE
 			RETN 8
+
+_TakeWaypoint:
+		PUSH EBP
+			PUSH EBX
+			PUSH ESI
+			PUSH EDI
+
+			XOR EDI, EDI
+			MOV EBX, 1
+			MOV EDX, DWORD PTR SS : [EBP + 8] // waypointId
+			MOV ECX, DWORD PTR SS : [EBP + 0xC] // area
+			PUSH ECX
+			LEA ESI, DWORD PTR SS : [EBP - 0x20] // struct
+		JMP [D2CLIENT_TakeWaypoint_I]
+
 	}
 }
-DWORD __declspec(naked) __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
+/*DWORD __declspec(naked) __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
 {
 	__asm 
 	{
 		push esi;
 		push [esp+8];
-		mov esi, edx;
-		mov edx, ecx;
+		mov esi, edx; // p2
+		mov edx, ecx; // p1
 		call D2CLIENT_TestPvpFlag_I;
 		pop esi;
 		ret 4;
 	}
-}
+}*/
 
 void __declspec(naked) __fastcall D2GFX_DrawRectFrame_STUB(RECT* rect)
 {
@@ -972,12 +1001,14 @@ DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 	__asm
 	{
 		push eax
-			push esi
-			mov eax, pUnit
-			mov esi, dwType
+			push ecx
+			push edx
+			mov ecx, pUnit
+			mov edx, dwType
 			call D2CLIENT_GetMinionCount_I
 			mov [dwResult], eax
-			pop esi
+			pop edx
+			pop ecx
 			pop eax
 	}
 
@@ -997,11 +1028,11 @@ __declspec(naked) DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE
 {
 	__asm
 	{
-		push ebx
-			mov ebx, ecx
+		push edi
+			mov edi, ecx
 			push edx
 			call D2CLIENT_SendGamePacket_I
-			pop ebx
+			pop edi
 			ret
 	}
 }

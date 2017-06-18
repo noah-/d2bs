@@ -486,7 +486,7 @@ JSAPI_FUNC(my_clickItem)
 		{
 			if(nBodyLoc == 1 || nBodyLoc == 3 || nBodyLoc == 4)
 			{
-				UnitAny* pMerc = D2CLIENT_GetMercUnit();
+				UnitAny* pMerc = GetMercUnit(D2CLIENT_GetPlayerUnit());
 
 				if(pMerc)
 				{
@@ -525,7 +525,7 @@ JSAPI_FUNC(my_clickItem)
 
 		if(nClickType == 4)
 		{
-			UnitAny* pMerc = D2CLIENT_GetMercUnit();
+			UnitAny* pMerc = GetMercUnit(D2CLIENT_GetPlayerUnit());
 
 			if(pMerc)
 				if(pUnit->pItemData && pUnit->pItemData->pOwner)
@@ -1145,7 +1145,7 @@ JSAPI_FUNC(my_playSound)
 	}
 
 	jsint nSoundId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
-	D2CLIENT_PlaySound(nSoundId);
+	//D2CLIENT_PlaySound(nSoundId);
 
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
@@ -1231,15 +1231,21 @@ JSAPI_FUNC(my_clickParty)
 		return JS_TRUE;	
 	}
 
-	if(nMode < 0 || nMode > 3)
+	if(nMode < 0 || nMode > 5)
 		return JS_TRUE;
 	
 	// Trying to click self
 	if (pUnit->dwUnitId == myUnit->dwUnitId)
 		return JS_TRUE;
 
-	if(nMode == 1)
+	if (nMode == 0)
+		D2CLIENT_HostilePartyUnit(pUnit, 2);
+	else if (nMode == 1)
 		D2CLIENT_HostilePartyUnit(pUnit, 1);
+	else if (nMode == 4)
+		D2CLIENT_HostilePartyUnit(pUnit, 3);
+	else if (nMode == 5)
+		D2CLIENT_HostilePartyUnit(pUnit, 4);
 	else
 		D2CLIENT_ClickParty(pUnit, nMode);
 	

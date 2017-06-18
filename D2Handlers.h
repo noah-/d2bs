@@ -25,3 +25,6 @@ VOID __fastcall ClassicSTUB();
 VOID __fastcall LodSTUB();
 BOOL __fastcall RealmPacketRecv(BYTE* pPacket);
 BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len);
+LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo);
+void FogException();
+char __fastcall ErrorReportLaunch(const char *crash_file, int a2);

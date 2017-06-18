@@ -31,14 +31,14 @@ struct InventoryInfo {
 };
 
 struct GameStructInfo {
-	BYTE _1[0x1B];					//0x00
-	char szGameName[0x18];			//0x1B
-	char szGameServerIp[0x56];		//0x33
-	char szAccountName[0x30];		//0x89
-	char szCharName[0x18];			//0xB9
-	char szRealmName[0x18];			//0xD1
-	BYTE _2[0x158];					//0xE9
-	char szGamePassword[0x18];		//0x241
+	BYTE _1[0x1F];					//0x00 // was 0x1B
+	char szGameName[0x18];			//0x1F
+	char szGameServerIp[0x56];		//0x37
+	char szAccountName[0x30];		//0x8D
+	char szCharName[0x18];			//0xBD
+	char szRealmName[0x18];			//0xD5
+	BYTE _2[0x158];					//0xED
+	char szGamePassword[0x18];		//0x245
 };
 
 struct AutomapCell {
@@ -175,37 +175,37 @@ struct Control {
 struct BnetData {
 	DWORD dwId;					//0x00
 	DWORD dwId2;				//0x04
-	BYTE _1[0xc];				//0x08
-	DWORD dwId3;				//0x14
-	WORD Unk3;					//0x18
-	BYTE _2;					//0x1A
-	char szGameName[0x16];		//0x1B
-	WORD _3;					//0x31
-	char szGameIP[0x10];		//0x33
-	BYTE _5[0x42];				//0x43
-	DWORD dwId4;				//0x85
-	char szAccountName[0x30];	//0x89
-	char szPlayerName[0x18];	//0xB9
-	char szRealmName[0x08];		//0xD1
-	BYTE _8[0x111];				//0xD9
-	BYTE nCharClass;			//0x1EA
-	BYTE nCharFlags;			//0x1EB
-	BYTE nMaxDiff;				//0x1EC
-	BYTE _9[0x1F];				//0x1ED
-	BYTE CreatedGameDifficulty;	//0x20C
-	void *_10;					//0x20D
-	BYTE _11[0x15];				//0x211
-	WORD _12;					//0x226
-	BYTE _13;					//0x228
-	char szRealmName2[0x18];	//0x229
-	char szGamePass[0x18];		//0x241
-	char szGameDesc[0x104];		//0x259
-	char channelname[0x20];		//+0x35b
-	BYTE _14[0x40];				//+0x37b
-	BYTE charlevel;				//+0x3bb
-	BYTE ladderflag;			//+0x3bc
-	DWORD passhash;				//+0x3bd
-	BYTE passlength;			//+0x3c1
+	BYTE _1[0x10];				//0x08
+	DWORD dwId3;				//0x18
+	WORD Unk3;					//0x1C
+	BYTE _2;					//0x1E
+	char szGameName[0x16];		//0x1F
+	WORD _3;					//0x35
+	char szGameIP[0x10];		//0x37
+	BYTE _5[0x42];				//0x47
+	DWORD dwId4;				//0x89
+	char szAccountName[0x30];	//0x8D
+	char szPlayerName[0x18];	//0xBD
+	char szRealmName[0x08];		//0xD5
+	BYTE _8[0x111];				//0xDD
+	BYTE nCharClass;			//0x1EE
+	BYTE nCharFlags;			//0x1EF
+	BYTE nMaxDiff;				//0x1F0
+	BYTE _9[0x1F];				//0x1F1
+	BYTE CreatedGameDifficulty;	//0x210
+	void *_10;					//0x211
+	BYTE _11[0x15];				//0x215
+	WORD _12;					//0x22A
+	BYTE _13;					//0x22C
+	char szRealmName2[0x18];	//0x22D
+	char szGamePass[0x18];		//0x245
+	char szGameDesc[0x104];		//0x25D
+	char channelname[0x20];		//+0x35f
+	BYTE _14[0x40];				//+0x37f
+	BYTE charlevel;				//+0x3bf
+	BYTE ladderflag;			//+0x3c0
+	DWORD passhash;				//+0x3c1
+	BYTE passlength;			//+0x3c5
 };
 
 struct RoomTile {

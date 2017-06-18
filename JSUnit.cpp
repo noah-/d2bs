@@ -476,12 +476,12 @@ JSAPI_PROP(unit_getProperty)
 				wchar_t bBuffer[1] = {1};
 				if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) 
 				{
-					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB1C), bBuffer, 1, NULL); // d2client + 0x11cb1c
-					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB28), &pUnit, 4, NULL); // d2client + 0x11cb28
+					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x7BCBE8 - 0x400000), bBuffer, 1, NULL);
+					::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x7BCBF4 - 0x400000), &pUnit, 4, NULL);
 
 					//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
 					D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
-					ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
+					ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0x841EC8 - 0x400000), wBuffer, 2047);
 				}
 				delete cRoom;
 				char *tmp = UnicodeToAnsi(wBuffer);
@@ -1588,7 +1588,7 @@ JSAPI_FUNC(item_shop)
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
 			{delete cRoom; return JS_TRUE;}
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, 0, 1, 1, NULL);
+		D2CLIENT_ShopAction(pNPC, pItem, 1, 0, 0, 1, 1, NULL);
 	}
 	else
 	{
@@ -1596,7 +1596,7 @@ JSAPI_FUNC(item_shop)
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			{delete cRoom; return JS_TRUE;}
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, 0, dwMode, 1, NULL);
+		D2CLIENT_ShopAction(pNPC, pItem, 0, 0, 0, dwMode, 1, NULL);
 	}
 
 	/*BYTE pPacket[17] = {NULL};

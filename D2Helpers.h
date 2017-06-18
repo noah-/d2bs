@@ -92,12 +92,13 @@ void  __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit);
 void  __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType, DWORD dwSlot);
 DWORD __fastcall D2CLIENT_LoadUIImage_ASM(char* lpszPath);
 void __fastcall D2CLIENT_PlaySound(DWORD dwSoundId);
-DWORD __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
+//DWORD __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
 void __fastcall D2GFX_DrawRectFrame_STUB(RECT* rect);
 DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
 void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
 void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
 DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE* bPacket);
+void __stdcall D2CLIENT_LeftClickItem(UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location);
 
 double GetDistance(long x1, long y1, long x2, long y2, DistanceType type = Euclidean);
 bool IsScrollingText();
