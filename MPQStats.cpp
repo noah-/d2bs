@@ -3,30 +3,30 @@
 #include "Core.h"
 MPQTable BaseStatTable[] = {
 	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, char szTableName, WORD wTableSize, WORD wUnknown
-	{0x6FDF4CB4,	0x6FDF4CB0,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
+	{0x8426F0,		0x8426EC,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
 	{0xA78,			0xA80,		monstatsTable,		"monstats",		ARRAYSIZE(monstatsTable),		0xFFFF},
 	{0xB8C,			0xB94,		skilldescTable,		"skilldesc",	ARRAYSIZE(skilldescTable),		0xFFFF},
 	{0xB98,			0xBA0,		skillsTable,		"skills",		ARRAYSIZE(skillsTable),			0xFFFF},
-	{0x6FDF5830,	0x6FDF5834,	objectsTable,		"objects",		ARRAYSIZE(objectsTable),		0xFFFF},
+	{0x96D470,		0x96D474,	objectsTable,		"objects",		ARRAYSIZE(objectsTable),		0xFFFF},
 	{0xB64,			0xB6C,		missilesTable,		"missiles",		ARRAYSIZE(missilesTable),		0xFFFF},
 	{0xA90,			0xA98,		monstats2Table,		"monstats2",	ARRAYSIZE(monstats2Table),		0xFFFF},
 	{0xBCC,			0xBD4,		itemstatcostTable,	"itemstatcost",	ARRAYSIZE(itemstatcostTable),	0xFFFF},
 	{0xC58,			0xC5C,		levelsTable,		"levels",		ARRAYSIZE(levelsTable),			0xFFFF},
 	{0xC60,			0x00,		leveldefsTable,		"leveldefs",	ARRAYSIZE(leveldefsTable),		0xFFFF},
-	{0x6FDF652C,	0x6FDF6530,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
-	{0x6FDF6534,	0x6FDF6538,	lvlsubTable,		"lvlsub",		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
-	{0x6FDF6524,	0x6FDF6528,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
+	{0x96CA08,		0x96CA0C,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
+	{0x96CA10,		0x96CA14,	lvlsubTable,		"lvlsub",		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
+	{0x96CA00,		0x96CA04,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
 	{0xC64,			0xC68,		lvlprestTable,		"lvlprest",		ARRAYSIZE(lvlprestTable),		0xFFFF},
-	{0x6FDF6514,	0x6FDF6520,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
+	{0x96C9F0,		0x96C9FC,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
 	{0xBC4,			0xBC8,		charstatsTable,		"charstats",	ARRAYSIZE(charstatsTable),		0xFFFF},
 	{0xC18,			0xC1C,		setitemsTable,		"setitems",		ARRAYSIZE(setitemsTable),		0xFFFF},
 	{0xC24,			0xC28,		uniqueitemsTable,	"uniqueitems",	ARRAYSIZE(uniqueitemsTable),	0xFFFF},
 	{0xC0C,			0xC10,		setsTable,			"sets",			ARRAYSIZE(setsTable),			0xFFFF},
 	{0xBF8,			0xBFC,		itemtypesTable,		"itemtypes",	ARRAYSIZE(itemtypesTable),		0xFFFF},
-	{0x6FDF4CF4,	0x6FDF4CF0,	runesTable,			"runes",		ARRAYSIZE(runesTable),			0xFFFF}, // v
-	{0x6FDF64EC,	0x6FDF64F0,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
-	{0x6FDF4CEC,	0x6FDF4CE8,	gemsTable,			"gems",			ARRAYSIZE(gemsTable),			0xFFFF},
-	{0x6FDF64D0,	0x0,		experienceTable,	"experience",	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
+	{0x96CA9C,		0x96CA98,	runesTable,			"runes",		ARRAYSIZE(runesTable),			0xFFFF}, // v
+	{0x96D628,		0x96D62C,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
+	{0x96CA94,		0x96CA90,	gemsTable,			"gems",			ARRAYSIZE(gemsTable),			0xFFFF},
+	{0x96C8A8,		0x0,		experienceTable,	"experience",	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
 	{0xBE8,			0xBF0,		pettypeTable,		"pettable",		ARRAYSIZE(pettypeTable),		0xFFFF},
 	{0xAD4,			0xADC,		superuniquesTable,	"superuniques",	ARRAYSIZE(superuniquesTable),	0xFFFF},
 	{0}
@@ -46,12 +46,12 @@ DWORD GetBaseTable(int table, int row)
 		else 
 		{
 			dwD2MPQTable = NULL;  //d2common loading at a diffrent address crash fix
-			dwTableOffset = DWORD ((dwTableOffset - 0x6fd50000 ) + d2CommonOff);
+			dwTableOffset = DWORD ((dwTableOffset - 0x400000 ) + d2CommonOff);
 		}
 		
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
 		if (dwMaxEntriesOffset > 0xFFFF)
-			dwMaxEntriesOffset = DWORD ((dwMaxEntriesOffset - 0x6fd50000 ) + d2CommonOff);
+			dwMaxEntriesOffset = DWORD ((dwMaxEntriesOffset - 0x400000 ) + d2CommonOff);
 
 		DWORD dwMaxEntries;
 		if(dwMaxEntriesOffset)

@@ -1,4 +1,8 @@
 #define _DEFINE_VARS
+#define __D2PTRS_ONCE_
+#include "D2Ptrs.h"
+#undef __D2PTRS_H__
+#define __D2PTRS_LIST_
 #include "D2Ptrs.h"
 #include "Patch.h"
 #include "D2BS.h"
@@ -9,26 +13,20 @@
 
 void DefineOffsets()
 {
-	DWORD *p = (DWORD *)&_D2PTRS_START;
+	DWORD **p = (DWORD **)d2ptrs_list;
 	do {
-		*p = GetDllOffset(*p);
-	} while(++p <= (DWORD *)&_D2PTRS_END);
+		**p = GetDllOffset(**p);
+	} while(ptrdiff_t(++p) < ((ptrdiff_t)d2ptrs_list) + sizeof(d2ptrs_list));
 }
 
 DWORD GetDllOffset(char *DllName, int Offset)
 {
-	HMODULE hMod = GetModuleHandle(DllName);
+	HMODULE hMod = GetModuleHandle(NULL);
 
-	if(!hMod)
-		hMod = LoadLibrary(DllName);
-
-	if(!hMod)
-		return 0;
-
-	if(Offset < 0)
+	if (Offset < 0)
 		return (DWORD)GetProcAddress(hMod, (LPCSTR)(-Offset));
-	
-	return ((DWORD)hMod)+Offset;
+
+	return ((DWORD)hMod) + Offset;
 }
 
 DWORD GetDllOffset(int num)

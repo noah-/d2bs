@@ -312,7 +312,7 @@ JSAPI_FUNC(my_version)
 		return JS_TRUE;
 	}
 
-	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.13c.", D2BS_VERSION); 
+	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.14d.", D2BS_VERSION); 
 
 	return JS_TRUE;
 }
@@ -640,7 +640,7 @@ JSAPI_FUNC(my_sendPacket)
 	}
 	JS_EndRequest(cx);
 	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
-	delete[] aPacket;
+	delete[] pPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
@@ -668,7 +668,7 @@ JSAPI_FUNC(my_getPacket)
 	}
 	JS_EndRequest(cx);
 	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
-	delete[] aPacket;
+	delete[] pPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }

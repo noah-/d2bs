@@ -216,6 +216,7 @@ BOOL OOG_SelectCharacter(char* szCharacter)
 		return NULL;
 
 	// Select the first control on the character selection screen.
+
 	Control* pControl = findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 237, 178, 72, 93);
 	ControlText* cText;
 
@@ -246,6 +247,7 @@ BOOL OOG_SelectCharacter(char* szCharacter)
                     return FALSE;
 
                 // OK Button
+				// Bobode Sleep(7000);
                 pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 627, 572, 128, 35);
                 if(pControl)
                 {

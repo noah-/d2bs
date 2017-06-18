@@ -98,6 +98,7 @@ BOOL Startup(void)
 
 	Vars.SectionCount = 0;
 
+	//MessageBox(NULL, "qwe", "qwe", MB_OK);
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();

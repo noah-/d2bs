@@ -1,0 +1,2 @@
+unzip bob-18\dependencies\libs\release\js_static.zip into that folder
+use visual studio 2010

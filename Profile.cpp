@@ -115,6 +115,7 @@ static BOOL isTcpIp(ProfileType pt)
 
 DWORD Profile::login(char** error)
 {
+	//Sleep(10000);
 	bool loginComplete = FALSE,	skippedToBnet = TRUE;
 	int location = 0;
 	char* errorMsg = "";
@@ -138,7 +139,9 @@ DWORD Profile::login(char** error)
 			case OOG_D2SPLASH:
 				clickControl(*p_D2WIN_FirstControl);
 				break;
+			
 			case OOG_CHAR_SELECT:
+				//Sleep(5000);
 				if (!OOG_SelectCharacter(charname))
 					 errorMsg = "Invalid character name";
 				break;
@@ -235,6 +238,7 @@ DWORD Profile::login(char** error)
 						SetControlText(pControl, ip);
 
 						// Click the OK button
+						//Sleep(5000);
 						if(!clickControl(findControl(6, (char *)NULL, -1, 421, 337, 96, 32))) {
 							errorMsg = "Failed to click the OK button";
 						}

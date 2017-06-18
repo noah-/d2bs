@@ -105,7 +105,7 @@ JSAPI_STRICT_PROP(control_setProperty)
 	if(ClientState() != ClientStateMenu)
 		return JS_FALSE;
 	
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, &vp.get())));
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));//JS_THIS_OBJECT(cx, &vp.get())));
 	if(!pData)
 		return JS_FALSE;
 

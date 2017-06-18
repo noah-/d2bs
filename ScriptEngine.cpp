@@ -289,7 +289,48 @@ JSBool operationCallback(JSContext* cx)
 		JS_GC(JS_GetRuntime(cx));		
 		callBackCount = 0;
 	}*/
-		
+
+	HWND debug_wnd = NULL; //FindWindow(NULL, "JavaZone");
+	if (debug_wnd && D2GFX_GetHwnd() != debug_wnd)
+	{
+		JS_BeginRequest(cx);
+		JS::Value err;
+		if (JS_CallFunctionName(cx, JS_GetGlobalObject(cx), "Error", 0, NULL, &err))
+		{
+			JS::Value stack;
+			if (JS_GetProperty(cx, JSVAL_TO_OBJECT(err), "stack", &stack))
+			{
+				char str[1024];
+				int l = 0;
+				COPYDATASTRUCT aCopy = { 164344, 0, str };
+				if (JSVAL_IS_STRING(stack))
+				{
+					if (l = JS_EncodeStringToBuffer(cx, JSVAL_TO_STRING(stack), str, 1024))
+					{
+						str[l] = 0;
+						aCopy.cbData = l + 1;
+						SendMessage(debug_wnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy);
+						//Print("%s", str);
+					}
+				}
+				else if (JSVAL_IS_OBJECT(stack))
+				{
+					if (JS_CallFunctionName(cx, JSVAL_TO_OBJECT(stack), "ToString", 0, NULL, &err))
+					{
+
+						if (l = JS_EncodeStringToBuffer(cx, JSVAL_TO_STRING(err), str, 1024))
+						{
+							str[l] = 0;
+							aCopy.cbData = l + 1;
+							SendMessage(debug_wnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy);
+							//Print("%s", str);
+						}
+					}
+				}
+			}
+		}
+		JS_EndRequest(cx);
+	}
 	bool pause = script->IsPaused();
 
 	if(pause)

@@ -23,7 +23,6 @@ void __declspec(naked) GamePacketReceived_Intercept()
 {
 	__asm
 	{
-		pop ebp;
 		pushad;
 
 		call GamePacketReceived;
@@ -34,28 +33,41 @@ void __declspec(naked) GamePacketReceived_Intercept()
 
 		mov edx, 0;
 
-OldCode:
+	OldCode:
+		mov eax, [esp + 4];
+		push eax;
 		call D2NET_ReceivePacket_I;
 
-		push ebp;
-		ret;
+		ret 4;
 	}
+
 }
 
 void __declspec(naked) GamePacketSent_Interception() 
 {
 	__asm
 	{
+		pushf
 		pushad;
-		mov ecx, [esp + 0x2C];
-		mov edx, [esp + 0x24];
+
+		mov ecx, [esp + 0x22 + 4 + 0xC];
+		mov edx, [esp + 0x22 + 4 + 0x4];
 		call GamePacketSent;
 		test eax, eax;
+
 		popad;
-		jnz send;
-		mov [esp + 0x4], 0;
-send:
-		jmp D2NET_SendPacket;
+		jnz OldCode;
+
+		mov[esp + 0x4 + 4 + 2], 0;
+
+	OldCode:
+		popf
+			jnz good
+			xor eax, eax
+			pop ebp
+			ret 0Ch
+			good :
+		jmp D2CLIENT_SendPacket_II
 	}
 }
 
@@ -64,6 +76,7 @@ void __declspec(naked) GameDraw_Intercept()
 	__asm
 	{
 		call GameDraw;
+		ret
 
 		POP ESI
 		POP EBX
@@ -112,31 +125,34 @@ void __declspec(naked) Whisper_Intercept()
 {
 	__asm
 	{
-		MOV EBP,DWORD PTR SS:[ESP+0x1FC+4]
+		mov [esp-674h-4+4], edi
+		pop edi
+		sub esp, 678h
 		pushad
-		mov ecx, edx
-		mov edx, ebx
+		mov ecx, ebx
+		mov edx, [ebp+8]
 		call WhisperHandler
 		popad
 		//jmp D2MULTI_WhisperIntercept_Jump
-		retn
+		jmp edi
 	}
 }
 VOID __declspec(naked) ChatPacketRecv_Interception()
 {
         __asm
         {
-                lea     ecx, [esi+4]
+				mov     edx, [ebp + 8]
+				mov     ecx, ebx
                 pushad
-                mov     edx, ebp
-                mov     ecx, esi
- 
+				sub ecx, 4
+				add edx, 4
+
                 call ChatPacketRecv
                 test eax, eax
                 popad
  
                 je Block
-                call eax
+				call    edi
 Block:
                 ret
    }
@@ -145,12 +161,11 @@ void __declspec(naked) GameAttack_Intercept()
 {
 	__asm 
 	{
-		push ecx
-		mov ecx, [esp+0xC]
+		pushad
+		mov ecx, esi // attack struct
 		call GameAttack
-		pop ecx
-
 		cmp eax, -1
+		popad
 		je OldCode
 
 		call D2CLIENT_GetSelectedUnit
@@ -158,10 +173,10 @@ void __declspec(naked) GameAttack_Intercept()
 		cmp eax, 0
 		je OldCode
 
-		mov [esp+0x0C], 1
+		mov [esp+0x08+0x4+0x4], 1 // bool unit
 
 OldCode:
-		mov eax, [p_D2CLIENT_ScreenSizeY]
+		mov eax, [p_D2CLIENT_MouseY]
 		mov eax, [eax]
 		retn
 	}
@@ -202,8 +217,8 @@ void __declspec(naked) GameActChange_Intercept(void)
 	__asm
 	{
 		POP EAX
-		PUSH EDI
-		XOR EDI, EDI
+		PUSH ESI
+		XOR ESI, ESI
 		CMP [Vars.bChangedAct], 0
 		MOV [Vars.bChangedAct], 0
 		JMP EAX
@@ -214,8 +229,10 @@ void __declspec(naked) GameActChange2_Intercept(void)
 {
 	__asm
 	{
+		MOV ESP, EBP
+		POP EBP
 		MOV [Vars.bChangedAct], 1
-		retn 4
+		retn
 	}
 }
 
@@ -241,12 +258,10 @@ void __declspec(naked) ChannelInput_Intercept(void)
 		pop ecx
 
 		jz SkipInput
-		mov eax, dword ptr[esp+4]
-		push eax
 		call D2MULTI_ChannelInput_I
 
 SkipInput:
-		ret 4
+		ret
 	}
 }
 
@@ -318,4 +333,48 @@ int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 	free(dllAddrs);
 
 	return MessageBoxA(hWnd, lpText, lpCaption, uType);
+}
+#include <DbgHelp.h>
+LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo)
+{
+	// NOT WORKING ONE, WORKING ONE IS IN Helpers.cpp
+	MessageBox(NULL, "QWE", "QWE", MB_OK);
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	for (int i = 0; hFile == INVALID_HANDLE_VALUE; ++i)
+	{
+		char fname[100];
+		sprintf(fname, "Crash%03d.dump", i);
+		hFile = CreateFile(fname, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+	}
+	DWORD ProcessId = GetCurrentProcessId();
+	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS/*READ_CONTROL | PROCESS_VM_READ*/, TRUE, ProcessId);
+	MINIDUMP_EXCEPTION_INFORMATION ExceptionParam;
+	ExceptionParam.ThreadId = GetCurrentThreadId();
+	ExceptionParam.ExceptionPointers = ExceptionInfo;
+	ExceptionParam.ClientPointers = TRUE;
+	MiniDumpWriteDump(hProcess, ProcessId, hFile, MiniDumpNormal, &ExceptionParam, NULL, NULL);
+	CloseHandle(hFile);
+	exit(0);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+//  FogException(6, (int)&Default, a3, "Unrecoverable internal error %08x", a2);
+void FogException()
+{
+	__try {
+		RaiseException(
+			1,                    // exception code 
+			0,                    // continuable exception 
+			0, NULL);
+	}
+	__except(UnhandledExceptionFilter(GetExceptionInformation())){
+		exit(0);
+		exit(0);
+	}
+}
+
+char __fastcall ErrorReportLaunch(const char *crash_file, int a2)
+{
+	Log("Crash File: %s\n", crash_file);
+	exit(0);
 }

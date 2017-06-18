@@ -113,12 +113,14 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 		POP EAX
 		PUSH ECX
 		PUSH EAX
+		PUSH EBP
+		MOV EBP, ESP
 		SUB ESP,0x110
 		PUSH EBX
-		PUSH EBP
-		MOV EBP, [D2LANG_Say_II]
 		PUSH ESI
 		PUSH EDI
+		MOV EBX, [EBP+8]
+		//MOV EBP, [D2LANG_Say_II]
 		JMP D2CLIENT_Say_I
 	}
 }
@@ -235,7 +237,7 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 
 void LoadMPQ(const char* mpq)
 {
-	D2WIN_InitMPQ("D2Win.DLL", mpq, NULL, 0, 0);
+	D2WIN_InitMPQ(mpq, 0, 0, 3000);
 	*p_BNCLIENT_XPacKey = *p_BNCLIENT_ClassicKey = *p_BNCLIENT_KeyOwner = NULL;
-	BNCLIENT_DecodeAndLoadKeys();
+	//BNCLIENT_DecodeAndLoadKeys();
 }
