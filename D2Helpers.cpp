@@ -347,10 +347,10 @@ DWORD __declspec(naked) __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo
 {
 	__asm 
 	{
-		push eax;
-		mov eax, ecx;
+		push edi; //Updated 1.14d Registers changed.
+		mov edi, ecx;
 		call D2CLIENT_InitAutomapLayer_I;
-		pop eax;
+		pop edi;
 		ret;
 	}
 }
