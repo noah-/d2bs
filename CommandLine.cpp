@@ -36,10 +36,7 @@ sLine CLine[] = {
 	{"-e2",0},
 	{"-mpq",0},
 	{"-profile", 0},
-	{"-handle", 0},
-	{"-multi", 0},
-	{"-sleepy", 0},
-	{"-cachefix",0}
+	{"-handle", 0}
 };
 
 DWORD ParseStringForText(LPSTR Source,LPSTR text)

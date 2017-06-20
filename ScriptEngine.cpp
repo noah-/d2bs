@@ -897,8 +897,6 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 	{		
 		ScriptEngine::DisposeScript(evt->owner);
 	}
-
-	return true;
 }
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 {	

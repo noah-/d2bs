@@ -40,37 +40,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
-	ParseCommandLine(GetCommandLineA());
-
-	command = GetCommand("-title");
-
-	if (command)
-	{
-		int len = strlen((char*)command->szText);
-		strncat_s(Vars.szTitle, (char*)command->szText, len);
-	}
-
-	command = GetCommand("-sleepy");
-
-	if (command)
-	{
-		Vars.bSleepy = 1;
-	}
-
-	command = GetCommand("-cachefix");
-
-	if (command)
-	{
-		Vars.bCacheFix = 1;
-	}
-
-
-	command = GetCommand("-multi");
-
-	if (command)
-	{
-		Vars.bMulti = TRUE;
-	}
+	ParseCommandLine(GetCommandLineA()); 
 
 	command = GetCommand("-c0");
 
@@ -125,6 +95,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		const char *keys = (char*)command->szText;
 		int len = strlen(keys); 
 		strncat_s(Vars.szLod, keys, len);
+	}
+
+	if (Vars.bUseRawCDKey == 1) 
+	{
+		InstallConditional(); 
 	}
 
 	command = GetCommand("-handle");

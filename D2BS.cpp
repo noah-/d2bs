@@ -12,7 +12,6 @@
 #include "Console.h"
 #include "D2BS.h"
 #include "D2Ptrs.h"
-#include "CommandLine.h"
 
 #ifdef _MSVC_DEBUG
 #include "D2Loader.h"
@@ -22,85 +21,53 @@ static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 static HANDLE hEventThread = INVALID_HANDLE_VALUE;
 BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 {
-	switch (dwReason)
+	switch(dwReason)
 	{
-	case DLL_PROCESS_ATTACH:
-	{
-		DisableThreadLibraryCalls(hDll);
-		if (lpReserved != NULL)
+		case DLL_PROCESS_ATTACH:
 		{
-			Vars.pModule = (Module*)lpReserved;
+			DisableThreadLibraryCalls(hDll);
+			if(lpReserved != NULL)
+			{
+				Vars.pModule = (Module*)lpReserved;
 
-			if (!Vars.pModule)
-				return FALSE;
+				if(!Vars.pModule)
+					return FALSE;
 
-			strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
-			Vars.bLoadedWithCGuard = TRUE;
-		}
-		else
-		{
-			Vars.hModule = hDll;
-			GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
-			PathRemoveFileSpec(Vars.szPath);
-			strcat_s(Vars.szPath, MAX_PATH, "\\");
-			Vars.bLoadedWithCGuard = FALSE;
-		}
-
-		ParseCommandLine(GetCommandLineA());
-
-		sLine* command = GetCommand("-title");
-
-		if (command)
-		{
-			int len = strlen((char*)command->szText);
-			strncat_s(Vars.szTitle, (char*)command->szText, len);
-		}
-
-		command = GetCommand("-sleepy");
-
-		if (command)
-		{
-			Vars.bSleepy = 1;
-		}
-
-		command = GetCommand("-cachefix");
-
-		if (command)
-		{
-			Vars.bCacheFix = 1;
-		}
-
-
-		command = GetCommand("-multi");
-
-		if (command)
-		{
-			Vars.bMulti = TRUE;
-		}
+				strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
+				Vars.bLoadedWithCGuard = TRUE;
+			}
+			else
+			{
+				Vars.hModule = hDll;
+				GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
+				PathRemoveFileSpec(Vars.szPath);
+				strcat_s(Vars.szPath, MAX_PATH, "\\");
+				Vars.bLoadedWithCGuard = FALSE;
+			}
 
 #if 0
-		char errlog[516] = "";
-		sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
-		AllocConsole();
-		int handle = _open_osfhandle((long)GetStdHandle(STD_ERROR_HANDLE), _O_TEXT);
-		FILE* f = _fdopen(handle, "wt");
-		*stderr = *f;
-		setvbuf(stderr, NULL, _IONBF, 0);
-		freopen_s(&f, errlog, "a+t", f);
+			char errlog[516] = "";
+			sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
+			AllocConsole();
+			int handle = _open_osfhandle((long)GetStdHandle(STD_ERROR_HANDLE), _O_TEXT);
+			FILE* f = _fdopen(handle, "wt");
+			*stderr = *f;
+			setvbuf(stderr, NULL, _IONBF, 0);
+			freopen_s(&f, errlog, "a+t", f);
 #endif
 
-		Vars.bShutdownFromDllMain = FALSE;
-		SetUnhandledExceptionFilter(ExceptionHandler);
-		if (!Startup())
-			return FALSE;
-	}
-	break;
-	case DLL_PROCESS_DETACH:
-		if (Vars.bNeedShutdown)
-		{
-			Vars.bShutdownFromDllMain = TRUE;
-			Shutdown();
+			Vars.bShutdownFromDllMain = FALSE;
+			SetUnhandledExceptionFilter(ExceptionHandler);
+			if(!Startup())
+				return FALSE;
 		}
+		break;
+		case DLL_PROCESS_DETACH:
+			if(Vars.bNeedShutdown)
+			{
+				Vars.bShutdownFromDllMain = TRUE;
+				Shutdown();
+			}
 		break;
 	}
 
@@ -125,7 +92,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cUnitListSection);
 	InitializeCriticalSection(&Vars.cFileSection);
 
-	Vars.bNeedShutdown = TRUE;
+	Vars.bNeedShutdown = TRUE;	
 	Vars.bChangedAct = FALSE;
 	Vars.bGameLoopEntered = FALSE;
 
@@ -135,25 +102,24 @@ BOOL Startup(void)
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
-	InstallConditional();
 	CreateDdeServer();
 
-	if ((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
+	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
 		return FALSE;
-	//	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
+//	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
 	return TRUE;
 }
 
 void Shutdown(void)
 {
-	if (!Vars.bNeedShutdown)
+	if(!Vars.bNeedShutdown)
 		return;
 
 	Vars.bActive = FALSE;
-	if (!Vars.bShutdownFromDllMain)
+	if(!Vars.bShutdownFromDllMain)
 		WaitForSingleObject(hD2Thread, INFINITE);
 
-	SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)Vars.oldWNDPROC);
+	SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 	RemovePatches();
 	Genhook::Destroy();

@@ -1,9 +1,7 @@
-
 #include "D2Handlers.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
 #include "Helpers.h"
-#include <shlwapi.h>
 
 void __declspec(naked) RealmPacketRecv_Interception()
 {
@@ -313,92 +311,6 @@ VOID __declspec(naked) __fastcall LodSTUB()
 		jmp BNCLIENT_DLod;
 	}
 	
-}
-
-void __declspec(naked) FailToJoin()
-{
-	__asm
-	{
-		cmp esi, 4000;
-		ret;
-	}
-}
-
-int EraseCacheFiles()
-{
-
-	CHAR path[MAX_PATH];
-	GetCurrentDirectoryA(MAX_PATH, path);
-
-	CHAR szSearch[MAX_PATH];
-	memset(szSearch, 0x00, MAX_PATH);
-
-	strcpy_s(szSearch, path);
-	PathAppendA(szSearch, "\\*.dat");
-
-	WIN32_FIND_DATAA FindFileData;
-	HANDLE  hFind = FindFirstFileA(szSearch, &FindFileData);
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			char FilePath[MAX_PATH];
-			memset(FilePath, 0x00, MAX_PATH);
-
-			strcpy_s(FilePath, path);
-			PathAppendA(FilePath, FindFileData.cFileName);
-			DeleteFileA(FilePath);
-
-		} while (FindNextFileA(hFind, &FindFileData));
-
-		FindClose(hFind);
-	}
-
-	return 0;
-}
-
-HMODULE __stdcall Multi(LPSTR Class, LPSTR Window) { return 0; }
-
-HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
-{
-	CHAR szWindowName[100] = "D2";
-
-		if (strlen(Vars.szTitle) > 1)
-			strcpy_s(szWindowName, sizeof(szWindowName), Vars.szTitle);
-
-	return CreateWindowExA(dwExStyle, lpClassName, szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
-}
-
-
-HANDLE __stdcall CacheFix(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
-{
-	EraseCacheFiles();
-	CHAR path[MAX_PATH];
-	GetCurrentDirectoryA(MAX_PATH, path);
-
-	if (Vars.bCacheFix)
-	{
-		char szTitle[128];
-		GetWindowText(D2GFX_GetHwnd(), szTitle, 128);
-		CHAR Def[100] = "";
-
-		if (strlen(szTitle) > 1)
-		{
-			sprintf_s(Def, "\\bncache%d.dat", szTitle);
-			strcat_s(path, Def);
-		}
-		else
-		{
-			srand(GetTickCount());
-			sprintf_s(Def, "\\bncache%d.dat", rand() % 0x2000);
-
-			strcat_s(path, Def);
-		}
-	}
-	else
-		strcat_s(path, "\\bncache.dat");
-
-	return CreateFileA(path, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 WINUSERAPI
