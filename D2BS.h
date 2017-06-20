@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1859" //uptodate with d branch 1765 ff 20b
+#define D2BS_VERSION "1.5.1857" //uptodate with d branch 1765 ff 20b
 
 #include <windows.h>
 #include <vector>
@@ -62,9 +62,6 @@ struct Variables
 	BOOL	bForwardMessageBox;
 	BOOL	bUseRawCDKey;
 	BOOL	bQuitting;
-	BOOL	bCacheFix;
-	BOOL	bMulti;
-	BOOL	bSleepy;
 	int		dwMemUsage;
 	int		dwConsoleFont;
 	HANDLE eventSignal;
@@ -79,7 +76,6 @@ struct Variables
 	char	szDefault[_MAX_FNAME];
 	char	szClassic[30];
 	char	szLod[30];
-	char	szTitle[128];
 
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;

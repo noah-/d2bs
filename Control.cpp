@@ -233,8 +233,8 @@ BOOL OOG_SelectCharacter(char* szCharacter)
             if(!szLine)
                 return FALSE;
 
-            char* cLine = _strdup(szLine);
-            char* cCharacter = _strdup(szCharacter);
+            char* cLine = strdup(szLine);
+            char* cCharacter = strdup(szCharacter);
             StringToLower(cLine);
             StringToLower(cCharacter);
 
