@@ -40,7 +40,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
-	ParseCommandLine(GetCommandLineA()); 
+	ParseCommandLine(GetCommandLineA());
 
 	command = GetCommand("-c0");
 
@@ -95,11 +95,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		const char *keys = (char*)command->szText;
 		int len = strlen(keys); 
 		strncat_s(Vars.szLod, keys, len);
-	}
-
-	if (Vars.bUseRawCDKey == 1) 
-	{
-		InstallConditional(); 
 	}
 
 	command = GetCommand("-handle");

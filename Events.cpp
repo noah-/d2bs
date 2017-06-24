@@ -11,7 +11,7 @@ bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
-		evt->name = strdup("melife");
+		evt->name = _strdup("melife");
 		evt->arg1 =  new DWORD(helper->arg1);
  		
 		script->FireEvent(evt);
@@ -33,7 +33,7 @@ bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
-		evt->name = strdup("memana");
+		evt->name = _strdup("memana");
 		evt->arg1 =  new DWORD(helper->arg1);
  		
 		script->FireEvent(evt);
@@ -205,9 +205,9 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
-		evt->name = strdup(helper->event); 
-		evt->arg1 = strdup(helper->nick);
- 		evt->arg2 = strdup(helper->msg);
+		evt->name = _strdup(helper->event); 
+		evt->arg1 = _strdup(helper->nick);
+ 		evt->arg2 = _strdup(helper->msg);
 		
 		script->FireEvent(evt);
 		
@@ -221,9 +221,9 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
-		evt->name = strdup(evtname.c_str()); 
-		evt->arg1 = strdup(helper->nick);
- 		evt->arg2 = strdup(helper->msg);
+		evt->name = _strdup(evtname.c_str()); 
+		evt->arg1 = _strdup(helper->nick);
+ 		evt->arg2 = _strdup(helper->msg);
 		evt->arg4 = new DWORD(false);
 		ResetEvent(Vars.eventSignal);
 		script->FireEvent(evt);
@@ -263,7 +263,7 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 		evt->argc = argc;
 		evt->name = "copydata";
 		evt->arg1 =  new DWORD(helper->mode);
- 		evt->arg2 = strdup(helper->msg);
+ 		evt->arg2 = _strdup(helper->msg);
 		
 		script->FireEvent(evt);
 	}
@@ -286,7 +286,7 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 		evt->argc = argc;
 		evt->name = "itemaction";
 		evt->arg1 =  new DWORD(helper->id);
- 		evt->arg2 = strdup(helper->code);
+ 		evt->arg2 = _strdup(helper->code);
 		evt->arg3 = new DWORD(helper->mode);
 		evt->arg4 = new bool(helper->global);
 
@@ -313,8 +313,8 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 		evt->arg1 = new BYTE(helper->mode);
 		evt->arg2 = new DWORD(helper->param1);
 		evt->arg3 = new DWORD(helper->param2);
-		evt->arg4 = strdup(helper->name1);
- 		evt->arg5 = strdup(helper->name2);
+		evt->arg4 = _strdup(helper->name1);
+ 		evt->arg5 = _strdup(helper->name2);
 
 		script->FireEvent(evt);
 	}

@@ -559,7 +559,7 @@ JSAPI_FUNC(my_clickItem)
 			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
 
 			if(nClickType == NULL)
-				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, ClickLocation);
+				D2CLIENT_LeftClickItem(ClickLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout);
 				//D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
 			else
 				D2CLIENT_RightClickItem(x,y, ClickLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
@@ -660,11 +660,11 @@ JSAPI_FUNC(my_clickItem)
 				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, clickTarget);
+					D2CLIENT_LeftClickItem(clickTarget, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout);
 				else if(nButton == 1) // Right Click
 					D2CLIENT_RightClickItem(x, y, clickTarget, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, clickTarget);
+					D2CLIENT_LeftClickItem(clickTarget, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout);
 				
 				delete cRoom;
 				JS_SET_RVAL(cx, vp , JSVAL_TRUE);
