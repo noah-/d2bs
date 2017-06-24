@@ -64,25 +64,83 @@ void RemovePatches()
 
 void InstallConditional()
 {
-	for(int x = 0; x < ArraySize(Conditional); x++)
+	if (Vars.bUseRawCDKey == 1)
 	{
-		Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
-		::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
-		Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
-	}	
+		for (int x = 0; x < 2; x++)
+		{
+			Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
+			::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
+			Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
+		}
+	}
+
+	if (Vars.bMulti)
+	{
+		for (int x = 2; x < 5; x++)
+		{
+			Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
+			::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
+			Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
+		}
+	}
+
+	if (Vars.bCacheFix)
+	{
+		for (int x = 5; x < 7; x++)
+		{
+			Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
+			::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
+			Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
+		}
+	}
+
+	if (Vars.bSleepy)
+	{
+		for (int x = 7; x < 9; x++)
+		{
+			Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
+			::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
+			Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);
+		}
+	}
 }
 
 void RemoveConditional()
 {
 	if(Vars.bUseRawCDKey)
 	{
-	
-		for(int x = 0; x < ArraySize(Conditional); x++)
+		for (int x = 0; x < 2; x++)
 		{
 			WriteBytes((void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen);
 			delete[] Conditional[x].bOldCode;
 		}
+	}
 
+	if (Vars.bMulti)
+	{
+		for (int x = 2; x < 5; x++)
+		{
+			WriteBytes((void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen);
+			delete[] Conditional[x].bOldCode;
+		}
+	}
+
+	if (Vars.bCacheFix)
+	{
+		for (int x = 5; x < 7; x++)
+		{
+			WriteBytes((void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen);
+			delete[] Conditional[x].bOldCode;
+		}
+	}
+
+	if (Vars.bSleepy)
+	{
+		for (int x = 7; x < 9; x++)
+		{
+			WriteBytes((void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen);
+			delete[] Conditional[x].bOldCode;
+		}
 	}
 }
 

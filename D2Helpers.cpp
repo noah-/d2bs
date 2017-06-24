@@ -820,31 +820,14 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory
 	}
 }
 
-void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location)
+void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(DWORD Location, UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType, InventoryLayout* pLayout)
 {
 	__asm
 	{
-		/*mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18]
-		push eax
-		mov eax, [esp + 0x18 + 0x18 + 4]*/
-		mov eax, [esp + 0x1C]
-		push eax
-		mov eax, [esp + 4] // return addr
-		mov [esp + 0x1C + 4], eax // store ret addr
-		pop eax
-		add esp, 4
-		call D2CLIENT_LeftClickItem_I
-		ret
+		pop ebx // pop return address
+		pop eax // pop Location to eax (optimized convention?)
+		push ebx // push return address
+		jmp D2CLIENT_LeftClickItem_I
 	}
 }
 
@@ -852,18 +835,11 @@ void __declspec(naked) __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, 
 {
 	__asm
 	{
-		// ECX = y, EDX = x - Blizzard is weird :D
-		MOV EAX, ECX
-		MOV ECX, EDX
-			MOV EDX, EAX
-
-			MOV EAX, [ESP + 4] //  location
-			PUSH EAX // save
-			MOV EAX, [ESP + 4] // ret addr
-			MOV [ESP + 8], EAX // overwrite location with ret addr
-			POP EAX
-			ADD ESP, 4 // pop ret addr copy
-			jmp D2CLIENT_ClickItemRight_I
+		xchg edx, ecx // x, y -> y, x
+		pop ebx // pop return address
+		pop eax // pop Location to eax (optimized convention?)
+		push ebx // push return address
+		jmp D2CLIENT_ClickItemRight_I
 	}
 }
 

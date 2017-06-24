@@ -204,7 +204,7 @@ void Script::Run(void)
 			for(uintN i = 0; i < argc; i++)
 				argv[i]->read(context, &argvalue[i]);			
 				
-			for(int j = 0 ; j < argc; j++)
+			for(uint j = 0 ; j < argc; j++)
 				JS_AddValueRoot(context, &argvalue[j]);
 
 
@@ -219,7 +219,7 @@ void Script::Run(void)
 	}
 	JS_RemoveValueRoot(GetContext(), &main);
 	JS_RemoveValueRoot(GetContext(), &dummy);
-	for(int j = 0 ; j < argc; j++)
+	for(uint j = 0 ; j < argc; j++)
 		JS_RemoveValueRoot(GetContext(), &argvalue[j]);
 	
 	/*for(uintN i = 0; i < argc; i++)  //crashes spidermonkey cleans itself up?
