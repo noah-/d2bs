@@ -195,8 +195,6 @@ void ScriptBroadcastEvent(JSContext* cx ,uint argc, jsval* args)
 	ScriptEngine::ForEachScript(BCastEventCallback, &helper, argc);
 }
 
-
-
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 {
 	ChatEventHelper* helper = (ChatEventHelper*)argv;
@@ -326,13 +324,13 @@ void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* n
 	GameActionEventHelper helper = {mode, param1, param2, name1, name2};
 	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 5);
 }
+
 bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 {
 	GamePacketHelper* helper = (GamePacketHelper*)argv;
 	
 	if(ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered("gamepacket"))
 	{
-	
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
@@ -359,6 +357,7 @@ bool __fastcall GamePacketCallback(Script* script, void* argv, uint argc)
 		delete evt;
 		return retval;		
 	}
+
 	return false;
 }
 
@@ -368,7 +367,6 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 	
 	if(ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered("gamepacketsent"))
 	{
-	
 		Event* evt = new Event;
 		evt->owner = script;
 		evt->argc = argc;
@@ -399,6 +397,7 @@ bool __fastcall GamePacketSentCallback(Script* script, void* argv, uint argc)
 		delete evt;
 		return retval;		
 	}
+
 	return false;
 }
 
@@ -414,13 +413,54 @@ bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize)
 	return ScriptEngine::ForEachScript(GamePacketSentCallback, &helper, 2);
 }
 
+bool __fastcall RealmPacketCallback(Script* script, void* argv, uint argc)
+{
+	GamePacketHelper* helper = (GamePacketHelper*)argv;
+	
+	if(script->IsRunning() && script->IsListenerRegistered("realmpacket"))
+	{
+		Event* evt = new Event;
+		evt->owner = script;
+		evt->argc = argc;
+		evt->arg2 = new DWORD(helper->dwSize);
+		evt->arg1 = new BYTE[helper->dwSize];
+		evt->arg4 = new DWORD(false);
+		memcpy(evt->arg1, helper->pPacket, helper->dwSize);
+		evt->name = "realmpacket";
+		
+		ResetEvent(Vars.eventSignal);
+		script->FireEvent(evt);
+		static DWORD result;
+		ReleaseGameLock();
+		result = WaitForSingleObject(Vars.eventSignal, 500);		
+		TakeGameLock();
+		
+		if (result == WAIT_TIMEOUT)	
+			return false;
+		
+		bool retval = (*(DWORD*) evt->arg4 );		
+		delete evt->arg1;
+		delete evt->arg2;
+		delete evt->arg4;			
+		delete evt;
+		return retval;		
+	}
 
+	return false;
+}
+
+bool RealmPacketEvent(BYTE* pPacket, DWORD dwSize)
+{
+	GamePacketHelper helper = {pPacket, dwSize};
+	return ScriptEngine::ForEachScript(RealmPacketCallback, &helper, 2);
+}
 
 void ReleaseGameLock(void)
 {
 	if(Vars.bGameLoopEntered && Vars.dwGameThreadId == GetCurrentThreadId())
 		LeaveCriticalSection(&Vars.cGameLoopSection);
 }
+
 void TakeGameLock(void)
 {
 	if(Vars.bGameLoopEntered && Vars.dwGameThreadId == GetCurrentThreadId())

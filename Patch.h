@@ -34,7 +34,7 @@ PatchHook Patches[] = {
 
 	{PatchCall,	GetDllOffset("D2CMP.dll", 0x2091E5),		(DWORD)GameCrashFix_Intercept,			10},//1.14d //006091E5-BASE
 
-	//{PatchCall,	GetDllOffset("D2MCPClient.dll", 0x6297), (DWORD)RealmPacketRecv_Interception, 5},
+	{PatchCall, GetDllOffset("D2MCPClient.dll", 0x4B1AE), (DWORD)RealmPacketRecv_Interception,  6},
 
 	{PatchCall, GetDllOffset("Fog.dll", 0x8CC4),		(DWORD)LogMessageBoxA_Intercept,		6}, //Updated 1.14d //00408CC4-BASE
 	{PatchJmp,  GetDllOffset("Fog.dll", 0x82E0),		(DWORD)D2GAME_exit0,		6}, //NEW 1.14d //004082E0-BASE

@@ -1,4 +1,3 @@
-
 #include "D2Handlers.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
@@ -9,15 +8,18 @@ void __declspec(naked) RealmPacketRecv_Interception()
 {
 	__asm
 	{
-		LEA ECX,DWORD PTR SS:[ESP+4]
-		PUSHAD
-		CALL RealmPacketRecv
-		CMP EAX, 0
-		POPAD
-		JE Block
-		CALL EAX
+		test esi, esi
+		jz block
+		pushad
+
+		call RealmPacketRecv
+		cmp eax, 0
+
+		popad
+		je Block
+		call esi
 Block:
-		RETN
+		ret
 	}
 }
 
@@ -89,7 +91,8 @@ void __declspec(naked) GameDraw_Intercept()
 
 void __declspec(naked) GameInput_Intercept()
 {
-	__asm {
+	__asm 
+	{
 		pushad
 		mov ecx, ebx
 		call GameInput
@@ -100,7 +103,6 @@ void __declspec(naked) GameInput_Intercept()
 		ret
 
 BlockIt:
-
 		xor eax,eax
 		ret
 	}
@@ -139,26 +141,28 @@ void __declspec(naked) Whisper_Intercept()
 		jmp edi
 	}
 }
+
 VOID __declspec(naked) ChatPacketRecv_Interception()
 {
-        __asm
-        {
-				mov     edx, [ebp + 8]
-				mov     ecx, ebx
-                pushad
-				sub ecx, 4
-				add edx, 4
+	__asm
+	{
+		mov edx, [ebp + 8]
+		mov ecx, ebx
+		pushad
+		sub ecx, 4
+		add edx, 4
 
-                call ChatPacketRecv
-                test eax, eax
-                popad
+		call ChatPacketRecv
+		test eax, eax
+		popad
  
-                je Block
-				call    edi
+		je Block
+		call edi
 Block:
-                ret
-   }
+		ret
+	}
 }
+
 void __declspec(naked) GameAttack_Intercept()
 {
 	__asm 
