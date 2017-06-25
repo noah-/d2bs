@@ -97,7 +97,7 @@ struct Event {
 				delete evt->arg1;
 				delete evt;			
 			}	
-			if (strcmp(evtName, "gamepacket") == 0 || strcmp(evtName, "gamepacketsent") == 0) {
+			if (strcmp(evtName, "gamepacket") == 0 || strcmp(evtName, "gamepacketsent") == 0 || strcmp(evtName, "realmpacket") == 0) {
 				delete evt->arg1;
 				delete evt->arg2;
 				delete evt->arg4;

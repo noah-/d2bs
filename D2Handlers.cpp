@@ -579,10 +579,8 @@ void GameLeave(void)
 //	EnterCriticalSection(&Vars.cGameLoopSection);
 }
 
-BOOL __fastcall RealmPacketRecv(BYTE* pPacket) {
-	bool blockPacket = false;
-	//__raise BH::moduleManager->OnRealmPacketRecv(pPacket, &blockPacket);
-	return !blockPacket;
+BOOL __fastcall RealmPacketRecv(BYTE* pPacket, DWORD dwSize) {
+	return !RealmPacketEvent(pPacket, dwSize);
 }
 
 BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len) {
