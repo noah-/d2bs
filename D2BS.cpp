@@ -78,6 +78,61 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 			Vars.bMulti = TRUE;
 		}
 
+		command = GetCommand("-c0");
+
+		if(command) 
+		{
+			Vars.bUseRawCDKey = 1; 
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szClassic, keys, len);
+		}
+
+		command = GetCommand("-c1");
+
+		if(command) 
+		{
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szClassic, keys, len);
+		}
+
+		command = GetCommand("-c2");
+
+		if(command) 
+		{
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szClassic, keys, len);
+		}
+
+		command = GetCommand("-e0");
+
+		if(command) 
+		{
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szLod, keys, len);
+		}
+
+		command = GetCommand("-e1");
+
+		if(command) 
+		{
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szLod, keys, len);
+		}
+
+		command = GetCommand("-e2");
+
+		if(command) 
+		{
+			const char *keys = (char*)command->szText;
+			int len = strlen(keys); 
+			strncat_s(Vars.szLod, keys, len);
+		}
+
 #if 0
 		char errlog[516] = "";
 		sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
