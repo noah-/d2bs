@@ -42,61 +42,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 	ParseCommandLine(GetCommandLineA());
 
-	command = GetCommand("-c0");
-
-	if(command) 
-	{
-		Vars.bUseRawCDKey = 1; 
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szClassic, keys, len);
-	}
-
-	command = GetCommand("-c1");
-
-	if(command) 
-	{
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szClassic, keys, len);
-	}
-
-	command = GetCommand("-c2");
-
-	if(command) 
-	{
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szClassic, keys, len);
-	}
-
-	command = GetCommand("-e0");
-
-	if(command) 
-	{
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szLod, keys, len);
-	}
-
-	command = GetCommand("-e1");
-
-	if(command) 
-	{
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szLod, keys, len);
-	}
-
-	command = GetCommand("-e2");
-
-	if(command) 
-	{
-		const char *keys = (char*)command->szText;
-		int len = strlen(keys); 
-		strncat_s(Vars.szLod, keys, len);
-	}
-
 	command = GetCommand("-handle");
 
 	if(command) 
