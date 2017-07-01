@@ -75,18 +75,9 @@ void __declspec(naked) GamePacketSent_Interception()
 	}
 }
 
-void __declspec(naked) GameDraw_Intercept()
+void GameDraw_Intercept(void)
 {
-	__asm
-	{
-		call GameDraw;
-		ret
-
-		POP ESI
-		POP EBX
-		POP ECX
-		RETN 4
-	}
+	GameDraw();
 }
 
 void __declspec(naked) GameInput_Intercept()
