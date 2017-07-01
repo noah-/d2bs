@@ -4,7 +4,7 @@
 #include "D2Structs.h"
 
 void RealmPacketRecv_Interception();
-void GameDraw_Intercept();
+void GameDraw_Intercept(void);
 void GameInput_Intercept();
 void GamePacketReceived_Intercept();
 void GamePacketSent_Interception();
