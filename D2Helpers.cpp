@@ -845,11 +845,9 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, 
 {
 	__asm
 	{
-		mov eax, [esp + 4]
-		push eax
-		mov eax, [esp + 8 + 4]
-		call D2CLIENT_ClickBeltRight_I
-		retn 8
+		pop eax // pop return address
+		xchg eax, [esp] // return address to stack, location to eax
+		jmp D2CLIENT_ClickBeltRight_I
 	}
 }
 
