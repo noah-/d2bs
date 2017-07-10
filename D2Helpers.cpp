@@ -824,9 +824,8 @@ void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(DWORD Location, UnitAny*
 {
 	__asm
 	{
-		pop ebx // pop return address
-		pop eax // pop Location to eax (optimized convention?)
-		push ebx // push return address
+		pop eax // pop return address
+		xchg eax, [esp] // return address to stack, location to eax
 		jmp D2CLIENT_LeftClickItem_I
 	}
 }
@@ -836,9 +835,8 @@ void __declspec(naked) __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, 
 	__asm
 	{
 		xchg edx, ecx // x, y -> y, x
-		pop ebx // pop return address
-		pop eax // pop Location to eax (optimized convention?)
-		push ebx // push return address
+		pop eax // pop return address
+		xchg eax, [esp] // return address to stack, location to eax
 		jmp D2CLIENT_ClickItemRight_I
 	}
 }
