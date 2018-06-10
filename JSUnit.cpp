@@ -755,25 +755,25 @@ JSAPI_FUNC(unit_getNext)
 }
 
 JSAPI_FUNC(unit_cancel)
-{	
+{
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 
+	DWORD automapOn = *p_D2CLIENT_AutomapOn;
 
-
-	DWORD automapOn =*p_D2CLIENT_AutomapOn;
-
-	if(IsScrollingText())
+	if(argc > 0)
+		D2CLIENT_CloseInteract();
+	else if(IsScrollingText())
 		D2CLIENT_ClearScreen();
-	else if(D2CLIENT_GetCurrentInteractingNPC())	
+	else if(D2CLIENT_GetCurrentInteractingNPC())
 		D2CLIENT_CloseNPCInteract();
 	else if(D2CLIENT_GetCursorItem())
 		D2CLIENT_ClickMap(0, 10, 10, 0x08);
 	else
 		D2CLIENT_CloseInteract();
-	
-	*p_D2CLIENT_AutomapOn =automapOn;
-	
+
+	*p_D2CLIENT_AutomapOn = automapOn;
+
 	return JS_TRUE;
 }
 
@@ -1421,37 +1421,48 @@ JSAPI_FUNC(unit_getItems)
 
 JSAPI_FUNC(unit_getSkill)
 {
+	if(argc == NULL || argc > 3)
+		return JS_TRUE;
+
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, vp,  "Game not ready");
 
+	bool nCharge = false;
 	jsint nSkillId = NULL;
 	jsint nExt = NULL;
 
 	myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 	if(!pmyUnit)
 		return JS_TRUE;
+
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 	if(!pUnit)
 		return JS_TRUE;
 
-	if(argc == NULL)
-		return JS_TRUE;
-
-	if(argc == 1)
+	if(argc >= 1)
 	{
 		if(!JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
 			return JS_TRUE;
 
 		nSkillId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 	}
-	else if(argc == 2)
+
+	if(argc >= 2)
 	{
-		if(!JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) || !JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
+		if(!JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
 			return JS_TRUE;
 
-		nSkillId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 		nExt = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
 	}
+
+	if(argc == 3)
+	{
+		if(!JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[2]))
+			return JS_TRUE;
+
+		nCharge = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[2]);
+	}
+
 	if(argc == 1)
 	{
 		WORD wLeftSkillId = pUnit->pInfo->pLeftSkill->pSkillInfo->wSkillId;
@@ -1521,24 +1532,23 @@ JSAPI_FUNC(unit_getSkill)
 		}
 		return JS_TRUE;
 	}
-	else if(argc == 2)
+
+	if(pUnit && pUnit->pInfo && pUnit->pInfo->pFirstSkill)
 	{
-		if(pUnit && pUnit->pInfo && pUnit->pInfo->pFirstSkill)
+		for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 		{
-			for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+			if(pSkill->pSkillInfo && pSkill->pSkillInfo->wSkillId == nSkillId)
 			{
-				if(pSkill->pSkillInfo && pSkill->pSkillInfo->wSkillId == nSkillId)
+				if((argc == 2 && pSkill->IsCharge == 0) || (argc == 3 && (nCharge == false || pSkill->IsCharge == 1)))
 				{
 					JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, nExt)));
 					return JS_TRUE;
 				}
 			}
 		}
-
 	}
 
 	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
-
 	return JS_TRUE;
 }
 
