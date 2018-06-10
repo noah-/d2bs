@@ -681,10 +681,9 @@ JSAPI_FUNC(my_getIP)
     char buffer[32];
 
     hInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-    hFile = InternetOpenUrl(hInternet, "http://automation.whatismyip.com/n09230945.asp", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    hFile = InternetOpenUrl(hInternet, "http://ipv4bot.whatismyipaddress.com", NULL, 0, INTERNET_FLAG_RELOAD, 0);
     InternetReadFile(hFile, &buffer, sizeof(buffer), &rSize);
     buffer[rSize] = '\0';
-
     InternetCloseHandle(hFile);
     InternetCloseHandle(hInternet);
 	JS_BeginRequest(cx);
@@ -692,6 +691,7 @@ JSAPI_FUNC(my_getIP)
 	JS_EndRequest(cx);
         return JS_TRUE;
 }
+
 JSAPI_FUNC(my_sendClick)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
