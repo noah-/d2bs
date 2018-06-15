@@ -86,7 +86,6 @@ void Print(const char * szFormat, ...)
 			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 			{
 				wchar_t * output = AnsiToUnicode(it->c_str());
-				replace(output, output+it->length(), 0xFFFF, 0xFF);
 				D2CLIENT_PrintGameString(output, 0);
 				delete [] output;
 			}
