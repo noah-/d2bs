@@ -166,19 +166,33 @@ void Script::Run(void)
 		}
 
 		if(scriptState == Command){			
-			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
+			char * cmd = "var global = this;function main() { print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
 			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
 			JS_AddNamedScriptRoot(context, &script, "console script");
 		}
-		else
-			script = JS_CompileFile(context, globalObject, fileName.c_str());
-		
+		else{
+			
+			std::string fileHeader;
+			fileHeader.append( "var global = this;function mainLoop() { while (true){delay(100)};} ");
+			
+			std::ifstream ifs(fileName.c_str());
+			std::string content( (std::istreambuf_iterator<char>(ifs) ),
+								   (std::istreambuf_iterator<char>()    ) );
+
+			fileHeader.append( content );
+			fileHeader.append( "" );
+			
+			char * cmd = (char *)fileHeader.data();
+
+			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd),  fileName.c_str() , 1);
+			
+			//script = JS_CompileFile(context, globalObject, fileName.c_str());
+		}
 		if(!script)
 			throw std::exception("Couldn't compile the script");
-	
+		
 		JS_EndRequest(context);
 		//JS_RemoveScriptRoot(context, &script);
-	
 	} catch(std::exception&) {
 		if(scriptObject)
 			JS_RemoveRoot(context, &scriptObject);
@@ -227,6 +241,13 @@ void Script::Run(void)
 		argv[i]->clear();
 		delete argv[i];
 	}*/
+	
+	std::string loop;
+
+	loop.append( "try{ mainLoop() } catch (error){print(error)}");
+		
+	jsval rval;
+	JS_EvaluateScript(GetContext(), globalObject, loop.data() , loop.length(), "Main Loop", 0 , &rval);
 
 	JS_EndRequest(GetContext());
 	
@@ -309,7 +330,6 @@ void Script::Stop(bool force, bool reallyForce)
 	}
 	LeaveCriticalSection(&lock);
 }
-
 
 bool Script::IsIncluded(const char* file)
 {

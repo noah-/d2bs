@@ -53,9 +53,10 @@ static JSFunctionSpec global_funcs[] = {
 
 	// utility functions that don't have anything to do with the game
 	JS_FN("print",				my_print,				1, FUNCTION_FLAGS),
-	JS_FN("setTimeout",			my_setTimeout,			0, FUNCTION_FLAGS),
-	JS_FN("setInterval",		my_setInterval,			0, FUNCTION_FLAGS),
-	JS_FN("clearInterval",		my_clearInterval,			1, FUNCTION_FLAGS),
+	JS_FN("setTimeout",			my_setTimeout,			2, FUNCTION_FLAGS),
+	JS_FN("clearTimeout",		my_clearInterval,		1, FUNCTION_FLAGS),
+	JS_FN("setInterval",		my_setInterval,			2, FUNCTION_FLAGS),
+	JS_FN("clearInterval",		my_clearInterval,		1, FUNCTION_FLAGS),
 	JS_FN("delay",				my_delay,				1, FUNCTION_FLAGS),
 	JS_FN("load",				my_load,				1, FUNCTION_FLAGS),
 	JS_FN("isIncluded",			my_isIncluded,			1, FUNCTION_FLAGS),
@@ -68,7 +69,7 @@ static JSFunctionSpec global_funcs[] = {
 	JS_FN("sendDDE",			my_sendDDE,				0, FUNCTION_FLAGS),
 	JS_FN("keystate",			my_keystate,			0, FUNCTION_FLAGS),
 	JS_FN("addEventListener",	my_addEventListener,	2, FUNCTION_FLAGS),
-	JS_FN("removeEventListener",	my_removeEventListener,	2, FUNCTION_FLAGS),
+	JS_FN("removeEventListener",my_removeEventListener,	2, FUNCTION_FLAGS),
 	JS_FN("clearEvent",			my_clearEvent,			1, FUNCTION_FLAGS),
 	JS_FN("clearAllEvents",		my_clearAllEvents,		0, FUNCTION_FLAGS),
 	JS_FN("js_strict",			my_js_strict,			0, FUNCTION_FLAGS),

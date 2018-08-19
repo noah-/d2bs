@@ -845,46 +845,16 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 	if (strcmp(evtName, "setTimeout") == 0 || strcmp(evtName, "setInterval") == 0) {
 		if(!clearList)
 		{
-			JS_BeginRequest(cx);	
-			jsval* argv = new jsval[evt->argc];
-			for(uintN i = 0; i < evt->argc; i++)
-				evt->argv[i]->read(cx, &argv[i]);
-							
-				for(int j = 0 ; j < evt->argc; j++)
-					JS_AddValueRoot(cx, &argv[j]);
-				if(JSVAL_IS_STRING(argv[0]))
-				{
-					std::string test ;
-					test.append( "try{ ");
-					test.append( JS_EncodeString(cx,JS_ValueToString(cx, argv[0])) );
-					test.append(" } catch (error){print(error)}");
-					jsval rval;
-					if(JS_EvaluateScript(cx, JS_GetGlobalObject(cx), test.data() , test.length(), "setTimeout", 0, &rval))
-					{
-						if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
-						{
-							JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-							char* text = JS_EncodeString(cx,JS_ValueToString(cx, rval));
-							std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
-							Print(text);
-							JS_free(cx, text);
-						}
-					}
-				}
-				
-				if(JSVAL_IS_FUNCTION(cx,argv[0])) //not working
-				{		
-					
-						jsval rval;	
-					JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), argv[0], evt->argc-2, &argv[2], &rval);	
-					
 
-				}
+			JS_BeginRequest(cx);		
+			jsval rval;
+
+			for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+				JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 0, new jsval[0], &rval);	
+				
 			JS_EndRequest(cx);
-			for(int j = 0 ; j < evt->argc; j++)
-				JS_RemoveValueRoot(cx, &argv[j]);
-		}
 			
+		}		
 		
 		if (strcmp(evtName, "setTimeout") == 0)
 		{
@@ -893,6 +863,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 
 		return true;	
 	}
+
 	if (strcmp(evtName, "DisposeMe") == 0)
 	{		
 		ScriptEngine::DisposeScript(evt->owner);
@@ -900,24 +871,37 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 
 	return true;
 }
+
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 {	
 	delayedExecKey++;
 	evt->arg1 =  new DWORD(delayedExecKey);
 	evt->arg2 = CreateWaitableTimer(NULL,true,NULL);	
 	
+	BOOL bSuccess;
+	TCHAR szError[255];
+	char* evtName = (char*) evt->name;
+	int intValue;
+
 	__int64  start;
 	start = freq * -10000;
 	LARGE_INTEGER lStart;
    // Copy the relative time into a LARGE_INTEGER.
 	lStart.LowPart  = (DWORD) ( start & 0xFFFFFFFF );
 	lStart.HighPart = (LONG)  ( start >> 32 );
-	freq = 	(strcmp(evt->name, "setInterval") == 0) ? freq : 0;
-	EnterCriticalSection(&Vars.cEventSection);
-		DelayedExecList.push_back(evt);
-		SetWaitableTimer((HANDLE*)evt->arg2, &lStart, freq, &EventTimerProc, evt, false);			
-	LeaveCriticalSection(&Vars.cEventSection);
+	if(strcmp(evtName,"setTimeout") == 0){
+		intValue = 	0;
+	}else{
+		intValue = freq;
+	}  
+		
+	DelayedExecList.push_back(evt);
+	bSuccess = SetWaitableTimer((HANDLE*)evt->arg2, &lStart, intValue, &EventTimerProc, evt, false);	
 
+	if ( !bSuccess ) {
+		wsprintf( szError, "SetWaitableTimer() failed with Error %d.", GetLastError() );
+        MessageBox( NULL, szError, "Error", MB_ICONEXCLAMATION );
+	}
 	return delayedExecKey;
 
 }
@@ -931,12 +915,12 @@ int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 		if( *(DWORD*)(*it)->arg1 ==  key)
 		{
 			//remove from script list if its already poped but not executed.
-			list<Event*>::iterator sit;
-			sit=(*it)->owner->EventList.begin();
-			if( *(DWORD*)(*sit)->arg1 ==  key)
-				sit = (*it)->owner->EventList.erase(sit);
-			else
-				sit++;
+			//list<Event*>::iterator sit;
+			//sit=(*it)->owner->EventList.begin();
+			//if( *(DWORD*)(*sit)->arg1 ==  key)
+			//	sit = (*it)->owner->EventList.erase(sit);
+			//else
+			//	sit++;
 
 			CancelWaitableTimer((HANDLE*)(*it)->arg2);
 			CloseHandle((HANDLE*)(*it)->arg2);
@@ -956,5 +940,5 @@ int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
  void CALLBACK EventTimerProc(LPVOID lpArg, DWORD dwTimerLowValue, DWORD dwTimerHighValue ) 
  {
 	Event* evt = (Event*) lpArg;
-	evt->owner->FireEvent(evt);
+	ExecScriptEvent(evt,false);
  }
