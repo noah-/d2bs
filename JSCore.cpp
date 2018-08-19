@@ -62,26 +62,51 @@ JSAPI_FUNC(my_setTimeout)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
 		JS_ReportError(cx, "invalid prams passed to setTimeout");
+	else {	
+		if(JSVAL_IS_FUNCTION(cx,JS_ARGV(cx, vp)[0])){
+			
+			int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+			JSContext* jcx = script->GetContext();
+			Event* evt = new Event;
+			evt->owner = script;
+			evt->argc = 0;
+			evt->functions.push_back(new AutoRoot(jcx,JS_ARGV(jcx, vp)[0]));
+			evt->name = "setTimeout";
 		
-	int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
-	Event* evt = new Event;
-		evt->owner = script;
-		evt->argc = argc;
-		evt->name ="setTimeout"; 
-		evt->argv = new JSAutoStructuredCloneBuffer*;
- 		for(uintN i = 0; i < argc; i++)
-		{
-			evt->argv[i] = new JSAutoStructuredCloneBuffer;
-			evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
+			//script->FireEvent(evt);
+			
+			JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 		}
-	
-	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 
-	return JS_FALSE;
+	}
+	return JS_TRUE;
 
 }
 JSAPI_FUNC(my_setInterval)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+		JS_ReportError(cx, "invalid prams passed to setTimeout");
+	else {	
+		if(JSVAL_IS_FUNCTION(cx,JS_ARGV(cx, vp)[0])){
+			
+			int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+			JSContext* jcx = script->GetContext();
+			Event* evt = new Event;
+			evt->owner = script;
+			evt->argc = 0;
+			evt->functions.push_back(new AutoRoot(jcx,JS_ARGV(jcx, vp)[0]));
+			evt->name = "setInterval";
+		
+			//script->FireEvent(evt);
+			
+			JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
+		}
+
+	}
+	return JS_TRUE;
+	/*
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
@@ -102,7 +127,7 @@ JSAPI_FUNC(my_setInterval)
 	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 
 	return JS_FALSE;
-
+	*/
 }
 JSAPI_FUNC(my_clearInterval)
 {
