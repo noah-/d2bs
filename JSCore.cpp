@@ -56,61 +56,59 @@ JSAPI_FUNC(my_print)
 	}
 	return JS_TRUE;
 }
+
 JSAPI_FUNC(my_setTimeout)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
-	Script* script = (Script*)JS_GetContextPrivate(cx);
+
 	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
-		JS_ReportError(cx, "invalid prams passed to setTimeout");
-		
-	int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
-	Event* evt = new Event;
-		evt->owner = script;
-		evt->argc = argc;
-		evt->name ="setTimeout"; 
-		evt->argv = new JSAutoStructuredCloneBuffer*;
- 		for(uintN i = 0; i < argc; i++)
-		{
-			evt->argv[i] = new JSAutoStructuredCloneBuffer;
-			evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
-		}
-	
-	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
+		JS_ReportError(cx, "invalid params passed to setTimeout");
 
-	return JS_FALSE;
+	if(JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[0]) && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+	{
+		Script* self = (Script*)JS_GetContextPrivate(cx);
+		int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+		self->RegisterEvent("setTimeout", JS_ARGV(cx, vp)[0]);
+		Event* evt = new Event;
+		evt->owner = self;
+		evt->name = "setTimeout";
+		evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
+		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
+	}
 
+	return JS_TRUE;
 }
+
 JSAPI_FUNC(my_setInterval)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
-		JS_ReportError(cx, "invalid prams passed to setTimeout");
-		
-	int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
-	Event* evt = new Event;
-		evt->owner = script;
-		evt->argc = argc;
-		evt->name ="setInterval"; 
-		evt->argv = new JSAutoStructuredCloneBuffer*;
- 		for(uintN i = 0; i < argc; i++)
-		{
-			evt->argv[i] = new JSAutoStructuredCloneBuffer;
-			evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
-		}
-	
-	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 
-	return JS_FALSE;
+	if (argc < 2 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+		JS_ReportError(cx, "invalid params passed to setInterval");
+
+	if(JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[0]) && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]))
+	{
+		Script* self = (Script*)JS_GetContextPrivate(cx);
+		int freq = JSVAL_TO_INT( JS_ARGV(cx, vp)[1]);
+		self->RegisterEvent("setInterval", JS_ARGV(cx, vp)[0]);
+		Event* evt = new Event;
+		evt->owner = self;
+		evt->name = "setInterval";
+		evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
+		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
+	}
+
+	return JS_TRUE;
 
 }
 JSAPI_FUNC(my_clearInterval)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if (argc != 1 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
-		JS_ReportError(cx, "invalid prams passed to setTimeout");
+		JS_ReportError(cx, "params prams passed to clearInterval");
 
 	ScriptEngine::RemoveDelayedEvent(JSVAL_TO_INT(JS_ARGV(cx, vp)[0]));
+	JS_free(cx, "setInterval");
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_delay)

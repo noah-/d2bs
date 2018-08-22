@@ -845,51 +845,20 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 	if (strcmp(evtName, "setTimeout") == 0 || strcmp(evtName, "setInterval") == 0) {
 		if(!clearList)
 		{
-			JS_BeginRequest(cx);	
-			jsval* argv = new jsval[evt->argc];
-			for(uintN i = 0; i < evt->argc; i++)
-				evt->argv[i]->read(cx, &argv[i]);
-							
-				for(int j = 0 ; j < evt->argc; j++)
-					JS_AddValueRoot(cx, &argv[j]);
-				if(JSVAL_IS_STRING(argv[0]))
-				{
-					std::string test ;
-					test.append( "try{ ");
-					test.append( JS_EncodeString(cx,JS_ValueToString(cx, argv[0])) );
-					test.append(" } catch (error){print(error)}");
-					jsval rval;
-					if(JS_EvaluateScript(cx, JS_GetGlobalObject(cx), test.data() , test.length(), "setTimeout", 0, &rval))
-					{
-						if(!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval))
-						{
-							JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-							char* text = JS_EncodeString(cx,JS_ValueToString(cx, rval));
-							std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
-							Print(text);
-							JS_free(cx, text);
-						}
-					}
-				}
-				
-				if(JSVAL_IS_FUNCTION(cx,argv[0])) //not working
-				{		
-					
-						jsval rval;	
-					JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), argv[0], evt->argc-2, &argv[2], &rval);	
-					
-
-				}
+			JS_BeginRequest(cx);
+			jsval rval;	
+			for(FunctionList::iterator it = evt->owner->functions[evtName].begin(); it != evt->owner->functions[evtName].end(); it++)
+			{
+				JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 0, &rval, &rval);	
+			}
 			JS_EndRequest(cx);
-			for(int j = 0 ; j < evt->argc; j++)
-				JS_RemoveValueRoot(cx, &argv[j]);
-		}
-			
+		}	
 		
 		if (strcmp(evtName, "setTimeout") == 0)
 		{
 			ScriptEngine::RemoveDelayedEvent(*(DWORD*) evt->arg1);
-		}	
+			JS_free(cx, "setTimeout");
+		}
 
 		return true;	
 	}
@@ -903,7 +872,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 {	
 	delayedExecKey++;
-	evt->arg1 =  new DWORD(delayedExecKey);
+	evt->arg1 = new DWORD(delayedExecKey);
 	evt->arg2 = CreateWaitableTimer(NULL,true,NULL);	
 	
 	__int64  start;
@@ -928,23 +897,13 @@ int ScriptEngine::AddDelayedEvent(Event* evt, int freq)
 	it = DelayedExecList.begin();
 	while(it != DelayedExecList.end())
 	{
-		if( *(DWORD*)(*it)->arg1 ==  key)
+		if(*(DWORD*)(*it)->arg1 == key)
 		{
-			//remove from script list if its already poped but not executed.
-			list<Event*>::iterator sit;
-			sit=(*it)->owner->EventList.begin();
-			if( *(DWORD*)(*sit)->arg1 ==  key)
-				sit = (*it)->owner->EventList.erase(sit);
-			else
-				sit++;
-
 			CancelWaitableTimer((HANDLE*)(*it)->arg2);
 			CloseHandle((HANDLE*)(*it)->arg2);
 			Event* evt = *it;
-			for(uintN i = 0; i < evt->argc; i++){
-				evt->argv[i]->clear();
-				delete evt->argv[i];
-			}		
+			evt->owner->UnregisterEvent(evt->name, *(jsval*) evt->arg3);
+			delete evt->arg3;
 			delete evt;
 			it = DelayedExecList.erase(it);
 		}
