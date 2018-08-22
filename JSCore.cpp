@@ -105,7 +105,7 @@ JSAPI_FUNC(my_clearInterval)
 {
 	JS_SET_RVAL(cx, vp, JSVAL_NULL);
 	if (argc != 1 || !JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
-		JS_ReportError(cx, "params prams passed to clearInterval");
+		JS_ReportError(cx, "invalid params passed to clearInterval");
 
 	ScriptEngine::RemoveDelayedEvent(JSVAL_TO_INT(JS_ARGV(cx, vp)[0]));
 	JS_free(cx, "setInterval");
