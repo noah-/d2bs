@@ -1,4 +1,4 @@
-﻿#include <io.h>
+#include <io.h>
 #include <errno.h>
 #include <ctime>
 #include <cmath>
@@ -63,7 +63,7 @@ const char* GetUnitName(UnitAny* pUnit, char* szTmp, size_t bufSize)
 	}
 	if(pUnit->dwType == UNIT_MONSTER) {
 		wchar_t* wName = D2CLIENT_GetUnitName(pUnit);
-		WideCharToMultiByte(CP_ACP, 0, wName, -1, szTmp, bufSize, 0, 0);
+		WideCharToMultiByte(CP_UTF8, 0, wName, -1, szTmp, bufSize, 0, 0);
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_PLAYER && pUnit->pPlayerData)
@@ -399,25 +399,13 @@ void AutomapToScreen(POINT* pPos)
 
 void myDrawText(const char* szwText, int x, int y, int color, int font) 
 {
-	size_t found;
 	wchar_t* text = AnsiToUnicode(szwText);
-	std::string temp(szwText);
-	found=temp.find_first_of(-1);
-  
-	while (found!=std::string::npos)
-    {
-       text[found] = 0xff;
-       found=temp.find_first_of(-1,found+1);
-    }
-	
-
 	DWORD dwOld = D2WIN_SetTextSize(font);
 	D2WIN_DrawText(text, x, y, color, 0);
 	D2WIN_SetTextSize(dwOld);
 
 	delete[] text;
 }
-
 
 void myDrawCenterText(const char* szText, int x, int y, int color, int font, int div) 
 {

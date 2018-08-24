@@ -310,7 +310,7 @@ JSAPI_FUNC(my_version)
 		return JS_TRUE;
 	}
 
-	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.14d.", D2BS_VERSION); 
+	Print("Ã¿c4D2BSÃ¿c1 Ã¿c3%s for Diablo II 1.14d.", D2BS_VERSION); 
 
 	return JS_TRUE;
 }

@@ -355,12 +355,12 @@ HMODULE __stdcall Multi(LPSTR Class, LPSTR Window) { return 0; }
 
 HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
-	CHAR szWindowName[100] = "D2";
+	WCHAR szWindowName[200] = L"D2";
 
-		if (strlen(Vars.szTitle) > 1)
-			strcpy_s(szWindowName, sizeof(szWindowName), Vars.szTitle);
+	if (wcslen(Vars.szTitle) > 1)
+		wcscpy_s(szWindowName, sizeof(szWindowName), Vars.szTitle);
 
-	return CreateWindowExA(dwExStyle, lpClassName, szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+	return CreateWindowExW(dwExStyle, AnsiToUnicode(lpClassName), szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
 
 HANDLE __stdcall CacheFix(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
