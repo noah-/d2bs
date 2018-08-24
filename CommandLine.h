@@ -21,13 +21,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 struct sLine{
-	CHAR Param[200];
+	WCHAR Param[400];
 	BOOL isBool;
-	CHAR szText[300];
+	WCHAR szText[600];
 };
 
-void ParseCommandLine(LPSTR Command);
-sLine *GetCommand(LPSTR Param);
+void ParseCommandLine(LPWSTR Command);
+sLine *GetCommand(LPWSTR Param);
 
 extern CArrayEx<sLine*, sLine*> aCommand;
 

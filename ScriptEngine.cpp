@@ -488,7 +488,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", 
 			strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
 
-	Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", 
+	Print("[Ã¿c%d%s%sÃ¿c0 (%d)] File(%s:%d) %s", 
 			(warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
 	free(filename);

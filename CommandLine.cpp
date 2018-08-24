@@ -28,37 +28,37 @@ CArrayEx<sLine*, sLine*> aCommand;
 
 //Commands.
 sLine CLine[] = {
-	{"-c0",0},
-	{"-c1",0},
-	{"-c2",0},
-	{"-e0",0},
-	{"-e1",0},
-	{"-e2",0},
-	{"-title",0},
-	{"-mpq",0},
-	{"-profile", 0},
-	{"-handle", 0},
-	{"-multi", 0},
-	{"-sleepy", 0},
-	{"-cachefix",0}
+	{L"-c0",0},
+	{L"-c1",0},
+	{L"-c2",0},
+	{L"-e0",0},
+	{L"-e1",0},
+	{L"-e2",0},
+	{L"-title",0},
+	{L"-mpq",0},
+	{L"-profile", 0},
+	{L"-handle", 0},
+	{L"-multi", 0},
+	{L"-sleepy", 0},
+	{L"-cachefix",0}
 };
 
-DWORD ParseStringForText(LPSTR Source,LPSTR text)
+DWORD ParseStringForText(LPWSTR Source,LPWSTR text)
 {
-	CHAR BUF[4059];
+	WCHAR BUF[4059];
 	memset(BUF,0x00,4059);
 
-	for(unsigned int x = 0; x < strlen(Source); x++)
+	for(unsigned int x = 0; x < wcslen(Source); x++)
 	{
-		if(strlen(text) + x > strlen(Source))
+		if(wcslen(text) + x > wcslen(Source))
 			break;
 
-		for(unsigned int y = 0; y < strlen(text); y++)
+		for(unsigned int y = 0; y < wcslen(text); y++)
 		{
 			INT cC = Source[x+y];
-			memcpy(BUF+strlen(BUF),(LPSTR)&cC,sizeof(cC));
+			memcpy(BUF+wcslen(BUF),(LPWSTR)&cC,sizeof(cC));
 		}
-		if(!_strcmpi(BUF,text))
+		if(!_wcsicmp(BUF,text))
 			return x;
 
 		memset(BUF,0x00,4059);
@@ -67,7 +67,7 @@ DWORD ParseStringForText(LPSTR Source,LPSTR text)
 }
 
 
-VOID ParseCommandLine(LPSTR Command)
+VOID ParseCommandLine(LPWSTR Command)
 {
 	for(int x = 0; x < ArraySize(CLine); x++)
 	{
@@ -75,16 +75,16 @@ VOID ParseCommandLine(LPSTR Command)
 		if(id == -1)
 			continue;
 
-		CHAR szText[100];
+		WCHAR szText[200];
 		BOOL bStart = false;
 
 		memset(szText,0x00,100);
 
 		if(!CLine[x].isBool)
 		{
-			for(unsigned int y = (id+(strlen(CLine[x].Param))); y < strlen(Command); y++)
+			for(unsigned int y = (id+(wcslen(CLine[x].Param))); y < wcslen(Command); y++)
 			{
-				if(Command[y] == '"')
+				if(Command[y] == L'"')
 					if(bStart){
 						bStart = false;
 						break;
@@ -97,23 +97,23 @@ VOID ParseCommandLine(LPSTR Command)
 					int byt = Command[y];
 
 				if(bStart)
-					memcpy(szText+strlen(szText),(LPSTR)&byt,sizeof(byt));
+					memcpy(szText+wcslen(szText),(LPWSTR)&byt,sizeof(byt));
 			}
 		}
 		sLine *sl = new sLine;
 		sl->isBool = CLine[x].isBool;
-		strcpy_s(sl->Param,sizeof(sl->Param),CLine[x].Param);
+		wcscpy_s(sl->Param,sizeof(sl->Param),CLine[x].Param);
 		if(!sl->isBool)
-			strcpy_s(sl->szText,sizeof(sl->szText),szText);
+			wcscpy_s(sl->szText,sizeof(sl->szText),szText);
 
 		aCommand.Add(sl);
 	}
 }
 
-sLine *GetCommand(LPSTR Param)
+sLine *GetCommand(LPWSTR Param)
 {
 	for(int x = 0; x < aCommand.GetSize(); x++)
-		if(!_strcmpi(aCommand[x]->Param,Param))
+		if(!_wcsicmp(aCommand[x]->Param,Param))
 			return aCommand[x];
 
 	return 0;
