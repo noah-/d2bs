@@ -46,24 +46,24 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 			Vars.bLoadedWithCGuard = FALSE;
 		}
 
-		ParseCommandLine(GetCommandLineA());
+		ParseCommandLine(GetCommandLineW());
 
-		sLine* command = GetCommand("-title");
+		sLine* command = GetCommand(L"-title");
 
 		if (command)
 		{
-			int len = strlen((char*)command->szText);
-			strncat_s(Vars.szTitle, (char*)command->szText, len);
+			int len = wcslen((wchar_t*)command->szText);
+			wcsncat_s(Vars.szTitle, (wchar_t*)command->szText, len);
 		}
 
-		command = GetCommand("-sleepy");
+		command = GetCommand(L"-sleepy");
 
 		if (command)
 		{
 			Vars.bSleepy = 1;
 		}
 
-		command = GetCommand("-cachefix");
+		command = GetCommand(L"-cachefix");
 
 		if (command)
 		{
@@ -71,64 +71,64 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		}
 
 
-		command = GetCommand("-multi");
+		command = GetCommand(L"-multi");
 
 		if (command)
 		{
 			Vars.bMulti = TRUE;
 		}
 
-		command = GetCommand("-c0");
+		command = GetCommand(L"-c0");
 
 		if(command) 
 		{
 			Vars.bUseRawCDKey = 1; 
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szClassic, keys, len);
 		}
 
-		command = GetCommand("-c1");
+		command = GetCommand(L"-c1");
 
 		if(command) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szClassic, keys, len);
 		}
 
-		command = GetCommand("-c2");
+		command = GetCommand(L"-c2");
 
 		if(command) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szClassic, keys, len);
 		}
 
-		command = GetCommand("-e0");
+		command = GetCommand(L"-e0");
 
 		if(command) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szLod, keys, len);
 		}
 
-		command = GetCommand("-e1");
+		command = GetCommand(L"-e1");
 
 		if(command) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szLod, keys, len);
 		}
 
-		command = GetCommand("-e2");
+		command = GetCommand(L"-e2");
 
 		if(command) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			int len = strlen(keys); 
 			strncat_s(Vars.szLod, keys, len);
 		}
