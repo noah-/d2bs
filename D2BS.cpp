@@ -47,92 +47,35 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		}
 
 		ParseCommandLine(GetCommandLineA());
+		sLine* command = NULL;
 
-		sLine* command = GetCommand("-title");
-
-		if (command)
+		if (command = GetCommand("-title"))
 		{
 			int len = strlen((char*)command->szText);
 			strncat_s(Vars.szTitle, (char*)command->szText, len);
 		}
 
-		command = GetCommand("-sleepy");
-
-		if (command)
-		{
+		if (GetCommand("-sleepy"))
 			Vars.bSleepy = 1;
-		}
 
-		command = GetCommand("-cachefix");
-
-		if (command)
-		{
+		if (GetCommand("-cachefix"))
 			Vars.bCacheFix = 1;
-		}
 
-
-		command = GetCommand("-multi");
-
-		if (command)
-		{
+		if (GetCommand("-multi"))
 			Vars.bMulti = TRUE;
-		}
 
-		command = GetCommand("-c0");
-
-		if(command) 
+		if (command = GetCommand("-d2c")) 
 		{
 			Vars.bUseRawCDKey = 1; 
 			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szClassic, keys, len);
+			strncat_s(Vars.szClassic, keys, strlen(keys));
 		}
 
-		command = GetCommand("-c1");
-
-		if(command) 
+		if (command = GetCommand("-d2x")) 
 		{
 			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szClassic, keys, len);
+			strncat_s(Vars.szLod, keys, strlen(keys));
 		}
-
-		command = GetCommand("-c2");
-
-		if(command) 
-		{
-			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szClassic, keys, len);
-		}
-
-		command = GetCommand("-e0");
-
-		if(command) 
-		{
-			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szLod, keys, len);
-		}
-
-		command = GetCommand("-e1");
-
-		if(command) 
-		{
-			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szLod, keys, len);
-		}
-
-		command = GetCommand("-e2");
-
-		if(command) 
-		{
-			const char *keys = (char*)command->szText;
-			int len = strlen(keys); 
-			strncat_s(Vars.szLod, keys, len);
-		}
-
 #if 0
 		char errlog[516] = "";
 		sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
