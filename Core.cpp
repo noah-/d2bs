@@ -18,26 +18,30 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 	if(str.length() < 1 || maxlen < 2)
 		return false;
 
-	size_t pos, len;
+	size_t pos;
 	string tmp(str);
 
-	while(tmp.length() > maxlen)
+	// Try getting appropriate maxlength for UTF8 string
+	double ratio = (double)tmp.size() / UTF8Length(tmp);
+	int maxLength = (int)((int)maxlen - ((ratio - 1.0) * 20));
+
+	while(UTF8Length(tmp) > maxLength)
 	{
-		len = tmp.length();
-		// maxlen-1 since std::string::npos indexes from 0
-		pos = tmp.find_last_of(delim, maxlen-1);
+		// Get byte index for UTF8 string
+		int byteIdx = UTF8FindByteIndex(tmp, maxLength);
+		// byteIdx-1 since std::string::npos indexes from 0
+		pos = tmp.find_last_of(delim, byteIdx-1);
 		if(!pos || pos == string::npos)
 		{
-			//Target delimiter was not found, breaking at maxlen
-			// maxlen-1 since std::string::npos indexes from 0
-			lst.push_back(tmp.substr(0, maxlen-1));
-			tmp.erase(0, maxlen-1);
+			//Target delimiter was not found, breaking at byteIdx
+			lst.push_back(tmp.substr(0, byteIdx));
+			tmp.erase(0, byteIdx);
 			continue;
 		}
-		pos = tmp.find_last_of(delim, maxlen-1);
+		pos = tmp.find_last_of(delim, byteIdx-1);
 		if(pos && pos != string::npos)
 		{
-			//We found the last delimiter before maxlen
+			//We found the last delimiter before byteIdx
 			lst.push_back(tmp.substr(0, pos) + delim);
 			tmp.erase(0, pos);
 		}
@@ -127,7 +131,7 @@ void __fastcall Say(const char *szMessage)
 		delete aMsg;
 		aMsg = NULL;
 
-		//Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
+		//Print("Ã¿c2D2BSÃ¿c0 :: say() in game has been disabled for now, due to crashes");
 /*
 		Vars.bDontCatchNextMsg = FALSE;
 		int len = 6+strlen(szMessage);
@@ -205,4 +209,31 @@ void LoadMPQ(const char* mpq)
 	D2WIN_InitMPQ(mpq, 0, 0, 3000);
 	*p_BNCLIENT_XPacKey = *p_BNCLIENT_ClassicKey = *p_BNCLIENT_KeyOwner = NULL;
 	//BNCLIENT_DecodeAndLoadKeys();
+}
+
+int UTF8FindByteIndex(std::string str, int maxutf8len)
+{
+	int utf8len = 0, byteIndex = 0;
+	const char* tstr = str.c_str();
+	size_t strlen = str.size();
+
+	for (byteIndex=0; byteIndex < strlen; byteIndex++)
+	{
+		if ((tstr[byteIndex] & 0xc0) != 0x80)
+			utf8len += 1;
+
+		if (utf8len >= maxutf8len)
+			break;
+	}
+
+	return byteIndex;
+}
+
+int UTF8Length(std::string str)
+{
+	const char* tmp = str.c_str();
+	int len = 0;
+	while (*tmp) len += (*tmp++ & 0xc0) != 0x80;
+	
+	return len;
 }

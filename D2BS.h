@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1871"
+#define D2BS_VERSION "1.5.1871U"
 
 #include <windows.h>
 #include <vector>
@@ -80,7 +80,7 @@ struct Variables
 	char	szDefault[_MAX_FNAME];
 	char	szClassic[30];
 	char	szLod[30];
-	char	szTitle[128];
+	wchar_t	szTitle[256];
 
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;
