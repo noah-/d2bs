@@ -412,12 +412,16 @@ void FlushPrint()
 		return;
 	}
 
+	std::queue<std::string> clean;
+	std::swap(Vars.qPrintBuffer, clean);
+	LeaveCriticalSection(&Vars.cPrintSection);
+
 	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
 	const uint maxlen = 98;
 	std::string str;
 
-	while (!Vars.qPrintBuffer.empty()) {
-		std::string str = Vars.qPrintBuffer.front();
+	while (!clean.empty()) {
+		std::string str = clean.front();
 		std::replace(str.begin(), str.end(), '%', REPLACE_CHAR);
 
 		// Break into lines through \n.
@@ -450,10 +454,8 @@ void FlushPrint()
 		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 			Console::AddLine(*it);
 
-		Vars.qPrintBuffer.pop();
+		clean.pop();
 	}
-
-	LeaveCriticalSection(&Vars.cPrintSection);
 }
 
 void GameDraw(void)
