@@ -408,7 +408,11 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 void FlushPrint()
 {
-	if (!TryEnterCriticalSection(&Vars.cPrintSection)) {
+	if (!TryEnterCriticalSection(&Vars.cPrintSection))
+		return;
+
+	if (Vars.qPrintBuffer.empty()) {
+		LeaveCriticalSection(&Vars.cPrintSection);
 		return;
 	}
 
