@@ -413,13 +413,12 @@ void FlushPrint()
 	}
 
 	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
-
+	const uint maxlen = 98;
 	std::string str;
+
 	while (!Vars.qPrintBuffer.empty()) {
 		std::string str = Vars.qPrintBuffer.front();
 		std::replace(str.begin(), str.end(), '%', REPLACE_CHAR);
-
-		const uint maxlen = 98;
 
 		// Break into lines through \n.
 		list<string> lines;
