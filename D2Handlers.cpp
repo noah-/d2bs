@@ -1,5 +1,6 @@
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include "D2Handlers.h"
 #include "D2NetHandlers.h"
@@ -16,6 +17,7 @@
 #include "MapHeader.h"
 #include "Offset.h"
 #include "CommandLine.h"
+#include "Control.h"
 
 using namespace std;
 
@@ -404,10 +406,66 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
+void FlushPrint()
+{
+	if (!TryEnterCriticalSection(&Vars.cPrintSection))
+		return;
+
+	if (Vars.qPrintBuffer.empty()) {
+		LeaveCriticalSection(&Vars.cPrintSection);
+		return;
+	}
+
+	std::queue<std::string> clean;
+	std::swap(Vars.qPrintBuffer, clean);
+	LeaveCriticalSection(&Vars.cPrintSection);
+
+	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
+	const uint maxlen = 98;
+
+	while (!clean.empty()) {
+		std::string str = clean.front();
+		std::replace(str.begin(), str.end(), '%', REPLACE_CHAR);
+
+		// Break into lines through \n.
+		list<string> lines;
+		string temp;
+		stringstream ss(str);
+		while(getline(ss, temp))
+			SplitLines(temp, maxlen, ' ', lines);
+
+		if(Vars.bUseGamePrint)
+		{
+			if(ClientState() == ClientStateInGame)
+			{
+				// Convert and send every line.
+				for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+				{
+					wchar_t * output = AnsiToUnicode(it->c_str());
+					D2CLIENT_PrintGameString(output, 0);
+					delete [] output;
+				}
+			}
+			else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
+			{
+				// TODO: Double check this function, make sure it is working as intended.
+				for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+					D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
+			}
+		}
+
+		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+			Console::AddLine(*it);
+
+		clean.pop();
+	}
+}
+
 void GameDraw(void)
 {
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
+		FlushPrint();
 		Genhook::DrawAll(IG);
 		DrawLogo();
 		Console::Draw();
@@ -429,6 +487,7 @@ void GameDrawOOG(void)
 	D2WIN_DrawSprites();
 	if(Vars.bActive && ClientState() == ClientStateMenu)
 	{
+		FlushPrint();
 		Genhook::DrawAll(OOG);
 		DrawLogo();
 		Console::Draw();
