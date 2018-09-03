@@ -422,7 +422,6 @@ void FlushPrint()
 
 	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
 	const uint maxlen = 98;
-	std::string str;
 
 	while (!clean.empty()) {
 		std::string str = clean.front();
