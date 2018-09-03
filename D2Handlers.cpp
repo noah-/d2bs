@@ -33,41 +33,41 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	if(InitHooks())
 	{
 		Log("D2BS Engine startup complete. %s", D2BS_VERSION);
-		Print("ÿc2D2BSÿc0 :: Engine startup complete!");
+		Print("Ã¿c2D2BSÃ¿c0 :: Engine startup complete!");
 	}
 	else
 	{
 		Log("D2BS Engine startup failed.");
-		Print("ÿc2D2BSÿc0 :: Engine startup failed!");
+		Print("Ã¿c2D2BSÃ¿c0 :: Engine startup failed!");
 		return FALSE;
 	}
 
-	ParseCommandLine(GetCommandLineA());
+	ParseCommandLine(GetCommandLineW());
 
-	command = GetCommand("-handle");
+	command = GetCommand(L"-handle");
 
 	if(command) 
 	{
-		Vars.hHandle = (HWND)atoi(command->szText); 
+		Vars.hHandle = (HWND)_wtoi(command->szText); 
 	}
 
-	command = GetCommand("-mpq");
+	command = GetCommand(L"-mpq");
 
 	if(command) 
 	{
-		LoadMPQ(command->szText); 
+		LoadMPQ(UnicodeToAnsi(command->szText)); 
 	}
 
-	command = GetCommand("-profile");
+	command = GetCommand(L"-profile");
 
 	if(command) 
 	{
-		const char* profile = (char*)command->szText;
+		const char* profile = UnicodeToAnsi(command->szText);
 
 		if(SwitchToProfile(profile))
-			Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+			Print("Ã¿c2D2BSÃ¿c0 :: Switched to profile %s", profile);
 		else
-			Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+			Print("Ã¿c2D2BSÃ¿c0 :: Profile %s not found", profile);
 	}
 
 	while(Vars.bActive)
@@ -222,9 +222,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					const char* profile = (char*)pCopy->lpData;
 					if(SwitchToProfile(profile))
-						Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+						Print("Ã¿c2D2BSÃ¿c0 :: Switched to profile %s", profile);
 					else
-						Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+						Print("Ã¿c2D2BSÃ¿c0 :: Profile %s not found", profile);
 				}
 				else if(pCopy->dwData == 0xDEAD)
 				{	

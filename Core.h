@@ -11,3 +11,5 @@ void Print(const char * szFormat, ...);
 void __fastcall Say(const char* szMessage);
 bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit);
 void LoadMPQ(const char* mpq);
+int UTF8FindByteIndex(std::string str, int maxutf8len);
+int UTF8Length(std::string str);

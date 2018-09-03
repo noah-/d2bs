@@ -10,21 +10,21 @@
 #include "DbgHelp.h"
 #include "Profile.h"
 
-wchar_t* AnsiToUnicode(const char* str)
+wchar_t* AnsiToUnicode(const char* str, UINT codepage)
 {
 	wchar_t* buf = NULL;
-	int len = MultiByteToWideChar(1252, 0, str, -1, buf, 0);
+	int len = MultiByteToWideChar(codepage, 0, str, -1, buf, 0);
 	buf = new wchar_t[len];
-	MultiByteToWideChar(1252, 0, str, -1, buf, len);
+	MultiByteToWideChar(codepage, 0, str, -1, buf, len);
 	return buf;
 }
 
-char* UnicodeToAnsi(const wchar_t* str)
+char* UnicodeToAnsi(const wchar_t* str, UINT codepage)
 {
 	char* buf = NULL;
-	int len = WideCharToMultiByte(1252, 0, str, -1, buf, 0, "?", NULL);
+	int len = WideCharToMultiByte(codepage, 0, str, -1, buf, 0, (codepage ? NULL : "?"), NULL);
 	buf = new char[len];
-	WideCharToMultiByte(1252, 0, str, -1, buf, len, "?", NULL);
+	WideCharToMultiByte(codepage, 0, str, -1, buf, len, (codepage ? NULL : "?"), NULL);
 	return buf;
 }
 
@@ -210,11 +210,11 @@ void Reload(void)
 {
 	
 	if(ScriptEngine::GetCount() > 0)
-		Print("ÿc2D2BSÿc0 :: Stopping all scripts");
+		Print("Ã¿c2D2BSÃ¿c0 :: Stopping all scripts");
 	ScriptEngine::StopAll();
 
 	if(Vars.bDisableCache != TRUE)
-		Print("ÿc2D2BSÿc0 :: Flushing the script cache");
+		Print("Ã¿c2D2BSÃ¿c0 :: Flushing the script cache");
 	ScriptEngine::FlushCache();
 
 	// wait for things to catch up
@@ -224,9 +224,9 @@ void Reload(void)
 	{
 		const char* script = GetStarterScriptName();
 		if(StartScript(script, GetStarterScriptState()))
-			Print("ÿc2D2BSÿc0 :: Started %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Started %s", script);
 		else
-			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Failed to start %s", script);
 	}
 }
 
@@ -245,22 +245,22 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	{
 		const char* script = GetStarterScriptName();
 		if(StartScript(script, GetStarterScriptState()))
-			Print("ÿc2D2BSÿc0 :: Started %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Started %s", script);
 		else
-			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Failed to start %s", script);
 		result = true;
 	}
 	else if(_strcmpi(argv, "stop") == 0)
 	{
 		if(ScriptEngine::GetCount() > 0)
-			Print("ÿc2D2BSÿc0 :: Stopping all scripts");
+			Print("Ã¿c2D2BSÃ¿c0 :: Stopping all scripts");
 		ScriptEngine::StopAll();
 		result = true;
 	}
 	else if(_strcmpi(argv, "flush") == 0)
 	{
 		if(Vars.bDisableCache != TRUE)
-			Print("ÿc2D2BSÿc0 :: Flushing the script cache");
+			Print("Ã¿c2D2BSÃ¿c0 :: Flushing the script cache");
 		ScriptEngine::FlushCache();
 		result = true;
 	}
@@ -268,9 +268,9 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	{
 		const char* script = command+5;
 		if(StartScript(script, GetStarterScriptState()))
-			Print("ÿc2D2BSÿc0 :: Started %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Started %s", script);
 		else
-			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+			Print("Ã¿c2D2BSÃ¿c0 :: Failed to start %s", script);
 		result = true;
 	}
 	else if(_strcmpi(argv, "reload") == 0)
@@ -289,9 +289,9 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	{
 		const char* profile = command+8;
 		if(SwitchToProfile(profile))
-			Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+			Print("Ã¿c2D2BSÃ¿c0 :: Switched to profile %s", profile);
 		else
-			Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+			Print("Ã¿c2D2BSÃ¿c0 :: Profile %s not found", profile);
 		result = true;
 	}
 #endif
@@ -316,11 +316,11 @@ void GameJoined(void)
 		const char* starter = GetStarterScriptName();
 		if(starter != NULL)
 		{
-			Print("ÿc2D2BSÿc0 :: Starting %s", starter);
+			Print("Ã¿c2D2BSÃ¿c0 :: Starting %s", starter);
 			if(StartScript(starter, GetStarterScriptState()))
-				Print("ÿc2D2BSÿc0 :: %s running.", starter);
+				Print("Ã¿c2D2BSÃ¿c0 :: %s running.", starter);
 			else
-				Print("ÿc2D2BSÿc0 :: Failed to start %s!", starter);
+				Print("Ã¿c2D2BSÃ¿c0 :: Failed to start %s!", starter);
 		}
 	}
 }
@@ -332,11 +332,11 @@ void MenuEntered(bool beginStarter)
 		const char* starter = GetStarterScriptName();
 		if(starter != NULL)
 		{
-			Print("ÿc2D2BSÿc0 :: Starting %s", starter);
+			Print("Ã¿c2D2BSÃ¿c0 :: Starting %s", starter);
 			if(StartScript(starter, GetStarterScriptState()))
-				Print("ÿc2D2BSÿc0 :: %s running.", starter);
+				Print("Ã¿c2D2BSÃ¿c0 :: %s running.", starter);
 			else
-				Print("ÿc2D2BSÿc0 :: Failed to start %s!", starter);
+				Print("Ã¿c2D2BSÃ¿c0 :: Failed to start %s!", starter);
 		}
 	}
 }

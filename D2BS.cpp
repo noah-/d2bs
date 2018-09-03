@@ -46,36 +46,37 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 			Vars.bLoadedWithCGuard = FALSE;
 		}
 
-		ParseCommandLine(GetCommandLineA());
+		ParseCommandLine(GetCommandLineW());
 		sLine* command = NULL;
 
-		if (command = GetCommand("-title"))
+		if (command = GetCommand(L"-title"))
 		{
-			int len = strlen((char*)command->szText);
-			strncat_s(Vars.szTitle, (char*)command->szText, len);
+			int len = wcslen((wchar_t*)command->szText);
+			wcsncat_s(Vars.szTitle, (wchar_t*)command->szText, len);
 		}
 
-		if (GetCommand("-sleepy"))
+		if (GetCommand(L"-sleepy"))
 			Vars.bSleepy = 1;
 
-		if (GetCommand("-cachefix"))
+		if (GetCommand(L"-cachefix"))
 			Vars.bCacheFix = 1;
 
-		if (GetCommand("-multi"))
+		if (GetCommand(L"-multi"))
 			Vars.bMulti = TRUE;
 
-		if (command = GetCommand("-d2c")) 
+		if (command = GetCommand(L"-d2c")) 
 		{
 			Vars.bUseRawCDKey = 1; 
 			const char *keys = (char*)command->szText;
 			strncat_s(Vars.szClassic, keys, strlen(keys));
 		}
 
-		if (command = GetCommand("-d2x")) 
+		if (command = GetCommand(L"-d2x")) 
 		{
 			const char *keys = (char*)command->szText;
 			strncat_s(Vars.szLod, keys, strlen(keys));
 		}
+
 #if 0
 		char errlog[516] = "";
 		sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
