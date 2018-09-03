@@ -5,10 +5,11 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1870"
+#define D2BS_VERSION "1.5.1871"
 
 #include <windows.h>
 #include <vector>
+#include <queue>
 
 #include "ScreenHook.h"
 
@@ -88,6 +89,7 @@ struct Variables
 	UINT_PTR uTimer;
 	long SectionCount;
 
+	std::queue<std::string> qPrintBuffer;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 	std::vector<std::pair<DWORD, DWORD> > vUnitList;
 	//std::list<Event*> EventList;
