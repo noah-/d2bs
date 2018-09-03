@@ -57,8 +57,6 @@ void Print(const char * szFormat, ...)
 {
 	using namespace std;
 
-	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
-
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
@@ -66,44 +64,11 @@ void Print(const char * szFormat, ...)
 	vsprintf_s(str, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
-	replace(str, str + len, REPLACE_CHAR, '%');
-
-	const uint maxlen = 98;
-
-	// Break into lines through \n.
-	list<string> lines;
-	string temp;
-	stringstream ss(str);
-	while(getline(ss, temp))
-		SplitLines(temp, maxlen, ' ', lines);
-
 	EnterCriticalSection(&Vars.cPrintSection);
-	if(Vars.bUseGamePrint)
-	{
-		if(ClientState() == ClientStateInGame)
-		{
-			// Convert and send every line.
-			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-			{
-				wchar_t * output = AnsiToUnicode(it->c_str());
-				D2CLIENT_PrintGameString(output, 0);
-				delete [] output;
-			}
-		}
-		else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
-		{
-			// TODO: Double check this function, make sure it is working as intended.
-			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-				D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
-		}
-	}
-	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-			Console::AddLine(*it);
-
+	Vars.qPrintBuffer.push(std::string(str));
 	LeaveCriticalSection(&Vars.cPrintSection);
 
 	delete[] str;
-	str = NULL;
 }
 
 void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)

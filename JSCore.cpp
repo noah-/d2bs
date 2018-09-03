@@ -47,7 +47,7 @@ JSAPI_FUNC(my_print)
 			if(!Text)
 				Print("undefined");
 			else {
-				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
+//				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
 				Print(Text);
 			}
 //bob20				JS_ResumeRequest(cx, depth);
