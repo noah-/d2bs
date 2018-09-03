@@ -28,14 +28,10 @@ CArrayEx<sLine*, sLine*> aCommand;
 
 //Commands.
 sLine CLine[] = {
-	{"-c0",0},
-	{"-c1",0},
-	{"-c2",0},
-	{"-e0",0},
-	{"-e1",0},
-	{"-e2",0},
-	{"-title",0},
-	{"-mpq",0},
+	{"-d2c", 0},
+	{"-d2x", 0},
+	{"-title", 0},
+	{"-mpq", 0},
 	{"-profile", 0},
 	{"-handle", 0},
 	{"-multi", 0},
