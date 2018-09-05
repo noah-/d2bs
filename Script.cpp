@@ -22,7 +22,8 @@ Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructured
 	LastGC = 0;
 	hasActiveCX=false;
 	eventSignal = CreateEvent(nullptr, true, false, nullptr);
-	if(scriptState == Command)
+
+	if(scriptState == Command && strlen(file) < 1)
 	{
 		fileName = string("Command Line");
 	}
@@ -165,9 +166,13 @@ void Script::Run(void)
 			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
 		}
 
-		if(scriptState == Command){			
-			char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
-			script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
+		if(scriptState == Command){
+			if (strlen(Vars.szConsole) > 0) {
+				script = JS_CompileFile(context, globalObject, fileName.c_str());
+			} else {
+				char * cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
+				script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
+			}
 			JS_AddNamedScriptRoot(context, &script, "console script");
 		}
 		else

@@ -59,16 +59,20 @@ bool SwitchToProfile(const char* profile)
 
 	char file[_MAX_FNAME+_MAX_PATH] = "",
 		 defaultStarter[_MAX_FNAME] = "",
+		 defaultConsole[_MAX_FNAME] = "",
 		 defaultGame[_MAX_FNAME] = "",
 		 scriptPath[_MAX_PATH] = "";
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
 	GetPrivateProfileString(profile, "ScriptPath", "scripts", scriptPath, _MAX_PATH, file);
+	GetPrivateProfileString(profile, "DefaultConsoleScript", "", defaultConsole, _MAX_FNAME, file);
 	GetPrivateProfileString(profile, "DefaultGameScript", "", defaultGame, _MAX_FNAME, file);
 	GetPrivateProfileString(profile, "DefaultStarterScript", "", defaultStarter, _MAX_FNAME, file);
 	
 	strcpy_s(Vars.szProfile, 256, profile);
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
+	if(strlen(defaultConsole) > 0)
+		strcpy_s(Vars.szConsole, _MAX_FNAME, defaultConsole);
 	if(strlen(defaultGame) > 0)
 		strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
 	if(strlen(defaultStarter) > 0)
@@ -82,8 +86,8 @@ bool SwitchToProfile(const char* profile)
 void InitSettings(void)
 {
 	char fname[_MAX_FNAME+MAX_PATH], scriptPath[_MAX_PATH],
-		defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], debug[6],
-		quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
+		defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME],
+		debug[6], quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
 		startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6],
 		useProfilePath[6], logConsole[6], enableUnsupported[6],
 		forwardMessageBox[6], consoleFont[6];
@@ -91,6 +95,7 @@ void InitSettings(void)
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
+	GetPrivateProfileString("settings", "DefaultConsoleScript", "", defaultConsole, _MAX_FNAME, fname);
 	GetPrivateProfileString("settings", "DefaultGameScript", "default.dbj", defaultGame, _MAX_FNAME, fname);
 	GetPrivateProfileString("settings", "DefaultStarterScript", "starter.dbj", defaultStarter, _MAX_FNAME, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
@@ -109,6 +114,7 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "ConsoleFont", "0", consoleFont, 6, fname);
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 	strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
+	strcpy_s(Vars.szConsole, _MAX_FNAME, defaultConsole);
 	strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
 
 	Vars.dwGameTime = GetTickCount();

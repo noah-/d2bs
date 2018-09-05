@@ -131,8 +131,13 @@ BOOL ScriptEngine::Startup(void)
 		//InitializeCriticalSection(&lock);
 		//EnterCriticalSection(&lock);
 		LockScriptList("startup - enter");
-
-		console = new Script("", Command);
+		if (strlen(Vars.szConsole) > 0) {
+			char file[_MAX_FNAME+_MAX_PATH];
+			sprintf_s(file, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, Vars.szConsole);
+			console = new Script(file, Command);
+		} else {
+			console = new Script("", Command);
+		}
 		scripts["console"] = console;
 		console->BeginThread(ScriptThread);
 		state = Running;
