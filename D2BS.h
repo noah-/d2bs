@@ -5,7 +5,7 @@
 
 #define XP_WIN
 
-#define D2BS_VERSION "1.5.1871U"
+#define D2BS_VERSION "1.5.1872U"
 
 #include <windows.h>
 #include <vector>
@@ -77,6 +77,7 @@ struct Variables
 	char	szScriptPath[_MAX_PATH];
 	char	szProfile[256];
 	char	szStarter[_MAX_FNAME];
+	char	szConsole[_MAX_FNAME];
 	char	szDefault[_MAX_FNAME];
 	char	szClassic[30];
 	char	szLod[30];

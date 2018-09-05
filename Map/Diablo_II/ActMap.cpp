@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <assert.h>
 #include "ActMap.h"
 #include "D2Structs.h"
@@ -116,7 +116,7 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 	}
 	if(!this->act || !this->act->pMisc || !this->act->pRoom1)
 	{
-			Print("�c1ActMap Level Not Loaded");
+			Print("пїЅc1ActMap Level Not Loaded");
 			return ActMap::Avoid;
 	}
 	if(!currLevel)
@@ -384,12 +384,12 @@ void ActMap::FindRoomLinkageExits(ExitArray& exits) const
 	
 			if (overlappingX < 0 || overlappingY < 0)
 			{
-				// Print("�c1d2bs�c3ActMap::GetExits�c0 adjecent room is out of reach - it's not even touching local room in corner!");
+				// Print("пїЅc1d2bsпїЅc3ActMap::GetExitsпїЅc0 adjecent room is out of reach - it's not even touching local room in corner!");
 				continue;
 			}
 			if (overlappingX > 0 && overlappingY > 0)
 			{
-				// Print("�c1d2bs�c3ActMap::GetExits�c0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				// Print("пїЅc1d2bsпїЅc3ActMap::GetExitsпїЅc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
 				continue;             
 			}
 			if (overlappingX < 3 && overlappingY < 3)

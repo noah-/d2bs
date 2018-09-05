@@ -67,13 +67,13 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		if (command = GetCommand(L"-d2c")) 
 		{
 			Vars.bUseRawCDKey = 1; 
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			strncat_s(Vars.szClassic, keys, strlen(keys));
 		}
 
 		if (command = GetCommand(L"-d2x")) 
 		{
-			const char *keys = (char*)command->szText;
+			const char *keys = UnicodeToAnsi(command->szText);
 			strncat_s(Vars.szLod, keys, strlen(keys));
 		}
 
