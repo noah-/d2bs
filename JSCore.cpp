@@ -618,55 +618,100 @@ JSAPI_FUNC(my_loadMpq)
 
 JSAPI_FUNC(my_sendPacket)
 {
-	JS_SET_RVAL(cx,vp,JSVAL_NULL);
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+
 	if(!Vars.bEnableUnsupported)
 	{
 		THROW_WARNING(cx, vp,  "sendPacket requires EnableUnsupported = true in d2bs.ini");
 		return JS_TRUE;
 	}
-	
-	BYTE* aPacket = new BYTE[20];
-	BYTE* pPacket = aPacket;
-	uint type = 1;
+
 	JS_BeginRequest(cx);
-	for(uint i = 0; i < argc; i++){
-		if(i%2 == 0){ 
-			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
+	BYTE* aPacket;
+	uint32 len = 0;
+
+	if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
+		JSObject *obj;
+		JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
+
+		if (!JS_IsArrayBufferObject(obj)) {
+			THROW_WARNING(cx, vp,  "invalid ArrayBuffer parameter");
+			JS_EndRequest(cx);
+			return JS_TRUE;
 		}
-		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
-		aPacket += type; 
+
+		len = JS_GetArrayBufferByteLength(obj);
+		aPacket = new BYTE[len];
+		memcpy(aPacket, JS_GetArrayBufferData(obj), len);
+	} else {
+		if (argc%2 != 0) {
+			THROW_WARNING(cx, vp,  "invalid packet format");
+			JS_EndRequest(cx);
+			return JS_TRUE;		
+		}
+
+		aPacket = new BYTE[2*argc];
+		uint32 size = 0;
+
+		for (uint i = 0; i < argc; i += 2, len += size) {
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], &size);
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t*) &aPacket[len]);
+		}
 	}
+
 	JS_EndRequest(cx);
-	D2NET_SendPacket(aPacket - pPacket, 1, pPacket);
-	delete[] pPacket;
+	D2NET_SendPacket(len, 1, aPacket);
+	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_getPacket)
 {
-	JS_SET_RVAL(cx,vp,JSVAL_NULL);
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+
 	if(!Vars.bEnableUnsupported)
 	{
 		THROW_WARNING(cx, vp,  "getPacket requires EnableUnsupported = true in d2bs.ini");
 		return JS_TRUE;
 	}
-	
-	BYTE* aPacket = new BYTE[20];
-	BYTE* pPacket = aPacket;
-	uint type = 1;
+
 	JS_BeginRequest(cx);
-	for(uint i = 0; i < argc; i++){
-		if(i%2 == 0)
-		{ 
-			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)&type); ++i;
+	BYTE* aPacket;
+	uint32 len = 0;
+
+	if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
+		JSObject *obj;
+		JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
+
+		if (!JS_IsArrayBufferObject(obj)) {
+			THROW_WARNING(cx, vp,  "invalid ArrayBuffer parameter");
+			JS_EndRequest(cx);
+			return JS_TRUE;
 		}
-		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], (uint32*)aPacket);
-		aPacket += type; 
+
+		len = JS_GetArrayBufferByteLength(obj);
+		aPacket = new BYTE[len];
+		memcpy(aPacket, JS_GetArrayBufferData(obj), len);
+	} else {
+		if (argc%2 != 0) {
+			THROW_WARNING(cx, vp,  "invalid packet format");
+			JS_EndRequest(cx);
+			return JS_TRUE;		
+		}
+
+		aPacket = new BYTE[2*argc];
+		uint32 size = 0;
+
+		for (uint i = 0; i < argc; i += 2, len += size) {
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], &size);
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t*) &aPacket[len]);
+		}
 	}
+
 	JS_EndRequest(cx);
-	D2NET_ReceivePacket(pPacket, aPacket - pPacket);
-	delete[] pPacket;
+	D2NET_ReceivePacket(aPacket, len);
+	delete[] aPacket;
 	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
