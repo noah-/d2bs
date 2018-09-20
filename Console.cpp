@@ -235,12 +235,15 @@ void Console::Draw(void)
 		int ysize = size.y;
 		// the default console height is 30% of the screen size
 		int height = (int)(((double)ysize)*.3);
-		size = CalculateTextLen(">", 0);
+		size = CalculateTextLen(">", Vars.dwConsoleFont);
 		int charsize = size.x;
-		int charheight = size.y-10;
+		int charheight = size.y / 2 + 2;
+		if (charheight < 12)
+			charheight = 12;
 		int cx = charsize+9;
 		int linelen = 115;
 		Console::height = height;
+		lineCount = Console::height / charheight;
 
 		int cmdsize = CalculateTextLen(cmd.str().c_str(), Vars.dwConsoleFont).x;
 		if((cmdsize/xsize) > 0)
@@ -252,7 +255,7 @@ void Console::Draw(void)
 		std::deque<std::string>::reverse_iterator it = lines.rbegin();
 		for(int i = lineCount-1; i >= 0 && it != lines.rend(); i--, it++)
 		{
-			if(CalculateTextLen(it->c_str(), 0).x > (xsize - (2+charheight)*2))
+			if(CalculateTextLen(it->c_str(), Vars.dwConsoleFont).x > (xsize - (2+charheight)*2))
 			{
 				std::list<std::string> buf;
 				SplitLines(*it, linelen, ' ', buf);
@@ -264,7 +267,7 @@ void Console::Draw(void)
 
 		if(IsEnabled())
 		{
-			myDrawText(">", 1, height, 0, 0);
+			myDrawText(">", 1, height, 0, Vars.dwConsoleFont);
 			int lx = cx + cmdsize - charsize + 5,
 				ly = height-charheight;
 			if(count % 30)
