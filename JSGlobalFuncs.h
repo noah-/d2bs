@@ -120,6 +120,7 @@ static JSFunctionSpec global_funcs[] = {
 	JS_FN("sendPacket",		    my_sendPacket,   		0, FUNCTION_FLAGS),
 	JS_FN("getIP",				my_getIP,				0, FUNCTION_FLAGS),
 	JS_FN("sendClick",			my_sendClick,			0, FUNCTION_FLAGS),
+	JS_FN("sendKey",			my_sendKey,				0, FUNCTION_FLAGS),
 	JS_FN("revealLevel",        my_revealLevel,         0, FUNCTION_FLAGS),
 	// drawing functions
 	JS_FN("screenToAutomap",	screenToAutomap,		1, FUNCTION_FLAGS),

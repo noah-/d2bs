@@ -719,20 +719,20 @@ JSAPI_FUNC(my_getPacket)
 #pragma comment(lib, "wininet")
 JSAPI_FUNC(my_getIP)
 {
-    HINTERNET hInternet, hFile;
-    DWORD rSize;
-    char buffer[32];
+	HINTERNET hInternet, hFile;
+	DWORD rSize;
+	char buffer[32];
 
-    hInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-    hFile = InternetOpenUrl(hInternet, "http://ipv4bot.whatismyipaddress.com", NULL, 0, INTERNET_FLAG_RELOAD, 0);
-    InternetReadFile(hFile, &buffer, sizeof(buffer), &rSize);
-    buffer[rSize] = '\0';
-    InternetCloseHandle(hFile);
-    InternetCloseHandle(hInternet);
+	hInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	hFile = InternetOpenUrl(hInternet, "http://ipv4bot.whatismyipaddress.com", NULL, 0, INTERNET_FLAG_RELOAD, 0);
+	InternetReadFile(hFile, &buffer, sizeof(buffer), &rSize);
+	buffer[min(rSize, 31)] = '\0';
+	InternetCloseHandle(hFile);
+	InternetCloseHandle(hInternet);
 	JS_BeginRequest(cx);
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
+	JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*) buffer)));
 	JS_EndRequest(cx);
-        return JS_TRUE;
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_sendClick)
@@ -752,5 +752,31 @@ JSAPI_FUNC(my_sendClick)
 	Sleep(100);
 	SendMouseClick(x, y, 1);
 	Sleep(100);
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_sendKey)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+	uint32 key;
+	JS_BeginRequest(cx);
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &key))
+	{
+		JS_EndRequest(cx);
+		return JS_FALSE;
+	}
+	JS_EndRequest(cx);
+	BOOL prompt = Console::IsEnabled();
+	if (prompt) {
+		Console::HidePrompt();
+	}
+	Sleep(100);
+	SendKeyPress(WM_KEYDOWN, key, 0);
+	Sleep(100);
+	SendKeyPress(WM_KEYUP, key, 0);
+	Sleep(100);
+	if (prompt) {
+		Console::ShowPrompt();
+	}
 	return JS_TRUE;
 }
