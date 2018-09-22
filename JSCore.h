@@ -35,3 +35,4 @@ JSAPI_FUNC(my_getPacket);
 JSAPI_FUNC(my_sendPacket);
 JSAPI_FUNC(my_getIP);
 JSAPI_FUNC(my_sendClick);
+JSAPI_FUNC(my_sendKey);

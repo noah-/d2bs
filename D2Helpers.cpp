@@ -343,6 +343,19 @@ void SendMouseClick(int x, int y, int clicktype)
 	}
 }
 
+void SendKeyPress(uint type, uint key, uint ext)
+{
+	LPARAM lp = 1;
+	lp |= ext << 24;
+	lp |= (MapVirtualKey(key, MAPVK_VK_TO_VSC) << 16);
+
+	if (type == WM_KEYUP) {
+		lp |= 0xC0000000; 
+	}
+
+	PostMessage(D2GFX_GetHwnd(), type, key, lp);
+}
+
 DWORD __declspec(naked) __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo)
 {
 	__asm 
