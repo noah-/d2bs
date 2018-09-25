@@ -1153,6 +1153,8 @@ JSAPI_FUNC(my_playSound)
 
 JSAPI_FUNC(my_say)
 {
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+
 	for(uintN i = 0; i < argc; i++)
 	{
 		if(!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i]))
@@ -1175,12 +1177,13 @@ JSAPI_FUNC(my_say)
 			JS_EndRequest(cx);
 			//box18jsrefcount depth = JS_SuspendRequest(cx);
 			if(Text)
-				Say(Text);
+				Say("%s", Text);
 			//box18JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
 		}
 	}
 
+	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
 

@@ -750,8 +750,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		return true;	
 	}
 	
-	if (strcmp(evtName, "Command") == 0){
-		
+	if (strcmp(evtName, "Command") == 0) {
 		char* cmd =  (char*) evt->arg1;	
 		std::string test;
 
@@ -767,8 +766,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			{
 				JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
 				char* text = JS_EncodeString(cx,JS_ValueToString(cx, rval));
-				std::replace(text, text + strlen(text), '%', (char)(unsigned char)0xFE);
-				Print(text);
+				Print("%s", text);
 				JS_free(cx, text);
 			}
 		}

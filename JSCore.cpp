@@ -47,8 +47,7 @@ JSAPI_FUNC(my_print)
 			if(!Text)
 				Print("undefined");
 			else {
-//				std::replace(Text, Text + strlen(Text), '%', (char)(unsigned char)0xFE);
-				Print(Text);
+				Print("%s", Text);
 			}
 //bob20				JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
@@ -336,12 +335,11 @@ JSAPI_FUNC(my_debugLog)
 				return JS_FALSE;
 			}
 
-	//bob20			jsrefcount depth = JS_SuspendRequest(cx);
+//bob20			jsrefcount depth = JS_SuspendRequest(cx);
 			if(!Text)
 				Log("undefined");
 			else {
-				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
-				Log(Text);
+				Log("%s", Text);
 			}
 //bob20				JS_ResumeRequest(cx, depth);
 			JS_free(cx, Text);
@@ -441,7 +439,7 @@ JSAPI_FUNC(my_sendCopyData)
 
 	//bob20	 jsrefcount depth = JS_SuspendRequest(cx);
 	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
-//bob20	 JS_ResumeRequest(cx, depth);
+	//bob20	 JS_ResumeRequest(cx, depth);
 	if(bdata)
 		JS_free(cx, data);
 	if(bwinNam)
