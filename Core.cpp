@@ -97,8 +97,8 @@ void __fastcall Say(const char *szFormat, ...)
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
-	char* szBuffer = new char[len+1];
-	vsprintf_s(szBuffer, len+1, szFormat, vaArgs);
+	char* szBuffer = new char[len + 1];
+	vsprintf_s(szBuffer, len + 1, szFormat, vaArgs);
 	va_end(vaArgs);
 
 	Vars.bDontCatchNextMsg = TRUE;
@@ -106,7 +106,7 @@ void __fastcall Say(const char *szFormat, ...)
 	if(*p_D2CLIENT_PlayerUnit)
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
-		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
+		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2 + 1);
 		delete[] wBuffer;
 		wBuffer = NULL;
 
@@ -141,6 +141,8 @@ void __fastcall Say(const char *szFormat, ...)
 		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
 	}
+
+	delete[] szBuffer;
 }
 
 bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
