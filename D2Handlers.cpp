@@ -420,19 +420,17 @@ void FlushPrint()
 	std::swap(Vars.qPrintBuffer, clean);
 	LeaveCriticalSection(&Vars.cPrintSection);
 
-	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
-	const uint maxlen = 98;
+	const uint MAX_LEN = 98;
 
 	while (!clean.empty()) {
 		std::string str = clean.front();
-		std::replace(str.begin(), str.end(), '%', REPLACE_CHAR);
 
 		// Break into lines through \n.
 		list<string> lines;
 		string temp;
 		stringstream ss(str);
 		while(getline(ss, temp))
-			SplitLines(temp, maxlen, ' ', lines);
+			SplitLines(temp, MAX_LEN, ' ', lines);
 
 		if(Vars.bUseGamePrint)
 		{

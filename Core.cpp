@@ -59,8 +59,6 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 
 void Print(const char * szFormat, ...)
 {
-	using namespace std;
-
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
@@ -94,22 +92,16 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 	}
 }
 
-void __fastcall Say(const char *szMessage) 
+void __fastcall Say(const char *szFormat, ...) 
 {
-	 using namespace std;
+	va_list vaArgs;
+	va_start(vaArgs, szFormat);
+	int len = _vscprintf(szFormat, vaArgs);
+	char* szBuffer = new char[len+1];
+	vsprintf_s(szBuffer, len+1, szFormat, vaArgs);
+	va_end(vaArgs);
 
-        const char REPLACE_CHAR = (char)(unsigned char)0xFE;
-
-        va_list vaArgs;
-        va_start(vaArgs, szMessage);
-        int len = _vscprintf(szMessage, vaArgs);
-        char* szBuffer = new char[len+1];
-        vsprintf_s(szBuffer, len+1, szMessage, vaArgs);
-        va_end(vaArgs);
-
-        replace(szBuffer, szBuffer + len, REPLACE_CHAR, '%');
-
-        Vars.bDontCatchNextMsg = TRUE;
+	Vars.bDontCatchNextMsg = TRUE;
 
 	if(*p_D2CLIENT_PlayerUnit)
 	{
@@ -131,7 +123,6 @@ void __fastcall Say(const char *szMessage)
 		delete aMsg;
 		aMsg = NULL;
 
-		//Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
 /*
 		Vars.bDontCatchNextMsg = FALSE;
 		int len = 6+strlen(szMessage);
@@ -142,12 +133,12 @@ void __fastcall Say(const char *szMessage)
 		memcpy(pPacket+3, szMessage, len-6);
 		D2CLIENT_SendGamePacket(len, pPacket);
 		delete [] pPacket;
-	*/
+*/
 	}
 	// help button and ! ok msg for disconnected
 	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
 	{
-		memcpy((char*)p_D2MULTI_ChatBoxMsg, szMessage, strlen(szMessage) + 1);
+		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
 	}
 }
