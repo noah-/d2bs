@@ -359,7 +359,6 @@ JSAPI_FUNC(my_copy)
 	pText = (char*)GlobalLock(hText);
 	char* tempData;
 	
-
 	strcpy_s(pText,strlen(data)+1, data);
 	GlobalUnlock(hText);
 
@@ -382,57 +381,51 @@ JSAPI_FUNC(my_paste)
 }
 JSAPI_FUNC(my_sendCopyData)
 {
-	if(argc < 4)
+	JS_SET_RVAL(cx, vp, JSVAL_FALSE);
+	if (argc < 4)
 	{
-		JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 		return JS_TRUE;
 	}
+
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
-	//flags for freeing
-	BOOL bwinNam = false, bdata = false, bWinClassName = false;
 	jsint nModeId = NULL;
 	HWND hWnd = NULL;
-	JS_BeginRequest(cx);
 
-	if(argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
-		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
-	else
+	JS_BeginRequest(cx);
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
 	{
-		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
-		{
+		windowClassName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+	}
+
+	if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
+	{
+		if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
+		} else if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
 			windowName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
-			bwinNam = true;
 		}
 	}
-		if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-		{
-			windowClassName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-			bWinClassName = true;	
-		}
-		if(JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
-			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32*) &nModeId);
-		if(JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]))
-		{
-			data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
-			bdata = true;
-		}
+
+	if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
+		JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32*) &nModeId);
+
+	if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3]))
+	{
+		data = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
+	}
 	JS_EndRequest(cx);
-	
-	if(windowClassName && _strcmpi(windowClassName, "null") == 0)
-		windowClassName = NULL;
-	if(windowName && _strcmpi(windowName, "null") == 0)
-		windowName = NULL;
-	if(hWnd == NULL)
+
+	if (hWnd == NULL && windowName != NULL)
 	{
 		hWnd = FindWindow(windowClassName, windowName);
-		if(!hWnd)
+		if (!hWnd)
 		{
-			JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 			return JS_TRUE;
 		}
 	}
+
 	// if data is NULL, strlen crashes
-	if(data == NULL)
+	if (data == NULL)
 		data = "";
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
@@ -440,12 +433,10 @@ JSAPI_FUNC(my_sendCopyData)
 	//bob20	 jsrefcount depth = JS_SuspendRequest(cx);
 	JS_SET_RVAL(cx, vp, INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy)));
 	//bob20	 JS_ResumeRequest(cx, depth);
-	if(bdata)
-		JS_free(cx, data);
-	if(bwinNam)
-		JS_free(cx,windowName);
-	if(bWinClassName)
-		JS_free(cx, windowClassName);
+
+	JS_free(cx, data);
+	JS_free(cx, windowName);
+	JS_free(cx, windowClassName);
 	return JS_TRUE;
 }
 
