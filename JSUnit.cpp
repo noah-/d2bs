@@ -760,20 +760,40 @@ JSAPI_FUNC(unit_cancel)
 		THROW_WARNING(cx, vp,  "Game not ready");
 
 	DWORD automapOn = *p_D2CLIENT_AutomapOn;
+	jsint mode = -1;
 
-	if(argc > 0)
-		D2CLIENT_CloseInteract();
-	else if(IsScrollingText())
-		D2CLIENT_ClearScreen();
+	if(argc > 0) {
+		JS_BeginRequest(cx);
+		if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
+			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*) &mode);
+		JS_EndRequest(cx);
+	} else if(IsScrollingText())
+		mode = 3;
 	else if(D2CLIENT_GetCurrentInteractingNPC())
-		D2CLIENT_CloseNPCInteract();
+		mode = 2;
 	else if(D2CLIENT_GetCursorItem())
-		D2CLIENT_ClickMap(0, 10, 10, 0x08);
+		mode = 1;
 	else
+		mode = 0;
+
+	switch(mode) 
+	{
+	case 0:
 		D2CLIENT_CloseInteract();
+		break;
+	case 1:
+		D2CLIENT_ClickMap(0, 10, 10, 0x08);
+		break;
+	case 2:
+		D2CLIENT_CloseNPCInteract();
+		break;
+	case 3:
+		D2CLIENT_ClearScreen();
+		break;
+	}
 
 	*p_D2CLIENT_AutomapOn = automapOn;
-
+	JS_SET_RVAL(cx, vp, JSVAL_TRUE);
 	return JS_TRUE;
 }
 
