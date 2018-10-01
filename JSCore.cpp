@@ -401,7 +401,7 @@ JSAPI_FUNC(my_sendCopyData)
 	{
 		if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
 			JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*) &hWnd);
-		} else if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
+		} else if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1])) {
 			windowName = JS_EncodeString(cx,JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
 		}
 	}
@@ -589,11 +589,10 @@ JSAPI_FUNC(my_hideConsole)
 
 JSAPI_FUNC(my_handler)
 {
-	char buffer[20];  
-	itoa((int)Vars.hHandle, buffer, 10);
-	JS_SET_RVAL(cx,vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
+	JS_SET_RVAL(cx,vp, UINT_TO_JSVAL((uint32_t)Vars.hHandle));
 	return JS_TRUE;
 }
+
 JSAPI_FUNC(my_loadMpq)
 {
 	JS_SET_RVAL(cx,vp,JSVAL_NULL);
