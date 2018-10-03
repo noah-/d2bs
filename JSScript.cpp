@@ -121,8 +121,8 @@ JSAPI_FUNC(script_send)
 		ScriptEngine::LockScriptList("script.send");
 		evt->owner = script;
 		evt->argc = argc;
+		evt->name = strdup("scriptmsg"); 
 		evt->arg1 = new DWORD(argc);
-		evt->name ="scriptmsg"; 
 		evt->argv = new JSAutoStructuredCloneBuffer*;
  		for(uintN i = 0; i < argc; i++)
 		{

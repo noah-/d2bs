@@ -70,7 +70,7 @@ JSAPI_FUNC(my_setTimeout)
 		self->RegisterEvent("setTimeout", JS_ARGV(cx, vp)[0]);
 		Event* evt = new Event;
 		evt->owner = self;
-		evt->name = "setTimeout";
+		evt->name = strdup("setTimeout");
 		evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 	}
@@ -92,7 +92,7 @@ JSAPI_FUNC(my_setInterval)
 		self->RegisterEvent("setInterval", JS_ARGV(cx, vp)[0]);
 		Event* evt = new Event;
 		evt->owner = self;
-		evt->name = "setInterval";
+		evt->name = strdup("setInterval");
 		evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
 		JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
 	}
@@ -107,7 +107,6 @@ JSAPI_FUNC(my_clearInterval)
 		JS_ReportError(cx, "invalid params passed to clearInterval");
 
 	ScriptEngine::RemoveDelayedEvent(JSVAL_TO_INT(JS_ARGV(cx, vp)[0]));
-	JS_free(cx, "setInterval");
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_delay)

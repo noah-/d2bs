@@ -3,6 +3,7 @@
 #include <windows.h>
 
 bool ChatEvent(char* lpszNick, char* lpszMsg);
+bool ChatSentEvent(char* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
 void CopyDataEvent(DWORD dwMode, char* lpszMsg);
@@ -26,7 +27,7 @@ void TakeGameLock(void);
 
 struct ChatEventHelper
 {
-	char *event, *nick, *msg;
+	char *name, *nick, *msg;
 };
 
 struct CopyDataHelper
@@ -81,8 +82,9 @@ struct BCastEventHelper
 	jsval* argv;
 	uintN argc;
 };
-struct GamePacketHelper
+struct PacketEventHelper
 {
+	char* name;
 	BYTE* pPacket;
 	DWORD dwSize;
 };

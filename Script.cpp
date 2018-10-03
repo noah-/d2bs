@@ -45,29 +45,29 @@ Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructured
 
 Script::~Script(void)
 {
-    isAborted = true;
+	isAborted = true;
 	hasActiveCX = false;
-    //JS_SetPendingException(context, JSVAL_NULL);
-    if(JS_IsInRequest(runtime))
-        JS_EndRequest(context);
-	
-    EnterCriticalSection(&lock);
-//    JS_SetRuntimeThread(rt);
-    JS_DestroyContext(context);
-    //JS_ClearRuntimeThread(rt);
-    JS_DestroyRuntime(runtime);
+	//JS_SetPendingException(context, JSVAL_NULL);
+	if(JS_IsInRequest(runtime))
+		JS_EndRequest(context);
+
+	EnterCriticalSection(&lock);
+	//    JS_SetRuntimeThread(rt);
+	JS_DestroyContext(context);
+	//JS_ClearRuntimeThread(rt);
+	JS_DestroyRuntime(runtime);
 
 
-    context = NULL;
-    scriptObject = NULL;
-    globalObject = NULL;
-    script = NULL;
-    CloseHandle(eventSignal);
-    includes.clear();
-    if(threadHandle != INVALID_HANDLE_VALUE)
-        CloseHandle(threadHandle);
-    LeaveCriticalSection(&lock);
-    DeleteCriticalSection(&lock);
+	context = NULL;
+	scriptObject = NULL;
+	globalObject = NULL;
+	script = NULL;
+	CloseHandle(eventSignal);
+	includes.clear();
+	if(threadHandle != INVALID_HANDLE_VALUE)
+		CloseHandle(threadHandle);
+	LeaveCriticalSection(&lock);
+	DeleteCriticalSection(&lock);
 }
 
 int Script::GetExecutionCount(void)
@@ -89,46 +89,45 @@ void Script::RunCommand(const char* command)
 
 	rcs->script = this;
 	rcs->command = passCommand;
-	
-		if(isAborted){  //this should never happen -bob
-			char* command = "delay(1000000);";
-			RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-			size_t commandLength = strlen(command) + 1;
-			char* passCommand = new char[commandLength];
-			strcpy_s(passCommand, commandLength, command);
 
-			rcs->script = this;
-			rcs->command = passCommand;
-	
-			Log("Console Aborted HELP!");
-			//HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
-			
-		}
-			Event* evt = new Event;
-			evt->owner = this;
-			evt->argc = argc;
-			evt->name = "Command";
-			evt->arg1 =  passCommand;
-			EnterCriticalSection(&Vars.cEventSection);
-			evt->owner->EventList.push_front(evt);
-			LeaveCriticalSection(&Vars.cEventSection);
-			evt->owner->TriggerOperationCallback();
-			SetEvent(evt->owner->eventSignal);
-		
+	if(isAborted){  //this should never happen -bob
+		char* command = "delay(1000000);";
+		RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
+		size_t commandLength = strlen(command) + 1;
+		char* passCommand = new char[commandLength];
+		strcpy_s(passCommand, commandLength, command);
+
+		rcs->script = this;
+		rcs->command = passCommand;
+
+		Log("Console Aborted HELP!");
+		//HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
+	}
+
+	Event* evt = new Event;
+	evt->owner = this;
+	evt->argc = argc;
+	evt->name = strdup("Command");
+	evt->arg1 = passCommand;
+	EnterCriticalSection(&Vars.cEventSection);
+	evt->owner->EventList.push_front(evt);
+	LeaveCriticalSection(&Vars.cEventSection);
+	evt->owner->TriggerOperationCallback();
+	SetEvent(evt->owner->eventSignal);
 }
 
 bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc)
 {	
 	EnterCriticalSection(&lock);
 	DWORD dwExitCode = STILL_ACTIVE;
-	
+
 	if ((!GetExitCodeThread(threadHandle, &dwExitCode) || dwExitCode != STILL_ACTIVE) &&
 		(threadHandle = CreateThread(0, 0, ThreadFunc, this, 0, &threadId)) != NULL)
 	{
 		LeaveCriticalSection(&lock);
 		return true;
 	}
-	
+
 	threadHandle = INVALID_HANDLE_VALUE;
 	LeaveCriticalSection(&lock);
 	return false;
@@ -139,24 +138,24 @@ void Script::Run(void)
 	try
 	{
 		runtime = JS_NewRuntime(Vars.dwMemUsage,JS_NO_HELPER_THREADS);   
-		
+
 		//JS_SetRuntimeThread(runtime);
 		JS_SetContextCallback(runtime, contextCallback);
-			
+
 		context = JS_NewContext(runtime, 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
-								
+
 		JS_SetErrorReporter(context, reportError);
 		JS_SetOperationCallback(context, operationCallback);
 		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX);
 		JS_SetVersion(context, JSVERSION_LATEST);
-//	
-		
+		//	
+
 		JS_SetContextPrivate(context, this);
-		
+
 		JS_BeginRequest(context);
-		
+
 
 		globalObject = JS_GetGlobalObject(context);
 		jsval meVal = JSVAL_VOID;
@@ -177,13 +176,13 @@ void Script::Run(void)
 		}
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
-		
+
 		if(!script)
 			throw std::exception("Couldn't compile the script");
-	
+
 		JS_EndRequest(context);
 		//JS_RemoveScriptRoot(context, &script);
-	
+
 	} catch(std::exception&) {
 		if(scriptObject)
 			JS_RemoveRoot(context, &scriptObject);
@@ -203,22 +202,22 @@ void Script::Run(void)
 
 	jsval main = INT_TO_JSVAL(1), dummy = INT_TO_JSVAL(1);
 	JS_BeginRequest(GetContext());
-	
+
 	//args passed from load
 	jsval* argvalue = new jsval[argc];
-			for(uintN i = 0; i < argc; i++)
-				argv[i]->read(context, &argvalue[i]);			
-				
-			for(uint j = 0 ; j < argc; j++)
-				JS_AddValueRoot(context, &argvalue[j]);
+	for(uintN i = 0; i < argc; i++)
+		argv[i]->read(context, &argvalue[i]);			
+
+	for(uint j = 0 ; j < argc; j++)
+		JS_AddValueRoot(context, &argvalue[j]);
 
 
-	
+
 	JS_AddValueRoot(GetContext(), &main);
 	JS_AddValueRoot(GetContext(), &dummy);
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) != JS_FALSE &&
-	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE && 
-	   JSVAL_IS_FUNCTION(GetContext(), main))
+		JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE && 
+		JSVAL_IS_FUNCTION(GetContext(), main))
 	{	
 		JS_CallFunctionValue(GetContext(), globalObject, main, this->argc, argvalue, &dummy);			
 	}
@@ -226,7 +225,7 @@ void Script::Run(void)
 	JS_RemoveValueRoot(GetContext(), &dummy);
 	for(uint j = 0 ; j < argc; j++)
 		JS_RemoveValueRoot(GetContext(), &argvalue[j]);
-	
+
 	/*for(uintN i = 0; i < argc; i++)  //crashes spidermonkey cleans itself up?
 	{
 		argv[i]->clear();
@@ -234,14 +233,14 @@ void Script::Run(void)
 	}*/
 
 	JS_EndRequest(GetContext());
-	
+
 	execCount++;
 	//Stop();
 }
 
 void Script::UpdatePlayerGid(void)
 {
-		me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
+	me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
 }
 
 void Script::Pause(void)
@@ -345,8 +344,8 @@ bool Script::Include(const char* file)
 	string currentFileName = string(fname);
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(!!includes.count(currentFileName) ||
-	   !!inProgress.count(string(currentFileName)) ||
-	    (fileName == string(currentFileName)))
+		!!inProgress.count(string(currentFileName)) ||
+		(fileName == string(currentFileName)))
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
@@ -474,7 +473,7 @@ void Script::FireEvent(Event* evt)
 { 
 	//EnterCriticalSection(&ScriptEngine::lock);
 	EnterCriticalSection(&Vars.cEventSection);
-		evt->owner->EventList.push_front(evt);
+	evt->owner->EventList.push_front(evt);
 	LeaveCriticalSection(&Vars.cEventSection);
 
 	if (evt->owner && evt->owner->IsRunning())
