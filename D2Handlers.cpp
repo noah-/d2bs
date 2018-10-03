@@ -133,44 +133,30 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 DWORD __fastcall GameInput(wchar_t* wMsg)
 {
-	if(Vars.bDontCatchNextMsg)
-	{
-		Vars.bDontCatchNextMsg = FALSE;
-		return 0;
-	}
+	bool send = true;
+	char* szBuffer = UnicodeToAnsi(wMsg);
 
-	bool result = false;
+	if ((!Vars.bDontCatchNextMsg && wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatSentEvent(szBuffer))
+		send = false;
+	else if (Vars.bDontCatchNextMsg)
+		Vars.bDontCatchNextMsg = false;
 
-	if(wMsg[0] == L'.')
-	{
-		char* szBuffer = UnicodeToAnsi(wMsg);
-		result = ProcessCommand(szBuffer+1, false);
-		delete[] szBuffer;
-	}
-
-	return result == true ? -1 : 0;
+	delete[] szBuffer;
+	return send ? 0 : -1; // -1 means block, 0 means send
 }
 
 DWORD __fastcall ChannelInput(wchar_t* wMsg)
 {
-	if(Vars.bDontCatchNextMsg)
-	{
-		Vars.bDontCatchNextMsg = FALSE;
-		return false;
-	}
+	bool send = true;
+	char* szBuffer = UnicodeToAnsi(wMsg);
 
-	bool result = false;
-	if(wMsg[0] == L'.')
-	{
-		char* szBuffer = UnicodeToAnsi(wMsg);
-		result = ProcessCommand(szBuffer+1, false);
-		//FIXME
-		//D2WIN_SetControlText(*p_D2WIN_ChatInputBox, L"");
-		delete[] szBuffer;
-	}
+	if ((!Vars.bDontCatchNextMsg && wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatSentEvent(szBuffer))
+		send = false;
+	else if (Vars.bDontCatchNextMsg)
+		Vars.bDontCatchNextMsg = false;
 
-	// false means ignore, true means send
-	return result ? false : true;
+	delete[] szBuffer;
+	return send; // false means ignore, true means send
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
@@ -225,15 +211,6 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
 					else
 						Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
-				}
-				else if(pCopy->dwData == 0xDEAD)
-				{	
-					Vars.bUseRawCDKey = 1; 
-					InstallConditional();
-					const char *keys = (char*)pCopy->lpData;
-					int len = (strchr(keys,'|')-keys)*sizeof(char);
-					strncpy_s(Vars.szClassic, 30, keys, len);
-					strcpy_s(Vars.szLod, 30, keys+len+1);
 				}
 				else CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}

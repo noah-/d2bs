@@ -257,13 +257,13 @@ bool Genhook::Click(int button, POINT* loc)
 		Event* evt = new Event;
 		evt->owner = owner;
 		evt->argc = 3;
-		evt->name = "ScreenHookClick";
-		evt->arg1 =  new DWORD((DWORD)button);
-		evt->arg2 =  new DWORD((DWORD)loc->x);
-		evt->arg3 =  new DWORD((DWORD)loc->y);
+		evt->name = strdup("ScreenHookClick");
+		evt->arg1 = new DWORD((DWORD)button);
+		evt->arg2 = new DWORD((DWORD)loc->x);
+		evt->arg3 = new DWORD((DWORD)loc->y);
 		evt->arg4 = new DWORD(false);
 
- 		ResetEvent(Vars.eventSignal);
+		ResetEvent(Vars.eventSignal);
 		AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
 		evt->functions.push_back(root);
 		owner->FireEvent(evt);
@@ -293,12 +293,11 @@ void Genhook::Hover(POINT* loc)
 		evt->owner = owner;
 		evt->argc = 2;
 		evt->functions.push_back(new AutoRoot((owner->GetContext(),hovered)));
-		evt->name = "ScreenHookHover";
-		evt->arg1 =  new DWORD((DWORD)loc->x);
-		evt->arg2 =  new DWORD((DWORD)loc->y);
+		evt->name = strdup("ScreenHookHover");
+		evt->arg1 = new DWORD((DWORD)loc->x);
+		evt->arg2 = new DWORD((DWORD)loc->y);
 		
 		owner->FireEvent(evt);
-
 	}
 }
 void Genhook::SetClickHandler(jsval handler)
