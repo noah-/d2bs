@@ -46,24 +46,14 @@ void Profile::init(const char* profileName)
 			type = PROFILETYPE_BATTLENET;
 			break;
 		case 'o':
-			switch(tolower(mode[18]))
-			{
-				case 'o':
-					type = PROFILETYPE_OPEN_BATTLENET;
-					break;
-				case 't':
-					switch(tolower(mode[25]))
-					{
-						case 'h':
-							type = PROFILETYPE_TCPIP_HOST;
-							break;
-						case 'j':
-							type = PROFILETYPE_TCPIP_JOIN;
-							strncpy_s (ip, &mode[30], (size_t)16);
-							break;
-					}
-					break;
-			}
+			type = PROFILETYPE_OPEN_BATTLENET;
+			break;
+		case 'h':
+			type = PROFILETYPE_TCPIP_HOST;
+			break;
+		case 'j':
+			strncpy_s (ip, "localhost", (size_t) strlen("localhost"));
+			type = PROFILETYPE_TCPIP_JOIN;
 			break;
 	}
 }

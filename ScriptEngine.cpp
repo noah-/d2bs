@@ -605,7 +605,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 		delete evt;
 		return true;	
 	}
-	if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatmsgsent") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 ||strcmp(evtName, "chatmsgsentblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
+	if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatinput") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 ||strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
 		bool block = false;
 		if(!clearList)
 		{
@@ -627,7 +627,7 @@ bool ExecScriptEvent(Event* evt, bool clearList)
 			for(int j = 0 ; j < 2; j++)
 				JS_RemoveValueRoot(cx, &argv[j]);
 		}
-		if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatmsgsentblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
+		if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0){
 			*(DWORD*)  evt->arg4 = block;
 			SetEvent(Vars.eventSignal);
 		}else{
