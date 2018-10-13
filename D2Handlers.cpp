@@ -134,28 +134,30 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 DWORD __fastcall GameInput(wchar_t* wMsg)
 {
 	bool send = true;
-	char* szBuffer = UnicodeToAnsi(wMsg);
 
-	if ((!Vars.bDontCatchNextMsg && wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatSentEvent(szBuffer))
-		send = false;
-	else if (Vars.bDontCatchNextMsg)
+	if (Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = false;
+	else {
+		char* szBuffer = UnicodeToAnsi(wMsg);
+		send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatInputEvent(szBuffer));
+		delete[] szBuffer;
+	}
 
-	delete[] szBuffer;
 	return send ? 0 : -1; // -1 means block, 0 means send
 }
 
 DWORD __fastcall ChannelInput(wchar_t* wMsg)
 {
 	bool send = true;
-	char* szBuffer = UnicodeToAnsi(wMsg);
 
-	if ((!Vars.bDontCatchNextMsg && wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatSentEvent(szBuffer))
-		send = false;
-	else if (Vars.bDontCatchNextMsg)
+	if (Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = false;
+	else {
+		char* szBuffer = UnicodeToAnsi(wMsg);
+		send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatInputEvent(szBuffer));
+		delete[] szBuffer;
+	}
 
-	delete[] szBuffer;
 	return send; // false means ignore, true means send
 }
 

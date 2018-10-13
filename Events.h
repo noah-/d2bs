@@ -3,7 +3,7 @@
 #include <windows.h>
 
 bool ChatEvent(char* lpszNick, char* lpszMsg);
-bool ChatSentEvent(char* lpszMsg);
+bool ChatInputEvent(char* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
 void CopyDataEvent(DWORD dwMode, char* lpszMsg);

@@ -62,7 +62,7 @@ struct Event {
 				delete evt->arg1;
 				free(evt->arg2);		
 			}
-			if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatmsgsent") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatmsgsentblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
+			if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatinput") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
 				free(evt->arg1);
 				free(evt->arg2);
 				delete evt->arg4;
