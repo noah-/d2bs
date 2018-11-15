@@ -32,9 +32,23 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string file
 	std::ifstream t(fileName.c_str());
 	std::string str;
 
-	t.seekg(0, std::ios::end);   
+    int ch1 = t.get();
+    int ch2 = t.get();
+    int ch3 = t.get();
+
+    // No BOM - revert
+    if (ch3 != 0xBF && ch3 != EOF)
+		t.unget();
+    if (ch2 != 0xBB && ch2 != EOF)
+        t.unget();
+    if (ch1 != 0xEF && ch1 != EOF)
+        t.unget();
+
+	int offset = t.tellg();
+
+	t.seekg(0, std::ios::end);
 	str.reserve(t.tellg());
-	t.seekg(0, std::ios::beg);
+	t.seekg(offset, std::ios::beg);
 
 	str.assign((std::istreambuf_iterator<char>(t)),
             std::istreambuf_iterator<char>());
