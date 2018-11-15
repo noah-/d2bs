@@ -1,21 +1,19 @@
 #ifndef _OFFSET_H
 #define _OFFSET_H
 
-#define INST_INT3	0xCC
-#define INST_CALL	0xE8
-#define INST_NOP	0x90
-#define INST_JMP	0xE9
-#define INST_RET	0xC3
+#define INST_INT3 0xCC
+#define INST_CALL 0xE8
+#define INST_NOP 0x90
+#define INST_JMP 0xE9
+#define INST_RET 0xC3
 
-typedef struct PatchHook_t
-{
-	void (*pFunc)(DWORD, DWORD, DWORD);
-	DWORD dwAddr;
-	DWORD dwFunc;
-	DWORD dwLen;
-	BYTE *bOldCode;
+typedef struct PatchHook_t {
+    void (*pFunc)(DWORD, DWORD, DWORD);
+    DWORD dwAddr;
+    DWORD dwFunc;
+    DWORD dwLen;
+    BYTE *bOldCode;
 } PatchHook;
-
 
 void DefineOffsets();
 DWORD GetDllOffset(int num);
@@ -32,6 +30,5 @@ void RemovePatches();
 void InstallPatches();
 void InstallConditional();
 void RemoveConditional();
-
 
 #endif
