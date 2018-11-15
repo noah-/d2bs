@@ -8,6 +8,8 @@
 #include "D2Skills.h"
 #include "MPQStats.h"
 
+#pragma warning (disable : 4002)
+
 EMPTY_CTOR(unit)
 
 void unit_finalize(JSFreeOp *fop, JSObject *obj) {

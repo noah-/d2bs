@@ -68,8 +68,9 @@ bool writeValue(FILE *fptr, JSContext *cx, jsval value, bool isBinary, bool lock
             result = fwrite(str, sizeof(char), strlen(str), fptr);
         else
             result = _fwrite_nolock(str, sizeof(char), strlen(str), fptr);
-        return (int)strlen(str) == result;
-        JS_free(cx, str);
+        bval = ((int)strlen(str) == result);
+		JS_free(cx, str);
+		return bval;
         break;
     case JSTYPE_NUMBER:
         if (isBinary) {
@@ -195,7 +196,9 @@ FILE *fileOpenRelScript(const char *filename, const char *mode, JSContext *cx) {
 
     // Open the file
     if (fopen_s(&f, fullPath, mode) != 0 || f == NULL) {
-        JS_ReportError(cx, "Couldn't open file %s: %s", filename, _strerror(NULL));
+		char buffer[128];
+		_strerror_s(buffer,NULL);
+        JS_ReportError(cx, "Couldn't open file %s: %s", filename, buffer);
         return NULL;
     }
 

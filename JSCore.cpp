@@ -19,6 +19,8 @@
 
 #include "JSScript.h"
 
+#pragma warning (disable : 4702)
+
 JSAPI_FUNC(my_utf8ToEuc) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
 
@@ -46,6 +48,8 @@ JSAPI_FUNC(my_utf8ToEuc) {
     JS_free(cx, Text);
     delete[] szText;
     delete[] euc;
+
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_print) {
@@ -91,7 +95,7 @@ JSAPI_FUNC(my_setTimeout) {
         self->RegisterEvent("setTimeout", JS_ARGV(cx, vp)[0]);
         Event *evt = new Event;
         evt->owner = self;
-        evt->name = strdup("setTimeout");
+        evt->name = _strdup("setTimeout");
         evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
     }
@@ -111,7 +115,7 @@ JSAPI_FUNC(my_setInterval) {
         self->RegisterEvent("setInterval", JS_ARGV(cx, vp)[0]);
         Event *evt = new Event;
         evt->owner = self;
-        evt->name = strdup("setInterval");
+        evt->name = _strdup("setInterval");
         evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(ScriptEngine::AddDelayedEvent(evt, freq)));
     }
@@ -339,7 +343,7 @@ JSAPI_FUNC(my_copy) {
     char *pText;
     hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(data) + 1);
     pText = (char *)GlobalLock(hText);
-    char *tempData;
+    //char *tempData;
 
     strcpy_s(pText, strlen(data) + 1, data);
     GlobalUnlock(hText);

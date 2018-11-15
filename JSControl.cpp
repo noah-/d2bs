@@ -3,6 +3,8 @@
 #include "Helpers.h"
 #include "D2Helpers.h"
 
+#pragma warning (disable : 4002)
+
 EMPTY_CTOR(control)
 
 void control_finalize(JSFreeOp *fop, JSObject *obj) {
@@ -30,11 +32,11 @@ JSAPI_PROP(control_getProperty) {
     JS_IdToValue(cx, id, &ID);
     JS_BeginRequest(cx);
 
-    JSType a = JS_TypeOfValue(cx, ID);
+    //JSType a = JS_TypeOfValue(cx, ID);
 
     if (JSID_IS_STRING(id)) {
-        JSString *b = JSVAL_TO_STRING(ID);
-        char *pText = JS_EncodeString(cx, b);
+        //JSString *b = JSVAL_TO_STRING(ID);
+        //char *pText = JS_EncodeString(cx, b);
 
         return JS_TRUE;
     }

@@ -4,6 +4,8 @@
 #include "CriticalSections.h"
 #include "D2Helpers.h"
 
+#pragma warning (disable : 4002)
+
 EMPTY_CTOR(presetunit)
 
 void presetunit_finalize(JSFreeOp *fop, JSObject *obj) {

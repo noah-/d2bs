@@ -5,6 +5,8 @@
 #include "../../Diablo_II/ActMap.h"
 #include "../../../js32.h"
 
+#pragma warning (disable : 4002)
+
 namespace Mapping
 {
 namespace Pathing

@@ -37,7 +37,7 @@ inline int __fastcall Euclidean(Point const & start, Point const & end)
 	double dy = (double)(end.second - start.second);
 	dx = pow(dx, 2);
 	dy = pow(dy, 2);
-	return sqrt(dx + dy)*10; 
+	return (int)(sqrt(dx + dy)*10); 
 	
 }
 

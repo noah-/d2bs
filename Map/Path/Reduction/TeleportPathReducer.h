@@ -86,7 +86,7 @@ public:
 		int x, y;
 		if(Euclidean(bestPtSoFar,center) < 500)
 		{
-		for(int j = 0; j < distanceList.size(); j++)
+		for(uintN j = 0; j < distanceList.size(); j++)
 		{
 			x=distanceList[j].first + center.first;
 			y=distanceList[j].second + center.second;

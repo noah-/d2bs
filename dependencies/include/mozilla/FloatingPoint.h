@@ -8,6 +8,8 @@
 #ifndef mozilla_FloatingPoint_h_
 #define mozilla_FloatingPoint_h_
 
+#pragma warning (disable : 4127)
+
 #include "mozilla/Assertions.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/StandardInteger.h"

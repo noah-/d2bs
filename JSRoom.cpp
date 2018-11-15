@@ -4,6 +4,8 @@
 #include "D2Structs.h"
 #include "D2Ptrs.h"
 
+#pragma warning (disable : 4002)
+
 EMPTY_CTOR(room)
 
 JSAPI_PROP(room_getProperty) {

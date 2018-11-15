@@ -637,7 +637,7 @@ JSAPI_FUNC(image_ctor) {
     if (!hook)
         THROW_ERROR(cx, "Failed to create image object");
 
-    ImageHook *pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state, 3);
+    ImageHook *pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state, true);
 
     if (!pImageHook)
         THROW_ERROR(cx, "Failed to create ImageHook");

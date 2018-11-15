@@ -20,6 +20,8 @@
 #include "js/RootingAPI.h"
 #include "js/Utility.h"
 
+#pragma warning (disable : 4480)
+
 namespace JS { class Value; }
 
 /* JS::Value can store a full int32_t. */

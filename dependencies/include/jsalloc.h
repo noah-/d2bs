@@ -10,6 +10,8 @@
 
 #include "jsutil.h"
 
+#pragma warning (disable : 4512)
+
 namespace js {
 
 /*

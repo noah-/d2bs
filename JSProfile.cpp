@@ -19,7 +19,7 @@ CLASS_CTOR(profile) {
     char *str2;
     char *str3;
     char *str4;
-    unsigned int i;
+    //unsigned int i;
 
     str1 = str2 = str3 = str4 = NULL;
     pt = PROFILETYPE_INVALID;

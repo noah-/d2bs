@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#pragma warning (disable : 4002)
+
 using namespace std;
 
 bool Genhook::init = false;
@@ -160,7 +162,7 @@ void Genhook::Clean(Script *owner) {
     HookIterator it = visible.begin();
     while (it != visible.end()) {
         if ((*it)->owner->IsAborted()) {
-            Genhook *i = *it;
+            //Genhook *i = *it;
             it = invisible.erase(it);
             //	delete(i);
         } else
@@ -170,7 +172,7 @@ void Genhook::Clean(Script *owner) {
     it = invisible.begin();
     while (it != invisible.end()) {
         if ((*it)->owner == owner) {
-            Genhook *i = *it;
+            //Genhook *i = *it;
             it = invisible.erase(it);
             // delete(i);
 
@@ -230,7 +232,7 @@ bool Genhook::Click(int button, POINT *loc) {
         Event *evt = new Event;
         evt->owner = owner;
         evt->argc = 3;
-        evt->name = strdup("ScreenHookClick");
+        evt->name = _strdup("ScreenHookClick");
         evt->arg1 = new DWORD((DWORD)button);
         evt->arg2 = new DWORD((DWORD)loc->x);
         evt->arg3 = new DWORD((DWORD)loc->y);
@@ -264,7 +266,7 @@ void Genhook::Hover(POINT *loc) {
         evt->owner = owner;
         evt->argc = 2;
         evt->functions.push_back(new AutoRoot((owner->GetContext(), hovered)));
-        evt->name = strdup("ScreenHookHover");
+        evt->name = _strdup("ScreenHookHover");
         evt->arg1 = new DWORD((DWORD)loc->x);
         evt->arg2 = new DWORD((DWORD)loc->y);
 
@@ -279,7 +281,7 @@ void Genhook::SetClickHandler(jsval handler) {
         return;
     Lock();
 
-    JSContext *cx = owner->GetContext();
+    //JSContext *cx = owner->GetContext();
     // if(JSVAL_IS_FUNCTION(cx, handler))
     //	JS_RemoveRoot(owner->GetContext(), &clicked);
     // JS_SetContextThread(cx);

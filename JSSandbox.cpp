@@ -2,6 +2,8 @@
 #include "D2BS.h"
 #include "ScriptEngine.h"
 
+#pragma warning (disable : 4002 4238)
+
 JSAPI_FUNC(sandbox_ctor) {
     sandbox *box = new sandbox; // leaked?
     box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
@@ -213,7 +215,7 @@ JSAPI_FUNC(sandbox_isIncluded) {
 }
 
 JSAPI_FUNC(sandbox_clear) {
-    sandbox *box = (sandbox *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
+    //sandbox *box = (sandbox *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
     // if(box)
     //	JS_ClearScope(cx, box->innerObj);
     return JS_TRUE;

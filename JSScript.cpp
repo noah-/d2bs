@@ -4,6 +4,8 @@
 #include "D2BS.h"
 #include "Helpers.h"
 
+#pragma warning (disable : 4002)
+
 EMPTY_CTOR(script)
 
 struct FindHelper {
@@ -111,7 +113,7 @@ JSAPI_FUNC(script_send) {
     ScriptEngine::LockScriptList("script.send");
     evt->owner = script;
     evt->argc = argc;
-    evt->name = strdup("scriptmsg");
+    evt->name = _strdup("scriptmsg");
     evt->arg1 = new DWORD(argc);
     evt->argv = new JSAutoStructuredCloneBuffer *;
     for (uintN i = 0; i < argc; i++) {

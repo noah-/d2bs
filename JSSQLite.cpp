@@ -20,6 +20,8 @@
 #include "D2BS.h"
 #include "File.h"
 
+#pragma warning (disable : 4002)
+
 using namespace std;
 
 struct SqliteDB;
@@ -245,7 +247,7 @@ JSAPI_PROP(sqlite_getProperty) {
         vp.setBoolean(dbobj->open);
         break;
     case SQLITE_LASTROWID:
-        vp.setInt32(sqlite3_last_insert_rowid(dbobj->db));
+        vp.setInt32((int32_t)sqlite3_last_insert_rowid(dbobj->db));
         break;
     case SQLITE_STMTS: {
         JS_BeginRequest(cx);

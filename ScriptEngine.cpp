@@ -13,6 +13,8 @@
 #include "D2Ptrs.h"
 #include "Events.h"
 
+#pragma warning (disable : 4002 4706)
+
 using namespace std;
 Script *ScriptEngine::console = NULL;
 JSRuntime *ScriptEngine::runtime = NULL;
@@ -77,7 +79,7 @@ void ScriptEngine::DisposeScript(Script *script) {
         // bad things happen if we delete from another thread
         Event *evt = new Event;
         evt->owner = script;
-        evt->name = strdup("DisposeMe");
+        evt->name = _strdup("DisposeMe");
         script->FireEvent(evt);
     }
 }
@@ -439,7 +441,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report) {
 }
 
 bool ExecScriptEvent(Event *evt, bool clearList) {
-    JSContext *cx;
+    JSContext *cx = NULL;
 
     if (!clearList)
         cx = evt->owner->GetContext();
@@ -601,7 +603,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
             argv[2] = JS_NumberValue(*(DWORD *)evt->arg3);
             argv[3] = JS_NumberValue(*(DWORD *)evt->arg4);
 
-            for (int j = 0; j < evt->argc; j++)
+            for (uintN j = 0; j < evt->argc; j++)
                 JS_AddValueRoot(cx, &argv[j]);
 
             jsval rval;
@@ -704,7 +706,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
             for (uintN i = 0; i < *argc; i++)
                 evt->argv[i]->read(cx, &argv[i]);
 
-            for (int j = 0; j < *argc; j++)
+            for (uintN j = 0; j < *argc; j++)
                 JS_AddValueRoot(cx, &argv[j]);
 
             jsval rval;
@@ -713,7 +715,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
             }
             JS_EndRequest(cx);
 
-            for (int j = 0; j < *argc; j++)
+            for (uintN j = 0; j < *argc; j++)
                 JS_RemoveValueRoot(cx, &argv[j]);
         }
         for (uintN i = 0; i < evt->argc; i++) {
@@ -730,14 +732,14 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
         if (!clearList) {
             BYTE *help = (BYTE *)evt->arg1;
             DWORD *size = (DWORD *)evt->arg2;
-            DWORD *argc = (DWORD *)1;
+            //DWORD *argc = (DWORD *)1;
             JS_BeginRequest(cx);
 
             JSObject *arr = JS_NewUint8Array(cx, *size);
             // JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 
             JS_AddRoot(cx, &arr);
-            for (int i = 0; i < *size; i++) {
+            for (uintN i = 0; i < *size; i++) {
                 jsval jsarr = UINT_TO_JSVAL(help[i]);
                 JS_SetElement(cx, arr, i, &jsarr);
             }
@@ -805,7 +807,7 @@ int ScriptEngine::AddDelayedEvent(Event *evt, int freq) {
     return delayedExecKey;
 }
 
-void ScriptEngine::RemoveDelayedEvent(int key) {
+void ScriptEngine::RemoveDelayedEvent(uintN key) {
     list<Event *>::iterator it;
     it = DelayedExecList.begin();
     while (it != DelayedExecList.end()) {

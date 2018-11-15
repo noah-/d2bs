@@ -60,7 +60,7 @@ class ScriptEngine {
     static void DefineConstant(JSContext *context, JSObject *globalObject, const char *name, int value);
     static void UpdateConsole();
     static int AddDelayedEvent(Event *evt, int freq);
-    static void RemoveDelayedEvent(int key);
+    static void RemoveDelayedEvent(uintN key);
     JSGCCallback gcCallback(JSRuntime *rt, JSGCStatus status);
 };
 

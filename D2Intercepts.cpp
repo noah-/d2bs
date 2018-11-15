@@ -4,6 +4,8 @@
 #include "Helpers.h"
 #include <shlwapi.h>
 
+#pragma warning (disable : 4702)
+
 void __declspec(naked) RealmPacketRecv_Interception() {
     __asm {
 		test esi, esi
@@ -379,7 +381,7 @@ LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS *Exceptio
     HANDLE hFile = INVALID_HANDLE_VALUE;
     for (int i = 0; hFile == INVALID_HANDLE_VALUE; ++i) {
         char fname[100];
-        sprintf(fname, "Crash%03d.dump", i);
+        sprintf_s(fname, 100, "Crash%03d.dump", i);
         hFile = CreateFile(fname, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     }
     DWORD ProcessId = GetCurrentProcessId();

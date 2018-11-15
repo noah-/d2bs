@@ -28,8 +28,9 @@ char *UnicodeToAnsi(const wchar_t *str, UINT codepage) {
 
 void StringToLower(char *p) {
     for (; *p; ++p)
-        *p = tolower(*p);
+        *p = (char)tolower(*p);
 }
+
 bool StringToBool(const char *str) {
     switch (tolower(str[0])) {
     case 't':

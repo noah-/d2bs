@@ -1,7 +1,9 @@
 #include "JSSocket.h"
 #include "D2BS.h"
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
 #include <winsock2.h>
@@ -90,7 +92,7 @@ JSAPI_FUNC(socket_open) {
     if (host == NULL)
         THROW_ERROR(cx, "Cannot find host");
     SOCKADDR_IN SockAddr;
-    SockAddr.sin_port = htons(port);
+    SockAddr.sin_port = htons((u_short)port);
     SockAddr.sin_family = AF_INET;
     SockAddr.sin_addr.s_addr = *((unsigned long *)host->h_addr);
     Sdata->mode = Sdata->socket;
@@ -122,7 +124,7 @@ JSAPI_FUNC(socket_send) {
     SocketData *sData = (SocketData *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
 
     char *msg = NULL;
-    int32 port = 0;
+    //int32 port = 0;
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         msg = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
@@ -136,7 +138,7 @@ JSAPI_FUNC(socket_read) {
 
     char buffer[10000] = {0};
     std::string returnVal;
-    int nDataLength;
+    //int nDataLength;
 
     int iResult = 0;
     do {

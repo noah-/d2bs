@@ -18,6 +18,8 @@
 #include "D2Loader.h"
 #endif
 
+#pragma warning (disable : 4706)
+
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 static HANDLE hEventThread = INVALID_HANDLE_VALUE;
 BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {

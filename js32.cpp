@@ -42,10 +42,10 @@ JSScript *JS_CompileFile(JSContext *cx, JSObject *globalObject, std::string file
     if (ch1 != 0xEF && ch1 != EOF)
         t.unget();
 
-    int offset = t.tellg();
+    int offset = (int)t.tellg();
 
     t.seekg(0, std::ios::end);
-    str.reserve(t.tellg());
+    str.reserve((unsigned int)t.tellg());
     t.seekg(offset, std::ios::beg);
 
     str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
