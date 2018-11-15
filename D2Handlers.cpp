@@ -137,7 +137,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 	if (Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = false;
-	else {
+	else
+	{
 		char* szBuffer = UnicodeToAnsi(wMsg);
 		send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatInputEvent(szBuffer));
 		delete[] szBuffer;
@@ -152,7 +153,8 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg)
 
 	if (Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = false;
-	else {
+	else
+	{
 		char* szBuffer = UnicodeToAnsi(wMsg);
 		send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer+1, false)) || ChatInputEvent(szBuffer));
 		delete[] szBuffer;

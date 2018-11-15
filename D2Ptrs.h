@@ -254,6 +254,8 @@ ASMPTR(D2CLIENT, GameAddUnit_I, 0x628E0) //6FB128E0
 
 ASMPTR(D2CLIENT, SendGamePacket_I, 0x78350)//Updated 1.14d //00478350-BASE //SendPacket_I
 ASMPTR(D2CLIENT, SendPacket_II, 0x12AE62)//Updated **NEW** 1.14d //0052AE62-BASE
+ASMPTR(D2CLIENT, MsgLoop_I, 0x4F500)//Updated **NEW** 1.14d //0044F500-BASE
+ASMPTR(D2CLIENT, MsgLoop_II, 0x51980)//Updated **NEW** 1.14d //00451980-BASE
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals

@@ -53,6 +53,7 @@ static JSFunctionSpec global_funcs[] = {
 
 	// utility functions that don't have anything to do with the game
 	JS_FN("print",				my_print,				1, FUNCTION_FLAGS),
+	JS_FN("utf8ToEuc",			my_utf8ToEuc,			1, FUNCTION_FLAGS),
 	JS_FN("setTimeout",			my_setTimeout,			0, FUNCTION_FLAGS),
 	JS_FN("clearTimeout",		my_clearInterval,		1, FUNCTION_FLAGS),
 	JS_FN("setInterval",		my_setInterval,			0, FUNCTION_FLAGS),

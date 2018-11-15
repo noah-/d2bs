@@ -19,6 +19,38 @@
 
 #include "JSScript.h"
 
+JSAPI_FUNC(my_utf8ToEuc)
+{
+	JS_SET_RVAL(cx, vp, JSVAL_NULL);
+
+	if (argc == 0 || JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
+	{
+		return JS_TRUE;
+	}
+
+	JS_BeginRequest(cx);
+	if(!JS_ConvertValue(cx, JS_ARGV(cx, vp)[0], JSTYPE_STRING, &(JS_ARGV(cx, vp)[0])))
+	{
+		JS_EndRequest(cx);
+		JS_ReportError(cx, "Converting to string failed");
+		return JS_FALSE;
+	}
+	JS_EndRequest(cx);
+	char* Text = JS_EncodeString(cx,JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+	if(Text == NULL)
+	{
+		JS_ReportError(cx, "Could not get string for value");
+		JS_free(cx, Text);
+		return JS_FALSE;
+	}
+
+	wchar_t* szText = AnsiToUnicode(Text);
+    char* euc = UnicodeToAnsi(szText, CP_ACP);
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, euc)));
+	JS_free(cx, Text);
+	delete[] szText;
+    delete[] euc;
+}
 
 JSAPI_FUNC(my_print)
 {

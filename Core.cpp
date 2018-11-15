@@ -106,7 +106,7 @@ void __fastcall Say(const char *szFormat, ...)
 	if(*p_D2CLIENT_PlayerUnit)
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
-		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2 + 1);
+		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, (wcslen(wBuffer) + 1)*sizeof(wchar_t));
 		delete[] wBuffer;
 		wBuffer = NULL;
 
