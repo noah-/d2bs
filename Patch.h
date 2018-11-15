@@ -12,11 +12,12 @@ PatchHook Patches[] = {
 	{PatchCall,	GetDllOffset("D2Client.dll", 0x62D72),	(DWORD)GetSelectedUnit_Intercept,		5},//Updated 1.14d //00462D72-BASE
 	{PatchJmp,	GetDllOffset("D2Client.dll", 0x5E4D5),	(DWORD)PlayerAssignment_Intercept,		5},//Updated 1.14d //0045E4D5-BASE
 	{PatchBytes,GetDllOffset("D2Client.dll", 0x68770),	(DWORD)0xc3,							1},//Updated 1.14d //00468770-BASE
+	{PatchBytes, GetDllOffset("D2CLIENT.DLL", 0x4EBFB),	(BYTE)0x75,								1},//Congrats Screen //0044EBFB-BASE
 	{PatchCall, GetDllOffset("D2Client.dll", 0x547B6),	(DWORD)GameActChange_Intercept,			5},//Updated 1.14d //004547B6-BASE
 	{PatchJmp,  GetDllOffset("D2Client.dll", 0x567EB),	(DWORD)GameActChange2_Intercept,		5},//Updated 1.14d //004567EB-BASE
 	{PatchCall, GetDllOffset("D2Client.dll", 0x4F57C),	(DWORD)GameLeave_Intercept,				5},//Updated 1.14d //0044F57C-BASE
 	{PatchCall,	GetDllOffset("D2Client.dll", 0x61704),	(DWORD)GameAttack_Intercept,			5},//Updated 1.14d //00461704-BASE
-
+	{PatchCall, GetDllOffset("D2Client.dll", 0x4F500),	(DWORD)MsgLoop_Intercept,				7},
 //	{PatchCall,	GetDllOffset("D2Client.dll", 0xA7364),	(DWORD)AddUnit_Intercept,				5},
 //	{PatchCall,	GetDllOffset("D2Client.dll", 0xA6F25),	(DWORD)RemoveUnit_Interept,			9},
 

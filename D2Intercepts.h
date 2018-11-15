@@ -11,6 +11,7 @@ void GamePacketSent_Interception();
 UnitAny* GetSelectedUnit_Intercept(void);
 void Whisper_Intercept();
 void GameAttack_Intercept();
+void MsgLoop_Intercept();
 void PlayerAssignment_Intercept();
 void GameCrashFix_Intercept();
 void GameDrawOOG_Intercept(void);

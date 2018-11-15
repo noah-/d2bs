@@ -154,6 +154,22 @@ Block:
 	}
 }
 
+void __declspec(naked) MsgLoop_Intercept()
+{
+	__asm
+	{
+		jz skip
+		push ecx
+		mov ecx, 30
+		call Sleep
+		pop ecx
+		pop eax
+		jmp D2CLIENT_MsgLoop_I
+skip:
+		call D2CLIENT_MsgLoop_II
+	}
+}
+
 void __declspec(naked) GameAttack_Intercept()
 {
 	__asm 

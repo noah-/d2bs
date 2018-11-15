@@ -4,6 +4,7 @@
 
 JSAPI_FUNC(my_getThreadPriority);
 JSAPI_FUNC(my_debugLog);
+JSAPI_FUNC(my_utf8ToEuc);
 JSAPI_FUNC(my_print);
 JSAPI_FUNC(my_setTimeout);
 JSAPI_FUNC(my_setInterval);

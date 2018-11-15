@@ -63,12 +63,15 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 {
 	char* pName = (char*)pPacket+10;
 	char* pMessage = (char*)pPacket + strlen(pName) + 11;
-	char* tmp = UnicodeToAnsi(AnsiToUnicode(pMessage, CP_ACP));
+	char* enc = UnicodeToAnsi(AnsiToUnicode(pMessage, CP_ACP)); // convert d2 string to unicode to utf-8 for js compatibility
 
 	if(Vars.bDontCatchNextMsg)
 		Vars.bDontCatchNextMsg = FALSE;
-	
-	return !(ChatEvent(pName, tmp));
+
+	DWORD result = !(ChatEvent(pName, enc));
+	delete[] enc;
+
+	return result;
 }
 
 DWORD NPCTransactionHandler(BYTE* pPacket, DWORD dwSize)
