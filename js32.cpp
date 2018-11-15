@@ -1,36 +1,34 @@
-#include "ScriptEngine.h"
 #include "js32.h"
+#include "ScriptEngine.h"
 
 //#include <cstdarg>
 
-JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
-{
-	JS_BeginRequest(cx);
-	
-	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
+JSObject *BuildObject(JSContext *cx, JSClass *classp, JSFunctionSpec *funcs, JSPropertySpec *props, void *priv, JSObject *proto, JSObject *parent) {
+    JS_BeginRequest(cx);
 
-	if(obj)
-	{
-		// add root to avoid newborn root problem
-		JS_AddObjectRoot(cx, &obj);
-		//if(JS_AddRoot(&obj) == JS_FALSE)
-			//return NULL;
-		if(obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
-			obj = NULL;
-		if(obj && props && !JS_DefineProperties(cx, obj, props))
-			obj = NULL;
-		if(obj && priv)
-			JS_SetPrivate(cx, obj, priv);
-		JS_RemoveObjectRoot(cx, &obj);
-	}
-	JS_EndRequest(cx);
-	return obj;
+    JSObject *obj = JS_NewObject(cx, classp, proto, parent);
+
+    if (obj) {
+        // add root to avoid newborn root problem
+        JS_AddObjectRoot(cx, &obj);
+        // if(JS_AddRoot(&obj) == JS_FALSE)
+        // return NULL;
+        if (obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
+            obj = NULL;
+        if (obj && props && !JS_DefineProperties(cx, obj, props))
+            obj = NULL;
+        if (obj && priv)
+            JS_SetPrivate(cx, obj, priv);
+        JS_RemoveObjectRoot(cx, &obj);
+    }
+    JS_EndRequest(cx);
+    return obj;
 }
-JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName)
+JSScript *JS_CompileFile(JSContext *cx, JSObject *globalObject, std::string fileName)
 
 {
-	std::ifstream t(fileName.c_str());
-	std::string str;
+    std::ifstream t(fileName.c_str());
+    std::string str;
 
     int ch1 = t.get();
     int ch2 = t.get();
@@ -38,28 +36,26 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string file
 
     // No BOM - revert
     if (ch3 != 0xBF && ch3 != EOF)
-		t.unget();
+        t.unget();
     if (ch2 != 0xBB && ch2 != EOF)
         t.unget();
     if (ch1 != 0xEF && ch1 != EOF)
         t.unget();
 
-	int offset = t.tellg();
+    int offset = t.tellg();
 
-	t.seekg(0, std::ios::end);
-	str.reserve(t.tellg());
-	t.seekg(offset, std::ios::beg);
+    t.seekg(0, std::ios::end);
+    str.reserve(t.tellg());
+    t.seekg(offset, std::ios::beg);
 
-	str.assign((std::istreambuf_iterator<char>(t)),
-            std::istreambuf_iterator<char>());
+    str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
-	JSScript* rval = JS_CompileScript(cx, globalObject,str.c_str(), str.size() , fileName.c_str(),1);
-	JS_AddNamedScriptRoot (cx, &rval, fileName.c_str());
-	JS_RemoveScriptRoot(cx, &rval);
-	
-return rval;
+    JSScript *rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), fileName.c_str(), 1);
+    JS_AddNamedScriptRoot(cx, &rval, fileName.c_str());
+    JS_RemoveScriptRoot(cx, &rval);
+
+    return rval;
 }
-JSBool JSVAL_IS_OBJECT(jsval v){return !JSVAL_IS_PRIMITIVE(v);}
-void * JS_GetPrivate(JSContext *cx, JSObject *obj){ return JS_GetPrivate(obj);}
-void JS_SetPrivate(JSContext *cx, JSObject *obj, void *data){ return JS_SetPrivate(obj ,data);}
-
+JSBool JSVAL_IS_OBJECT(jsval v) { return !JSVAL_IS_PRIMITIVE(v); }
+void *JS_GetPrivate(JSContext *cx, JSObject *obj) { return JS_GetPrivate(obj); }
+void JS_SetPrivate(JSContext *cx, JSObject *obj, void *data) { return JS_SetPrivate(obj, data); }
