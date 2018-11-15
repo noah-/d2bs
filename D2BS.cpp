@@ -20,62 +20,53 @@
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 static HANDLE hEventThread = INVALID_HANDLE_VALUE;
-BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
-{
-	switch (dwReason)
-	{
-	case DLL_PROCESS_ATTACH:
-	{
-		DisableThreadLibraryCalls(hDll);
-		if (lpReserved != NULL)
-		{
-			Vars.pModule = (Module*)lpReserved;
+BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
+    switch (dwReason) {
+    case DLL_PROCESS_ATTACH: {
+        DisableThreadLibraryCalls(hDll);
+        if (lpReserved != NULL) {
+            Vars.pModule = (Module *)lpReserved;
 
-			if (!Vars.pModule)
-				return FALSE;
+            if (!Vars.pModule)
+                return FALSE;
 
-			strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
-			Vars.bLoadedWithCGuard = TRUE;
-		}
-		else
-		{
-			Vars.hModule = hDll;
-			GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
-			PathRemoveFileSpec(Vars.szPath);
-			strcat_s(Vars.szPath, MAX_PATH, "\\");
-			Vars.bLoadedWithCGuard = FALSE;
-		}
+            strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
+            Vars.bLoadedWithCGuard = TRUE;
+        } else {
+            Vars.hModule = hDll;
+            GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
+            PathRemoveFileSpec(Vars.szPath);
+            strcat_s(Vars.szPath, MAX_PATH, "\\");
+            Vars.bLoadedWithCGuard = FALSE;
+        }
 
-		ParseCommandLine(GetCommandLineW());
-		sLine* command = NULL;
+        ParseCommandLine(GetCommandLineW());
+        sLine *command = NULL;
 
-		if (command = GetCommand(L"-title"))
-		{
-			int len = wcslen((wchar_t*)command->szText);
-			wcsncat_s(Vars.szTitle, (wchar_t*)command->szText, len);
-		}
+        if (command = GetCommand(L"-title")) {
+            int len = wcslen((wchar_t *)command->szText);
+            wcsncat_s(Vars.szTitle, (wchar_t *)command->szText, len);
+        }
 
-		if (GetCommand(L"-sleepy"))
-			Vars.bSleepy = 1;
+        if (GetCommand(L"-sleepy"))
+            Vars.bSleepy = 1;
 
-		if (GetCommand(L"-cachefix"))
-			Vars.bCacheFix = 1;
+        if (GetCommand(L"-cachefix"))
+            Vars.bCacheFix = 1;
 
-		if (GetCommand(L"-multi"))
-			Vars.bMulti = TRUE;
+        if (GetCommand(L"-multi"))
+            Vars.bMulti = TRUE;
 
-		if (command = GetCommand(L"-d2c")) 
-		{
-			Vars.bUseRawCDKey = 1; 
-			const char *keys = UnicodeToAnsi(command->szText);
-			strncat_s(Vars.szClassic, keys, strlen(keys));
-		}
+        if (command = GetCommand(L"-d2c")) {
+            Vars.bUseRawCDKey = 1;
+            const char *keys = UnicodeToAnsi(command->szText);
+            strncat_s(Vars.szClassic, keys, strlen(keys));
+        }
 
-		if (command = GetCommand(L"-d2x")) 
-		{
-			const char *keys = UnicodeToAnsi(command->szText);
-			strncat_s(Vars.szLod, keys, strlen(keys));
-		}
+        if (command = GetCommand(L"-d2x")) {
+            const char *keys = UnicodeToAnsi(command->szText);
+            strncat_s(Vars.szLod, keys, strlen(keys));
+        }
 
 #if 0
 		char errlog[516] = "";
@@ -88,96 +79,92 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		freopen_s(&f, errlog, "a+t", f);
 #endif
 
-		Vars.bShutdownFromDllMain = FALSE;
-		SetUnhandledExceptionFilter(ExceptionHandler);
-		if (!Startup())
-			return FALSE;
-	}
-	break;
-	case DLL_PROCESS_DETACH:
-		if (Vars.bNeedShutdown)
-		{
-			Vars.bShutdownFromDllMain = TRUE;
-			Shutdown();
-		}
-		break;
-	}
+        Vars.bShutdownFromDllMain = FALSE;
+        SetUnhandledExceptionFilter(ExceptionHandler);
+        if (!Startup())
+            return FALSE;
+    } break;
+    case DLL_PROCESS_DETACH:
+        if (Vars.bNeedShutdown) {
+            Vars.bShutdownFromDllMain = TRUE;
+            Shutdown();
+        }
+        break;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
-BOOL Startup(void)
-{
-	InitializeCriticalSection(&Vars.cEventSection);
-	InitializeCriticalSection(&Vars.cRoomSection);
-	InitializeCriticalSection(&Vars.cMiscSection);
-	InitializeCriticalSection(&Vars.cScreenhookSection);
-	InitializeCriticalSection(&Vars.cPrintSection);
-	InitializeCriticalSection(&Vars.cBoxHookSection);
-	InitializeCriticalSection(&Vars.cFrameHookSection);
-	InitializeCriticalSection(&Vars.cLineHookSection);
-	InitializeCriticalSection(&Vars.cImageHookSection);
-	InitializeCriticalSection(&Vars.cTextHookSection);
-	InitializeCriticalSection(&Vars.cFlushCacheSection);
-	InitializeCriticalSection(&Vars.cConsoleSection);
-	InitializeCriticalSection(&Vars.cGameLoopSection);
-	InitializeCriticalSection(&Vars.cUnitListSection);
-	InitializeCriticalSection(&Vars.cFileSection);
+BOOL Startup(void) {
+    InitializeCriticalSection(&Vars.cEventSection);
+    InitializeCriticalSection(&Vars.cRoomSection);
+    InitializeCriticalSection(&Vars.cMiscSection);
+    InitializeCriticalSection(&Vars.cScreenhookSection);
+    InitializeCriticalSection(&Vars.cPrintSection);
+    InitializeCriticalSection(&Vars.cBoxHookSection);
+    InitializeCriticalSection(&Vars.cFrameHookSection);
+    InitializeCriticalSection(&Vars.cLineHookSection);
+    InitializeCriticalSection(&Vars.cImageHookSection);
+    InitializeCriticalSection(&Vars.cTextHookSection);
+    InitializeCriticalSection(&Vars.cFlushCacheSection);
+    InitializeCriticalSection(&Vars.cConsoleSection);
+    InitializeCriticalSection(&Vars.cGameLoopSection);
+    InitializeCriticalSection(&Vars.cUnitListSection);
+    InitializeCriticalSection(&Vars.cFileSection);
 
-	Vars.bNeedShutdown = TRUE;
-	Vars.bChangedAct = FALSE;
-	Vars.bGameLoopEntered = FALSE;
+    Vars.bNeedShutdown = TRUE;
+    Vars.bChangedAct = FALSE;
+    Vars.bGameLoopEntered = FALSE;
 
-	Vars.SectionCount = 0;
+    Vars.SectionCount = 0;
 
-	//MessageBox(NULL, "qwe", "qwe", MB_OK);
-	Genhook::Initialize();
-	DefineOffsets();
-	InstallPatches();
-	InstallConditional();
-	CreateDdeServer();
+    // MessageBox(NULL, "qwe", "qwe", MB_OK);
+    Genhook::Initialize();
+    DefineOffsets();
+    InstallPatches();
+    InstallConditional();
+    CreateDdeServer();
 
-	if ((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
-		return FALSE;
-	//	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
-	return TRUE;
+    if ((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
+        return FALSE;
+    //	hEventThread = CreateThread(0, 0, EventThread, NULL, 0, 0);
+    return TRUE;
 }
 
-void Shutdown(void)
-{
-	if (!Vars.bNeedShutdown)
-		return;
+void Shutdown(void) {
+    if (!Vars.bNeedShutdown)
+        return;
 
-	Vars.bActive = FALSE;
-	if (!Vars.bShutdownFromDllMain)
-		WaitForSingleObject(hD2Thread, INFINITE);
+    Vars.bActive = FALSE;
+    if (!Vars.bShutdownFromDllMain)
+        WaitForSingleObject(hD2Thread, INFINITE);
 
-	SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)Vars.oldWNDPROC);
+    SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)Vars.oldWNDPROC);
 
-	RemovePatches();
-	Genhook::Destroy();
-	ShutdownDdeServer();
+    RemovePatches();
+    Genhook::Destroy();
+    ShutdownDdeServer();
 
-	KillTimer(D2GFX_GetHwnd(), Vars.uTimer);
+    KillTimer(D2GFX_GetHwnd(), Vars.uTimer);
 
-	UnhookWindowsHookEx(Vars.hMouseHook);
-	UnhookWindowsHookEx(Vars.hKeybHook);
+    UnhookWindowsHookEx(Vars.hMouseHook);
+    UnhookWindowsHookEx(Vars.hKeybHook);
 
-	DeleteCriticalSection(&Vars.cRoomSection);
-	DeleteCriticalSection(&Vars.cMiscSection);
-	DeleteCriticalSection(&Vars.cScreenhookSection);
-	DeleteCriticalSection(&Vars.cPrintSection);
-	DeleteCriticalSection(&Vars.cBoxHookSection);
-	DeleteCriticalSection(&Vars.cFrameHookSection);
-	DeleteCriticalSection(&Vars.cLineHookSection);
-	DeleteCriticalSection(&Vars.cImageHookSection);
-	DeleteCriticalSection(&Vars.cTextHookSection);
-	DeleteCriticalSection(&Vars.cFlushCacheSection);
-	DeleteCriticalSection(&Vars.cConsoleSection);
-	DeleteCriticalSection(&Vars.cGameLoopSection);
-	DeleteCriticalSection(&Vars.cUnitListSection);
-	DeleteCriticalSection(&Vars.cFileSection);
+    DeleteCriticalSection(&Vars.cRoomSection);
+    DeleteCriticalSection(&Vars.cMiscSection);
+    DeleteCriticalSection(&Vars.cScreenhookSection);
+    DeleteCriticalSection(&Vars.cPrintSection);
+    DeleteCriticalSection(&Vars.cBoxHookSection);
+    DeleteCriticalSection(&Vars.cFrameHookSection);
+    DeleteCriticalSection(&Vars.cLineHookSection);
+    DeleteCriticalSection(&Vars.cImageHookSection);
+    DeleteCriticalSection(&Vars.cTextHookSection);
+    DeleteCriticalSection(&Vars.cFlushCacheSection);
+    DeleteCriticalSection(&Vars.cConsoleSection);
+    DeleteCriticalSection(&Vars.cGameLoopSection);
+    DeleteCriticalSection(&Vars.cUnitListSection);
+    DeleteCriticalSection(&Vars.cFileSection);
 
-	Log("D2BS Shutdown complete.");
-	Vars.bNeedShutdown = false;
+    Log("D2BS Shutdown complete.");
+    Vars.bNeedShutdown = false;
 }
