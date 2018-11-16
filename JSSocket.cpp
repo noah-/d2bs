@@ -92,7 +92,7 @@ JSAPI_FUNC(socket_open) {
     if (host == NULL)
         THROW_ERROR(cx, "Cannot find host");
     SOCKADDR_IN SockAddr;
-    SockAddr.sin_port = htons((u_short)port);
+    SockAddr.sin_port = htons(port);
     SockAddr.sin_family = AF_INET;
     SockAddr.sin_addr.s_addr = *((unsigned long *)host->h_addr);
     Sdata->mode = Sdata->socket;

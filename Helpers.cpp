@@ -28,7 +28,7 @@ char *UnicodeToAnsi(const wchar_t *str, UINT codepage) {
 
 void StringToLower(char *p) {
     for (; *p; ++p)
-        *p = (char)tolower(*p);
+        *p = tolower(*p);
 }
 
 bool StringToBool(const char *str) {

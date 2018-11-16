@@ -47,7 +47,7 @@ DWORD ParseStringForText(LPWSTR Source, LPWSTR text) {
 
         memset(BUF, 0x00, 4059);
     }
-    return (DWORD)-1;
+    return -1;
 }
 
 VOID ParseCommandLine(LPWSTR Command) {

@@ -26,7 +26,7 @@ bool SplitLines(const std::string &str, size_t maxlen, const char delim, std::li
 
     while (UTF8Length(tmp) > maxLength) {
         // Get byte index for UTF8 string
-        int byteIdx = UTF8FindByteIndex(tmp, (uintN)maxLength);
+        int byteIdx = UTF8FindByteIndex(tmp, maxLength);
         // byteIdx-1 since std::string::npos indexes from 0
         pos = tmp.find_last_of(delim, byteIdx - 1);
         if (!pos || pos == string::npos) {
