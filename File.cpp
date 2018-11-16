@@ -196,8 +196,8 @@ FILE *fileOpenRelScript(const char *filename, const char *mode, JSContext *cx) {
 
     // Open the file
     if (fopen_s(&f, fullPath, mode) != 0 || f == NULL) {
-		char buffer[128];
-		_strerror_s(buffer,NULL);
+        char buffer[128];
+        _strerror_s(buffer,NULL);
         JS_ReportError(cx, "Couldn't open file %s: %s", filename, buffer);
         return NULL;
     }

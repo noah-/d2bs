@@ -49,7 +49,7 @@ JSAPI_FUNC(my_utf8ToEuc) {
     delete[] szText;
     delete[] euc;
 
-	return JS_TRUE;
+    return JS_TRUE;
 }
 
 JSAPI_FUNC(my_print) {
