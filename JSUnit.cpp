@@ -10,18 +10,18 @@
 
 EMPTY_CTOR(unit)
 
-void unit_finalize(JSFreeOp *fop, JSObject *obj) {
-    Private *lpUnit = (Private *)JS_GetPrivate(obj);
+void unit_finalize(JSFreeOp* fop, JSObject* obj) {
+    Private* lpUnit = (Private*)JS_GetPrivate(obj);
 
     if (lpUnit) {
         switch (lpUnit->dwPrivateType) {
         case PRIVATE_UNIT: {
-            myUnit *unit = (myUnit *)lpUnit;
+            myUnit* unit = (myUnit*)lpUnit;
             delete unit;
             break;
         }
         case PRIVATE_ITEM: {
-            invUnit *unit = (invUnit *)lpUnit;
+            invUnit* unit = (invUnit*)lpUnit;
             delete unit;
             break;
         }
@@ -45,8 +45,8 @@ void unit_finalize(JSFreeOp *fop, JSObject *obj) {
 //}
 
 JSAPI_PROP(unit_getProperty) {
-    BnetData *pData = *p_D2LAUNCH_BnData;
-    GameStructInfo *pInfo = *p_D2CLIENT_GameInfo;
+    BnetData* pData = *p_D2LAUNCH_BnData;
+    GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
     jsval ID;
     JS_IdToValue(cx, id, &ID);
     JS_BeginRequest(cx);
@@ -180,15 +180,15 @@ JSAPI_PROP(unit_getProperty) {
         return JS_TRUE;
     // JSObject* obj ;
     // JS_ValueToObject(cx,  JS_CALLEE(cx,vp),obj);
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, obj);
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
     if (!pUnit) {
         return JS_TRUE;
     }
-    Room1 *pRoom = NULL;
+    Room1* pRoom = NULL;
 
     switch (JSVAL_TO_INT(ID)) {
     case UNIT_TYPE:
@@ -298,7 +298,7 @@ JSAPI_PROP(unit_getProperty) {
     case ITEM_CODE: // replace with better method if found
         if (!(pUnit->dwType == UNIT_ITEM) && pUnit->pItemData)
             break;
-        ItemTxt *pTxt;
+        ItemTxt* pTxt;
         pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
         if (!pTxt) {
             vp.setString(JS_InternString(cx, "Unknown"));
@@ -330,7 +330,7 @@ JSAPI_PROP(unit_getProperty) {
 
     case ITEM_PREFIXES:
         if (pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
             for (int i = 0; i < 3; i++) {
                 if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[i])) {
@@ -346,7 +346,7 @@ JSAPI_PROP(unit_getProperty) {
         break;
     case ITEM_PREFIXNUMS:
         if (pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
             for (int i = 0; i < 3; i++) {
                 if (pUnit->pItemData->wMagicPrefix[i]) {
@@ -362,7 +362,7 @@ JSAPI_PROP(unit_getProperty) {
         break;
     case ITEM_SUFFIXES:
         if (pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
             for (int i = 0; i < 3; i++) {
                 if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[i])) {
@@ -378,7 +378,7 @@ JSAPI_PROP(unit_getProperty) {
         break;
     case ITEM_SUFFIXNUMS:
         if (pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
             for (int i = 0; i < 3; i++) {
                 if (pUnit->pItemData->wMagicSuffix[i]) {
@@ -398,7 +398,7 @@ JSAPI_PROP(unit_getProperty) {
             wchar_t wszfname[256] = L"";
             D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
             if (wszfname) {
-                char *tmp = UnicodeToAnsi(wszfname);
+                char* tmp = UnicodeToAnsi(wszfname);
                 vp.setString(JS_InternString(cx, tmp));
                 delete[] tmp;
                 tmp = NULL;
@@ -442,20 +442,20 @@ JSAPI_PROP(unit_getProperty) {
         if (pUnit->dwType != UNIT_ITEM)
             break;
 
-        AutoCriticalRoom *cRoom = new AutoCriticalRoom;
+        AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
         wchar_t wBuffer[2048] = L"";
         wchar_t bBuffer[1] = {1};
         if (pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) {
-            ::WriteProcessMemory(GetCurrentProcess(), (void *)GetDllOffset("D2Client.dll", 0x7BCBE8 - 0x400000), bBuffer, 1, NULL);
-            ::WriteProcessMemory(GetCurrentProcess(), (void *)GetDllOffset("D2Client.dll", 0x7BCBF4 - 0x400000), &pUnit, 4, NULL);
+            ::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x7BCBE8 - 0x400000), bBuffer, 1, NULL);
+            ::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x7BCBF4 - 0x400000), &pUnit, 4, NULL);
 
             // D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);
             D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
             ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0x841EC8 - 0x400000), wBuffer, 2047);
         }
         delete cRoom;
-        char *tmp = UnicodeToAnsi(wBuffer);
+        char* tmp = UnicodeToAnsi(wBuffer);
         if (tmp) {
             vp.setString(JS_InternString(cx, tmp));
             delete[] tmp;
@@ -596,7 +596,7 @@ JSAPI_FUNC(unit_getUnit) {
     if (argc > 3 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[3], &nUnitId);
     JS_EndRequest(cx);
-    UnitAny *pUnit = NULL;
+    UnitAny* pUnit = NULL;
 
     if (nType == 100)
         pUnit = D2CLIENT_GetCursorItem();
@@ -610,7 +610,7 @@ JSAPI_FUNC(unit_getUnit) {
     if (!pUnit)
         return JS_TRUE;
 
-    myUnit *pmyUnit = new myUnit; // leaked?
+    myUnit* pmyUnit = new myUnit; // leaked?
 
     if (!pmyUnit)
         return JS_TRUE;
@@ -622,7 +622,7 @@ JSAPI_FUNC(unit_getUnit) {
     pmyUnit->dwUnitId = pUnit->dwUnitId;
     strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-    JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+    JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
     if (!jsunit)
         return JS_TRUE;
@@ -634,14 +634,14 @@ JSAPI_FUNC(unit_getUnit) {
 
 JSAPI_FUNC(unit_getNext) {
     JS_SET_RVAL(cx, vp, JSVAL_VOID);
-    Private *unit = (Private *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    Private* unit = (Private*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!unit)
         return JS_TRUE;
 
     if (unit->dwPrivateType == PRIVATE_UNIT) {
-        myUnit *lpUnit = (myUnit *)unit;
-        UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+        myUnit* lpUnit = (myUnit*)unit;
+        UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
         if (!pUnit)
             return JS_TRUE;
@@ -650,10 +650,10 @@ JSAPI_FUNC(unit_getNext) {
             strcpy_s(lpUnit->szName, 128, JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32 *)&(lpUnit->dwClassId));
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(lpUnit->dwClassId));
 
         if (argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32 *)&(lpUnit->dwMode));
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&(lpUnit->dwMode));
         JS_EndRequest(cx);
         pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
 
@@ -670,12 +670,12 @@ JSAPI_FUNC(unit_getNext) {
             JS_SET_RVAL(cx, vp, JSVAL_TRUE);
         }
     } else if (unit->dwPrivateType == PRIVATE_ITEM) {
-        invUnit *pmyUnit = (invUnit *)unit;
+        invUnit* pmyUnit = (invUnit*)unit;
         if (!pmyUnit)
             return JS_TRUE;
 
-        UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
-        UnitAny *pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
+        UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+        UnitAny* pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
         if (!pUnit || !pOwner)
             return JS_TRUE;
         JS_BeginRequest(cx);
@@ -683,17 +683,18 @@ JSAPI_FUNC(unit_getNext) {
             strcpy_s(pmyUnit->szName, 128, JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32 *)&(pmyUnit->dwClassId));
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(pmyUnit->dwClassId));
 
         if (argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32 *)&(pmyUnit->dwMode));
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&(pmyUnit->dwMode));
         JS_EndRequest(cx);
-        UnitAny *nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
+        UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
         if (!nextItem) {
             // set current object to null breaks the unit_finilize cleanup cycle
             /*JSObject* obj = JS_THIS_OBJECT(cx, vp);
             //JS_ClearScope(cx, obj);
             
+
 
             if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
                     return JS_TRUE;
@@ -719,7 +720,7 @@ JSAPI_FUNC(unit_cancel) {
     if (argc > 0) {
         JS_BeginRequest(cx);
         if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]))
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32 *)&mode);
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&mode);
         JS_EndRequest(cx);
     } else if (IsScrollingText())
         mode = 3;
@@ -751,20 +752,20 @@ JSAPI_FUNC(unit_cancel) {
 }
 
 JSAPI_FUNC(unit_repair) {
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit)
         return JS_TRUE;
 
     BYTE aPacket[17] = {NULL};
     aPacket[0] = 0x35;
-    *(DWORD *)&aPacket[1] = *p_D2CLIENT_RecentInteractId;
+    *(DWORD*)&aPacket[1] = *p_D2CLIENT_RecentInteractId;
     aPacket[16] = 0x80;
     D2NET_SendPacket(17, 1, aPacket);
 
@@ -776,7 +777,7 @@ JSAPI_FUNC(unit_repair) {
 }
 
 JSAPI_FUNC(unit_useMenu) {
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
@@ -785,7 +786,7 @@ JSAPI_FUNC(unit_useMenu) {
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit)
         return JS_TRUE;
@@ -799,14 +800,14 @@ JSAPI_FUNC(unit_interact) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || pUnit == D2CLIENT_GetPlayerUnit())
         return JS_TRUE;
@@ -818,16 +819,16 @@ JSAPI_FUNC(unit_interact) {
 
         if (nLocation == LOCATION_INVENTORY || nLocation == LOCATION_STASH) {
             aPacket[0] = 0x20;
-            *(DWORD *)&aPacket[1] = pUnit->dwUnitId;
-            *(DWORD *)&aPacket[5] = D2CLIENT_GetPlayerUnit()->pPath->xPos;
-            *(DWORD *)&aPacket[9] = D2CLIENT_GetPlayerUnit()->pPath->yPos;
+            *(DWORD*)&aPacket[1] = pUnit->dwUnitId;
+            *(DWORD*)&aPacket[5] = D2CLIENT_GetPlayerUnit()->pPath->xPos;
+            *(DWORD*)&aPacket[9] = D2CLIENT_GetPlayerUnit()->pPath->yPos;
             D2NET_SendPacket(13, 1, aPacket);
             return JS_TRUE;
         } else if (nLocation == LOCATION_BELT) {
             aPacket[0] = 0x26;
-            *(DWORD *)&aPacket[1] = pUnit->dwUnitId;
-            *(DWORD *)&aPacket[5] = 0;
-            *(DWORD *)&aPacket[9] = 0;
+            *(DWORD*)&aPacket[1] = pUnit->dwUnitId;
+            *(DWORD*)&aPacket[5] = 0;
+            *(DWORD*)&aPacket[9] = 0;
             D2NET_SendPacket(13, 1, aPacket);
             return JS_TRUE;
         }
@@ -867,21 +868,21 @@ JSAPI_FUNC(unit_interact) {
     return JS_TRUE;
 }
 
-void InsertStatsToGenericObject(UnitAny *pUnit, StatList *pStatList, JSContext *pJSContext, JSObject *pGenericObject);
-void InsertStatsNow(Stat *pStat, int nStat, JSContext *cx, JSObject *pArray);
+void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* pJSContext, JSObject* pGenericObject);
+void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray);
 
 JSAPI_FUNC(unit_getStat) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit)
         return JS_TRUE;
@@ -905,20 +906,19 @@ JSAPI_FUNC(unit_getStat) {
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit())));
     else if (nStat == -1) {
         Stat aStatList[256] = {NULL};
-        StatList *pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
+        StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
 
         if (pStatList) {
-            DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat *)aStatList, 256);
+            DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
 
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
 
             for (int j = 0; j < pUnit->pStats->StatVec.wCount; j++) {
                 bool inListAlready = false;
                 for (DWORD k = 0; k < dwStats; k++) {
                     if (aStatList[k].dwStatValue == pUnit->pStats->StatVec.pStats[j].dwStatValue &&
-                        aStatList[k].wStatIndex == pUnit->pStats->StatVec.pStats[j].wStatIndex &&
-                        aStatList[k].wSubIndex == pUnit->pStats->StatVec.pStats[j].wSubIndex)
+                        aStatList[k].wStatIndex == pUnit->pStats->StatVec.pStats[j].wStatIndex && aStatList[k].wSubIndex == pUnit->pStats->StatVec.pStats[j].wSubIndex)
                         inListAlready = true;
                 }
                 if (!inListAlready) {
@@ -931,7 +931,7 @@ JSAPI_FUNC(unit_getStat) {
             }
             for (UINT i = 0; i < dwStats; i++) {
                 JS_BeginRequest(cx);
-                JSObject *pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+                JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
                 JS_AddRoot(cx, &pArrayInsert);
 
                 if (!pArrayInsert)
@@ -953,7 +953,7 @@ JSAPI_FUNC(unit_getStat) {
             }
         }
     } else if (nStat == -2) {
-        JSObject *pArray = JS_NewArrayObject(cx, 0, NULL);
+        JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
         JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pArray));
 
         InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
@@ -964,10 +964,10 @@ JSAPI_FUNC(unit_getStat) {
         long result = D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex);
         if (result == 0) // if stat isnt found look up preset list
         {
-            StatList *pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
+            StatList* pStatList = D2COMMON_GetStatList(pUnit, NULL, 0x40);
             Stat aStatList[256] = {NULL};
             if (pStatList) {
-                DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat *)aStatList, 256);
+                DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
                 for (UINT i = 0; i < dwStats; i++) {
                     if (nStat == aStatList[i].wStatIndex && nSubIndex == aStatList[i].wSubIndex)
                         result = (aStatList[i].dwStatValue);
@@ -981,8 +981,8 @@ JSAPI_FUNC(unit_getStat) {
     return JS_TRUE;
 }
 
-void InsertStatsToGenericObject(UnitAny *pUnit, StatList *pStatList, JSContext *cx, JSObject *pArray) {
-    Stat *pStat = NULL;
+void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* cx, JSObject* pArray) {
+    Stat* pStat = NULL;
     if (!pStatList)
         return;
     if ((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit) {
@@ -1001,7 +1001,7 @@ void InsertStatsToGenericObject(UnitAny *pUnit, StatList *pStatList, JSContext *
     }
 }
 
-void InsertStatsNow(Stat *pStat, int nStat, JSContext *cx, JSObject *pArray) {
+void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray) {
     if (pStat[nStat].wSubIndex > 0x200) {
         // subindex is the skill id and level
         int skill = pStat[nStat].wSubIndex >> 6, level = pStat[nStat].wSubIndex & 0x3F, charges = 0, maxcharges = 0;
@@ -1009,7 +1009,7 @@ void InsertStatsNow(Stat *pStat, int nStat, JSContext *cx, JSObject *pArray) {
             charges = pStat[nStat].dwStatValue & 0xFF;
             maxcharges = pStat[nStat].dwStatValue >> 8;
         }
-        JSObject *val = BuildObject(cx, NULL);
+        JSObject* val = BuildObject(cx, NULL);
         jsval jsskill = INT_TO_JSVAL(skill), jslevel = INT_TO_JSVAL(level), jscharges = INT_TO_JSVAL(charges), jsmaxcharges = INT_TO_JSVAL(maxcharges);
         // val is an anonymous object that holds properties
         if (!JS_SetProperty(cx, val, "skill", &jsskill) || !JS_SetProperty(cx, val, "level", &jslevel))
@@ -1027,7 +1027,7 @@ void InsertStatsNow(Stat *pStat, int nStat, JSContext *cx, JSObject *pArray) {
             if (!JS_IsArrayObject(cx, JSVAL_TO_OBJECT(index))) {
                 // it's not an array, build one
                 JS_BeginRequest(cx);
-                JSObject *arr = JS_NewArrayObject(cx, 0, NULL);
+                JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
                 JS_AddRoot(cx, &arr);
                 JS_SetElement(cx, arr, 0, &index);
                 JS_SetElement(cx, arr, 1, &obj);
@@ -1037,7 +1037,7 @@ void InsertStatsNow(Stat *pStat, int nStat, JSContext *cx, JSObject *pArray) {
                 JS_EndRequest(cx);
             } else {
                 // it is an array, append the new value
-                JSObject *arr = JSVAL_TO_OBJECT(index);
+                JSObject* arr = JSVAL_TO_OBJECT(index);
                 jsuint len = 0;
                 if (!JS_GetArrayLength(cx, arr, &len))
                     return;
@@ -1080,14 +1080,14 @@ JSAPI_FUNC(unit_getState) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
@@ -1113,12 +1113,12 @@ JSAPI_FUNC(item_getFlags) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || pUnit->dwType != UNIT_ITEM)
         return JS_TRUE;
@@ -1135,12 +1135,12 @@ JSAPI_FUNC(item_getFlag) {
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || pUnit->dwType != UNIT_ITEM)
         return JS_TRUE;
@@ -1208,19 +1208,19 @@ JSAPI_FUNC(item_getItemCost) {
         THROW_WARNING(cx, vp, "Game not ready");
 
     jsint nMode;
-    UnitAny *npc = D2CLIENT_GetCurrentInteractingNPC();
+    UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
     jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A); // defaults to Charsi's NPC id
     jsint nDifficulty = D2CLIENT_GetDifficulty();
 
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || pUnit->dwType != UNIT_ITEM)
         return JS_TRUE;
@@ -1229,12 +1229,12 @@ JSAPI_FUNC(item_getItemCost) {
 
     if (argc > 1) {
         if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[1])) {
-            myUnit *pmyNpc = (myUnit *)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[1]));
+            myUnit* pmyNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[1]));
 
             if (!pmyNpc || (pmyNpc->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
                 return JS_TRUE;
 
-            UnitAny *pNpc = D2CLIENT_FindUnit(pmyNpc->dwUnitId, pmyNpc->dwType);
+            UnitAny* pNpc = D2CLIENT_FindUnit(pmyNpc->dwUnitId, pmyNpc->dwType);
 
             if (!pNpc)
                 return JS_TRUE;
@@ -1275,17 +1275,17 @@ JSAPI_FUNC(unit_getItems) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit || !pUnit->pInventory || !pUnit->pInventory->pFirstItem)
         return JS_TRUE;
     JS_BeginRequest(cx);
-    JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+    JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
     if (!pReturnArray) {
         JS_EndRequest(cx);
@@ -1295,8 +1295,8 @@ JSAPI_FUNC(unit_getItems) {
 
     DWORD dwArrayCount = 0;
 
-    for (UnitAny *pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem), dwArrayCount++) {
-        invUnit *pmyUnit = new invUnit;
+    for (UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem), dwArrayCount++) {
+        invUnit* pmyUnit = new invUnit;
 
         if (!pmyUnit)
             continue;
@@ -1310,7 +1310,7 @@ JSAPI_FUNC(unit_getItems) {
         pmyUnit->dwOwnerId = pUnit->dwUnitId;
         pmyUnit->dwOwnerType = pUnit->dwType;
 
-        JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+        JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
         if (!jsunit) {
             JS_EndRequest(cx);
             JS_RemoveRoot(cx, &pReturnArray);
@@ -1337,11 +1337,11 @@ JSAPI_FUNC(unit_getSkill) {
     jsint nSkillId = NULL;
     jsint nExt = NULL;
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
     if (!pmyUnit)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
     if (!pUnit)
         return JS_TRUE;
 
@@ -1374,8 +1374,8 @@ JSAPI_FUNC(unit_getSkill) {
             int row = 0;
             if (FillBaseStat("skills", wRightSkillId, "skilldesc", &row, sizeof(int)))
                 if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
-                    wchar_t *szName = D2LANG_GetLocaleText((WORD)row);
-                    char *str = UnicodeToAnsi(szName);
+                    wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+                    char* str = UnicodeToAnsi(szName);
                     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
                     delete[] str;
                 }
@@ -1384,8 +1384,8 @@ JSAPI_FUNC(unit_getSkill) {
             int row = 0;
             if (FillBaseStat("skills", wLeftSkillId, "skilldesc", &row, sizeof(int)))
                 if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
-                    wchar_t *szName = D2LANG_GetLocaleText((WORD)row);
-                    char *str = UnicodeToAnsi(szName);
+                    wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+                    char* str = UnicodeToAnsi(szName);
                     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
                     delete[] str;
                 }
@@ -1398,11 +1398,11 @@ JSAPI_FUNC(unit_getSkill) {
             JS_SET_RVAL(cx, vp, INT_TO_JSVAL(wLeftSkillId));
             break;
         case 4: {
-            JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+            JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pReturnArray));
             int i = 0;
-            for (Skill *pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
-                JSObject *pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+            for (Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+                JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
                 JS_AddRoot(cx, &pArrayInsert);
 
                 if (!pArrayInsert)
@@ -1433,7 +1433,7 @@ JSAPI_FUNC(unit_getSkill) {
     }
 
     if (pUnit && pUnit->pInfo && pUnit->pInfo->pFirstSkill) {
-        for (Skill *pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+        for (Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
             if (pSkill->pSkillInfo && pSkill->pSkillInfo->wSkillId == nSkillId) {
                 if ((argc == 2 && pSkill->IsCharge == 0) || (argc == 3 && (nCharge == false || pSkill->IsCharge == 1))) {
                     JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, nExt)));
@@ -1453,21 +1453,21 @@ JSAPI_FUNC(item_shop) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    AutoCriticalRoom *cRoom = new AutoCriticalRoom;
+    AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
     if (*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0) {
         delete cRoom;
         return JS_TRUE;
     }
 
-    myUnit *lpItem = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpItem || (lpItem->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT) {
         delete cRoom;
         return JS_TRUE;
     }
 
-    UnitAny *pItem = D2CLIENT_FindUnit(lpItem->dwUnitId, lpItem->dwType);
+    UnitAny* pItem = D2CLIENT_FindUnit(lpItem->dwUnitId, lpItem->dwType);
 
     if (!pItem || pItem->dwType != UNIT_ITEM) {
         delete cRoom;
@@ -1479,7 +1479,7 @@ JSAPI_FUNC(item_shop) {
         return JS_TRUE;
     }
 
-    UnitAny *pNPC = D2CLIENT_GetCurrentInteractingNPC();
+    UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
     DWORD dwMode = JSVAL_TO_INT(JS_ARGV(cx, vp)[argc - 1]);
 
     // Check if we are interacted.
@@ -1560,12 +1560,12 @@ JSAPI_FUNC(unit_getParent) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
     if (!pUnit)
         return JS_TRUE;
@@ -1575,11 +1575,11 @@ JSAPI_FUNC(unit_getParent) {
         if (dwOwnerId == -1)
             return JS_TRUE;
 
-        UnitAny *pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
+        UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
         if (!pMonster)
             return JS_TRUE;
 
-        myUnit *pmyUnit = new myUnit;
+        myUnit* pmyUnit = new myUnit;
         if (!pmyUnit)
             return JS_TRUE;
 
@@ -1590,7 +1590,7 @@ JSAPI_FUNC(unit_getParent) {
         pmyUnit->dwType = pMonster->dwType;
         pmyUnit->szName[0] = NULL;
 
-        JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+        JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
         if (!jsunit)
             return JS_TRUE;
         JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
@@ -1604,7 +1604,7 @@ JSAPI_FUNC(unit_getParent) {
         }
     } else if (pUnit->dwType == UNIT_ITEM) {
         if (pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) {
-            myUnit *pmyUnit = new myUnit; // leaks
+            myUnit* pmyUnit = new myUnit; // leaks
 
             if (!pmyUnit)
                 return JS_TRUE;
@@ -1615,7 +1615,7 @@ JSAPI_FUNC(unit_getParent) {
             pmyUnit->dwMode = pUnit->pItemData->pOwnerInventory->pOwner->dwMode;
             pmyUnit->dwType = pUnit->pItemData->pOwnerInventory->pOwner->dwType;
             pmyUnit->szName[0] = NULL;
-            JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+            JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
         }
@@ -1630,15 +1630,15 @@ JSAPI_FUNC(unit_getMerc) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *lpUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
 
     if (lpUnit && (lpUnit->_dwPrivateType & PRIVATE_UNIT) == PRIVATE_UNIT) {
-        UnitAny *pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+        UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
         if (pUnit && pUnit->dwType == UNIT_PLAYER) {
-            UnitAny *pMerc = GetMercUnit(pUnit);
+            UnitAny* pMerc = GetMercUnit(pUnit);
             if (pMerc) {
-                myUnit *pmyUnit = new myUnit;
+                myUnit* pmyUnit = new myUnit;
 
                 pmyUnit->_dwPrivateType = PRIVATE_UNIT;
                 pmyUnit->dwUnitId = pMerc->dwUnitId;
@@ -1647,7 +1647,7 @@ JSAPI_FUNC(unit_getMerc) {
                 pmyUnit->dwType = UNIT_MONSTER;
                 pmyUnit->szName[0] = NULL;
 
-                JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+                JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
                 if (jsunit)
                     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
             }
@@ -1659,15 +1659,15 @@ JSAPI_FUNC(unit_getMerc) {
 JSAPI_FUNC(unit_getMercHP) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
-    JSObject *test = JS_THIS_OBJECT(cx, vp);
-    jsval *rest = 0;
-    myUnit *lpUnit = (myUnit *)JS_GetInstancePrivate(cx, test, &unit_class, rest);
+    JSObject* test = JS_THIS_OBJECT(cx, vp);
+    jsval* rest = 0;
+    myUnit* lpUnit = (myUnit*)JS_GetInstancePrivate(cx, test, &unit_class, rest);
     // myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, test);
 
-    UnitAny *pUnit = lpUnit ? D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType) : D2CLIENT_GetPlayerUnit();
+    UnitAny* pUnit = lpUnit ? D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType) : D2CLIENT_GetPlayerUnit();
 
     if (pUnit) {
-        UnitAny *pMerc = GetMercUnit(pUnit);
+        UnitAny* pMerc = GetMercUnit(pUnit);
         if (pMerc)
             JS_SET_RVAL(cx, vp, (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pMerc->dwUnitId))));
     }
@@ -1701,9 +1701,9 @@ JSAPI_FUNC(unit_setskill) {
         return JS_TRUE;
 
     if (argc == 3 && JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[2])) {
-        JSObject *object = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[2]);
+        JSObject* object = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[2]);
         if (JS_InstanceOf(cx, object, &unit_class, JS_ARGV(cx, vp))) {
-            myUnit *unit = (myUnit *)JS_GetPrivate(cx, object);
+            myUnit* unit = (myUnit*)JS_GetPrivate(cx, object);
             if (unit->dwType == UNIT_ITEM)
                 itemId = unit->dwUnitId;
         }
@@ -1719,25 +1719,25 @@ JSAPI_FUNC(my_overhead) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
     if (!pUnit)
         return JS_TRUE;
 
     if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_VOID(JS_ARGV(cx, vp)[0])) {
-        char *lpszText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        char* lpszText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
         if (lpszText && lpszText[0]) {
             // Fix overhead msg for locale text
-            wchar_t *tmpw = AnsiToUnicode(lpszText);
+            wchar_t* tmpw = AnsiToUnicode(lpszText);
             // Convert back to multibyte in locale code page
-            char *tmpc = UnicodeToAnsi(tmpw, CP_ACP);
+            char* tmpc = UnicodeToAnsi(tmpw, CP_ACP);
 
-            OverheadMsg *pMsg = D2COMMON_GenerateOverheadMsg(NULL, tmpc, *p_D2CLIENT_OverheadTrigger);
+            OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, tmpc, *p_D2CLIENT_OverheadTrigger);
             if (pMsg) {
                 // D2COMMON_FixOverheadMsg(pMsg, NULL);
                 pUnit->pOMsg = pMsg;
@@ -1763,12 +1763,12 @@ JSAPI_FUNC(unit_getItem) {
         THROW_WARNING(cx, vp, "Game not ready");
     JS_SET_RVAL(cx, vp, JSVAL_VOID);
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
     if (!pUnit || !pUnit->pInventory)
         return JS_TRUE;
@@ -1790,12 +1790,12 @@ JSAPI_FUNC(unit_getItem) {
     if (argc > 2 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], &nUnitId);
 
-    UnitAny *pItem = GetInvUnit(pUnit, szName, nClassId, nMode, nUnitId);
+    UnitAny* pItem = GetInvUnit(pUnit, szName, nClassId, nMode, nUnitId);
 
     if (!pItem)
         return JS_TRUE;
 
-    invUnit *pmyItem = new invUnit; // leaked?
+    invUnit* pmyItem = new invUnit; // leaked?
 
     if (!pmyItem)
         return JS_TRUE;
@@ -1809,7 +1809,7 @@ JSAPI_FUNC(unit_getItem) {
     pmyItem->dwOwnerType = pmyUnit->dwType;
     strcpy_s(pmyItem->szName, sizeof(pmyItem->szName), szName);
 
-    JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyItem);
+    JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyItem);
 
     if (!jsunit)
         return JS_TRUE;
@@ -1823,14 +1823,14 @@ JSAPI_FUNC(unit_move) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
-    UnitAny *pPlayer = D2CLIENT_GetPlayerUnit();
+    UnitAny* pPlayer = D2CLIENT_GetPlayerUnit();
 
     if (!pPlayer || !pUnit)
         return JS_TRUE;
@@ -1865,12 +1865,12 @@ JSAPI_FUNC(unit_getEnchant) {
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
     if (!pUnit || pUnit->dwType != UNIT_MONSTER)
         return JS_TRUE;
@@ -1911,12 +1911,12 @@ JSAPI_FUNC(unit_getMinionCount) {
 
     jsint nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
-    myUnit *pmyUnit = (myUnit *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
         return JS_TRUE;
 
-    UnitAny *pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+    UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
     if (!pUnit || (pUnit->dwType != UNIT_MONSTER && pUnit->dwType != UNIT_PLAYER))
         return JS_TRUE;
@@ -1930,14 +1930,13 @@ JSAPI_FUNC(me_getRepairCost) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
-    UnitAny *npc = D2CLIENT_GetCurrentInteractingNPC();
+    UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
     jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A);
 
     if (argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         nNpcClassId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
-    JS_SET_RVAL(cx, vp,
-                INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, D2CLIENT_GetPlayerUnit(), nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0)));
+    JS_SET_RVAL(cx, vp, INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, D2CLIENT_GetPlayerUnit(), nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0)));
 
     return JS_TRUE;
 }

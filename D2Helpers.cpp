@@ -14,12 +14,12 @@
 #include "stringhash.h"
 #include "CriticalSections.h"
 
-void Log(char *szFormat, ...) {
+void Log(char* szFormat, ...) {
     va_list vaArgs;
 
     va_start(vaArgs, szFormat);
     int len = _vscprintf(szFormat, vaArgs);
-    char *szString = new char[len + 1];
+    char* szString = new char[len + 1];
     vsprintf_s(szString, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
@@ -28,7 +28,7 @@ void Log(char *szFormat, ...) {
     delete[] szString;
 }
 
-void LogNoFormat(char *szString) {
+void LogNoFormat(char* szString) {
     time_t tTime;
     time(&tTime);
     char szTime[128] = "";
@@ -40,9 +40,9 @@ void LogNoFormat(char *szString) {
     sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
 
 #ifdef DEBUG
-    FILE *log = stderr;
+    FILE* log = stderr;
 #else
-    FILE *log = _fsopen(path, "a+", _SH_DENYNO);
+    FILE* log = _fsopen(path, "a+", _SH_DENYNO);
 #endif
     fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
 #ifndef DEBUG
@@ -52,13 +52,13 @@ void LogNoFormat(char *szString) {
 }
 
 // NOTE TO CALLERS: szTmp must be a PRE-INITIALIZED string.
-const char *GetUnitName(UnitAny *pUnit, char *szTmp, size_t bufSize) {
+const char* GetUnitName(UnitAny* pUnit, char* szTmp, size_t bufSize) {
     if (!pUnit) {
         strcpy_s(szTmp, bufSize, "Unknown");
         return szTmp;
     }
     if (pUnit->dwType == UNIT_MONSTER) {
-        wchar_t *wName = D2CLIENT_GetUnitName(pUnit);
+        wchar_t* wName = D2CLIENT_GetUnitName(pUnit);
         WideCharToMultiByte(CP_UTF8, 0, wName, -1, szTmp, bufSize, 0, 0);
         return szTmp;
     }
@@ -70,7 +70,7 @@ const char *GetUnitName(UnitAny *pUnit, char *szTmp, size_t bufSize) {
     if (pUnit->dwType == UNIT_ITEM) {
         wchar_t wBuffer[256] = L"";
         D2CLIENT_GetItemName(pUnit, wBuffer, sizeof(wBuffer));
-        char *szBuffer = UnicodeToAnsi(wBuffer);
+        char* szBuffer = UnicodeToAnsi(wBuffer);
         if (strchr(szBuffer, '\n'))
             *strchr(szBuffer, '\n') = 0x00;
 
@@ -89,9 +89,9 @@ const char *GetUnitName(UnitAny *pUnit, char *szTmp, size_t bufSize) {
 }
 
 // szBuf must be a 4-character string
-void GetItemCode(UnitAny *pUnit, char *szBuf) {
+void GetItemCode(UnitAny* pUnit, char* szBuf) {
     if (pUnit->dwType == UNIT_ITEM) {
-        ItemTxt *pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
+        ItemTxt* pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
         if (pTxt) {
             memcpy(szBuf, pTxt->szCode, 3);
             szBuf[3] = 0x00;
@@ -99,7 +99,9 @@ void GetItemCode(UnitAny *pUnit, char *szBuf) {
     }
 }
 
-bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) { return !!(x >= x2 && x < x2 + sizex && y >= y2 && y < y2 + sizey); }
+bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
+    return !!(x >= x2 && x < x2 + sizex && y >= y2 && y < y2 + sizey);
+}
 
 /*UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
 for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
@@ -118,8 +120,8 @@ return NULL;
 // Do not edit without the express consent of bsdunx or lord2800
 ClientGameState ClientState(void) {
     ClientGameState state = ClientStateNull;
-    UnitAny *player = D2CLIENT_GetPlayerUnit();
-    Control *firstControl = *p_D2WIN_FirstControl;
+    UnitAny* player = D2CLIENT_GetPlayerUnit();
+    Control* firstControl = *p_D2WIN_FirstControl;
 
     if (player && !firstControl) {
         if (player && player->pUpdateUnit) {
@@ -140,7 +142,9 @@ ClientGameState ClientState(void) {
     return state;
 }
 
-bool GameReady(void) { return (ClientState() == ClientStateInGame ? true : false); }
+bool GameReady(void) {
+    return (ClientState() == ClientStateInGame ? true : false);
+}
 
 bool WaitForGameReady(void) {
     DWORD start = GetTickCount();
@@ -157,15 +161,17 @@ bool WaitForGameReady(void) {
     return false;
 }
 
-DWORD GetPlayerArea(void) { return (ClientState() == ClientStateInGame ? D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL); }
+DWORD GetPlayerArea(void) {
+    return (ClientState() == ClientStateInGame ? D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
+}
 
-Level *GetLevel(DWORD dwLevelNo) {
-    AutoCriticalRoom *cRoom = new AutoCriticalRoom;
+Level* GetLevel(DWORD dwLevelNo) {
+    AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
     if (!GameReady())
         return nullptr;
 
-    Level *pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst;
+    Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst;
 
     while (pLevel) {
         if (pLevel->dwLevelNo == dwLevelNo) {
@@ -187,13 +193,13 @@ Level *GetLevel(DWORD dwLevelNo) {
 }
 
 // TODO: make this use SIZE for clarity
-POINT CalculateTextLen(const char *szwText, int Font) {
+POINT CalculateTextLen(const char* szwText, int Font) {
     POINT ret = {0, 0};
 
     if (!szwText)
         return ret;
 
-    wchar_t *Buffer = AnsiToUnicode(szwText);
+    wchar_t* Buffer = AnsiToUnicode(szwText);
 
     DWORD dwWidth, dwFileNo;
     DWORD dwOldSize = D2WIN_SetTextSize(Font);
@@ -209,14 +215,14 @@ int GetSkill(WORD wSkillId) {
     if (!D2CLIENT_GetPlayerUnit())
         return 0;
 
-    for (Skill *pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+    for (Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
         if (pSkill->pSkillInfo->wSkillId == wSkillId)
             return D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, TRUE);
 
     return 0;
 }
 
-BOOL SetSkill(JSContext *cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
+BOOL SetSkill(JSContext* cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
     if (ClientState() != ClientStateInGame)
         return FALSE;
 
@@ -226,17 +232,17 @@ BOOL SetSkill(JSContext *cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
     BYTE aPacket[9];
 
     aPacket[0] = 0x3C;
-    *(WORD *)&aPacket[1] = wSkillId;
+    *(WORD*)&aPacket[1] = wSkillId;
     aPacket[3] = 0;
     aPacket[4] = (bLeft) ? 0x80 : 0;
-    *(DWORD *)&aPacket[5] = dwItemId;
+    *(DWORD*)&aPacket[5] = dwItemId;
 
     D2CLIENT_SendGamePacket(9, aPacket);
 
-    UnitAny *Me = D2CLIENT_GetPlayerUnit();
+    UnitAny* Me = D2CLIENT_GetPlayerUnit();
 
     int timeout = 0;
-    Skill *hand = NULL;
+    Skill* hand = NULL;
     while (ClientState() == ClientStateInGame) {
         hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
         if (hand->pSkillInfo->wSkillId != wSkillId) {
@@ -246,7 +252,7 @@ BOOL SetSkill(JSContext *cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
         } else
             return TRUE;
 
-        Script *script = (Script *)JS_GetContextPrivate(cx); // run events to avoid packet block deadlock
+        Script* script = (Script*)JS_GetContextPrivate(cx); // run events to avoid packet block deadlock
         DWORD start = GetTickCount();
         int amt = 100 - (GetTickCount() - start);
 
@@ -255,7 +261,7 @@ BOOL SetSkill(JSContext *cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
             ResetEvent(script->eventSignal);
             while (script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu))) {
                 EnterCriticalSection(&Vars.cEventSection);
-                Event *evt = script->EventList.back();
+                Event* evt = script->EventList.back();
                 script->EventList.pop_back();
                 LeaveCriticalSection(&Vars.cEventSection);
                 ExecScriptEvent(evt, false);
@@ -269,14 +275,14 @@ BOOL SetSkill(JSContext *cx, WORD wSkillId, BOOL bLeft, DWORD dwItemId) {
 }
 
 // Compare the skillname to the Game_Skills struct to find the right skill ID to return
-WORD GetSkillByName(char *skillname) {
+WORD GetSkillByName(char* skillname) {
     for (int i = 0; i < 216; i++)
         if (_stricmp(Game_Skills[i].name, skillname) == 0)
             return Game_Skills[i].skillID;
     return (WORD)-1;
 }
 
-char *GetSkillByID(WORD id) {
+char* GetSkillByID(WORD id) {
     for (int i = 0; i < 216; i++)
         if (id == Game_Skills[i].skillID)
             return Game_Skills[i].name;
@@ -325,18 +331,18 @@ DWORD __declspec(naked) __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo
     }
 }
 
-AutomapLayer *InitAutomapLayer(DWORD levelno) {
-    AutomapLayer2 *pLayer = D2COMMON_GetLayer(levelno);
+AutomapLayer* InitAutomapLayer(DWORD levelno) {
+    AutomapLayer2* pLayer = D2COMMON_GetLayer(levelno);
     return D2CLIENT_InitAutomapLayer(pLayer->nLayerNo);
 }
 
-void WorldToScreen(POINT *pPos) {
+void WorldToScreen(POINT* pPos) {
     D2COMMON_MapToAbsScreen(&pPos->x, &pPos->y);
     pPos->x -= D2CLIENT_GetMouseXOffset();
     pPos->y -= D2CLIENT_GetMouseYOffset();
 }
 
-void ScreenToWorld(POINT *pPos) {
+void ScreenToWorld(POINT* pPos) {
     D2COMMON_AbsScreenToMap(&pPos->x, &pPos->y);
     pPos->x += D2CLIENT_GetMouseXOffset();
     pPos->y += D2CLIENT_GetMouseYOffset();
@@ -356,13 +362,13 @@ POINT ScreenToAutomap(int x, int y) {
     return result;
 }
 
-void AutomapToScreen(POINT *pPos) {
+void AutomapToScreen(POINT* pPos) {
     pPos->x = 8 - p_D2CLIENT_Offset->x + (pPos->x * (*p_D2CLIENT_AutomapMode));
     pPos->y = 8 + p_D2CLIENT_Offset->y + (pPos->y * (*p_D2CLIENT_AutomapMode));
 }
 
-void myDrawText(const char *szwText, int x, int y, int color, int font) {
-    wchar_t *text = AnsiToUnicode(szwText);
+void myDrawText(const char* szwText, int x, int y, int color, int font) {
+    wchar_t* text = AnsiToUnicode(szwText);
     DWORD dwOld = D2WIN_SetTextSize(font);
     D2WIN_DrawText(text, x, y, color, 0);
     D2WIN_SetTextSize(dwOld);
@@ -370,9 +376,9 @@ void myDrawText(const char *szwText, int x, int y, int color, int font) {
     delete[] text;
 }
 
-void myDrawCenterText(const char *szText, int x, int y, int color, int font, int div) {
+void myDrawCenterText(const char* szText, int x, int y, int color, int font, int div) {
     DWORD dwWidth = NULL, dwFileNo = NULL, dwOldSize = NULL;
-    wchar_t *Buffer = AnsiToUnicode(szText);
+    wchar_t* Buffer = AnsiToUnicode(szText);
 
     dwOldSize = D2WIN_SetTextSize(font);
     D2WIN_GetTextSize(Buffer, &dwWidth, &dwFileNo);
@@ -382,7 +388,7 @@ void myDrawCenterText(const char *szText, int x, int y, int color, int font, int
     delete[] Buffer;
 }
 
-void D2CLIENT_Interact(UnitAny *pUnit, DWORD dwMoveType) {
+void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 
     if (!pUnit)
         return;
@@ -398,7 +404,7 @@ void D2CLIENT_Interact(UnitAny *pUnit, DWORD dwMoveType) {
 typedef void (*fnClickEntry)(void);
 
 BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId) {
-    NPCMenu *pMenu = (NPCMenu *)p_D2CLIENT_NPCMenu;
+    NPCMenu* pMenu = (NPCMenu*)p_D2CLIENT_NPCMenu;
     fnClickEntry pClick = (fnClickEntry)NULL;
 
     for (UINT i = 0; i < *p_D2CLIENT_NPCMenuAmount; i++) {
@@ -433,13 +439,13 @@ BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId) {
                 return TRUE;
             }
         }
-        pMenu = (NPCMenu *)((DWORD)pMenu + sizeof(NPCMenu));
+        pMenu = (NPCMenu*)((DWORD)pMenu + sizeof(NPCMenu));
     }
 
     return FALSE;
 }
 
-int GetItemLocation(UnitAny *pItem) {
+int GetItemLocation(UnitAny* pItem) {
     if (!pItem || !pItem->pItemData)
         return -1;
 
@@ -457,8 +463,8 @@ BYTE CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin) {
     return max(iRes, iMin);
 }
 
-DWORD GetTileLevelNo(Room2 *lpRoom2, DWORD dwTileNo) {
-    for (RoomTile *pRoomTile = lpRoom2->pRoomTiles; pRoomTile; pRoomTile = pRoomTile->pNext) {
+DWORD GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo) {
+    for (RoomTile* pRoomTile = lpRoom2->pRoomTiles; pRoomTile; pRoomTile = pRoomTile->pNext) {
         if (*(pRoomTile->nNum) == dwTileNo)
             return pRoomTile->pRoom2->pLevel->dwLevelNo;
     }
@@ -466,9 +472,9 @@ DWORD GetTileLevelNo(Room2 *lpRoom2, DWORD dwTileNo) {
     return NULL;
 }
 
-UnitAny *GetMercUnit(UnitAny *pUnit) {
-    for (Room1 *pRoom = pUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
-        for (UnitAny *pMerc = pRoom->pUnitFirst; pMerc; pMerc = pMerc->pRoomNext)
+UnitAny* GetMercUnit(UnitAny* pUnit) {
+    for (Room1* pRoom = pUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
+        for (UnitAny* pMerc = pRoom->pUnitFirst; pMerc; pMerc = pMerc->pRoomNext)
             if (pMerc->dwType == UNIT_MONSTER &&
                 (pMerc->dwTxtFileNo == MERC_A1 || pMerc->dwTxtFileNo == MERC_A2 || pMerc->dwTxtFileNo == MERC_A3 || pMerc->dwTxtFileNo == MERC_A5) &&
                 D2CLIENT_GetMonsterOwner(pMerc->dwUnitId) == pUnit->dwUnitId)
@@ -484,16 +490,16 @@ UnitAny *GetMercUnit(UnitAny *pUnit) {
 #endif
 }
 
-UnitAny *D2CLIENT_FindUnit(DWORD dwId, DWORD dwType) {
+UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType) {
     if (dwId == -1)
         return NULL;
-    UnitAny *pUnit = D2CLIENT_FindServerSideUnit(dwId, dwType);
+    UnitAny* pUnit = D2CLIENT_FindServerSideUnit(dwId, dwType);
     return pUnit ? pUnit : D2CLIENT_FindClientSideUnit(dwId, dwType);
 }
 
 // TODO: Rewrite this and split it into two functions
 
-CellFile *LoadCellFile(char *lpszPath, DWORD bMPQ) {
+CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
     // AutoDetect the Cell File
     if (bMPQ == 3) {
         // Check in our directory first
@@ -516,13 +522,13 @@ CellFile *LoadCellFile(char *lpszPath, DWORD bMPQ) {
     if (Vars.mCachedCellFiles.count(hash) > 0)
         return Vars.mCachedCellFiles[hash];
     if (bMPQ == TRUE) {
-        CellFile *result = (CellFile *)D2WIN_LoadCellFile(lpszPath, 0);
+        CellFile* result = (CellFile*)D2WIN_LoadCellFile(lpszPath, 0);
         Vars.mCachedCellFiles[hash] = result;
         return result;
     } else if (bMPQ == FALSE) {
         // see if the file exists first
         if (!(_access(lpszPath, 0) != 0 && errno == ENOENT)) {
-            CellFile *result = myInitCellFile((CellFile *)LoadBmpCellFile(lpszPath));
+            CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
             Vars.mCachedCellFiles[hash] = result;
             return result;
         }
@@ -541,11 +547,15 @@ POINT GetScreenSize() {
     return p;
 }
 
-int D2GetScreenSizeX() { return GetScreenSize().x; }
+int D2GetScreenSizeX() {
+    return GetScreenSize().x;
+}
 
-int D2GetScreenSizeY() { return GetScreenSize().y; }
+int D2GetScreenSizeY() {
+    return GetScreenSize().y;
+}
 
-void myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col) {
+void myDrawAutomapCell(CellFile* cellfile, int xpos, int ypos, BYTE col) {
     if (!cellfile)
         return;
     CellContext ct;
@@ -569,29 +579,33 @@ void myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col) {
     D2GFX_DrawAutomapCell2(&ct, xpos, ypos, (DWORD)-1, 5, coltab[cellfile->mytabno]);
 }
 
-DWORD ReadFile(HANDLE hFile, void *buf, DWORD len)
+DWORD ReadFile(HANDLE hFile, void* buf, DWORD len)
 // NOTE :- validates len bytes of buf
 {
     DWORD numdone = 0;
     return ::ReadFile(hFile, buf, len, &numdone, NULL) != 0 ? numdone : -1;
 }
 
-void *memcpy2(void *dest, const void *src, size_t count) { return (char *)memcpy(dest, src, count) + count; }
+void* memcpy2(void* dest, const void* src, size_t count) {
+    return (char*)memcpy(dest, src, count) + count;
+}
 
-HANDLE OpenFileRead(char *filename) { return CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); }
+HANDLE OpenFileRead(char* filename) {
+    return CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
 
-BYTE *AllocReadFile(char *filename) {
+BYTE* AllocReadFile(char* filename) {
     HANDLE hFile = OpenFileRead(filename);
     int filesize = GetFileSize(hFile, 0);
     if (filesize <= 0)
         return 0;
-    BYTE *buf = new BYTE[filesize];
+    BYTE* buf = new BYTE[filesize];
     ReadFile(hFile, buf, filesize);
     CloseHandle(hFile);
     return buf;
 }
 
-CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height) {
+CellFile* LoadBmpCellFile(BYTE* buf1, int width, int height) {
     BYTE *buf2 = new BYTE[(width * height * 2) + height], *dest = buf2;
 
     for (int i = 0; i < height; i++) {
@@ -615,28 +629,28 @@ CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height) {
     dc6head[9] = height;
     dc6head[14] = dest - buf2;
     dc6head[13] = sizeof(dc6head) + (dc6head[14]) + 3;
-    BYTE *ret = new BYTE[dc6head[13]];
+    BYTE* ret = new BYTE[dc6head[13]];
     memset(memcpy2(memcpy2(ret, dc6head, sizeof(dc6head)), buf2, dc6head[14]), 0xee, 3);
     delete[] buf2;
 
-    return (CellFile *)ret;
+    return (CellFile*)ret;
 }
 
-CellFile *LoadBmpCellFile(char *filename) {
-    BYTE *ret = 0;
+CellFile* LoadBmpCellFile(char* filename) {
+    BYTE* ret = 0;
 
-    BYTE *buf1 = AllocReadFile(filename);
-    BITMAPFILEHEADER *bmphead1 = (BITMAPFILEHEADER *)buf1;
-    BITMAPINFOHEADER *bmphead2 = (BITMAPINFOHEADER *)(buf1 + sizeof(BITMAPFILEHEADER));
+    BYTE* buf1 = AllocReadFile(filename);
+    BITMAPFILEHEADER* bmphead1 = (BITMAPFILEHEADER*)buf1;
+    BITMAPINFOHEADER* bmphead2 = (BITMAPINFOHEADER*)(buf1 + sizeof(BITMAPFILEHEADER));
     if (buf1 && (bmphead1->bfType == 'MB') && (bmphead2->biBitCount == 8) && (bmphead2->biCompression == BI_RGB)) {
-        ret = (BYTE *)LoadBmpCellFile(buf1 + bmphead1->bfOffBits, bmphead2->biWidth, bmphead2->biHeight);
+        ret = (BYTE*)LoadBmpCellFile(buf1 + bmphead1->bfOffBits, bmphead2->biWidth, bmphead2->biHeight);
     }
     delete[] buf1;
 
-    return (CellFile *)ret;
+    return (CellFile*)ret;
 }
 
-CellFile *myInitCellFile(CellFile *cf) {
+CellFile* myInitCellFile(CellFile* cf) {
     if (cf)
         D2CMP_InitCellFile(cf, &cf, "?", 0, (DWORD)-1, "?");
     return cf;
@@ -710,22 +724,22 @@ void __declspec(naked) __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, D
     }
 }
 
-void __declspec(naked) __fastcall D2CLIENT_ShopAction_ASM(DWORD pItem, DWORD pNpc, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/,
-                                                          DWORD dwMode, DWORD _2, DWORD _3) {
+void __declspec(naked) __fastcall D2CLIENT_ShopAction_ASM(DWORD pItem, DWORD pNpc, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/, DWORD dwMode,
+                                                          DWORD _2, DWORD _3) {
     __asm {
 		jmp D2CLIENT_ShopAction_I
     }
 }
 
-void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory *pInventoryData) {
+void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory* pInventoryData) {
     __asm {
 		mov eax, edx
 			jmp D2CLIENT_ClickBelt_I
     }
 }
 
-void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(DWORD Location, UnitAny *pPlayer, Inventory *pInventory, int x, int y, DWORD dwClickType,
-                                                        InventoryLayout *pLayout) {
+void __declspec(naked) __stdcall D2CLIENT_LeftClickItem(DWORD Location, UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType,
+                                                        InventoryLayout* pLayout) {
     __asm
     {
 		pop eax // pop return address
@@ -753,7 +767,7 @@ void __declspec(naked) __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, 
     }
 }
 
-void __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t *pBuffer) {
+void __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t* pBuffer) {
     __asm
     {
 		PUSH EDI
@@ -853,7 +867,7 @@ _TakeWaypoint:
         }
 }*/
 
-void __declspec(naked) __fastcall D2GFX_DrawRectFrame_STUB(RECT *rect) {
+void __declspec(naked) __fastcall D2GFX_DrawRectFrame_STUB(RECT* rect) {
     __asm
     {
 		mov eax, ecx;
@@ -861,7 +875,7 @@ void __declspec(naked) __fastcall D2GFX_DrawRectFrame_STUB(RECT *rect) {
     }
 }
 
-DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny *pUnit, DWORD dwType) {
+DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType) {
     DWORD dwResult;
 
     __asm
@@ -881,7 +895,7 @@ DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny *pUnit, DWORD dwType) {
     return dwResult;
 }
 
-__declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit *pUnit, DWORD dwButton) {
+__declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton) {
     __asm
     {
 		mov eax, edx
@@ -889,7 +903,7 @@ __declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit *pUnit, D
     }
 }
 
-__declspec(naked) DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE *bPacket) {
+__declspec(naked) DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE* bPacket) {
     __asm
     {
 		push edi
@@ -938,9 +952,9 @@ bool IsScrollingText() {
         return false;
 
     HWND d2Hwnd = D2GFX_GetHwnd();
-    WindowHandlerList *whl = p_STORM_WindowHandlers->table[(0x534D5347 ^ (DWORD)d2Hwnd) % p_STORM_WindowHandlers->length];
-    MessageHandlerHashTable *mhht;
-    MessageHandlerList *mhl;
+    WindowHandlerList* whl = p_STORM_WindowHandlers->table[(0x534D5347 ^ (DWORD)d2Hwnd) % p_STORM_WindowHandlers->length];
+    MessageHandlerHashTable* mhht;
+    MessageHandlerList* mhl;
 
     while (whl) {
         if (whl->unk_0 == 0x534D5347 && whl->hWnd == d2Hwnd) {
@@ -965,9 +979,9 @@ bool IsScrollingText() {
     return false;
 }
 
-void ReadProcessBYTES(HANDLE hProcess, DWORD lpAddress, void *buf, int len) {
+void ReadProcessBYTES(HANDLE hProcess, DWORD lpAddress, void* buf, int len) {
     DWORD oldprot, dummy = 0;
-    VirtualProtectEx(hProcess, (void *)lpAddress, len, PAGE_READWRITE, &oldprot);
-    ReadProcessMemory(hProcess, (void *)lpAddress, buf, len, 0);
-    VirtualProtectEx(hProcess, (void *)lpAddress, len, oldprot, &dummy);
+    VirtualProtectEx(hProcess, (void*)lpAddress, len, PAGE_READWRITE, &oldprot);
+    ReadProcessMemory(hProcess, (void*)lpAddress, buf, len, 0);
+    VirtualProtectEx(hProcess, (void*)lpAddress, len, oldprot, &dummy);
 }

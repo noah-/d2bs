@@ -14,43 +14,43 @@
 #include "Events.h"
 
 using namespace std;
-Script *ScriptEngine::console = NULL;
-JSRuntime *ScriptEngine::runtime = NULL;
+Script* ScriptEngine::console = NULL;
+JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 CRITICAL_SECTION ScriptEngine::scriptListLock = {0};
-std::list<Event *> ScriptEngine::DelayedExecList;
+std::list<Event*> ScriptEngine::DelayedExecList;
 int ScriptEngine::delayedExecKey;
-JSContext *ScriptEngine::context = NULL;
+JSContext* ScriptEngine::context = NULL;
 // internal ForEachScript helpers
-bool __fastcall DisposeScript(Script *script, void *, uint);
-bool __fastcall StopScript(Script *script, void *argv, uint argc);
+bool __fastcall DisposeScript(Script* script, void*, uint);
+bool __fastcall StopScript(Script* script, void* argv, uint argc);
 
-Script *ScriptEngine::CompileFile(const char *file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer **argv, bool recompile) {
+Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
     if (GetState() != Running)
         return NULL;
-    char *fileName = _strdup(file);
+    char* fileName = _strdup(file);
     _strlwr_s(fileName, strlen(file) + 1);
 
     try {
         if (scripts.count(fileName))
             scripts[fileName]->Stop();
 
-        Script *script = new Script(fileName, state, argc, argv);
+        Script* script = new Script(fileName, state, argc, argv);
         scripts[fileName] = script;
 
         free(fileName);
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
-        Print(const_cast<char *>(e.what()));
+        Print(const_cast<char*>(e.what()));
         free(fileName);
         return NULL;
     }
 }
 
-void ScriptEngine::RunCommand(const char *command) {
+void ScriptEngine::RunCommand(const char* command) {
     if (GetState() != Running)
         return;
     try {
@@ -59,11 +59,11 @@ void ScriptEngine::RunCommand(const char *command) {
         // LeaveCriticalSection(&lock);
     } catch (std::exception e) {
         // LeaveCriticalSection(&lock);
-        Print(const_cast<char *>(e.what()));
+        Print(const_cast<char*>(e.what()));
     }
 }
 
-void ScriptEngine::DisposeScript(Script *script) {
+void ScriptEngine::DisposeScript(Script* script) {
     LockScriptList("DisposeScript");
 
     if (scripts.count(script->GetFilename()))
@@ -75,17 +75,17 @@ void ScriptEngine::DisposeScript(Script *script) {
         delete script;
     else {
         // bad things happen if we delete from another thread
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->name = strdup("DisposeMe");
         script->FireEvent(evt);
     }
 }
-void ScriptEngine::LockScriptList(char *loc) {
+void ScriptEngine::LockScriptList(char* loc) {
     EnterCriticalSection(&scriptListLock);
     // Log(loc);
 }
-void ScriptEngine::UnLockScriptList(char *loc) {
+void ScriptEngine::UnLockScriptList(char* loc) {
     // Log(loc);
     LeaveCriticalSection(&scriptListLock);
 }
@@ -168,7 +168,9 @@ void ScriptEngine::StopAll(bool forceStop) {
     // LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::UpdateConsole() { console->UpdatePlayerGid(); }
+void ScriptEngine::UpdateConsole() {
+    console->UpdatePlayerGid();
+}
 void ScriptEngine::FlushCache(void) {
     if (GetState() != Running)
         return;
@@ -192,7 +194,7 @@ void ScriptEngine::FlushCache(void) {
     // LeaveCriticalSection(&lock);
 }
 
-bool ScriptEngine::ForEachScript(ScriptCallback callback, void *argv, uint argc) {
+bool ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc) {
     if (callback == NULL || scripts.size() < 1)
         return false;
     bool block = false;
@@ -201,7 +203,7 @@ bool ScriptEngine::ForEachScript(ScriptCallback callback, void *argv, uint argc)
     LockScriptList("forEachScript");
 
     // damn std::list not supporting operator[]...
-    std::vector<Script *> list;
+    std::vector<Script*> list;
     for (ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
         list.push_back(it->second);
 
@@ -218,38 +220,38 @@ bool ScriptEngine::ForEachScript(ScriptCallback callback, void *argv, uint argc)
     return block;
 }
 
-void ScriptEngine::InitClass(JSContext *context, JSObject *globalObject, JSClass *classp, JSFunctionSpec *methods, JSPropertySpec *props,
-                             JSFunctionSpec *s_methods, JSPropertySpec *s_props) {
+void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props, JSFunctionSpec* s_methods,
+                             JSPropertySpec* s_props) {
     if (!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0, props, methods, s_props, s_methods))
         throw std::exception("Couldn't initialize the class");
 }
 
-void ScriptEngine::DefineConstant(JSContext *context, JSObject *globalObject, const char *name, int value) {
+void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value) {
     if (!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_PERMANENT_VAR))
         throw std::exception("Couldn't initialize the constant");
 }
 
 // internal ForEachScript helper functions
-bool __fastcall DisposeScript(Script *script, void *, uint) {
+bool __fastcall DisposeScript(Script* script, void*, uint) {
     ScriptEngine::DisposeScript(script);
     return true;
 }
 
-bool __fastcall StopScript(Script *script, void *argv, uint argc) {
+bool __fastcall StopScript(Script* script, void* argv, uint argc) {
     script->TriggerOperationCallback();
     if (script->GetState() != Command)
-        script->Stop(*(bool *)(argv), ScriptEngine::GetState() == Stopping);
+        script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
     return true;
 }
 
-bool __fastcall StopIngameScript(Script *script, void *, uint) {
+bool __fastcall StopIngameScript(Script* script, void*, uint) {
     if (script->GetState() == InGame)
         script->Stop(true);
     return true;
 }
 
-JSBool operationCallback(JSContext *cx) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+JSBool operationCallback(JSContext* cx) {
+    Script* script = (Script*)JS_GetContextPrivate(cx);
     static int callBackCount = 0;
     callBackCount++;
 
@@ -306,7 +308,7 @@ JSBool operationCallback(JSContext *cx) {
     if (!!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu))) {
         while (script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu))) {
             EnterCriticalSection(&Vars.cEventSection);
-            Event *evt = script->EventList.back();
+            Event* evt = script->EventList.back();
             script->EventList.pop_back();
             LeaveCriticalSection(&Vars.cEventSection);
             ExecScriptEvent(evt, false);
@@ -317,7 +319,7 @@ JSBool operationCallback(JSContext *cx) {
     }
 }
 
-JSBool contextCallback(JSContext *cx, uintN contextOp) {
+JSBool contextCallback(JSContext* cx, uintN contextOp) {
     if (contextOp == JSCONTEXT_NEW) {
         JS_BeginRequest(cx);
 
@@ -328,7 +330,7 @@ JSBool contextCallback(JSContext *cx, uintN contextOp) {
         JS_SetOptions(cx, JSOPTION_METHODJIT | JSOPTION_TYPE_INFERENCE | JSOPTION_ION | JSOPTION_VAROBJFIX | JSOPTION_ASMJS | JSOPTION_STRICT);
 
         // JS_SetGCZeal(cx, 2, 1);
-        JSObject *globalObject = JS_NewGlobalObject(cx, &global_obj, NULL);
+        JSObject* globalObject = JS_NewGlobalObject(cx, &global_obj, NULL);
         JS_SetGCParameter(JS_GetRuntime(cx), JSGC_MODE, 2);
 
         if (JS_InitStandardClasses(cx, globalObject) == JS_FALSE)
@@ -336,20 +338,20 @@ JSBool contextCallback(JSContext *cx, uintN contextOp) {
         if (JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)
             return JS_FALSE;
 
-        myUnit *lpUnit = new myUnit;
+        myUnit* lpUnit = new myUnit;
         memset(lpUnit, NULL, sizeof(myUnit));
 
-        UnitAny *player = D2CLIENT_GetPlayerUnit();
+        UnitAny* player = D2CLIENT_GetPlayerUnit();
         lpUnit->dwMode = (DWORD)-1;
         lpUnit->dwClassId = (DWORD)-1;
         lpUnit->dwType = UNIT_PLAYER;
         lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
         lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
-        for (JSClassSpec *entry = global_classes; entry->classp != NULL; entry++)
+        for (JSClassSpec* entry = global_classes; entry->classp != NULL; entry++)
             ScriptEngine::InitClass(cx, globalObject, entry->classp, entry->methods, entry->properties, entry->static_methods, entry->static_properties);
 
-        JSObject *meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
+        JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
         if (!meObject)
             return JS_FALSE;
 
@@ -365,11 +367,11 @@ JSBool contextCallback(JSContext *cx, uintN contextOp) {
         JS_EndRequest(cx);
     }
     if (contextOp == JSCONTEXT_DESTROY) {
-        Script *script = (Script *)JS_GetContextPrivate(cx);
+        Script* script = (Script*)JS_GetContextPrivate(cx);
         script->hasActiveCX = false;
         while (script->EventList.size() > 0) {
             EnterCriticalSection(&Vars.cEventSection);
-            Event *evt = script->EventList.back();
+            Event* evt = script->EventList.back();
             script->EventList.pop_back();
             LeaveCriticalSection(&Vars.cEventSection);
             ExecScriptEvent(evt, true); // clean list and pop events
@@ -416,13 +418,13 @@ JSBool contextCallback(JSContext *cx, uintN contextOp) {
 //	//return JS_TRUE;
 //}
 
-void reportError(JSContext *cx, const char *message, JSErrorReport *report) {
+void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
     bool warn = JSREPORT_IS_WARNING(report->flags);
     bool isStrict = JSREPORT_IS_STRICT(report->flags);
-    const char *type = (warn ? "Warning" : "Error");
-    const char *strict = (isStrict ? "Strict " : "");
-    char *filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
-    char *displayName = filename;
+    const char* type = (warn ? "Warning" : "Error");
+    const char* strict = (isStrict ? "Strict " : "");
+    char* filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
+    char* displayName = filename;
     if (_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
         displayName = filename + strlen(Vars.szPath);
 
@@ -438,20 +440,20 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report) {
         Console::ShowBuffer();
 }
 
-bool ExecScriptEvent(Event *evt, bool clearList) {
-    JSContext *cx;
+bool ExecScriptEvent(Event* evt, bool clearList) {
+    JSContext* cx;
 
     if (!clearList)
         cx = evt->owner->GetContext();
-    char *evtName = (char *)evt->name;
+    char* evtName = (char*)evt->name;
     if (strcmp(evtName, "itemaction") == 0) {
         if (!clearList) {
-            DWORD *gid = (DWORD *)evt->arg1;
-            char *code = (char *)evt->arg2;
-            DWORD *mode = (DWORD *)evt->arg3;
-            bool *global = (bool *)evt->arg4;
+            DWORD* gid = (DWORD*)evt->arg1;
+            char* code = (char*)evt->arg2;
+            DWORD* mode = (DWORD*)evt->arg3;
+            bool* global = (bool*)evt->arg4;
 
-            jsval *argv = new jsval[evt->argc];
+            jsval* argv = new jsval[evt->argc];
             JS_BeginRequest(cx);
 
             argv[0] = JS_NumberValue(*gid);
@@ -480,13 +482,13 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     }
     if (strcmp(evtName, "gameevent") == 0) {
         if (!clearList) {
-            jsval *argv = new jsval[5];
+            jsval* argv = new jsval[5];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(BYTE *)evt->arg1);
-            argv[1] = JS_NumberValue(*(DWORD *)evt->arg2);
-            argv[2] = JS_NumberValue(*(DWORD *)evt->arg3);
-            argv[3] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)evt->arg4)));
-            argv[4] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)evt->arg5)));
+            argv[0] = JS_NumberValue(*(BYTE*)evt->arg1);
+            argv[1] = JS_NumberValue(*(DWORD*)evt->arg2);
+            argv[2] = JS_NumberValue(*(DWORD*)evt->arg3);
+            argv[3] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg4)));
+            argv[4] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg5)));
 
             for (int j = 0; j < 5; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -510,10 +512,10 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     }
     if (strcmp(evtName, "copydata") == 0) {
         if (!clearList) {
-            jsval *argv = new jsval[2];
+            jsval* argv = new jsval[2];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(DWORD *)evt->arg1);
-            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)evt->arg2)));
+            argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
+            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg2)));
 
             for (int j = 0; j < 2; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -536,10 +538,10 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
         strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
         bool block = false;
         if (!clearList) {
-            jsval *argv = new jsval[2];
+            jsval* argv = new jsval[2];
             JS_BeginRequest(cx);
-            argv[0] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)evt->arg1)));
-            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)evt->arg2)));
+            argv[0] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg1)));
+            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg2)));
 
             for (int j = 0; j < 2; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -554,7 +556,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
                 JS_RemoveValueRoot(cx, &argv[j]);
         }
         if (strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
-            *(DWORD *)evt->arg4 = block;
+            *(DWORD*)evt->arg4 = block;
             SetEvent(Vars.eventSignal);
         } else {
             free(evt->arg1);
@@ -566,10 +568,10 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     }
     if (strcmp(evtName, "mousemove") == 0 || strcmp(evtName, "ScreenHookHover") == 0) {
         if (!clearList) {
-            jsval *argv = new jsval[2];
+            jsval* argv = new jsval[2];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(DWORD *)evt->arg1);
-            argv[1] = JS_NumberValue(*(DWORD *)evt->arg2);
+            argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
+            argv[1] = JS_NumberValue(*(DWORD*)evt->arg2);
 
             for (int j = 0; j < 2; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -594,12 +596,12 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     }
     if (strcmp(evtName, "mouseclick") == 0) {
         if (!clearList) {
-            jsval *argv = new jsval[4];
+            jsval* argv = new jsval[4];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(DWORD *)evt->arg1);
-            argv[1] = JS_NumberValue(*(DWORD *)evt->arg2);
-            argv[2] = JS_NumberValue(*(DWORD *)evt->arg3);
-            argv[3] = JS_NumberValue(*(DWORD *)evt->arg4);
+            argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
+            argv[1] = JS_NumberValue(*(DWORD*)evt->arg2);
+            argv[2] = JS_NumberValue(*(DWORD*)evt->arg3);
+            argv[3] = JS_NumberValue(*(DWORD*)evt->arg4);
 
             for (int j = 0; j < evt->argc; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -624,9 +626,9 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
         strcmp(evtName, "melife") == 0 || strcmp(evtName, "playerassign") == 0) {
         bool block = false;
         if (!clearList) {
-            jsval *argv = new jsval[1];
+            jsval* argv = new jsval[1];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(DWORD *)evt->arg1);
+            argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
             JS_AddValueRoot(cx, &argv[0]);
             jsval rval;
             for (FunctionList::iterator it = evt->owner->functions[evtName].begin(); it != evt->owner->functions[evtName].end(); it++) {
@@ -637,7 +639,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
             JS_RemoveValueRoot(cx, &argv[0]);
         }
         if (strcmp(evtName, "keydownblocker") == 0) {
-            *(DWORD *)evt->arg4 = block;
+            *(DWORD*)evt->arg4 = block;
             SetEvent(Vars.eventSignal);
         } else {
             delete evt->arg1;
@@ -649,11 +651,11 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     if (strcmp(evtName, "ScreenHookClick") == 0) {
         bool block = false;
         if (!clearList) {
-            jsval *argv = new jsval[3];
+            jsval* argv = new jsval[3];
             JS_BeginRequest(cx);
-            argv[0] = JS_NumberValue(*(DWORD *)evt->arg1);
-            argv[1] = JS_NumberValue(*(DWORD *)evt->arg2);
-            argv[2] = JS_NumberValue(*(DWORD *)evt->arg3);
+            argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
+            argv[1] = JS_NumberValue(*(DWORD*)evt->arg2);
+            argv[2] = JS_NumberValue(*(DWORD*)evt->arg3);
             for (int j = 0; j < 3; j++)
                 JS_AddValueRoot(cx, &argv[j]);
 
@@ -668,13 +670,13 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
             for (int j = 0; j < 3; j++)
                 JS_RemoveValueRoot(cx, &argv[j]);
         }
-        *(DWORD *)evt->arg4 = block;
+        *(DWORD*)evt->arg4 = block;
         SetEvent(Vars.eventSignal);
 
         return true;
     }
     if (strcmp(evtName, "Command") == 0) {
-        char *cmd = (char *)evt->arg1;
+        char* cmd = (char*)evt->arg1;
         std::string test;
 
         test.append("try{ ");
@@ -686,7 +688,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
         if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), test.data(), test.length(), "Command Line", 0, &rval)) {
             if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
                 JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-                char *text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
+                char* text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
                 Print("%s", text);
                 JS_free(cx, text);
             }
@@ -698,9 +700,9 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     }
     if (strcmp(evtName, "scriptmsg") == 0) {
         if (!clearList) {
-            DWORD *argc = (DWORD *)evt->arg1;
+            DWORD* argc = (DWORD*)evt->arg1;
             JS_BeginRequest(cx);
-            jsval *argv = new jsval[*argc];
+            jsval* argv = new jsval[*argc];
             for (uintN i = 0; i < *argc; i++)
                 evt->argv[i]->read(cx, &argv[i]);
 
@@ -728,12 +730,12 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
     if (strcmp(evtName, "gamepacket") == 0 || strcmp(evtName, "gamepacketsent") == 0 || strcmp(evtName, "realmpacket") == 0) {
         bool block = false;
         if (!clearList) {
-            BYTE *help = (BYTE *)evt->arg1;
-            DWORD *size = (DWORD *)evt->arg2;
-            DWORD *argc = (DWORD *)1;
+            BYTE* help = (BYTE*)evt->arg1;
+            DWORD* size = (DWORD*)evt->arg2;
+            DWORD* argc = (DWORD*)1;
             JS_BeginRequest(cx);
 
-            JSObject *arr = JS_NewUint8Array(cx, *size);
+            JSObject* arr = JS_NewUint8Array(cx, *size);
             // JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 
             JS_AddRoot(cx, &arr);
@@ -750,7 +752,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
                 JS_CallFunctionValue(cx, JS_GetGlobalObject(cx), *(*it)->value(), 1, &argv, &rval);
                 block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
             }
-            *(DWORD *)evt->arg4 = block;
+            *(DWORD*)evt->arg4 = block;
             JS_RemoveRoot(cx, &arr);
             SetEvent(Vars.eventSignal);
             JS_EndRequest(cx);
@@ -774,7 +776,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
         }
 
         if (strcmp(evtName, "setTimeout") == 0) {
-            ScriptEngine::RemoveDelayedEvent(*(DWORD *)evt->arg1);
+            ScriptEngine::RemoveDelayedEvent(*(DWORD*)evt->arg1);
         }
 
         return true;
@@ -785,7 +787,7 @@ bool ExecScriptEvent(Event *evt, bool clearList) {
 
     return true;
 }
-int ScriptEngine::AddDelayedEvent(Event *evt, int freq) {
+int ScriptEngine::AddDelayedEvent(Event* evt, int freq) {
     delayedExecKey++;
     evt->arg1 = new DWORD(delayedExecKey);
     evt->arg2 = CreateWaitableTimer(NULL, true, NULL);
@@ -799,21 +801,21 @@ int ScriptEngine::AddDelayedEvent(Event *evt, int freq) {
     freq = (strcmp(evt->name, "setInterval") == 0) ? freq : 0;
     EnterCriticalSection(&Vars.cEventSection);
     DelayedExecList.push_back(evt);
-    SetWaitableTimer((HANDLE *)evt->arg2, &lStart, freq, &EventTimerProc, evt, false);
+    SetWaitableTimer((HANDLE*)evt->arg2, &lStart, freq, &EventTimerProc, evt, false);
     LeaveCriticalSection(&Vars.cEventSection);
 
     return delayedExecKey;
 }
 
 void ScriptEngine::RemoveDelayedEvent(int key) {
-    list<Event *>::iterator it;
+    list<Event*>::iterator it;
     it = DelayedExecList.begin();
     while (it != DelayedExecList.end()) {
-        if (*(DWORD *)(*it)->arg1 == key) {
-            CancelWaitableTimer((HANDLE *)(*it)->arg2);
-            CloseHandle((HANDLE *)(*it)->arg2);
-            Event *evt = *it;
-            evt->owner->UnregisterEvent(evt->name, *(jsval *)evt->arg3);
+        if (*(DWORD*)(*it)->arg1 == key) {
+            CancelWaitableTimer((HANDLE*)(*it)->arg2);
+            CloseHandle((HANDLE*)(*it)->arg2);
+            Event* evt = *it;
+            evt->owner->UnregisterEvent(evt->name, *(jsval*)evt->arg3);
             delete evt->arg1;
             delete evt->arg3;
             free(evt->name);
@@ -825,6 +827,6 @@ void ScriptEngine::RemoveDelayedEvent(int key) {
     LeaveCriticalSection(&Vars.cEventSection);
 }
 void CALLBACK EventTimerProc(LPVOID lpArg, DWORD dwTimerLowValue, DWORD dwTimerHighValue) {
-    Event *evt = (Event *)lpArg;
+    Event* evt = (Event*)lpArg;
     evt->owner->FireEvent(evt);
 }

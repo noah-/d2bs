@@ -8,15 +8,15 @@ EMPTY_CTOR(script)
 
 struct FindHelper {
     DWORD tid;
-    char *name;
-    Script *script;
+    char* name;
+    Script* script;
 };
 
-bool __fastcall FindScriptByTid(Script *script, void *argv, uint argc);
-bool __fastcall FindScriptByName(Script *script, void *argv, uint argc);
+bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc);
+bool __fastcall FindScriptByName(Script* script, void* argv, uint argc);
 
 JSAPI_PROP(script_getProperty) {
-    Script *script = (Script *)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+    Script* script = (Script*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 
     // TODO: make this check stronger
     if (!script)
@@ -48,7 +48,7 @@ JSAPI_PROP(script_getProperty) {
 
 JSAPI_FUNC(script_getNext) {
 
-    Script *iterp = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Script* iterp = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
     ScriptEngine::LockScriptList("scrip.getNext");
     // EnterCriticalSection(&ScriptEngine::lock);
 
@@ -75,7 +75,7 @@ JSAPI_FUNC(script_getNext) {
 
 JSAPI_FUNC(script_stop) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *script = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
     if (script->IsRunning())
         script->Stop();
 
@@ -84,7 +84,7 @@ JSAPI_FUNC(script_stop) {
 
 JSAPI_FUNC(script_pause) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *script = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 
     if (script->IsRunning())
         script->Pause();
@@ -94,7 +94,7 @@ JSAPI_FUNC(script_pause) {
 
 JSAPI_FUNC(script_resume) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *script = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 
     if (script->IsPaused())
         script->Resume();
@@ -104,8 +104,8 @@ JSAPI_FUNC(script_resume) {
 
 JSAPI_FUNC(script_send) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *script = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
-    Event *evt = new Event;
+    Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Event* evt = new Event;
     if (!script || !script->IsRunning())
         return JS_TRUE;
     ScriptEngine::LockScriptList("script.send");
@@ -113,7 +113,7 @@ JSAPI_FUNC(script_send) {
     evt->argc = argc;
     evt->name = strdup("scriptmsg");
     evt->arg1 = new DWORD(argc);
-    evt->argv = new JSAutoStructuredCloneBuffer *;
+    evt->argv = new JSAutoStructuredCloneBuffer*;
     for (uintN i = 0; i < argc; i++) {
         evt->argv[i] = new JSAutoStructuredCloneBuffer;
         evt->argv[i]->write(cx, JS_ARGV(cx, vp)[i]);
@@ -130,7 +130,7 @@ JSAPI_FUNC(script_send) {
 
 JSAPI_FUNC(script_join) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *script = (Script *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
+    Script* script = (Script*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &script_class, NULL);
 
     script->Join();
 
@@ -139,9 +139,9 @@ JSAPI_FUNC(script_join) {
 
 JSAPI_FUNC(my_getScript) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    Script *iterp = NULL;
+    Script* iterp = NULL;
     if (argc == 1 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]) && JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]) == JS_TRUE)
-        iterp = (Script *)JS_GetContextPrivate(cx);
+        iterp = (Script*)JS_GetContextPrivate(cx);
     else if (argc == 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0])) {
         // loop over the Scripts in ScriptEngine and find the one with the right threadid
         DWORD tid = (DWORD)JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
@@ -152,7 +152,7 @@ JSAPI_FUNC(my_getScript) {
         else
             return JS_TRUE;
     } else if (argc == 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-        char *name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (name)
             StringReplace(name, '/', '\\', strlen(name));
         FindHelper args = {0, name, NULL};
@@ -175,7 +175,7 @@ JSAPI_FUNC(my_getScript) {
             return JS_TRUE;
     }
 
-    JSObject *res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
+    JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
 
     if (!res)
         THROW_ERROR(cx, "Failed to build the script object");
@@ -187,13 +187,13 @@ JSAPI_FUNC(my_getScripts) {
 
     DWORD dwArrayCount = NULL;
 
-    JSObject *pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+    JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
     JS_BeginRequest(cx);
     JS_AddRoot(cx, &pReturnArray);
     ScriptEngine::LockScriptList("getScripts");
 
     for (ScriptMap::iterator it = ScriptEngine::scripts.begin(); it != ScriptEngine::scripts.end(); it++) {
-        JSObject *res = BuildObject(cx, &script_class, script_methods, script_props, it->second);
+        JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, it->second);
         jsval a = OBJECT_TO_JSVAL(res);
         JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
         dwArrayCount++;
@@ -205,10 +205,10 @@ JSAPI_FUNC(my_getScripts) {
     JS_EndRequest(cx);
     return JS_TRUE;
 }
-bool __fastcall FindScriptByName(Script *script, void *argv, uint argc) {
-    FindHelper *helper = (FindHelper *)argv;
+bool __fastcall FindScriptByName(Script* script, void* argv, uint argc) {
+    FindHelper* helper = (FindHelper*)argv;
     static uint pathlen = strlen(Vars.szScriptPath) + 1;
-    const char *fname = script->GetShortFilename();
+    const char* fname = script->GetShortFilename();
     if (_strcmpi(fname, helper->name) == 0) {
         helper->script = script;
         return false;
@@ -216,8 +216,8 @@ bool __fastcall FindScriptByName(Script *script, void *argv, uint argc) {
     return true;
 }
 
-bool __fastcall FindScriptByTid(Script *script, void *argv, uint argc) {
-    FindHelper *helper = (FindHelper *)argv;
+bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc) {
+    FindHelper* helper = (FindHelper*)argv;
     if (script->GetThreadId() == helper->tid) {
         helper->script = script;
         return false;

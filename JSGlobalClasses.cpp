@@ -16,17 +16,9 @@
 #include "JSScript.h"
 #include "JSProfile.h"
 
-JSClass global_obj = {"global",
-                      JSCLASS_GLOBAL_FLAGS,
-                      JS_PropertyStub,
-                      JS_PropertyStub,
-                      JS_PropertyStub,
-                      JS_StrictPropertyStub,
-                      JS_EnumerateStub,
-                      JS_ResolveStub,
-                      JS_ConvertStub,
-                      NULL,
-                      JSCLASS_NO_OPTIONAL_MEMBERS};
+JSClass global_obj = {
+    "global", JSCLASS_GLOBAL_FLAGS,       JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
+    NULL,     JSCLASS_NO_OPTIONAL_MEMBERS};
 // JSAPI_EMPTY_CTOR(global)
 
 // JSClass global_obj = { "global", JSCLASS_GLOBAL_FLAGS, JSCLASS_DEFAULT_WITH_CTOR(global) };
@@ -45,29 +37,29 @@ JSClass sqlite_stmt = {"DBStatement", JSCLASS_HAS_PRIVATE,
                        JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
                                     sqlite_stmt_finalize, sqlite_stmt_ctor)};
 
-JSClass script_class = {"D2BSScript", JSCLASS_HAS_PRIVATE,
-                        JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                     NULL, script_ctor)};
+JSClass script_class = {
+    "D2BSScript", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, script_ctor)};
 
-JSClass frame_class = {"Frame", JSCLASS_HAS_PRIVATE,
-                       JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                    hook_finalize, frame_ctor)};
+JSClass frame_class = {
+    "Frame", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize, frame_ctor)};
 
-JSClass box_class = {"Box", JSCLASS_HAS_PRIVATE,
-                     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                  hook_finalize, box_ctor)};
+JSClass box_class = {
+    "Box", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize, box_ctor)};
 
-JSClass line_class = {"Line", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   hook_finalize, line_ctor)};
+JSClass line_class = {
+    "Line", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize, line_ctor)};
 
-JSClass text_class = {"Text", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   hook_finalize, text_ctor)};
+JSClass text_class = {
+    "Text", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize, text_ctor)};
 
-JSClass image_class = {"Image", JSCLASS_HAS_PRIVATE,
-                       JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                    hook_finalize, image_ctor)};
+JSClass image_class = {
+    "Image", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize, image_ctor)};
 
 JSClass sandbox_class = {"Sandbox", JSCLASS_HAS_PRIVATE,
                          JSCLASS_SPEC(sandbox_addProperty, sandbox_delProperty, sandbox_getProperty, sandbox_setProperty, JS_EnumerateStub, JS_ResolveStub,
@@ -78,52 +70,52 @@ JSClass room_class = {
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, room_ctor)};
 
 JSClass presetunit_class = {"PresetUnit", JSCLASS_HAS_PRIVATE,
-                            JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub,
-                                         JS_ConvertStub, presetunit_finalize, presetunit_ctor)};
+                            JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
+                                         presetunit_finalize, presetunit_ctor)};
 
 JSClass party_class = {
     "Party", JSCLASS_HAS_PRIVATE,
     JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, party_ctor)};
 
-JSClass filetools_class = {"FileTools", NULL,
-                           JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub,
-                                        JS_ConvertStub, NULL, filetools_ctor)};
+JSClass filetools_class = {
+    "FileTools", NULL,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, filetools_ctor)};
 
-JSClass file_class = {"File", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   file_finalize, file_ctor)};
+JSClass file_class = {
+    "File", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, file_finalize, file_ctor)};
 
 JSClass socket_class = {"Socket", JSCLASS_HAS_PRIVATE,
                         JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
                                      socket_finalize, socket_ctor)};
 
-JSClass exit_class = {"Exit", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   exit_finalize, exit_ctor)};
+JSClass exit_class = {
+    "Exit", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, exit_finalize, exit_ctor)};
 
-JSClass folder_class = {"Folder", JSCLASS_HAS_PRIVATE,
-                        JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                     dir_finalize, dir_ctor)};
+JSClass folder_class = {
+    "Folder", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, dir_finalize, dir_ctor)};
 
 JSClass control_class = {"Control", JSCLASS_HAS_PRIVATE,
-                         JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub,
-                                      JS_ConvertStub, control_finalize, control_ctor)};
+                         JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
+                                      control_finalize, control_ctor)};
 
-JSClass area_class = {"Area", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   area_finalize, area_ctor)};
+JSClass area_class = {
+    "Area", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, area_finalize, area_ctor)};
 
-JSClass unit_class = {"Unit", JSCLASS_HAS_PRIVATE,
-                      JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
-                                   unit_finalize, unit_ctor)};
+JSClass unit_class = {
+    "Unit", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize, unit_ctor)};
 
 JSClass profile_class = {"Profile", JSCLASS_HAS_PRIVATE,
-                         JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub,
-                                      JS_ConvertStub, profile_finalize, profile_ctor)};
+                         JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,
+                                      profile_finalize, profile_ctor)};
 
-JSClass profileType_class = {"ProfileType", JSCLASS_HAS_PRIVATE,
-                             JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub,
-                                          JS_ConvertStub, NULL, profileType_ctor)};
+JSClass profileType_class = {
+    "ProfileType", JSCLASS_HAS_PRIVATE,
+    JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, NULL, profileType_ctor)};
 
 JSClass dialogLine_class = {
     "DailogLine", JSCLASS_HAS_PRIVATE | JSCLASS_HAS_RESERVED_SLOTS(1),

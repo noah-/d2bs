@@ -5,7 +5,7 @@
 
 using namespace std;
 
-char *HashString(char *dataIn, ALG_ID algo) {
+char* HashString(char* dataIn, ALG_ID algo) {
     // set up the crypto environment
     HCRYPTPROV provider;
     HCRYPTHASH hash;
@@ -19,7 +19,7 @@ char *HashString(char *dataIn, ALG_ID algo) {
     }
 
     // now we have a working crypto environment, let's encrypt
-    if (!CryptHashData(hash, (BYTE *)dataIn, strlen(dataIn), 0)) {
+    if (!CryptHashData(hash, (BYTE*)dataIn, strlen(dataIn), 0)) {
         CryptDestroyHash(hash);
         CryptReleaseContext(provider, 0);
         return NULL;
@@ -30,7 +30,7 @@ char *HashString(char *dataIn, ALG_ID algo) {
         return NULL;
     }
 
-    BYTE *result = new BYTE[lenOut];
+    BYTE* result = new BYTE[lenOut];
     memset(result, 0, lenOut);
     if (!CryptGetHashParam(hash, HP_HASHVAL, result, &lenOut, 0)) {
         delete[] result;
@@ -54,7 +54,7 @@ char *HashString(char *dataIn, ALG_ID algo) {
     return szBuffer1;
 }
 
-char *HashFile(char *file, ALG_ID algo) {
+char* HashFile(char* file, ALG_ID algo) {
     // set up the crypto environment
     HCRYPTPROV provider;
     HCRYPTHASH hash;
@@ -68,7 +68,7 @@ char *HashFile(char *file, ALG_ID algo) {
 
     // now we have a working crypto environment, let's encrypt
     // open the file
-    FILE *fp = NULL;
+    FILE* fp = NULL;
     fopen_s(&fp, file, "r");
     if (!fp)
         return NULL;
@@ -78,7 +78,7 @@ char *HashFile(char *file, ALG_ID algo) {
     unsigned int size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    char *contents = new char[size];
+    char* contents = new char[size];
     if (fread(contents, sizeof(char), size, fp) != size && ferror(fp)) {
         fclose(fp);
         delete[] contents;
@@ -87,7 +87,7 @@ char *HashFile(char *file, ALG_ID algo) {
         return NULL;
     }
     fclose(fp);
-    if (!CryptHashData(hash, (BYTE *)contents, size, 0)) {
+    if (!CryptHashData(hash, (BYTE*)contents, size, 0)) {
         delete[] contents;
         CryptDestroyHash(hash);
         CryptReleaseContext(provider, 0);
@@ -101,7 +101,7 @@ char *HashFile(char *file, ALG_ID algo) {
         return NULL;
     }
 
-    BYTE *result = new BYTE[lenOut];
+    BYTE* result = new BYTE[lenOut];
     memset(result, 0, lenOut);
     if (!CryptGetHashParam(hash, HP_HASHVAL, result, &lenOut, 0)) {
         delete[] result;
@@ -125,14 +125,34 @@ char *HashFile(char *file, ALG_ID algo) {
     return szBuffer1;
 }
 
-char *md5(char *str) { return HashString(str, CALG_MD5); }
-char *sha1(char *str) { return HashString(str, CALG_SHA1); }
-char *sha256(char *str) { return HashString(str, CALG_SHA_256); }
-char *sha384(char *str) { return HashString(str, CALG_SHA_384); }
-char *sha512(char *str) { return HashString(str, CALG_SHA_512); }
+char* md5(char* str) {
+    return HashString(str, CALG_MD5);
+}
+char* sha1(char* str) {
+    return HashString(str, CALG_SHA1);
+}
+char* sha256(char* str) {
+    return HashString(str, CALG_SHA_256);
+}
+char* sha384(char* str) {
+    return HashString(str, CALG_SHA_384);
+}
+char* sha512(char* str) {
+    return HashString(str, CALG_SHA_512);
+}
 
-char *md5_file(char *file) { return HashFile(file, CALG_MD5); }
-char *sha1_file(char *file) { return HashFile(file, CALG_SHA1); }
-char *sha256_file(char *file) { return HashFile(file, CALG_SHA_256); }
-char *sha384_file(char *file) { return HashFile(file, CALG_SHA_384); }
-char *sha512_file(char *file) { return HashFile(file, CALG_SHA_512); }
+char* md5_file(char* file) {
+    return HashFile(file, CALG_MD5);
+}
+char* sha1_file(char* file) {
+    return HashFile(file, CALG_SHA1);
+}
+char* sha256_file(char* file) {
+    return HashFile(file, CALG_SHA_256);
+}
+char* sha384_file(char* file) {
+    return HashFile(file, CALG_SHA_384);
+}
+char* sha512_file(char* file) {
+    return HashFile(file, CALG_SHA_512);
+}

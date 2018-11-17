@@ -14,8 +14,8 @@ JSAPI_FUNC(sqlite_query);
 JSAPI_FUNC(sqlite_close);
 JSAPI_FUNC(sqlite_open);
 JSAPI_PROP(sqlite_getProperty);
-void sqlite_finalize(JSFreeOp *fop, JSObject *obj);
-JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
+void sqlite_finalize(JSFreeOp* fop, JSObject* obj);
+JSBool sqlite_equal(JSContext* cx, JSObject* obj, jsval v, JSBool* bp);
 
 CLASS_CTOR(sqlite_stmt);
 
@@ -30,7 +30,7 @@ JSAPI_FUNC(sqlite_stmt_skip);
 JSAPI_FUNC(sqlite_stmt_close);
 JSAPI_FUNC(sqlite_stmt_bind);
 JSAPI_PROP(sqlite_stmt_getProperty);
-void sqlite_stmt_finalize(JSFreeOp *fop, JSObject *obj);
+void sqlite_stmt_finalize(JSFreeOp* fop, JSObject* obj);
 
 enum { SQLITE_PATH, SQLITE_STMTS, SQLITE_OPEN, SQLITE_LASTROWID, SQLITE_CHANGES };
 

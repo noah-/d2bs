@@ -47,18 +47,18 @@ struct BinField {
 struct MPQTable {
     DWORD dwEntry;            // if > 0xFFFF it is not located in the exported mpq data..
     DWORD dwMaxEntriesOffset; // ""
-    BinField *pTable;
+    BinField* pTable;
     char szTableName[15];
     WORD wTableSize;
     WORD wUnknown;
 };
 
 DWORD GetBaseTable(int nBaseStat, int nClassId);
-bool FillBaseStat(char *szTable, int row, char *szStat, void *result, size_t size);
-bool FillBaseStat(char *szTable, int row, int column, void *result, size_t size);
-bool FillBaseStat(int table, int row, char *szStat, void *result, size_t size);
-bool FillBaseStat(int table, int row, int column, void *result, size_t size);
-DWORD FillBaseStat(JSContext *cx, jsval *argv, int table, int row, int column, char *szTable, char *szStat);
+bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t size);
+bool FillBaseStat(char* szTable, int row, int column, void* result, size_t size);
+bool FillBaseStat(int table, int row, char* szStat, void* result, size_t size);
+bool FillBaseStat(int table, int row, int column, void* result, size_t size);
+DWORD FillBaseStat(JSContext* cx, jsval* argv, int table, int row, int column, char* szTable, char* szStat);
 
 // Tables dumped by Sheppard
 
@@ -507,63 +507,44 @@ static BinField monstatsTable[] = {
     {"end", FIELDTYPE_END, 0x0, 0x1a8},
 };
 static BinField skilldescTable[] = {
-    {"skilldesc", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},    {"skillpage", FIELDTYPE_DATA_BYTE, 0x0, 0x2},
-    {"skillrow", FIELDTYPE_DATA_BYTE, 0x0, 0x3},         {"skillcolumn", FIELDTYPE_DATA_BYTE, 0x0, 0x4},
-    {"ListRow", FIELDTYPE_DATA_BYTE, 0x0, 0x5},          {"ListPool", FIELDTYPE_DATA_BYTE, 0x0, 0x6},
-    {"iconcel", FIELDTYPE_DATA_BYTE, 0x0, 0x7},          {"str name", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8},
-    {"str short", FIELDTYPE_KEY_TO_WORD, 0x0, 0xa},      {"str long", FIELDTYPE_KEY_TO_WORD, 0x0, 0xc},
-    {"str alt", FIELDTYPE_KEY_TO_WORD, 0x0, 0xe},        {"str mana", FIELDTYPE_KEY_TO_WORD, 0x0, 0x10},
-    {"descdam", FIELDTYPE_DATA_WORD, 0x0, 0x12},         {"descatt", FIELDTYPE_DATA_WORD, 0x0, 0x14},
-    {"ddam calc1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x18},  {"ddam calc2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x1c},
-    {"p1dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x20},     {"p2dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x21},
-    {"p3dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x22},     {"p1dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x24},
-    {"p2dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x28},     {"p3dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x2c},
-    {"p1dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x30},     {"p2dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x34},
-    {"p3dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x38},     {"descmissile1", FIELDTYPE_NAME_TO_WORD, 0x0, 0x3c},
-    {"descmissile2", FIELDTYPE_NAME_TO_WORD, 0x0, 0x3e}, {"descmissile3", FIELDTYPE_NAME_TO_WORD, 0x0, 0x40},
-    {"descline1", FIELDTYPE_DATA_BYTE, 0x0, 0x42},       {"descline2", FIELDTYPE_DATA_BYTE, 0x0, 0x43},
-    {"descline3", FIELDTYPE_DATA_BYTE, 0x0, 0x44},       {"descline4", FIELDTYPE_DATA_BYTE, 0x0, 0x45},
-    {"descline5", FIELDTYPE_DATA_BYTE, 0x0, 0x46},       {"descline6", FIELDTYPE_DATA_BYTE, 0x0, 0x47},
-    {"dsc2line1", FIELDTYPE_DATA_BYTE, 0x0, 0x48},       {"dsc2line2", FIELDTYPE_DATA_BYTE, 0x0, 0x49},
-    {"dsc2line3", FIELDTYPE_DATA_BYTE, 0x0, 0x4a},       {"dsc2line4", FIELDTYPE_DATA_BYTE, 0x0, 0x4b},
-    {"dsc3line1", FIELDTYPE_DATA_BYTE, 0x0, 0x4c},       {"dsc3line2", FIELDTYPE_DATA_BYTE, 0x0, 0x4d},
-    {"dsc3line3", FIELDTYPE_DATA_BYTE, 0x0, 0x4e},       {"dsc3line4", FIELDTYPE_DATA_BYTE, 0x0, 0x4f},
-    {"dsc3line5", FIELDTYPE_DATA_BYTE, 0x0, 0x50},       {"dsc3line6", FIELDTYPE_DATA_BYTE, 0x0, 0x51},
-    {"dsc3line7", FIELDTYPE_DATA_BYTE, 0x0, 0x52},       {"desctexta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x54},
-    {"desctexta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x56},    {"desctexta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x58},
-    {"desctexta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5a},    {"desctexta5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5c},
-    {"desctexta6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5e},    {"dsc2texta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x60},
-    {"dsc2texta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x62},    {"dsc2texta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x64},
-    {"dsc2texta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x66},    {"dsc3texta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x68},
-    {"dsc3texta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6a},    {"dsc3texta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6c},
-    {"dsc3texta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6e},    {"dsc3texta5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x70},
-    {"dsc3texta6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x72},    {"dsc3texta7", FIELDTYPE_KEY_TO_WORD, 0x0, 0x74},
-    {"desctextb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x76},    {"desctextb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x78},
-    {"desctextb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7a},    {"desctextb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7c},
-    {"desctextb5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7e},    {"desctextb6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x80},
-    {"dsc2textb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x82},    {"dsc2textb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x84},
-    {"dsc2textb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x86},    {"dsc2textb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x88},
-    {"dsc3textb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8a},    {"dsc3textb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8c},
-    {"dsc3textb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8e},    {"dsc3textb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x90},
-    {"dsc3textb5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x92},    {"dsc3textb6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x94},
-    {"dsc3textb7", FIELDTYPE_KEY_TO_WORD, 0x0, 0x96},    {"desccalca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x98},
-    {"desccalca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x9c},  {"desccalca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa0},
-    {"desccalca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa4},  {"desccalca5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa8},
-    {"desccalca6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xac},  {"dsc2calca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb0},
-    {"dsc2calca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb4},  {"dsc2calca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb8},
-    {"dsc2calca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xbc},  {"dsc3calca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc0},
-    {"dsc3calca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc4},  {"dsc3calca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc8},
-    {"dsc3calca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xcc},  {"dsc3calca5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd0},
-    {"dsc3calca6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd4},  {"dsc3calca7", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd8},
-    {"desccalcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xdc},  {"desccalcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe0},
-    {"desccalcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe4},  {"desccalcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe8},
-    {"desccalcb5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xec},  {"desccalcb6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf0},
-    {"dsc2calcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf4},  {"dsc2calcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf8},
-    {"dsc2calcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xfc},  {"dsc2calcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x100},
-    {"dsc3calcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x104}, {"dsc3calcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x108},
-    {"dsc3calcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x10c}, {"dsc3calcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x110},
-    {"dsc3calcb5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x114}, {"dsc3calcb6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x118},
-    {"dsc3calcb7", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x11c}, {"end", FIELDTYPE_END, 0x0, 0x120},
+    {"skilldesc", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},    {"skillpage", FIELDTYPE_DATA_BYTE, 0x0, 0x2},        {"skillrow", FIELDTYPE_DATA_BYTE, 0x0, 0x3},
+    {"skillcolumn", FIELDTYPE_DATA_BYTE, 0x0, 0x4},      {"ListRow", FIELDTYPE_DATA_BYTE, 0x0, 0x5},          {"ListPool", FIELDTYPE_DATA_BYTE, 0x0, 0x6},
+    {"iconcel", FIELDTYPE_DATA_BYTE, 0x0, 0x7},          {"str name", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8},       {"str short", FIELDTYPE_KEY_TO_WORD, 0x0, 0xa},
+    {"str long", FIELDTYPE_KEY_TO_WORD, 0x0, 0xc},       {"str alt", FIELDTYPE_KEY_TO_WORD, 0x0, 0xe},        {"str mana", FIELDTYPE_KEY_TO_WORD, 0x0, 0x10},
+    {"descdam", FIELDTYPE_DATA_WORD, 0x0, 0x12},         {"descatt", FIELDTYPE_DATA_WORD, 0x0, 0x14},         {"ddam calc1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x18},
+    {"ddam calc2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x1c},  {"p1dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x20},     {"p2dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x21},
+    {"p3dmelem", FIELDTYPE_CODE_TO_BYTE, 0x0, 0x22},     {"p1dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x24},     {"p2dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x28},
+    {"p3dmmin", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x2c},     {"p1dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x30},     {"p2dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x34},
+    {"p3dmmax", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x38},     {"descmissile1", FIELDTYPE_NAME_TO_WORD, 0x0, 0x3c}, {"descmissile2", FIELDTYPE_NAME_TO_WORD, 0x0, 0x3e},
+    {"descmissile3", FIELDTYPE_NAME_TO_WORD, 0x0, 0x40}, {"descline1", FIELDTYPE_DATA_BYTE, 0x0, 0x42},       {"descline2", FIELDTYPE_DATA_BYTE, 0x0, 0x43},
+    {"descline3", FIELDTYPE_DATA_BYTE, 0x0, 0x44},       {"descline4", FIELDTYPE_DATA_BYTE, 0x0, 0x45},       {"descline5", FIELDTYPE_DATA_BYTE, 0x0, 0x46},
+    {"descline6", FIELDTYPE_DATA_BYTE, 0x0, 0x47},       {"dsc2line1", FIELDTYPE_DATA_BYTE, 0x0, 0x48},       {"dsc2line2", FIELDTYPE_DATA_BYTE, 0x0, 0x49},
+    {"dsc2line3", FIELDTYPE_DATA_BYTE, 0x0, 0x4a},       {"dsc2line4", FIELDTYPE_DATA_BYTE, 0x0, 0x4b},       {"dsc3line1", FIELDTYPE_DATA_BYTE, 0x0, 0x4c},
+    {"dsc3line2", FIELDTYPE_DATA_BYTE, 0x0, 0x4d},       {"dsc3line3", FIELDTYPE_DATA_BYTE, 0x0, 0x4e},       {"dsc3line4", FIELDTYPE_DATA_BYTE, 0x0, 0x4f},
+    {"dsc3line5", FIELDTYPE_DATA_BYTE, 0x0, 0x50},       {"dsc3line6", FIELDTYPE_DATA_BYTE, 0x0, 0x51},       {"dsc3line7", FIELDTYPE_DATA_BYTE, 0x0, 0x52},
+    {"desctexta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x54},    {"desctexta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x56},    {"desctexta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x58},
+    {"desctexta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5a},    {"desctexta5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5c},    {"desctexta6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x5e},
+    {"dsc2texta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x60},    {"dsc2texta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x62},    {"dsc2texta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x64},
+    {"dsc2texta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x66},    {"dsc3texta1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x68},    {"dsc3texta2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6a},
+    {"dsc3texta3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6c},    {"dsc3texta4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x6e},    {"dsc3texta5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x70},
+    {"dsc3texta6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x72},    {"dsc3texta7", FIELDTYPE_KEY_TO_WORD, 0x0, 0x74},    {"desctextb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x76},
+    {"desctextb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x78},    {"desctextb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7a},    {"desctextb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7c},
+    {"desctextb5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x7e},    {"desctextb6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x80},    {"dsc2textb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x82},
+    {"dsc2textb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x84},    {"dsc2textb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x86},    {"dsc2textb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x88},
+    {"dsc3textb1", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8a},    {"dsc3textb2", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8c},    {"dsc3textb3", FIELDTYPE_KEY_TO_WORD, 0x0, 0x8e},
+    {"dsc3textb4", FIELDTYPE_KEY_TO_WORD, 0x0, 0x90},    {"dsc3textb5", FIELDTYPE_KEY_TO_WORD, 0x0, 0x92},    {"dsc3textb6", FIELDTYPE_KEY_TO_WORD, 0x0, 0x94},
+    {"dsc3textb7", FIELDTYPE_KEY_TO_WORD, 0x0, 0x96},    {"desccalca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x98},  {"desccalca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x9c},
+    {"desccalca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa0},  {"desccalca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa4},  {"desccalca5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xa8},
+    {"desccalca6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xac},  {"dsc2calca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb0},  {"dsc2calca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb4},
+    {"dsc2calca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xb8},  {"dsc2calca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xbc},  {"dsc3calca1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc0},
+    {"dsc3calca2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc4},  {"dsc3calca3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xc8},  {"dsc3calca4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xcc},
+    {"dsc3calca5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd0},  {"dsc3calca6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd4},  {"dsc3calca7", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xd8},
+    {"desccalcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xdc},  {"desccalcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe0},  {"desccalcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe4},
+    {"desccalcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xe8},  {"desccalcb5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xec},  {"desccalcb6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf0},
+    {"dsc2calcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf4},  {"dsc2calcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xf8},  {"dsc2calcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0xfc},
+    {"dsc2calcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x100}, {"dsc3calcb1", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x104}, {"dsc3calcb2", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x108},
+    {"dsc3calcb3", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x10c}, {"dsc3calcb4", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x110}, {"dsc3calcb5", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x114},
+    {"dsc3calcb6", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x118}, {"dsc3calcb7", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x11c}, {"end", FIELDTYPE_END, 0x0, 0x120},
 };
 static BinField skillsTable[] = {
     {"skill", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},

@@ -12,9 +12,9 @@
 
 using namespace std;
 
-Script::Script(const char *file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer **argv)
-    : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false),
-      scriptState(state), threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
+Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv)
+    : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
+      threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
     InitializeCriticalSection(&lock);
     // moved the runtime initilization to thread start
     LastGC = 0;
@@ -27,7 +27,7 @@ Script::Script(const char *file, ScriptState state, uintN argc, JSAutoStructured
         if (_access(file, 0) != 0)
             throw std::exception("File not found");
 
-        char *tmpName = _strdup(file);
+        char* tmpName = _strdup(file);
         if (!tmpName)
             throw std::exception("Could not dup filename");
 
@@ -63,24 +63,28 @@ Script::~Script(void) {
     DeleteCriticalSection(&lock);
 }
 
-int Script::GetExecutionCount(void) { return execCount; }
+int Script::GetExecutionCount(void) {
+    return execCount;
+}
 
-DWORD Script::GetThreadId(void) { return (threadHandle == INVALID_HANDLE_VALUE ? -1 : threadId); }
+DWORD Script::GetThreadId(void) {
+    return (threadHandle == INVALID_HANDLE_VALUE ? -1 : threadId);
+}
 
-void Script::RunCommand(const char *command) {
-    RUNCOMMANDSTRUCT *rcs = new RUNCOMMANDSTRUCT;
+void Script::RunCommand(const char* command) {
+    RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
     size_t commandLength = strlen(command) + 1;
-    char *passCommand = new char[commandLength];
+    char* passCommand = new char[commandLength];
     strcpy_s(passCommand, commandLength, command);
 
     rcs->script = this;
     rcs->command = passCommand;
 
     if (isAborted) { // this should never happen -bob
-        char *command = "delay(1000000);";
-        RUNCOMMANDSTRUCT *rcs = new RUNCOMMANDSTRUCT;
+        char* command = "delay(1000000);";
+        RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
         size_t commandLength = strlen(command) + 1;
-        char *passCommand = new char[commandLength];
+        char* passCommand = new char[commandLength];
         strcpy_s(passCommand, commandLength, command);
 
         rcs->script = this;
@@ -90,7 +94,7 @@ void Script::RunCommand(const char *command) {
         // HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
     }
 
-    Event *evt = new Event;
+    Event* evt = new Event;
     evt->owner = this;
     evt->argc = argc;
     evt->name = strdup("Command");
@@ -106,8 +110,7 @@ bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc) {
     EnterCriticalSection(&lock);
     DWORD dwExitCode = STILL_ACTIVE;
 
-    if ((!GetExitCodeThread(threadHandle, &dwExitCode) || dwExitCode != STILL_ACTIVE) &&
-        (threadHandle = CreateThread(0, 0, ThreadFunc, this, 0, &threadId)) != NULL) {
+    if ((!GetExitCodeThread(threadHandle, &dwExitCode) || dwExitCode != STILL_ACTIVE) && (threadHandle = CreateThread(0, 0, ThreadFunc, this, 0, &threadId)) != NULL) {
         LeaveCriticalSection(&lock);
         return true;
     }
@@ -141,15 +144,15 @@ void Script::Run(void) {
         globalObject = JS_GetGlobalObject(context);
         jsval meVal = JSVAL_VOID;
         if (JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE) {
-            JSObject *meObject = JSVAL_TO_OBJECT(meVal);
-            me = (myUnit *)JS_GetPrivate(GetContext(), meObject);
+            JSObject* meObject = JSVAL_TO_OBJECT(meVal);
+            me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
         }
 
         if (scriptState == Command) {
             if (strlen(Vars.szConsole) > 0) {
                 script = JS_CompileFile(context, globalObject, fileName.c_str());
             } else {
-                char *cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
+                char* cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
                 script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
             }
             JS_AddNamedScriptRoot(context, &script, "console script");
@@ -162,7 +165,7 @@ void Script::Run(void) {
         JS_EndRequest(context);
         // JS_RemoveScriptRoot(context, &script);
 
-    } catch (std::exception &) {
+    } catch (std::exception&) {
         if (scriptObject)
             JS_RemoveRoot(context, &scriptObject);
         if (context) {
@@ -182,7 +185,7 @@ void Script::Run(void) {
     JS_BeginRequest(GetContext());
 
     // args passed from load
-    jsval *argvalue = new jsval[argc];
+    jsval* argvalue = new jsval[argc];
     for (uintN i = 0; i < argc; i++)
         argv[i]->read(context, &argvalue[i]);
 
@@ -212,7 +215,9 @@ void Script::Run(void) {
     // Stop();
 }
 
-void Script::UpdatePlayerGid(void) { me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId); }
+void Script::UpdatePlayerGid(void) {
+    me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
+}
 
 void Script::Pause(void) {
     if (!IsAborted() && !IsPaused())
@@ -237,9 +242,11 @@ void Script::Resume(void) {
     SetEvent(eventSignal);
 }
 
-bool Script::IsPaused(void) { return isPaused; }
+bool Script::IsPaused(void) {
+    return isPaused;
+}
 
-const char *Script::GetShortFilename() {
+const char* Script::GetShortFilename() {
     if (strcmp(fileName.c_str(), "Command Line") == 0)
         return fileName.c_str();
     else
@@ -256,7 +263,7 @@ void Script::Stop(bool force, bool reallyForce) {
     isPaused = false;
     isReallyPaused = false;
     if (GetState() != Command) {
-        const char *displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
+        const char* displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
         Print("Script %s ended", displayName);
     }
 
@@ -277,9 +284,9 @@ void Script::Stop(bool force, bool reallyForce) {
     LeaveCriticalSection(&lock);
 }
 
-bool Script::IsIncluded(const char *file) {
+bool Script::IsIncluded(const char* file) {
     uint count = 0;
-    char *fname = _strdup(file);
+    char* fname = _strdup(file);
     if (!fname)
         return false;
 
@@ -291,10 +298,10 @@ bool Script::IsIncluded(const char *file) {
     return !!count;
 }
 
-bool Script::Include(const char *file) {
+bool Script::Include(const char* file) {
     // since includes will happen on the same thread, locking here is acceptable
     EnterCriticalSection(&lock);
-    char *fname = _strdup((char *)file);
+    char* fname = _strdup((char*)file);
     if (!fname)
         return false;
     _strlwr_s(fname, strlen(fname) + 1);
@@ -310,11 +317,11 @@ bool Script::Include(const char *file) {
     }
     bool rval = false;
 
-    JSContext *cx = GetContext();
+    JSContext* cx = GetContext();
 
     JS_BeginRequest(cx);
 
-    JSScript *script = JS_CompileFile(cx, GetGlobalObject(), fname);
+    JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
     if (script) {
         jsval dummy;
         inProgress[fname] = true;
@@ -335,22 +342,28 @@ bool Script::Include(const char *file) {
     return rval;
 }
 
-bool Script::IsRunning(void) { return context && !(IsAborted() || IsPaused() || !hasActiveCX); }
+bool Script::IsRunning(void) {
+    return context && !(IsAborted() || IsPaused() || !hasActiveCX);
+}
 
-bool Script::IsAborted() { return isAborted; }
+bool Script::IsAborted() {
+    return isAborted;
+}
 
-bool Script::IsListenerRegistered(const char *evtName) { return strlen(evtName) > 0 && functions.count(evtName) > 0; }
+bool Script::IsListenerRegistered(const char* evtName) {
+    return strlen(evtName) > 0 && functions.count(evtName) > 0;
+}
 
-void Script::RegisterEvent(const char *evtName, jsval evtFunc) {
+void Script::RegisterEvent(const char* evtName, jsval evtFunc) {
     EnterCriticalSection(&lock);
     if (JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0) {
-        AutoRoot *root = new AutoRoot(context, evtFunc);
+        AutoRoot* root = new AutoRoot(context, evtFunc);
         functions[evtName].push_back(root);
     }
     LeaveCriticalSection(&lock);
 }
 
-bool Script::IsRegisteredEvent(const char *evtName, jsval evtFunc) {
+bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc) {
     // nothing can be registered under an empty name
     if (strlen(evtName) < 1)
         return false;
@@ -367,12 +380,12 @@ bool Script::IsRegisteredEvent(const char *evtName, jsval evtFunc) {
     return false;
 }
 
-void Script::UnregisterEvent(const char *evtName, jsval evtFunc) {
+void Script::UnregisterEvent(const char* evtName, jsval evtFunc) {
     if (strlen(evtName) < 1)
         return;
 
     EnterCriticalSection(&lock);
-    AutoRoot *func = NULL;
+    AutoRoot* func = NULL;
     for (FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++) {
         if (*(*it)->value() == evtFunc) {
             func = *it;
@@ -390,10 +403,10 @@ void Script::UnregisterEvent(const char *evtName, jsval evtFunc) {
     LeaveCriticalSection(&lock);
 }
 
-void Script::ClearEvent(const char *evtName) {
+void Script::ClearEvent(const char* evtName) {
     EnterCriticalSection(&lock);
     for (FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++) {
-        AutoRoot *func = *it;
+        AutoRoot* func = *it;
         func->Release();
         delete func;
     }
@@ -408,7 +421,7 @@ void Script::ClearAllEvents(void) {
     functions.clear();
     LeaveCriticalSection(&lock);
 }
-void Script::FireEvent(Event *evt) {
+void Script::FireEvent(Event* evt) {
     // EnterCriticalSection(&ScriptEngine::lock);
     EnterCriticalSection(&Vars.cEventSection);
     evt->owner->EventList.push_front(evt);
@@ -437,22 +450,22 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName) {
     info.dwFlags = 0;
 
     __try {
-        RaiseException(0x406D1388, 0, sizeof(info) / sizeof(DWORD), (DWORD *)&info);
+        RaiseException(0x406D1388, 0, sizeof(info) / sizeof(DWORD), (DWORD*)&info);
     } __except (EXCEPTION_CONTINUE_EXECUTION) {
     }
 }
 #endif
 
-DWORD WINAPI RunCommandThread(void *data) {
-    RUNCOMMANDSTRUCT *rcs = (RUNCOMMANDSTRUCT *)data;
-    JSContext *cx = rcs->script->GetContext();
+DWORD WINAPI RunCommandThread(void* data) {
+    RUNCOMMANDSTRUCT* rcs = (RUNCOMMANDSTRUCT*)data;
+    JSContext* cx = rcs->script->GetContext();
     JS_BeginRequest(cx);
     jsval rval;
     JS_AddNamedValueRoot(cx, &rval, "Cmd line rtl");
     if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval)) {
         if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
             JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-            char *text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
+            char* text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
             Print("%s", text);
             JS_free(cx, text);
         }
@@ -463,8 +476,8 @@ DWORD WINAPI RunCommandThread(void *data) {
     return 0;
 }
 
-DWORD WINAPI ScriptThread(void *data) {
-    Script *script = (Script *)data;
+DWORD WINAPI ScriptThread(void* data) {
+    Script* script = (Script*)data;
     if (script) {
 #ifdef DEBUG
         SetThreadName(0xFFFFFFFF, script->GetShortFilename());

@@ -19,8 +19,8 @@ struct OverheadMsg;
 struct Skill;
 
 struct SplitText {
-    wchar_t *lpwszText;
-    SplitText *lpsNext;
+    wchar_t* lpwszText;
+    SplitText* lpsNext;
 };
 
 struct InventoryInfo {
@@ -46,8 +46,8 @@ struct AutomapCell {
     WORD xPixel;        // 0x06
     WORD yPixel;        // 0x08
     WORD wWeight;       // 0x0A
-    AutomapCell *pLess; // 0x0C
-    AutomapCell *pMore; // 0x10
+    AutomapCell* pLess; // 0x0C
+    AutomapCell* pMore; // 0x10
 };
 
 struct GfxCell {
@@ -64,13 +64,13 @@ struct GfxCell {
 
 struct UnitInteraction {
     DWORD dwMoveType;      // 0x00
-    UnitAny *lpPlayerUnit; // 0x04
-    UnitAny *lpTargetUnit; // 0x08
+    UnitAny* lpPlayerUnit; // 0x04
+    UnitAny* lpTargetUnit; // 0x08
     DWORD dwTargetX;       // 0x0C
     DWORD dwTargetY;       // 0x10
     DWORD _1;              // 0x14
     DWORD _2;              // 0x18
-    Skill *pSkill;
+    Skill* pSkill;
 };
 
 struct CellFile {
@@ -84,23 +84,23 @@ struct CellFile {
     DWORD termination;   // 0x0C
     DWORD numdirs;       // 0x10
     DWORD numcells;      // 0x14
-    GfxCell *cells[255]; // 0x18
+    GfxCell* cells[255]; // 0x18
 };
 
 struct CellContext {
     DWORD _1[13];        // 0x00
-    CellFile *pCellFile; // 0x34
+    CellFile* pCellFile; // 0x34
     DWORD _2[4];         // 0x38
 };
 
 struct AutomapLayer {
     DWORD nLayerNo;           // 0x00
     DWORD fSaved;             // 0x04
-    AutomapCell *pFloors;     // 0x08
-    AutomapCell *pWalls;      // 0x0C
-    AutomapCell *pObjects;    // 0x10
-    AutomapCell *pExtras;     // 0x14
-    AutomapLayer *pNextLayer; // 0x18
+    AutomapCell* pFloors;     // 0x08
+    AutomapCell* pWalls;      // 0x0C
+    AutomapCell* pObjects;    // 0x10
+    AutomapCell* pExtras;     // 0x14
+    AutomapLayer* pNextLayer; // 0x18
 };
 
 struct AutomapLayer2 {
@@ -123,35 +123,35 @@ struct LevelTxt {
 
 struct ControlText // size = 0x20
 {
-    wchar_t *wText[5];  // 0x00 for each field
+    wchar_t* wText[5];  // 0x00 for each field
     DWORD dwColor;      // 0x14
     DWORD dwAlign;      // 0x18
-    ControlText *pNext; // 0x1C
+    ControlText* pNext; // 0x1C
 };
 
 struct Control {
     DWORD dwType;     // 0x00
-    DWORD *_1;        // 0x04 // unsure? definitely a ptr but not obvious, usually points to 6 when dwType is 6 I think
+    DWORD* _1;        // 0x04 // unsure? definitely a ptr but not obvious, usually points to 6 when dwType is 6 I think
     DWORD dwDisabled; // 0x08
     DWORD dwPosX;     // 0x0C
     DWORD dwPosY;     // 0x10
     DWORD dwSizeX;    // 0x14
     DWORD dwSizeY;    // 0x18
     // I think _2 thru _9 are a handler table of some sort
-    DWORD *_2;                  // 0x1C // some sort of function (maybe click?)
+    DWORD* _2;                  // 0x1C // some sort of function (maybe click?)
     DWORD _3;                   // 0x20
-    DWORD *_4;                  // 0x24 // some sort of function
-    DWORD *_5;                  // 0x28
+    DWORD* _4;                  // 0x24 // some sort of function
+    DWORD* _5;                  // 0x28
     DWORD _6;                   // 0x2C
-    DWORD *_7;                  // 0x30 // ptr to something...
-    DWORD *_8;                  // 0x34 // another random ptr... mostly dead ends when I examined them
+    DWORD* _7;                  // 0x30 // ptr to something...
+    DWORD* _8;                  // 0x34 // another random ptr... mostly dead ends when I examined them
     DWORD _9;                   // 0x38
-    Control *pNext;             // 0x3C
+    Control* pNext;             // 0x3C
     DWORD _10;                  // 0x40
     DWORD unkState;             // 0x44 _11 0 when button avail to be clicked 1 when greyed - still need to look at this more
-    ControlText *pFirstText;    // 0x48
-    ControlText *pLastText;     // 0x4C
-    ControlText *pSelectedText; // 0x50
+    ControlText* pFirstText;    // 0x48
+    ControlText* pLastText;     // 0x4C
+    ControlText* pSelectedText; // 0x50
     DWORD dwSelectEnd;          // 0x54
     DWORD dwSelectStart;        // 0x58
     union {
@@ -191,7 +191,7 @@ struct BnetData {
     BYTE nMaxDiff;              // 0x1F0
     BYTE _9[0x1F];              // 0x1F1
     BYTE CreatedGameDifficulty; // 0x210
-    void *_10;                  // 0x211
+    void* _10;                  // 0x211
     BYTE _11[0x15];             // 0x215
     WORD _12;                   // 0x22A
     BYTE _13;                   // 0x22C
@@ -207,10 +207,10 @@ struct BnetData {
 };
 
 struct RoomTile {
-    Room2 *pRoom2;   // 0x00
-    RoomTile *pNext; // 0x04
+    Room2* pRoom2;   // 0x00
+    RoomTile* pNext; // 0x04
     DWORD _2[2];     // 0x08
-    DWORD *nNum;     // 0x10
+    DWORD* nNum;     // 0x10
 };
 
 struct RosterUnit {
@@ -225,17 +225,17 @@ struct RosterUnit {
     DWORD Xpos;         // 0x28
     DWORD Ypos;         // 0x2C
     DWORD dwPartyFlags; // 0x30
-    BYTE *_5;           // 0x34
+    BYTE* _5;           // 0x34
     DWORD _6[11];       // 0x38
     WORD _7;            // 0x64
     char szName2[16];   // 0x66
     WORD _8;            // 0x76
     DWORD _9[2];        // 0x78
-    RosterUnit *pNext;  // 0x80
+    RosterUnit* pNext;  // 0x80
 };
 
 struct QuestInfo {
-    void *pBuffer; // 0x00
+    void* pBuffer; // 0x00
     DWORD _1;      // 0x04
 };
 
@@ -245,12 +245,12 @@ struct Waypoint {
 
 struct PlayerData {
     char szName[0x10];            // 0x00
-    QuestInfo *pNormalQuest;      // 0x10
-    QuestInfo *pNightmareQuest;   // 0x14
-    QuestInfo *pHellQuest;        // 0x18
-    Waypoint *pNormalWaypoint;    // 0x1c
-    Waypoint *pNightmareWaypoint; // 0x20
-    Waypoint *pHellWaypoint;      // 0x24
+    QuestInfo* pNormalQuest;      // 0x10
+    QuestInfo* pNightmareQuest;   // 0x14
+    QuestInfo* pHellQuest;        // 0x18
+    Waypoint* pNormalWaypoint;    // 0x1c
+    Waypoint* pNightmareWaypoint; // 0x20
+    Waypoint* pHellWaypoint;      // 0x24
 };
 
 struct CollMap {
@@ -262,15 +262,15 @@ struct CollMap {
     DWORD dwPosRoomY;  // 0x14
     DWORD dwSizeRoomX; // 0x18
     DWORD dwSizeRoomY; // 0x1C
-    WORD *pMapStart;   // 0x20
-    WORD *pMapEnd;     // 0x22
+    WORD* pMapStart;   // 0x20
+    WORD* pMapEnd;     // 0x22
 };
 
 struct PresetUnit {
     DWORD _1;                // 0x00
     DWORD dwTxtFileNo;       // 0x04
     DWORD dwPosX;            // 0x08
-    PresetUnit *pPresetNext; // 0x0C
+    PresetUnit* pPresetNext; // 0x0C
     DWORD _3;                // 0x10
     DWORD dwType;            // 0x14
     DWORD dwPosY;            // 0x18
@@ -278,16 +278,16 @@ struct PresetUnit {
 
 struct Level {
     DWORD _1[4];        // 0x00
-    Room2 *pRoom2First; // 0x10
+    Room2* pRoom2First; // 0x10
     DWORD _2[2];        // 0x14
     DWORD dwPosX;       // 0x1C
     DWORD dwPosY;       // 0x20
     DWORD dwSizeX;      // 0x24
     DWORD dwSizeY;      // 0x28
     DWORD _3[96];       // 0x2C
-    Level *pNextLevel;  // 0x1AC
+    Level* pNextLevel;  // 0x1AC
     DWORD _4;           // 0x1B0
-    ActMisc *pMisc;     // 0x1B4
+    ActMisc* pMisc;     // 0x1B4
     DWORD _5[6];        // 0x1BC
     DWORD dwLevelNo;    // 0x1D0
     DWORD _6[3];        // 0x1D4
@@ -304,37 +304,37 @@ struct Level {
 
 struct Room2 {
     DWORD _1[2];        // 0x00
-    Room2 **pRoom2Near; // 0x08
+    Room2** pRoom2Near; // 0x08
     DWORD _2[5];        // 0x0C
     struct {
         DWORD dwRoomNumber;  // 0x00
         DWORD _1;            // 0x04
-        DWORD *pdwSubNumber; // 0x08
+        DWORD* pdwSubNumber; // 0x08
     } * pType2Info;          // 0x20
-    Room2 *pRoom2Next;       // 0x24
+    Room2* pRoom2Next;       // 0x24
     DWORD dwRoomFlags;       // 0x28
     DWORD dwRoomsNear;       // 0x2C
-    Room1 *pRoom1;           // 0x30
+    Room1* pRoom1;           // 0x30
     DWORD dwPosX;            // 0x34
     DWORD dwPosY;            // 0x38
     DWORD dwSizeX;           // 0x3C
     DWORD dwSizeY;           // 0x40
     DWORD _3;                // 0x44
     DWORD dwPresetType;      // 0x48
-    RoomTile *pRoomTiles;    // 0x4C
+    RoomTile* pRoomTiles;    // 0x4C
     DWORD _4[2];             // 0x50
-    Level *pLevel;           // 0x58
-    PresetUnit *pPreset;     // 0x5C
+    Level* pLevel;           // 0x58
+    PresetUnit* pPreset;     // 0x5C
 };
 
 #pragma pack(pop)
 
 struct Room1 {
-    Room1 **pRoomsNear;  // 0x00
+    Room1** pRoomsNear;  // 0x00
     DWORD _1[3];         // 0x04
-    Room2 *pRoom2;       // 0x10
+    Room2* pRoom2;       // 0x10
     DWORD _2[3];         // 0x14
-    CollMap *Coll;       // 0x20
+    CollMap* Coll;       // 0x20
     DWORD dwRoomsNear;   // 0x24
     DWORD _3[9];         // 0x28
     DWORD dwXStart;      // 0x4C
@@ -342,27 +342,27 @@ struct Room1 {
     DWORD dwXSize;       // 0x54
     DWORD dwYSize;       // 0x58
     DWORD _4[6];         // 0x5C
-    UnitAny *pUnitFirst; // 0x74
+    UnitAny* pUnitFirst; // 0x74
     DWORD _5;            // 0x78
-    Room1 *pRoomNext;    // 0x7C
+    Room1* pRoomNext;    // 0x7C
 };
 
 struct ActMisc {
     DWORD _1[37];           // 0x00
     DWORD dwStaffTombLevel; // 0x94
     DWORD _2[245];          // 0x98
-    Act *pAct;              // 0x46C
+    Act* pAct;              // 0x46C
     DWORD _3[3];            // 0x470
-    Level *pLevelFirst;     // 0x47C
+    Level* pLevelFirst;     // 0x47C
 };
 
 struct Act {
     DWORD _1[3];     // 0x00
     DWORD dwMapSeed; // 0x0C
-    Room1 *pRoom1;   // 0x10
+    Room1* pRoom1;   // 0x10
     DWORD dwAct;     // 0x14
     DWORD _2[12];    // 0x18
-    ActMisc *pMisc;  // 0x48
+    ActMisc* pMisc;  // 0x48
 };
 
 struct Path {
@@ -374,17 +374,17 @@ struct Path {
     WORD xTarget;         // 0x10
     WORD yTarget;         // 0x12
     DWORD _2[2];          // 0x14
-    Room1 *pRoom1;        // 0x1C
-    Room1 *pRoomUnk;      // 0x20
+    Room1* pRoom1;        // 0x1C
+    Room1* pRoomUnk;      // 0x20
     DWORD _3[3];          // 0x24
-    UnitAny *pUnit;       // 0x30
+    UnitAny* pUnit;       // 0x30
     DWORD dwFlags;        // 0x34
     DWORD _4;             // 0x38
     DWORD dwPathType;     // 0x3C
     DWORD dwPrevPathType; // 0x40
     DWORD dwUnitSize;     // 0x44
     DWORD _5[4];          // 0x48
-    UnitAny *pTargetUnit; // 0x58
+    UnitAny* pTargetUnit; // 0x58
     DWORD dwTargetType;   // 0x5C
     DWORD dwTargetId;     // 0x60
     BYTE bDirection;      // 0x64
@@ -404,7 +404,7 @@ struct Stat {
 };
 
 struct StatVector {
-    Stat *pStats;
+    Stat* pStats;
     WORD wCount;
     WORD wSize;
 };
@@ -412,18 +412,18 @@ struct StatVector {
 // Credits to SVR, http://phrozenkeep.hugelaser.com/forum/viewtopic.php?f=8&t=31458&p=224066
 struct StatList {
     DWORD _1;              // 0x00
-    UnitAny *pUnit;        // 0x04
+    UnitAny* pUnit;        // 0x04
     DWORD dwUnitType;      // 0x08
     DWORD dwUnitId;        // 0x0C
     DWORD dwFlags;         // 0x10
     DWORD _2[4];           // 0x14
     StatVector StatVec;    // 0x24
-    StatList *pPrevLink;   // 0x2C
+    StatList* pPrevLink;   // 0x2C
     DWORD _3;              // 0x30
-    StatList *pPrev;       // 0x34
+    StatList* pPrev;       // 0x34
     DWORD _4;              // 0x38
-    StatList *pNext;       // 0x3C
-    StatList *pSetList;    // 0x40
+    StatList* pNext;       // 0x3C
+    StatList* pSetList;    // 0x40
     DWORD _5;              // 0x44
     StatVector SetStatVec; // 0x48
     DWORD _6[2];           // 0x50
@@ -432,13 +432,13 @@ struct StatList {
 
 struct Inventory {
     DWORD dwSignature;    // 0x00
-    BYTE *bGame1C;        // 0x04
-    UnitAny *pOwner;      // 0x08
-    UnitAny *pFirstItem;  // 0x0C
-    UnitAny *pLastItem;   // 0x10
+    BYTE* bGame1C;        // 0x04
+    UnitAny* pOwner;      // 0x08
+    UnitAny* pFirstItem;  // 0x0C
+    UnitAny* pLastItem;   // 0x10
     DWORD _1[2];          // 0x14
     DWORD dwLeftItemUid;  // 0x1C
-    UnitAny *pCursorItem; // 0x20
+    UnitAny* pCursorItem; // 0x20
     DWORD dwOwnerId;      // 0x24
     DWORD dwItemCount;    // 0x28
 };
@@ -448,7 +448,7 @@ struct Light {
     DWORD dwType;        // 0x0C
     DWORD _2[7];         // 0x10
     DWORD dwStaticValid; // 0x2C
-    int *pnStaticMap;    // 0x30
+    int* pnStaticMap;    // 0x30
 };
 
 struct SkillInfo {
@@ -456,8 +456,8 @@ struct SkillInfo {
 };
 
 struct Skill {
-    SkillInfo *pSkillInfo; // 0x00
-    Skill *pNextSkill;     // 0x04
+    SkillInfo* pSkillInfo; // 0x00
+    Skill* pNextSkill;     // 0x04
     DWORD _1[8];           // 0x08
     DWORD dwSkillLevel;    // 0x28
     DWORD _2[2];           // 0x2C
@@ -467,10 +467,10 @@ struct Skill {
 };                         // size = 0x40
 
 struct Info {
-    BYTE *pGame1C;      // 0x00
-    Skill *pFirstSkill; // 0x04
-    Skill *pLeftSkill;  // 0x08
-    Skill *pRightSkill; // 0x0C
+    BYTE* pGame1C;      // 0x00
+    Skill* pFirstSkill; // 0x04
+    Skill* pLeftSkill;  // 0x08
+    Skill* pRightSkill; // 0x0C
 };
 
 struct ItemData {
@@ -496,14 +496,14 @@ struct ItemData {
     BYTE bEarLevel;             // 0x48
     BYTE bInvGfxIdx;            // 0x49
     char szPlayerName[16];      // 0x4A Personalized / Ear name
-    Inventory *pOwnerInventory; // 0x5C Socketed Items owner Inv
+    Inventory* pOwnerInventory; // 0x5C Socketed Items owner Inv
     DWORD _10;                  // 0x60
-    UnitAny *pNextInvItem;      // 0x64 Next item in socketed item if OwnerInventory is set
+    UnitAny* pNextInvItem;      // 0x64 Next item in socketed item if OwnerInventory is set
     BYTE GameLocation;          // 0x68 Location per docs.d2bs.org (unit.location)
     BYTE NodePage;              // 0x69 Actual location, this is the most reliable by far
     WORD _12;                   // 0x6A
     WORD _13[12];               // 0x6C
-    UnitAny *pOwner;            // 0x84
+    UnitAny* pOwner;            // 0x84
 };
 
 struct ItemTxt {
@@ -582,7 +582,7 @@ struct ObjectTxt {
 };
 
 struct ObjectData {
-    ObjectTxt *pTxt; // 0x00
+    ObjectTxt* pTxt; // 0x00
     union {
         BYTE Type; // 0x04 (0x0F would be a Exp Shrine)
         struct {
@@ -595,7 +595,7 @@ struct ObjectData {
 };
 
 struct ObjectPath {
-    Room1 *pRoom1; // 0x00
+    Room1* pRoom1; // 0x00
     DWORD _1[2];   // 0x04
     DWORD dwPosX;  // 0x0C
     DWORD dwPosY;  // 0x10
@@ -609,39 +609,39 @@ struct UnitAny {
     DWORD dwUnitId;    // 0x0C
     DWORD dwMode;      // 0x10
     union {
-        PlayerData *pPlayerData;
-        ItemData *pItemData;
-        MonsterData *pMonsterData;
-        ObjectData *pObjectData;
+        PlayerData* pPlayerData;
+        ItemData* pItemData;
+        MonsterData* pMonsterData;
+        ObjectData* pObjectData;
         // TileData *pTileData doesn't appear to exist anymore
     };               // 0x14
     DWORD dwAct;     // 0x18
-    Act *pAct;       // 0x1C
+    Act* pAct;       // 0x1C
     DWORD dwSeed[2]; // 0x20
     DWORD _2;        // 0x28
     union {
-        Path *pPath;
-        ItemPath *pItemPath;
-        ObjectPath *pObjectPath;
+        Path* pPath;
+        ItemPath* pItemPath;
+        ObjectPath* pObjectPath;
     };                        // 0x2C
     DWORD _3[5];              // 0x30
     DWORD dwGfxFrame;         // 0x44
     DWORD dwFrameRemain;      // 0x48
     WORD wFrameRate;          // 0x4C
     WORD _4;                  // 0x4E
-    BYTE *pGfxUnk;            // 0x50
-    DWORD *pGfxInfo;          // 0x54
+    BYTE* pGfxUnk;            // 0x50
+    DWORD* pGfxInfo;          // 0x54
     DWORD _5;                 // 0x58
-    StatList *pStats;         // 0x5C
-    Inventory *pInventory;    // 0x60
-    Light *ptLight;           // 0x64
+    StatList* pStats;         // 0x5C
+    Inventory* pInventory;    // 0x60
+    Light* ptLight;           // 0x64
     DWORD dwStartLightRadius; // 0x68
     WORD nPl2ShiftIdx;        // 0x6C
     WORD nUpdateType;         // 0x6E
-    UnitAny *pUpdateUnit;     // 0x70 - Used when updating unit.
-    DWORD *pQuestRecord;      // 0x74
+    UnitAny* pUpdateUnit;     // 0x70 - Used when updating unit.
+    DWORD* pQuestRecord;      // 0x74
     DWORD bSparklyChest;      // 0x78 bool
-    DWORD *pTimerArgs;        // 0x7C
+    DWORD* pTimerArgs;        // 0x7C
     DWORD dwSoundSync;        // 0x80
     DWORD _6[2];              // 0x84
     WORD wX;                  // 0x8C
@@ -650,19 +650,19 @@ struct UnitAny {
     DWORD dwOwnerType;        // 0x94
     DWORD dwOwnerId;          // 0x98
     DWORD _8[2];              // 0x9C
-    OverheadMsg *pOMsg;       // 0xA4
-    Info *pInfo;              // 0xA8
+    OverheadMsg* pOMsg;       // 0xA4
+    Info* pInfo;              // 0xA8
     DWORD _9[6];              // 0xAC
     DWORD dwFlags;            // 0xC4
     DWORD dwFlags2;           // 0xC8
     DWORD _10[5];             // 0xCC
-    UnitAny *pChangedNext;    // 0xE0
-    UnitAny *pListNext;       // 0xE4 -> 0xD8
-    UnitAny *pRoomNext;       // 0xE8
+    UnitAny* pChangedNext;    // 0xE0
+    UnitAny* pListNext;       // 0xE4 -> 0xD8
+    UnitAny* pRoomNext;       // 0xE8
 };
 
 struct UnitHashTable {
-    UnitAny *table[128];
+    UnitAny* table[128];
 };
 
 struct WardenClientRegion_t {
@@ -685,7 +685,7 @@ struct SMemBlock_t {
 };
 
 struct WardenClient_t {
-    WardenClientRegion_t *pWardenRegion; //+00
+    WardenClientRegion_t* pWardenRegion; //+00
     DWORD cbSize;                        //+04
     DWORD nModuleCount;                  //+08
     DWORD param;                         //+0c
@@ -745,29 +745,29 @@ struct InventoryLayout {
 struct MpqTable;
 
 struct sgptDataTable {
-    MpqTable *pPlayerClass;
+    MpqTable* pPlayerClass;
     DWORD dwPlayerClassRecords;
-    MpqTable *pBodyLocs;
+    MpqTable* pBodyLocs;
     DWORD dwBodyLocsRecords;
-    MpqTable *pStorePage;
+    MpqTable* pStorePage;
     DWORD dwStorePageRecords;
-    MpqTable *pElemTypes;
+    MpqTable* pElemTypes;
 };
 
 struct MessageHandlerList {
     DWORD message;
     DWORD unk_4;
-    DWORD(__stdcall *handler)(void *);
-    struct MessageHandlerList *next;
+    DWORD(__stdcall* handler)(void*);
+    struct MessageHandlerList* next;
 };
 
 struct MessageHandlerHashTable {
-    struct MessageHandlerList **table;
+    struct MessageHandlerList** table;
     DWORD length;
 };
 
 struct WindowHandlerHashTable {
-    struct WindowHandlerList **table;
+    struct WindowHandlerList** table;
     DWORD length;
 };
 
@@ -775,8 +775,8 @@ struct WindowHandlerList {
     DWORD unk_0;
     HWND hWnd;
     DWORD unk_8;
-    struct MessageHandlerHashTable *msgHandlers;
-    struct WindowHandlerList *next;
+    struct MessageHandlerHashTable* msgHandlers;
+    struct WindowHandlerList* next;
 };
 
 // Not sure of the location of handler and this struct inside Info.
@@ -785,7 +785,7 @@ struct WindowHandlerList {
 struct TransactionDialogsLine_t {
     wchar_t text[120];          // 0x000
     DWORD unk[6];               // 0x0F0
-    void(__stdcall *handler)(); // 0x108
+    void(__stdcall* handler)(); // 0x108
     DWORD bMaybeSelectable;     // 0x10C
 };
 
@@ -794,7 +794,7 @@ struct TransactionDialogsInfo_t {
     DWORD numLines;                           // 0x050
     DWORD unk_2[0x5];                         // 0x054
     TransactionDialogsLine_t dialogLines[10]; // 0x068
-    void *something;                          // 0xB08
+    void* something;                          // 0xB08
 };
 
 #pragma warning(pop)

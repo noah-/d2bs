@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////
 
 CLASS_CTOR(file);
-JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
+JSBool file_equality(JSContext* cx, JSObject* obj, jsval v, JSBool* bp);
 
 JSAPI_PROP(file_getProperty);
 JSAPI_STRICT_PROP(file_setProperty);
@@ -26,7 +26,7 @@ JSAPI_FUNC(file_flush);
 JSAPI_FUNC(file_reset);
 JSAPI_FUNC(file_end);
 
-void file_finalize(JSFreeOp *fop, JSObject *obj);
+void file_finalize(JSFreeOp* fop, JSObject* obj);
 
 /**
 File object:

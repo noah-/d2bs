@@ -25,7 +25,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
     case DLL_PROCESS_ATTACH: {
         DisableThreadLibraryCalls(hDll);
         if (lpReserved != NULL) {
-            Vars.pModule = (Module *)lpReserved;
+            Vars.pModule = (Module*)lpReserved;
 
             if (!Vars.pModule)
                 return FALSE;
@@ -41,11 +41,11 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
         }
 
         ParseCommandLine(GetCommandLineW());
-        sLine *command = NULL;
+        sLine* command = NULL;
 
         if (command = GetCommand(L"-title")) {
-            int len = wcslen((wchar_t *)command->szText);
-            wcsncat_s(Vars.szTitle, (wchar_t *)command->szText, len);
+            int len = wcslen((wchar_t*)command->szText);
+            wcsncat_s(Vars.szTitle, (wchar_t*)command->szText, len);
         }
 
         if (GetCommand(L"-sleepy"))
@@ -59,12 +59,12 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
 
         if (command = GetCommand(L"-d2c")) {
             Vars.bUseRawCDKey = 1;
-            const char *keys = UnicodeToAnsi(command->szText);
+            const char* keys = UnicodeToAnsi(command->szText);
             strncat_s(Vars.szClassic, keys, strlen(keys));
         }
 
         if (command = GetCommand(L"-d2x")) {
-            const char *keys = UnicodeToAnsi(command->szText);
+            const char* keys = UnicodeToAnsi(command->szText);
             strncat_s(Vars.szLod, keys, strlen(keys));
         }
 

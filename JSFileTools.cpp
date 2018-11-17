@@ -35,7 +35,7 @@ JSAPI_FUNC(filetools_remove) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "You must supply a file name");
 
-    char *file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     char fullpath[_MAX_PATH + _MAX_FNAME];
 
     if (getPathRelScript(file, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
@@ -52,8 +52,8 @@ JSAPI_FUNC(filetools_rename) {
     if (argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         THROW_ERROR(cx, "You must supply a new file name");
 
-    char *orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char *newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+    char* orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
 
     char porig[_MAX_PATH + _MAX_FNAME];
     char pnewName[_MAX_PATH + _MAX_FNAME];
@@ -76,8 +76,8 @@ JSAPI_FUNC(filetools_copy) {
     if (argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         THROW_ERROR(cx, "You must supply a new file name");
 
-    char *orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char *newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+    char* orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
     char pnewName[_MAX_PATH + _MAX_FNAME];
     bool overwrite = false;
 
@@ -90,8 +90,8 @@ JSAPI_FUNC(filetools_copy) {
     if (overwrite && _access(pnewName, 0) == 0)
         return JS_TRUE;
 
-    FILE *fptr1 = fileOpenRelScript(orig, "r", cx);
-    FILE *fptr2 = fileOpenRelScript(newName, "w", cx);
+    FILE* fptr1 = fileOpenRelScript(orig, "r", cx);
+    FILE* fptr2 = fileOpenRelScript(newName, "w", cx);
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr1 == NULL || fptr2 == NULL)
@@ -132,7 +132,7 @@ JSAPI_FUNC(filetools_copy) {
 JSAPI_FUNC(filetools_exists) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid file name");
-    char *file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     char fullpath[_MAX_PATH + _MAX_FNAME];
 
     if (getPathRelScript(file, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
@@ -146,15 +146,15 @@ JSAPI_FUNC(filetools_exists) {
 JSAPI_FUNC(filetools_readText) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "You must supply a file name");
-    char *fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE *fptr = fileOpenRelScript(fname, "r", cx);
+    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, "r", cx);
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr == NULL)
         return JS_FALSE;
 
     uint size, readCount;
-    char *contents;
+    char* contents;
 
     // Determine file size
     fseek(fptr, 0, SEEK_END);
@@ -189,8 +189,8 @@ JSAPI_FUNC(filetools_writeText) {
 
     EnterCriticalSection(&Vars.cFileSection);
 
-    char *fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE *fptr = fileOpenRelScript(fname, "w", cx);
+    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, "w", cx);
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error
@@ -219,8 +219,8 @@ JSAPI_FUNC(filetools_appendText) {
 
     EnterCriticalSection(&Vars.cFileSection);
 
-    char *fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE *fptr = fileOpenRelScript(fname, "a+", cx);
+    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, "a+", cx);
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error

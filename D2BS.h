@@ -69,7 +69,7 @@ struct Variables {
     int dwMemUsage;
     int dwConsoleFont;
     HANDLE eventSignal;
-    Module *pModule;
+    Module* pModule;
     HMODULE hModule;
     HWND hHandle;
 
@@ -91,7 +91,7 @@ struct Variables {
     long SectionCount;
 
     std::queue<std::string> qPrintBuffer;
-    std::map<unsigned __int32, CellFile *> mCachedCellFiles;
+    std::map<unsigned __int32, CellFile*> mCachedCellFiles;
     std::vector<std::pair<DWORD, DWORD>> vUnitList;
     // std::list<Event*> EventList;
     CRITICAL_SECTION cEventSection;

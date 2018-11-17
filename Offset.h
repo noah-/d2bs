@@ -12,20 +12,20 @@ typedef struct PatchHook_t {
     DWORD dwAddr;
     DWORD dwFunc;
     DWORD dwLen;
-    BYTE *bOldCode;
+    BYTE* bOldCode;
 } PatchHook;
 
 void DefineOffsets();
 DWORD GetDllOffset(int num);
-DWORD GetDllOffset(char *DllName, int Offset);
+DWORD GetDllOffset(char* DllName, int Offset);
 
-PatchHook *RetrievePatchHooks(PINT pBuffer);
+PatchHook* RetrievePatchHooks(PINT pBuffer);
 void PatchBytes(DWORD dwAddr, DWORD dwValue, DWORD dwLen);
 void PatchJmp(DWORD dwAddr, DWORD dwFunc, DWORD dwLen);
 void PatchCall(DWORD dwAddr, DWORD dwFunc, DWORD dwLen);
 void InterceptLocalCode(BYTE bInst, DWORD pAddr, DWORD pFunc, DWORD dwLen);
-void FillBytes(void *pAddr, BYTE bFill, DWORD dwLen);
-BOOL WriteBytes(void *pAddr, void *pData, DWORD dwLen);
+void FillBytes(void* pAddr, BYTE bFill, DWORD dwLen);
+BOOL WriteBytes(void* pAddr, void* pData, DWORD dwLen);
 void RemovePatches();
 void InstallPatches();
 void InstallConditional();

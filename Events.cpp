@@ -1,10 +1,10 @@
 #include "ScriptEngine.h"
 #include "D2BS.h"
 
-bool __fastcall LifeEventCallback(Script *script, void *argv, uint argc) {
-    SingleArgHelper *helper = (SingleArgHelper *)argv;
+bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc) {
+    SingleArgHelper* helper = (SingleArgHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("melife")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = _strdup("melife");
@@ -20,10 +20,10 @@ void LifeEvent(DWORD dwLife) {
     ScriptEngine::ForEachScript(LifeEventCallback, &helper, 1);
 }
 
-bool __fastcall ManaEventCallback(Script *script, void *argv, uint argc) {
-    SingleArgHelper *helper = (SingleArgHelper *)argv;
+bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc) {
+    SingleArgHelper* helper = (SingleArgHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("memana")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = _strdup("memana");
@@ -39,11 +39,11 @@ void ManaEvent(DWORD dwMana) {
     ScriptEngine::ForEachScript(ManaEventCallback, &helper, 1);
 }
 
-bool __fastcall KeyEventCallback(Script *script, void *argv, uint argc) {
-    KeyEventHelper *helper = (KeyEventHelper *)argv;
-    char *name = (helper->up ? "keyup" : "keydown");
+bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc) {
+    KeyEventHelper* helper = (KeyEventHelper*)argv;
+    char* name = (helper->up ? "keyup" : "keydown");
     if (script->IsRunning() && script->IsListenerRegistered(name)) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup(name);
@@ -54,7 +54,7 @@ bool __fastcall KeyEventCallback(Script *script, void *argv, uint argc) {
     bool block = false;
     name = (helper->up ? "keyupblocker" : "keydownblocker");
     if (script->IsRunning() && script->IsListenerRegistered(name)) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup(name);
@@ -66,7 +66,7 @@ bool __fastcall KeyEventCallback(Script *script, void *argv, uint argc) {
         if (WaitForSingleObject(Vars.eventSignal, 1000) == WAIT_TIMEOUT)
             return false;
 
-        bool *global = (bool *)evt->arg4;
+        bool* global = (bool*)evt->arg4;
         block = *global;
         free(evt->name);
         delete evt->arg1;
@@ -82,10 +82,10 @@ bool KeyDownUpEvent(WPARAM key, BYTE bUp) {
     return ScriptEngine::ForEachScript(KeyEventCallback, &helper, 2);
 }
 
-bool __fastcall PlayerAssignCallback(Script *script, void *argv, uint argc) {
-    SingleArgHelper *helper = (SingleArgHelper *)argv;
+bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc) {
+    SingleArgHelper* helper = (SingleArgHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("playerassign")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("playerassign");
@@ -101,10 +101,10 @@ void PlayerAssignEvent(DWORD dwUnitId) {
     ScriptEngine::ForEachScript(PlayerAssignCallback, &helper, 1);
 }
 
-bool __fastcall MouseClickCallback(Script *script, void *argv, uint argc) {
-    QuadArgHelper *helper = (QuadArgHelper *)argv;
+bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc) {
+    QuadArgHelper* helper = (QuadArgHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("mouseclick")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("mouseclick");
@@ -123,10 +123,10 @@ void MouseClickEvent(int button, POINT pt, bool bUp) {
     ScriptEngine::ForEachScript(MouseClickCallback, &helper, 4);
 }
 
-bool __fastcall MouseMoveCallback(Script *script, void *argv, uint argc) {
-    DoubleArgHelper *helper = (DoubleArgHelper *)argv;
+bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc) {
+    DoubleArgHelper* helper = (DoubleArgHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("mousemove")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("mousemove");
@@ -145,16 +145,16 @@ void MouseMoveEvent(POINT pt) {
     ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 2);
 }
 
-bool __fastcall BCastEventCallback(Script *script, void *argv, uint argc) {
-    BCastEventHelper *helper = (BCastEventHelper *)argv;
+bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) {
+    BCastEventHelper* helper = (BCastEventHelper*)argv;
 
     if (script->IsRunning() && script->IsListenerRegistered("scriptmsg")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("scriptmsg");
         evt->arg1 = new DWORD(argc);
-        evt->argv = new JSAutoStructuredCloneBuffer *;
+        evt->argv = new JSAutoStructuredCloneBuffer*;
         for (uintN i = 0; i < argc; i++) {
             evt->argv[i] = new JSAutoStructuredCloneBuffer;
             evt->argv[i]->write(helper->cx, helper->argv[i]);
@@ -165,15 +165,15 @@ bool __fastcall BCastEventCallback(Script *script, void *argv, uint argc) {
     return true;
 }
 
-void ScriptBroadcastEvent(JSContext *cx, uint argc, jsval *args) {
+void ScriptBroadcastEvent(JSContext* cx, uint argc, jsval* args) {
     BCastEventHelper helper = {cx, args, argc};
     ScriptEngine::ForEachScript(BCastEventCallback, &helper, argc);
 }
 
-bool __fastcall ChatEventCallback(Script *script, void *argv, uint argc) {
-    ChatEventHelper *helper = (ChatEventHelper *)argv;
+bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc) {
+    ChatEventHelper* helper = (ChatEventHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered(helper->name)) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = _strdup(helper->name);
@@ -187,7 +187,7 @@ bool __fastcall ChatEventCallback(Script *script, void *argv, uint argc) {
     bool block = false;
 
     if (script->IsRunning() && script->IsListenerRegistered(evtname.c_str())) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = _strdup(evtname.c_str());
@@ -200,7 +200,7 @@ bool __fastcall ChatEventCallback(Script *script, void *argv, uint argc) {
         if (WaitForSingleObject(Vars.eventSignal, 500) == WAIT_TIMEOUT)
             return false;
 
-        block = (*(DWORD *)evt->arg4);
+        block = (*(DWORD*)evt->arg4);
         free(evt->name);
         free(evt->arg1);
         free(evt->arg2);
@@ -210,25 +210,25 @@ bool __fastcall ChatEventCallback(Script *script, void *argv, uint argc) {
     return block;
 }
 
-bool ChatEvent(char *lpszNick, char *lpszMsg) {
+bool ChatEvent(char* lpszNick, char* lpszMsg) {
     ChatEventHelper helper = {"chatmsg", lpszNick, lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
-bool ChatInputEvent(char *lpszMsg) {
+bool ChatInputEvent(char* lpszMsg) {
     ChatEventHelper helper = {"chatinput", "me", lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
-bool WhisperEvent(char *lpszNick, char *lpszMsg) {
+bool WhisperEvent(char* lpszNick, char* lpszMsg) {
     ChatEventHelper helper = {"whispermsg", lpszNick, lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
-bool __fastcall CopyDataCallback(Script *script, void *argv, uint argc) {
-    CopyDataHelper *helper = (CopyDataHelper *)argv;
+bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc) {
+    CopyDataHelper* helper = (CopyDataHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("copydata")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("copydata");
@@ -240,15 +240,15 @@ bool __fastcall CopyDataCallback(Script *script, void *argv, uint argc) {
     return true;
 }
 
-void CopyDataEvent(DWORD dwMode, char *lpszMsg) {
+void CopyDataEvent(DWORD dwMode, char* lpszMsg) {
     CopyDataHelper helper = {dwMode, lpszMsg};
     ScriptEngine::ForEachScript(CopyDataCallback, &helper, 2);
 }
 
-bool __fastcall ItemEventCallback(Script *script, void *argv, uint argc) {
-    ItemEventHelper *helper = (ItemEventHelper *)argv;
+bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc) {
+    ItemEventHelper* helper = (ItemEventHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("itemaction")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("itemaction");
@@ -262,15 +262,15 @@ bool __fastcall ItemEventCallback(Script *script, void *argv, uint argc) {
     return true;
 }
 
-void ItemActionEvent(DWORD GID, char *Code, BYTE Mode, bool Global) {
+void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global) {
     ItemEventHelper helper = {GID, Code, Mode, Global};
     ScriptEngine::ForEachScript(ItemEventCallback, &helper, 4);
 }
 
-bool __fastcall GameActionEventCallback(Script *script, void *argv, uint argc) {
-    GameActionEventHelper *helper = (GameActionEventHelper *)argv;
+bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc) {
+    GameActionEventHelper* helper = (GameActionEventHelper*)argv;
     if (script->IsRunning() && script->IsListenerRegistered("gameevent")) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup("gameevent");
@@ -285,17 +285,17 @@ bool __fastcall GameActionEventCallback(Script *script, void *argv, uint argc) {
     return true;
 }
 
-void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char *name1, char *name2) {
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2) {
     GameActionEventHelper helper = {mode, param1, param2, name1, name2};
     ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 5);
 }
 
-bool __fastcall PacketEventCallback(Script *script, void *argv, uint argc) {
-    PacketEventHelper *helper = (PacketEventHelper *)argv;
+bool __fastcall PacketEventCallback(Script* script, void* argv, uint argc) {
+    PacketEventHelper* helper = (PacketEventHelper*)argv;
 
     if ((script->IsRunning() && script->IsListenerRegistered("realmpacket") && strcmp(helper->name, "realmpacket") == 0) ||
         (ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered(helper->name))) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
         evt->name = strdup(helper->name);
@@ -314,7 +314,7 @@ bool __fastcall PacketEventCallback(Script *script, void *argv, uint argc) {
         if (result == WAIT_TIMEOUT)
             return false;
 
-        bool retval = (*(DWORD *)evt->arg4);
+        bool retval = (*(DWORD*)evt->arg4);
         free(evt->name);
         delete[] evt->arg1;
         delete evt->arg2;
@@ -326,17 +326,17 @@ bool __fastcall PacketEventCallback(Script *script, void *argv, uint argc) {
     return false;
 }
 
-bool GamePacketEvent(BYTE *pPacket, DWORD dwSize) {
+bool GamePacketEvent(BYTE* pPacket, DWORD dwSize) {
     PacketEventHelper helper = {"gamepacket", pPacket, dwSize};
     return ScriptEngine::ForEachScript(PacketEventCallback, &helper, 3);
 }
 
-bool GamePacketSentEvent(BYTE *pPacket, DWORD dwSize) {
+bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize) {
     PacketEventHelper helper = {"gamepacketsent", pPacket, dwSize};
     return ScriptEngine::ForEachScript(PacketEventCallback, &helper, 3);
 }
 
-bool RealmPacketEvent(BYTE *pPacket, DWORD dwSize) {
+bool RealmPacketEvent(BYTE* pPacket, DWORD dwSize) {
     PacketEventHelper helper = {"realmpacket", pPacket, dwSize};
     return ScriptEngine::ForEachScript(PacketEventCallback, &helper, 3);
 }

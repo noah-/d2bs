@@ -57,70 +57,96 @@ class CArrayEx
   public:
     // Constructions & Destructor
     CArrayEx();
-    CArrayEx(const CArrayEx &src);
+    CArrayEx(const CArrayEx& src);
     virtual ~CArrayEx();
 
     // Sort & Search
     void Sort(BOOL bAscending = TRUE);
-    int IsSorted() const { return m_nSort; }
+    int IsSorted() const {
+        return m_nSort;
+    }
     int Find(ARG_TYPE tData, int nStartAt = 0) const;
     int ReverseFind(ARG_TYPE tData) const;
 
     // General Access
-    int GetSize() const { return m_nElementCount; }
-    int GetUpperBound() const { return m_nElementCount - 1; }
+    int GetSize() const {
+        return m_nElementCount;
+    }
+    int GetUpperBound() const {
+        return m_nElementCount - 1;
+    }
     BOOL SetSize(int nNewSize);
-    BOOL IsEmpty() const { return m_nElementCount == 0; }
-    BOOL IsIndexValid(int nIndex) const { return nIndex >= 0 && nIndex < m_nElementCount; }
+    BOOL IsEmpty() const {
+        return m_nElementCount == 0;
+    }
+    BOOL IsIndexValid(int nIndex) const {
+        return nIndex >= 0 && nIndex < m_nElementCount;
+    }
     BOOL FreeExtra();
-    BOOL Copy(const CArrayEx &src);
+    BOOL Copy(const CArrayEx& src);
 
     // Element Insertion & Removal
     int InsertAt(int nIndex, ARG_TYPE tData, int nCount = 1);
-    int InsertAt(int nIndex, const CArrayEx *pNewArray);
+    int InsertAt(int nIndex, const CArrayEx* pNewArray);
     int Add(ARG_TYPE tData, int nCount = 1);
-    int Append(const CArrayEx &src);
+    int Append(const CArrayEx& src);
     int RemoveAt(int nIndex, int nCount = 1);
-    BOOL RemoveLast() { return RemoveAt(m_nElementCount - 1, 1) > 0; }
-    void RemoveAll() { m_nElementCount = 0; }
+    BOOL RemoveLast() {
+        return RemoveAt(m_nElementCount - 1, 1) > 0;
+    }
+    void RemoveAll() {
+        m_nElementCount = 0;
+    }
 
     // Element Access
-    const TYPE &GetLast() const { return GetAt(m_nElementCount - 1); }
-    TYPE &GetLast() { return ElementAt(m_nElementCount - 1); }
-    const TYPE &GetAt(int nIndex) const;
-    BOOL SetLast(ARG_TYPE tData) { return SetAt(m_nElementCount - 1, tData); }
+    const TYPE& GetLast() const {
+        return GetAt(m_nElementCount - 1);
+    }
+    TYPE& GetLast() {
+        return ElementAt(m_nElementCount - 1);
+    }
+    const TYPE& GetAt(int nIndex) const;
+    BOOL SetLast(ARG_TYPE tData) {
+        return SetAt(m_nElementCount - 1, tData);
+    }
     BOOL SetAt(int nIndex, ARG_TYPE tData);
-    TYPE &ElementAt(int nIndex);
-    const TYPE *GetData() const { return m_pData; }
-    TYPE *GetData() {
+    TYPE& ElementAt(int nIndex);
+    const TYPE* GetData() const {
+        return m_pData;
+    }
+    TYPE* GetData() {
         m_nSort = AE_SORT_NONE;
         return m_pData;
     }
 
     // Operators
-    TYPE &operator[](int nIndex) { return ElementAt(nIndex); }
-    const TYPE &operator[](int nIndex) const { return GetAt(nIndex); }
-    const CArrayEx &operator=(const CArrayEx &src);
+    TYPE& operator[](int nIndex) {
+        return ElementAt(nIndex);
+    }
+    const TYPE& operator[](int nIndex) const {
+        return GetAt(nIndex);
+    }
+    const CArrayEx& operator=(const CArrayEx& src);
 
   protected:
     BOOL _MakeSpaces(int nIndex, int nCount = 1); // Make spaces for new elements
     BOOL _GrowSize(int nAdd);                     // dynamically grow array size
-    void _AdjustIdx(int &nIndex, BOOL bAllowGrow) const;
+    void _AdjustIdx(int& nIndex, BOOL bAllowGrow) const;
 
     // call-back compare functions
-    static int _CompareAscending(const void *p1, const void *p2);
-    static int _CompareDescending(const void *p1, const void *p2);
+    static int _CompareAscending(const void* p1, const void* p2);
+    static int _CompareDescending(const void* p1, const void* p2);
 
     // member data
     int m_nSort;         // sort states
     int m_nElementCount; // element count
     int m_nAllocSize;    // allocated size
-    TYPE *m_pData;       // data
+    TYPE* m_pData;       // data
 };
 
-template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::_CompareAscending(const void *p1, const void *p2) {
-    TYPE *pElement1 = (TYPE *)p1;
-    TYPE *pElement2 = (TYPE *)p2;
+template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::_CompareAscending(const void* p1, const void* p2) {
+    TYPE* pElement1 = (TYPE*)p1;
+    TYPE* pElement2 = (TYPE*)p2;
     ASSERT(pElement1 != NULL && pElement2 != NULL);
 
     if (*pElement1 == *pElement2)
@@ -132,7 +158,7 @@ template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::_CompareAsce
     return -1;
 }
 
-template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::_CompareDescending(const void *p1, const void *p2) {
+template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::_CompareDescending(const void* p1, const void* p2) {
     return _CompareAscending(p2, p1); // just reverse the order
 }
 
@@ -158,14 +184,14 @@ template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::Find(ARG_TYP
 
     if (m_nSort == AE_SORT_ASCENDING) // ascending
     {
-        void *p = ::bsearch(&tData, &m_pData[nStartAt], m_nElementCount - nStartAt, sizeof(TYPE), _CompareAscending);
+        void* p = ::bsearch(&tData, &m_pData[nStartAt], m_nElementCount - nStartAt, sizeof(TYPE), _CompareAscending);
         int nIndex = (p == NULL) ? -1 : int(((long)p - (long)m_pData) / sizeof(TYPE));
         while (nIndex > 0 && m_pData[nIndex - 1] == tData)
             nIndex--;
         return nIndex;
     } else if (m_nSort == AE_SORT_DESCENDING) // descending
     {
-        void *p = ::bsearch(&tData, &m_pData[nStartAt], m_nElementCount - nStartAt, sizeof(TYPE), _CompareDescending);
+        void* p = ::bsearch(&tData, &m_pData[nStartAt], m_nElementCount - nStartAt, sizeof(TYPE), _CompareDescending);
         int nIndex = (p == NULL) ? -1 : int(((long)p - (long)m_pData) / sizeof(TYPE));
         while (nIndex > 0 && m_pData[nIndex - 1] == tData)
             nIndex--;
@@ -186,14 +212,14 @@ template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::ReverseFind(
 
     if (m_nSort == AE_SORT_ASCENDING) // ascending
     {
-        void *p = ::bsearch(&tData, m_pData, m_nElementCount, sizeof(TYPE), _CompareAscending);
+        void* p = ::bsearch(&tData, m_pData, m_nElementCount, sizeof(TYPE), _CompareAscending);
         int nIndex = (p == NULL) ? -1 : int(((long)p - (long)m_pData) / sizeof(TYPE));
         while (nIndex < m_nElementCount - 1 && m_pData[nIndex + 1] == tData)
             nIndex++;
         return nIndex;
     } else if (m_nSort == AE_SORT_DESCENDING) // descending
     {
-        void *p = ::bsearch(&tData, m_pData, m_nElementCount, sizeof(TYPE), _CompareDescending);
+        void* p = ::bsearch(&tData, m_pData, m_nElementCount, sizeof(TYPE), _CompareDescending);
         int nIndex = (p == NULL) ? -1 : int(((long)p - (long)m_pData) / sizeof(TYPE));
         while (nIndex < m_nElementCount - 1 && m_pData[nIndex + 1] == tData)
             nIndex++;
@@ -215,7 +241,7 @@ template <class TYPE, class ARG_TYPE> CArrayEx<TYPE, ARG_TYPE>::CArrayEx() {
     m_pData = NULL;
 };
 
-template <class TYPE, class ARG_TYPE> CArrayEx<TYPE, ARG_TYPE>::CArrayEx(const CArrayEx &src) {
+template <class TYPE, class ARG_TYPE> CArrayEx<TYPE, ARG_TYPE>::CArrayEx(const CArrayEx& src) {
     m_nSort = AE_SORT_NONE;
     m_nElementCount = 0;
     m_nAllocSize = 0;
@@ -262,7 +288,7 @@ template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::InsertAt(int
 }
 
 // insert a whole array
-template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::InsertAt(int nIndex, const CArrayEx *pNewArray) {
+template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::InsertAt(int nIndex, const CArrayEx* pNewArray) {
     if (pNewArray == NULL || pNewArray->GetSize() < 1)
         return -1;
 
@@ -299,7 +325,7 @@ template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::FreeExtra()
 
     // reallocate data array with optimized size
     m_nAllocSize = m_nElementCount;
-    TYPE *p = new TYPE[m_nAllocSize];
+    TYPE* p = new TYPE[m_nAllocSize];
     if (p == NULL)
         return FALSE;
 
@@ -311,7 +337,7 @@ template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::FreeExtra()
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::Copy(const CArrayEx &src) {
+template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::Copy(const CArrayEx& src) {
     if (!SetSize(src.m_nElementCount))
         return FALSE;
 
@@ -321,7 +347,7 @@ template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::Copy(const 
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::Append(const CArrayEx &src) {
+template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::Append(const CArrayEx& src) {
     int nAppenedeAt = src.m_nElementCount > 0 ? m_nElementCount : -1;
     if (!_GrowSize(src.m_nElementCount))
         return -1;
@@ -335,7 +361,7 @@ template <class TYPE, class ARG_TYPE> int CArrayEx<TYPE, ARG_TYPE>::Append(const
     return nAppenedeAt;
 }
 
-template <class TYPE, class ARG_TYPE> void CArrayEx<TYPE, ARG_TYPE>::_AdjustIdx(int &nIndex, BOOL bAllowGrow) const {
+template <class TYPE, class ARG_TYPE> void CArrayEx<TYPE, ARG_TYPE>::_AdjustIdx(int& nIndex, BOOL bAllowGrow) const {
     if (nIndex < 0)
         nIndex = 0;
 
@@ -367,7 +393,7 @@ template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::_GrowSize(i
     while (m_nAllocSize < m_nElementCount + nAdd)
         m_nAllocSize *= 2;
 
-    TYPE *pNew = new TYPE[m_nAllocSize];
+    TYPE* pNew = new TYPE[m_nAllocSize];
     if (pNew == NULL)
         return FALSE; // out of memory
 
@@ -389,18 +415,18 @@ template <class TYPE, class ARG_TYPE> BOOL CArrayEx<TYPE, ARG_TYPE>::SetAt(int n
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> TYPE &CArrayEx<TYPE, ARG_TYPE>::ElementAt(int nIndex) {
+template <class TYPE, class ARG_TYPE> TYPE& CArrayEx<TYPE, ARG_TYPE>::ElementAt(int nIndex) {
     ASSERT(IsIndexValid(nIndex));
     m_nSort = AE_SORT_NONE;
     return m_pData[nIndex];
 }
 
-template <class TYPE, class ARG_TYPE> const TYPE &CArrayEx<TYPE, ARG_TYPE>::GetAt(int nIndex) const {
+template <class TYPE, class ARG_TYPE> const TYPE& CArrayEx<TYPE, ARG_TYPE>::GetAt(int nIndex) const {
     ASSERT(IsIndexValid(nIndex));
     return m_pData[nIndex];
 }
 
-template <class TYPE, class ARG_TYPE> const CArrayEx<TYPE, ARG_TYPE> &CArrayEx<TYPE, ARG_TYPE>::operator=(const CArrayEx &src) {
+template <class TYPE, class ARG_TYPE> const CArrayEx<TYPE, ARG_TYPE>& CArrayEx<TYPE, ARG_TYPE>::operator=(const CArrayEx& src) {
     if (!Copy(src))
         ASSERT(FALSE);
     return *this;

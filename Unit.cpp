@@ -11,11 +11,11 @@ using namespace std;
 
 // TODO: If UnitId is the unique id of the unit, we can just look up that
 // location in the table
-static UnitAny *GetUnitFromTables(UnitHashTable *unitTables, DWORD dwTypeLow, DWORD dwTypeHigh, char *szName, DWORD dwClassId, DWORD dwType, DWORD dwMode,
+static UnitAny* GetUnitFromTables(UnitHashTable* unitTables, DWORD dwTypeLow, DWORD dwTypeHigh, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode,
                                   DWORD dwUnitId) {
     unsigned int i, j;
     unsigned int hashLow, hashHigh;
-    UnitAny *tmpUnit;
+    UnitAny* tmpUnit;
 
     if (dwUnitId != -1)
         hashLow = hashHigh = dwUnitId & 0x7F; // % 128
@@ -39,7 +39,7 @@ static UnitAny *GetUnitFromTables(UnitHashTable *unitTables, DWORD dwTypeLow, DW
     return NULL;
 }
 
-UnitAny *GetUnit(char *szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId) {
+UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId) {
     if (ClientState() != ClientStateInGame)
         return NULL;
 
@@ -92,12 +92,14 @@ UnitAny *GetUnit(char *szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
             return NULL;*/
 }
 
-static DWORD dwMax(DWORD a, DWORD b) { return a > b ? a : b; }
+static DWORD dwMax(DWORD a, DWORD b) {
+    return a > b ? a : b;
+}
 
-static UnitAny *GetNextUnitFromTables(UnitAny *curUnit, UnitHashTable *unitTables, DWORD dwTypeLow, DWORD dwTypeHigh, char *szName, DWORD dwClassId,
-                                      DWORD dwType, DWORD dwMode) {
+static UnitAny* GetNextUnitFromTables(UnitAny* curUnit, UnitHashTable* unitTables, DWORD dwTypeLow, DWORD dwTypeHigh, char* szName, DWORD dwClassId, DWORD dwType,
+                                      DWORD dwMode) {
     unsigned int i, j;
-    UnitAny *tmpUnit;
+    UnitAny* tmpUnit;
 
     // If we're looking for the same type unit, or any type then finish off the
     // current inner iterations
@@ -134,7 +136,7 @@ static UnitAny *GetNextUnitFromTables(UnitAny *curUnit, UnitHashTable *unitTable
     return NULL;
 }
 
-UnitAny *GetNextUnit(UnitAny *pUnit, char *szName, DWORD dwClassId, DWORD dwType, DWORD dwMode) {
+UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode) {
     if (ClientState() != ClientStateInGame)
         return NULL;
 
@@ -209,8 +211,8 @@ UnitAny *GetNextUnit(UnitAny *pUnit, char *szName, DWORD dwClassId, DWORD dwType
             return NULL;*/
 }
 
-UnitAny *GetInvUnit(UnitAny *pOwner, char *szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId) {
-    for (UnitAny *pItem = D2COMMON_GetItemFromInventory(pOwner->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
+UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId) {
+    for (UnitAny* pItem = D2COMMON_GetItemFromInventory(pOwner->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
         if (CheckUnit(pItem, szName, dwClassId, 4, dwMode, dwUnitId))
             return pItem;
     }
@@ -218,12 +220,12 @@ UnitAny *GetInvUnit(UnitAny *pOwner, char *szName, DWORD dwClassId, DWORD dwMode
     return NULL;
 }
 
-UnitAny *GetInvNextUnit(UnitAny *pUnit, UnitAny *pOwner, char *szName, DWORD dwClassId, DWORD dwMode) {
+UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode) {
     if (pUnit->dwType == UNIT_ITEM) {
         // Check first if it belongs to a person
         if (pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory == pOwner->pInventory) {
             // Get the next matching unit from the owner's inventory
-            for (UnitAny *pItem = D2COMMON_GetNextItemFromInventory(pUnit); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
+            for (UnitAny* pItem = D2COMMON_GetNextItemFromInventory(pUnit); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
                 if (CheckUnit(pItem, szName, dwClassId, 4, dwMode, (DWORD)-1))
                     return pItem;
             }
@@ -233,7 +235,7 @@ UnitAny *GetInvNextUnit(UnitAny *pUnit, UnitAny *pOwner, char *szName, DWORD dwC
     return NULL;
 }
 
-BOOL CheckUnit(UnitAny *pUnit, char *szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId) {
+BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId) {
     if ((dwUnitId != -1 && pUnit->dwUnitId != dwUnitId) || (dwType != -1 && pUnit->dwType != dwType) || (dwClassId != -1 && pUnit->dwTxtFileNo != dwClassId))
         return FALSE;
 
@@ -269,6 +271,10 @@ BOOL CheckUnit(UnitAny *pUnit, char *szName, DWORD dwClassId, DWORD dwType, DWOR
     return TRUE;
 }
 
-int GetUnitHP(UnitAny *pUnit) { return (int)(D2COMMON_GetUnitStat(pUnit, STAT_HP, 0) >> 8); }
+int GetUnitHP(UnitAny* pUnit) {
+    return (int)(D2COMMON_GetUnitStat(pUnit, STAT_HP, 0) >> 8);
+}
 
-int GetUnitMP(UnitAny *pUnit) { return (int)(D2COMMON_GetUnitStat(pUnit, STAT_MANA, 0) >> 8); }
+int GetUnitMP(UnitAny* pUnit) {
+    return (int)(D2COMMON_GetUnitStat(pUnit, STAT_MANA, 0) >> 8);
+}

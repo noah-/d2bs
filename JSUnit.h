@@ -34,12 +34,12 @@ JSAPI_FUNC(unit_getMinionCount);
 JSAPI_FUNC(me_getRepairCost);
 JSAPI_FUNC(item_getItemCost);
 
-void unit_finalize(JSFreeOp *fop, JSObject *obj);
+void unit_finalize(JSFreeOp* fop, JSObject* obj);
 
 JSAPI_PROP(unit_getProperty);
 JSAPI_STRICT_PROP(unit_setProperty);
 
-JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
+JSBool unit_equal(JSContext* cx, JSObject* obj, jsval v, JSBool* bp);
 
 struct myUnit {
     DWORD _dwPrivateType;
@@ -297,13 +297,11 @@ static JSPropertySpec unit_props[] = {{"type", UNIT_TYPE, JSPROP_PERMANENT_VAR, 
 static JSFunctionSpec unit_methods[] = {
     JS_FS("getNext", unit_getNext, 0, FUNCTION_FLAGS), JS_FS("cancel", unit_cancel, 0, FUNCTION_FLAGS), JS_FS("repair", unit_repair, 0, FUNCTION_FLAGS),
     JS_FS("useMenu", unit_useMenu, 0, FUNCTION_FLAGS), JS_FS("interact", unit_interact, 0, FUNCTION_FLAGS), JS_FS("getItem", unit_getItem, 3, FUNCTION_FLAGS),
-    JS_FS("getItems", unit_getItems, 0, FUNCTION_FLAGS), JS_FS("getMerc", unit_getMerc, 0, FUNCTION_FLAGS),
-    JS_FS("getMercHP", unit_getMercHP, 0, FUNCTION_FLAGS), JS_FS("getSkill", unit_getSkill, 0, FUNCTION_FLAGS),
-    JS_FS("getParent", unit_getParent, 0, FUNCTION_FLAGS), JS_FS("overhead", my_overhead, 0, FUNCTION_FLAGS), JS_FS("revive", my_revive, 0, FUNCTION_FLAGS),
-    JS_FS("getFlags", item_getFlags, 1, FUNCTION_FLAGS), JS_FS("getFlag", item_getFlag, 1, FUNCTION_FLAGS), JS_FS("getStat", unit_getStat, 1, FUNCTION_FLAGS),
-    JS_FS("getState", unit_getState, 1, FUNCTION_FLAGS),
+    JS_FS("getItems", unit_getItems, 0, FUNCTION_FLAGS), JS_FS("getMerc", unit_getMerc, 0, FUNCTION_FLAGS), JS_FS("getMercHP", unit_getMercHP, 0, FUNCTION_FLAGS),
+    JS_FS("getSkill", unit_getSkill, 0, FUNCTION_FLAGS), JS_FS("getParent", unit_getParent, 0, FUNCTION_FLAGS), JS_FS("overhead", my_overhead, 0, FUNCTION_FLAGS),
+    JS_FS("revive", my_revive, 0, FUNCTION_FLAGS), JS_FS("getFlags", item_getFlags, 1, FUNCTION_FLAGS), JS_FS("getFlag", item_getFlag, 1, FUNCTION_FLAGS),
+    JS_FS("getStat", unit_getStat, 1, FUNCTION_FLAGS), JS_FS("getState", unit_getState, 1, FUNCTION_FLAGS),
     //	{"geSPrice",		item_getPrice,		1},
     JS_FS("getEnchant", unit_getEnchant, 1, FUNCTION_FLAGS), JS_FS("shop", item_shop, 2, FUNCTION_FLAGS), JS_FS("setSkill", unit_setskill, 2, FUNCTION_FLAGS),
-    JS_FS("move", unit_move, 2, FUNCTION_FLAGS), JS_FS("getQuest", unit_getQuest, 2, FUNCTION_FLAGS),
-    JS_FS("getMinionCount", unit_getMinionCount, 1, FUNCTION_FLAGS), JS_FS("getRepairCost", me_getRepairCost, 1, FUNCTION_FLAGS),
-    JS_FS("getItemCost", item_getItemCost, 1, FUNCTION_FLAGS), JS_FS_END};
+    JS_FS("move", unit_move, 2, FUNCTION_FLAGS), JS_FS("getQuest", unit_getQuest, 2, FUNCTION_FLAGS), JS_FS("getMinionCount", unit_getMinionCount, 1, FUNCTION_FLAGS),
+    JS_FS("getRepairCost", me_getRepairCost, 1, FUNCTION_FLAGS), JS_FS("getItemCost", item_getItemCost, 1, FUNCTION_FLAGS), JS_FS_END};

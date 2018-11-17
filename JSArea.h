@@ -6,7 +6,7 @@
 
 CLASS_CTOR(area);
 
-void area_finalize(JSFreeOp *fop, JSObject *obj);
+void area_finalize(JSFreeOp* fop, JSObject* obj);
 
 JSAPI_PROP(area_getProperty);
 
@@ -26,7 +26,7 @@ static JSPropertySpec area_props[] = {{"exits", AUNIT_EXITS, JSPROP_PERMANENT_VA
 struct myArea {
     DWORD AreaId;
     DWORD Exits;
-    JSObject *ExitArray;
+    JSObject* ExitArray;
 };
 
 #endif

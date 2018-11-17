@@ -52,29 +52,29 @@ class CMatrix
     /////////////////////////////////////////////////////////////
     BOOL IsCreated() const;
     BOOL IsValidIndex(int x, int y) const;
-    const TYPE &GetAt(int x, int y) const;
-    TYPE &ElementAt(int x, int y);
+    const TYPE& GetAt(int x, int y) const;
+    TYPE& ElementAt(int x, int y);
     BOOL SetAt(int x, int y, ARG_TYPE data);
-    TYPE **GetData();
-    const TYPE **GetData() const;
+    TYPE** GetData();
+    const TYPE** GetData() const;
     int GetCX() const;
     int GetCY() const;
-    BOOL ImportData(const TYPE **ppSrc, int cx, int cy);
-    BOOL ImportData(const CMatrix &rSrc);
-    SIZE ExportData(TYPE **ppBuffer, int cx, int cy) const;
-    BOOL ExportData(CMatrix &rMatrix) const;
+    BOOL ImportData(const TYPE** ppSrc, int cx, int cy);
+    BOOL ImportData(const CMatrix& rSrc);
+    SIZE ExportData(TYPE** ppBuffer, int cx, int cy) const;
+    BOOL ExportData(CMatrix& rMatrix) const;
 
     /////////////////////////////////////////////////////////////
     // Operator Overloads
     /////////////////////////////////////////////////////////////
-    TYPE *operator[](int nIndex);
-    const TYPE *operator[](int nIndex) const;
+    TYPE* operator[](int nIndex);
+    const TYPE* operator[](int nIndex) const;
 
   protected:
     /////////////////////////////////////////////////////////////
     // Member Data
     /////////////////////////////////////////////////////////////
-    TYPE **m_ppData; // The matrix data array
+    TYPE** m_ppData; // The matrix data array
     int m_cx;        // Matrix size x
     int m_cy;        // Matrix size y
 };
@@ -85,7 +85,9 @@ template <class TYPE, class ARG_TYPE> CMatrix<TYPE, ARG_TYPE>::CMatrix() {
     m_cy = 0;
 }
 
-template <class TYPE, class ARG_TYPE> CMatrix<TYPE, ARG_TYPE>::~CMatrix() { Destroy(); }
+template <class TYPE, class ARG_TYPE> CMatrix<TYPE, ARG_TYPE>::~CMatrix() {
+    Destroy();
+}
 
 template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::Create(int cx, int cy) {
     Destroy();
@@ -95,11 +97,11 @@ template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::Create(int c
     m_cx = cx;
     m_cy = cy;
 
-    m_ppData = new TYPE *[m_cx];
+    m_ppData = new TYPE*[m_cx];
     if (m_ppData == NULL)
         return FALSE;
 
-    ::memset(m_ppData, 0, m_cx * sizeof(TYPE *));
+    ::memset(m_ppData, 0, m_cx * sizeof(TYPE*));
     for (int i = 0; i < m_cx; i++) {
         m_ppData[i] = new TYPE[m_cy];
         if (m_ppData[i] == NULL) {
@@ -144,12 +146,12 @@ template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::IsValidIndex
     return m_ppData != NULL && x >= 0 && x < m_cx && y >= 0 && y < m_cy;
 }
 
-template <class TYPE, class ARG_TYPE> const TYPE &CMatrix<TYPE, ARG_TYPE>::GetAt(int x, int y) const {
+template <class TYPE, class ARG_TYPE> const TYPE& CMatrix<TYPE, ARG_TYPE>::GetAt(int x, int y) const {
     ASSERT(IsValidIndex(x, y));
     return m_ppData[x][y];
 }
 
-template <class TYPE, class ARG_TYPE> TYPE &CMatrix<TYPE, ARG_TYPE>::ElementAt(int x, int y) {
+template <class TYPE, class ARG_TYPE> TYPE& CMatrix<TYPE, ARG_TYPE>::ElementAt(int x, int y) {
     ASSERT(IsValidIndex(x, y));
     return m_ppData[x][y];
 }
@@ -162,31 +164,41 @@ template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::SetAt(int x,
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> TYPE **CMatrix<TYPE, ARG_TYPE>::GetData() { return m_ppData; }
+template <class TYPE, class ARG_TYPE> TYPE** CMatrix<TYPE, ARG_TYPE>::GetData() {
+    return m_ppData;
+}
 
-template <class TYPE, class ARG_TYPE> const TYPE **CMatrix<TYPE, ARG_TYPE>::GetData() const { return (const TYPE **)m_ppData; }
+template <class TYPE, class ARG_TYPE> const TYPE** CMatrix<TYPE, ARG_TYPE>::GetData() const {
+    return (const TYPE**)m_ppData;
+}
 
-template <class TYPE, class ARG_TYPE> TYPE *CMatrix<TYPE, ARG_TYPE>::operator[](int nIndex) {
+template <class TYPE, class ARG_TYPE> TYPE* CMatrix<TYPE, ARG_TYPE>::operator[](int nIndex) {
     if (nIndex < 0 || nIndex >= m_cx)
         return NULL;
 
     return m_ppData[nIndex];
 }
 
-template <class TYPE, class ARG_TYPE> const TYPE *CMatrix<TYPE, ARG_TYPE>::operator[](int nIndex) const {
+template <class TYPE, class ARG_TYPE> const TYPE* CMatrix<TYPE, ARG_TYPE>::operator[](int nIndex) const {
     if (nIndex < 0 || nIndex >= m_cx)
         return NULL;
 
-    return (const TYPE *)m_ppData[nIndex];
+    return (const TYPE*)m_ppData[nIndex];
 }
 
-template <class TYPE, class ARG_TYPE> int CMatrix<TYPE, ARG_TYPE>::GetCX() const { return m_cx; }
+template <class TYPE, class ARG_TYPE> int CMatrix<TYPE, ARG_TYPE>::GetCX() const {
+    return m_cx;
+}
 
-template <class TYPE, class ARG_TYPE> int CMatrix<TYPE, ARG_TYPE>::GetCY() const { return m_cy; }
+template <class TYPE, class ARG_TYPE> int CMatrix<TYPE, ARG_TYPE>::GetCY() const {
+    return m_cy;
+}
 
-template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::IsCreated() const { return m_ppData != NULL; }
+template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::IsCreated() const {
+    return m_ppData != NULL;
+}
 
-template <class TYPE, class ARG_TYPE> SIZE CMatrix<TYPE, ARG_TYPE>::ExportData(TYPE **ppBuffer, int cx, int cy) const {
+template <class TYPE, class ARG_TYPE> SIZE CMatrix<TYPE, ARG_TYPE>::ExportData(TYPE** ppBuffer, int cx, int cy) const {
     SIZE cz = {0};
 
     if (ppBuffer == m_ppData) {
@@ -209,7 +221,7 @@ template <class TYPE, class ARG_TYPE> SIZE CMatrix<TYPE, ARG_TYPE>::ExportData(T
     return cz;
 }
 
-template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ExportData(CMatrix &rMatrix) const {
+template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ExportData(CMatrix& rMatrix) const {
     if (&rMatrix == this)
         return IsCreated();
 
@@ -229,7 +241,7 @@ template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ExportData(C
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ImportData(const TYPE **ppSrc, int cx, int cy) {
+template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ImportData(const TYPE** ppSrc, int cx, int cy) {
     if (ppSrc == m_ppData)
         return IsCreated();
 
@@ -248,6 +260,8 @@ template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ImportData(c
     return TRUE;
 }
 
-template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ImportData(const CMatrix &rSrc) { return rSrc.ExportData(*this); }
+template <class TYPE, class ARG_TYPE> BOOL CMatrix<TYPE, ARG_TYPE>::ImportData(const CMatrix& rSrc) {
+    return rSrc.ExportData(*this);
+}
 
 #endif // __MATRIX_H__
