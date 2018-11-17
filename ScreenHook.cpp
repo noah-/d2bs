@@ -21,7 +21,7 @@ void DrawLogo(void) {
     if (img[0] == '\0')
         sprintf_s(img, sizeof(img), "%sversion.bmp", Vars.szPath);
 
-    CellFile *vimg = LoadCellFile(img, FALSE);
+    CellFile* vimg = LoadCellFile(img, FALSE);
     int dx = (GetScreenSize().x / 2);
     if (!Console::IsVisible()) {
         myDrawAutomapCell(vimg, dx, 9, 0);
@@ -32,28 +32,30 @@ void DrawLogo(void) {
     }
 }
 
-bool zOrderSort(Genhook *first, Genhook *second) { return first->GetZOrder() < second->GetZOrder(); }
+bool zOrderSort(Genhook* first, Genhook* second) {
+    return first->GetZOrder() < second->GetZOrder();
+}
 
-bool __fastcall HoverHook(Genhook *hook, void *argv, uint argc) {
-    HookClickHelper *helper = (HookClickHelper *)argv;
+bool __fastcall HoverHook(Genhook* hook, void* argv, uint argc) {
+    HookClickHelper* helper = (HookClickHelper*)argv;
     hook->Hover(&helper->point);
     return true;
 }
 
-bool __fastcall ClickHook(Genhook *hook, void *argv, uint argc) {
-    HookClickHelper *helper = (HookClickHelper *)argv;
+bool __fastcall ClickHook(Genhook* hook, void* argv, uint argc) {
+    HookClickHelper* helper = (HookClickHelper*)argv;
     return hook->Click(helper->button, &helper->point);
 }
 
-bool __fastcall DrawHook(Genhook *hook, void *argv, uint argc) {
+bool __fastcall DrawHook(Genhook* hook, void* argv, uint argc) {
     if ((hook->GetGameState() == (ScreenhookState)(int)argv || hook->GetGameState() == Perm) &&
         (!hook->GetIsAutomap() || (hook->GetIsAutomap() && *p_D2CLIENT_AutomapOn)))
         hook->Draw();
     return true;
 }
 
-bool __fastcall CleanHook(Genhook *hook, void *argv, uint argc) {
-    if (hook->owner == (Script *)argv)
+bool __fastcall CleanHook(Genhook* hook, void* argv, uint argc) {
+    if (hook->owner == (Script*)argv)
         hook->SetIsVisible(false);
     return true;
 }
@@ -61,16 +63,16 @@ bool __fastcall CleanHook(Genhook *hook, void *argv, uint argc) {
 void Genhook::DrawAll(ScreenhookState type) {
     if (!init)
         return;
-    ForEachVisibleHook(DrawHook, (void *)type, 1);
+    ForEachVisibleHook(DrawHook, (void*)type, 1);
 }
 
-bool Genhook::ForEachHook(HookCallback proc, void *argv, uint argc) {
+bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc) {
     // iterate the visible ones, then the invisible ones
     EnterCriticalSection(&globalSection);
 
     bool result = false;
     bool result2 = false;
-    std::vector<Genhook *> list;
+    std::vector<Genhook*> list;
     for (HookIterator it = visible.begin(); it != visible.end(); it++)
         list.push_back(*it);
     int count = list.size();
@@ -95,12 +97,12 @@ bool Genhook::ForEachHook(HookCallback proc, void *argv, uint argc) {
     return (result ? true : (result2 ? true : false));
 }
 
-bool Genhook::ForEachVisibleHook(HookCallback proc, void *argv, uint argc) {
+bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc) {
     // iterate the visible hooks
     EnterCriticalSection(&globalSection);
 
     bool result = false;
-    std::vector<Genhook *> list;
+    std::vector<Genhook*> list;
     for (HookIterator it = visible.begin(); it != visible.end(); it++)
         list.push_back(*it);
 
@@ -113,12 +115,12 @@ bool Genhook::ForEachVisibleHook(HookCallback proc, void *argv, uint argc) {
     LeaveCriticalSection(&globalSection);
     return result;
 }
-bool Genhook::ForEachVisibleHookUnLocked(HookCallback proc, void *argv, uint argc) {
+bool Genhook::ForEachVisibleHookUnLocked(HookCallback proc, void* argv, uint argc) {
     // iterate the visible hooks  //unlocked to call funcs, locked to draw
     EnterCriticalSection(&globalSection);
 
     bool result = false;
-    std::vector<Genhook *> list;
+    std::vector<Genhook*> list;
     for (HookIterator it = visible.begin(); it != visible.end(); it++)
         list.push_back(*it);
 
@@ -132,12 +134,12 @@ bool Genhook::ForEachVisibleHookUnLocked(HookCallback proc, void *argv, uint arg
 
     return result;
 }
-bool Genhook::ForEachInvisibleHook(HookCallback proc, void *argv, uint argc) {
+bool Genhook::ForEachInvisibleHook(HookCallback proc, void* argv, uint argc) {
     // iterate the invisible hooks
     EnterCriticalSection(&globalSection);
 
     bool result = false;
-    std::vector<Genhook *> list;
+    std::vector<Genhook*> list;
     for (HookIterator it = invisible.begin(); it != invisible.end(); it++)
         list.push_back(*it);
     int count = list.size();
@@ -150,7 +152,7 @@ bool Genhook::ForEachInvisibleHook(HookCallback proc, void *argv, uint argc) {
     return result;
 }
 
-void Genhook::Clean(Script *owner) {
+void Genhook::Clean(Script* owner) {
     if (!init)
         return;
 
@@ -160,7 +162,7 @@ void Genhook::Clean(Script *owner) {
     HookIterator it = visible.begin();
     while (it != visible.end()) {
         if ((*it)->owner->IsAborted()) {
-            Genhook *i = *it;
+            Genhook* i = *it;
             it = invisible.erase(it);
             //	delete(i);
         } else
@@ -170,7 +172,7 @@ void Genhook::Clean(Script *owner) {
     it = invisible.begin();
     while (it != invisible.end()) {
         if ((*it)->owner == owner) {
-            Genhook *i = *it;
+            Genhook* i = *it;
             it = invisible.erase(it);
             // delete(i);
 
@@ -180,7 +182,7 @@ void Genhook::Clean(Script *owner) {
     LeaveCriticalSection(&globalSection);
 }
 
-Genhook::Genhook(Script *nowner, JSObject *nself, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState)
+Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState)
     : owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState), zorder(1) {
     // InitializeCriticalSection(&hookSection);
     clicked = JSVAL_VOID;
@@ -220,14 +222,14 @@ Genhook::~Genhook(void) {
     // DeleteCriticalSection(&hookSection);
 }
 
-bool Genhook::Click(int button, POINT *loc) {
+bool Genhook::Click(int button, POINT* loc) {
     if (!IsInRange(loc))
         return false;
 
     bool block = false;
     if (owner && JSVAL_IS_FUNCTION(owner->GetContext(), clicked)) {
 
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = owner;
         evt->argc = 3;
         evt->name = strdup("ScreenHookClick");
@@ -237,13 +239,13 @@ bool Genhook::Click(int button, POINT *loc) {
         evt->arg4 = new DWORD(false);
 
         ResetEvent(Vars.eventSignal);
-        AutoRoot *root = new AutoRoot(evt->owner->GetContext(), clicked);
+        AutoRoot* root = new AutoRoot(evt->owner->GetContext(), clicked);
         evt->functions.push_back(root);
         owner->FireEvent(evt);
 
         if (WaitForSingleObject(Vars.eventSignal, 3000) == WAIT_TIMEOUT)
             return false;
-        bool *global = (bool *)evt->arg4;
+        bool* global = (bool*)evt->arg4;
         block = *global;
         delete evt->arg1;
         delete evt->arg2;
@@ -255,12 +257,12 @@ bool Genhook::Click(int button, POINT *loc) {
     return block;
 }
 
-void Genhook::Hover(POINT *loc) {
+void Genhook::Hover(POINT* loc) {
     if (!IsInRange(loc))
         return;
 
     if (owner && JSVAL_IS_FUNCTION(owner->GetContext(), hovered)) {
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = owner;
         evt->argc = 2;
         evt->functions.push_back(new AutoRoot((owner->GetContext(), hovered)));
@@ -279,7 +281,7 @@ void Genhook::SetClickHandler(jsval handler) {
         return;
     Lock();
 
-    JSContext *cx = owner->GetContext();
+    JSContext* cx = owner->GetContext();
     // if(JSVAL_IS_FUNCTION(cx, handler))
     //	JS_RemoveRoot(owner->GetContext(), &clicked);
     // JS_SetContextThread(cx);
@@ -345,7 +347,7 @@ bool TextHook::IsInRange(int dx, int dy) {
     return (xp < dx && y > dy && (xp + w) > dx && (y - h) < dy);
 }
 
-void TextHook::SetText(const char *ntext) {
+void TextHook::SetText(const char* ntext) {
     EnterGlobalSection();
     free(text);
     text = NULL;
@@ -386,7 +388,7 @@ bool ImageHook::IsInRange(int dx, int dy) {
     return false;
 }
 
-void ImageHook::SetImage(const char *nimage) {
+void ImageHook::SetImage(const char* nimage) {
     Lock();
     free(location);
     delete[] image;

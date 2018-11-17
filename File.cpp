@@ -27,7 +27,7 @@
 
 using namespace std;
 
-const char *readLine(FILE *fptr, bool locking) {
+const char* readLine(FILE* fptr, bool locking) {
     if (feof(fptr))
         return NULL;
     string buffer;
@@ -45,8 +45,8 @@ const char *readLine(FILE *fptr, bool locking) {
     return _strdup(buffer.c_str());
 }
 
-bool writeValue(FILE *fptr, JSContext *cx, jsval value, bool isBinary, bool locking) {
-    char *str;
+bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool locking) {
+    char* str;
     int len = 0, result;
     int32 ival = 0;
     jsdouble dval = 0;
@@ -183,8 +183,8 @@ bool writeValue(FILE *fptr, JSContext *cx, jsval value, bool isBinary, bool lock
  *
  * \return The file pointer.
  */
-FILE *fileOpenRelScript(const char *filename, const char *mode, JSContext *cx) {
-    FILE *f;
+FILE* fileOpenRelScript(const char* filename, const char* mode, JSContext* cx) {
+    FILE* f;
     char fullPath[_MAX_PATH + _MAX_FNAME];
 
     // Get the relative path
@@ -213,16 +213,16 @@ FILE *fileOpenRelScript(const char *filename, const char *mode, JSContext *cx) {
  *
  * \return fullPath on success or NULL on failure.
  */
-char *getPathRelScript(const char *filename, int bufLen, char *fullPath) {
+char* getPathRelScript(const char* filename, int bufLen, char* fullPath) {
     char fullScriptPath[_MAX_PATH + _MAX_FNAME];
-    char *relPath;
+    char* relPath;
     int strLenScript;
     DWORD scrPathLen;
 
     strLenScript = strlen(Vars.szScriptPath);
 
     // Make the filename relative to the script path
-    relPath = (char *)_alloca(strLenScript + strlen(filename) + 2);
+    relPath = (char*)_alloca(strLenScript + strlen(filename) + 2);
     strcpy_s(relPath, strLenScript + strlen(filename) + 2, Vars.szScriptPath);
     relPath[strLenScript] = '\\';
     strcpy_s(relPath + strLenScript + 1, strlen(filename) + 1, filename);
@@ -251,7 +251,7 @@ char *getPathRelScript(const char *filename, int bufLen, char *fullPath) {
  *
  * \return true if path is valid, false otherwise.
  */
-bool isValidPath(const char *name) {
+bool isValidPath(const char* name) {
     char fullPath[_MAX_PATH + _MAX_FNAME];
 
     // Use getPathRelScript to validate based on full paths

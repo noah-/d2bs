@@ -12,12 +12,12 @@ JSAPI_FUNC(my_login) {
     if (ClientState() != ClientStateMenu)
         return JS_TRUE;
 
-    char *profile = NULL;
+    char* profile = NULL;
 
     bool copiedProfile = false;
-    char *error;
+    char* error;
 
-    Profile *prof;
+    Profile* prof;
 
     if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         if (Vars.szProfile != NULL) {
@@ -52,7 +52,7 @@ JSAPI_FUNC(my_selectChar) {
     if (argc != 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
-    char *profile = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    char* profile = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!Profile::ProfileExists(profile))
         THROW_ERROR(cx, "Invalid profile specified");
     char charname[24], file[_MAX_FNAME + MAX_PATH];
@@ -123,7 +123,7 @@ JSAPI_FUNC(my_addProfile) {
     if (argc < 6 || argc > 7)
         THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
-    char **args[] = {&profile, &mode, &gateway, &username, &password, &charname};
+    char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
     for (uintN i = 0; i < 6; i++) {
         if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[i])) {
             THROW_ERROR(cx, "Invalid argument passed to addProfile");
@@ -147,8 +147,8 @@ JSAPI_FUNC(my_addProfile) {
     sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
     if (!Profile::ProfileExists(*args[0])) {
         char settings[600] = "";
-        sprintf_s(settings, sizeof(settings), "mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username,
-                  password, charname, spdifficulty);
+        sprintf_s(settings, sizeof(settings), "mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
+                  charname, spdifficulty);
 
         StringReplace(settings, '\t', '\0', 600);
         WritePrivateProfileSection(*args[0], settings, file);
@@ -171,8 +171,8 @@ JSAPI_FUNC(my_createCharacter) {
     if (ClientState() != ClientStateMenu)
         return JS_TRUE;
 
-    char *name = NULL;
-    jschar *jsname = NULL;
+    char* name = NULL;
+    jschar* jsname = NULL;
     int32 type = -1;
     JSBool hc = JS_FALSE, ladder = JS_FALSE;
     JS_BeginRequest(cx);

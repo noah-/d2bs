@@ -3,14 +3,14 @@
 #include "stringhash.h"
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) || defined(_MSC_VER) || defined(__BORLANDC__) || defined(__TURBOC__)
-#define get16bits(d) (*((const unsigned __int16 *)(d)))
+#define get16bits(d) (*((const unsigned __int16*)(d)))
 #endif
 
 #if !defined(get16bits)
-#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) + (uint32_t)(((const uint8_t *)(d))[0]))
+#define get16bits(d) ((((uint32_t)(((const uint8_t*)(d))[1])) << 8) + (uint32_t)(((const uint8_t*)(d))[0]))
 #endif
 
-unsigned __int32 __fastcall sfh(const char *data, int len) {
+unsigned __int32 __fastcall sfh(const char* data, int len) {
     unsigned __int32 hash = len, tmp;
     int rem;
 

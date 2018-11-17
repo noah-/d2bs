@@ -107,7 +107,7 @@ void Console::AddLine(std::string line) {
         history.pop_front();
 
     if (Vars.bLogConsole)
-        LogNoFormat(const_cast<char *>(line.c_str()));
+        LogNoFormat(const_cast<char*>(line.c_str()));
 
     scrollIndex = history.size() < lineCount ? 0 : history.size() - lineCount;
     Console::UpdateLines();
@@ -260,4 +260,6 @@ void Console::Draw(void) {
     count++;
 }
 
-unsigned int Console::GetHeight(void) { return height; }
+unsigned int Console::GetHeight(void) {
+    return height;
+}

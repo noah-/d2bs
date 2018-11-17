@@ -29,10 +29,9 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
 DWORD CreateDdeServer() {
     char buf[1000];
 
-    int ret = DdeInitialize(&DdeSrvInst, DdeCallback,
-                            APPCLASS_STANDARD | APPCMD_FILTERINITS | CBF_FAIL_ADVISES | CBF_FAIL_REQUESTS | CBF_SKIP_CONNECT_CONFIRMS | CBF_SKIP_REGISTRATIONS |
-                                CBF_SKIP_UNREGISTRATIONS,
-                            0);
+    int ret = DdeInitialize(
+        &DdeSrvInst, DdeCallback,
+        APPCLASS_STANDARD | APPCMD_FILTERINITS | CBF_FAIL_ADVISES | CBF_FAIL_REQUESTS | CBF_SKIP_CONNECT_CONFIRMS | CBF_SKIP_REGISTRATIONS | CBF_SKIP_UNREGISTRATIONS, 0);
     if (ret != DMLERR_NO_ERROR)
         return 0;
     char handle[25];
@@ -53,7 +52,7 @@ BOOL ShutdownDdeServer() {
     return DdeUninitialize(DdeSrvInst);
 }
 
-BOOL SendDDE(int mode, char *pszDDEServer, char *pszTopic, char *pszItem, char *pszData, char **result, uint size) {
+BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* pszData, char** result, uint size) {
     DWORD pidInst = 0;
     HCONV hConv;
     DWORD dwTimeout = 5000;

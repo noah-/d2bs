@@ -26,8 +26,7 @@ MPQTable BaseStatTable[] = {
     {0x96CA9C, 0x96CA98, runesTable, "runes", ARRAYSIZE(runesTable), 0xFFFF},          // v
     {0x96D628, 0x96D62C, cubemainTable, "cubemain", ARRAYSIZE(cubemainTable), 0xFFFF}, // v
     {0x96CA94, 0x96CA90, gemsTable, "gems", ARRAYSIZE(gemsTable), 0xFFFF},
-    {0x96C8A8, 0x0, experienceTable, "experience", ARRAYSIZE(experienceTable),
-     0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
+    {0x96C8A8, 0x0, experienceTable, "experience", ARRAYSIZE(experienceTable), 0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
     {0xBE8, 0xBF0, pettypeTable, "pettable", ARRAYSIZE(pettypeTable), 0xFFFF},
     {0xAD4, 0xADC, superuniquesTable, "superuniques", ARRAYSIZE(superuniquesTable), 0xFFFF},
     {0}};
@@ -52,21 +51,21 @@ DWORD GetBaseTable(int table, int row) {
 
         DWORD dwMaxEntries;
         if (dwMaxEntriesOffset)
-            dwMaxEntries = *(DWORD *)(dwMaxEntriesOffset + dwD2MPQTable);
+            dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
         else
             dwMaxEntries = 0xFF;
 
         if ((DWORD)row < dwMaxEntries) {
             DWORD dwMultiplicator = BaseStatTable[table].pTable[BaseStatTable[table].wTableSize - 1].dwFieldOffset;
             DWORD dwTable = row * dwMultiplicator;
-            dwResult = *(DWORD *)(dwTableOffset + dwD2MPQTable) + dwTable;
+            dwResult = *(DWORD*)(dwTableOffset + dwD2MPQTable) + dwTable;
         }
     }
 
     return dwResult;
 }
 
-bool FillBaseStat(char *szTable, int row, char *szStat, void *result, size_t size) {
+bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t size) {
     int table = -1;
     for (int i = 0; BaseStatTable[i].pTable != NULL; i++)
         if (!_strcmpi(szTable, BaseStatTable[i].szTableName)) {
@@ -80,7 +79,7 @@ bool FillBaseStat(char *szTable, int row, char *szStat, void *result, size_t siz
     return FillBaseStat(table, row, szStat, result, size);
 }
 
-bool FillBaseStat(char *szTable, int row, int column, void *result, size_t size) {
+bool FillBaseStat(char* szTable, int row, int column, void* result, size_t size) {
     int table = -1;
     for (int i = 0; BaseStatTable[i].pTable != NULL; i++)
         if (!_strcmpi(szTable, BaseStatTable[i].szTableName)) {
@@ -94,8 +93,8 @@ bool FillBaseStat(char *szTable, int row, int column, void *result, size_t size)
     return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(int table, int row, char *szStat, void *result, size_t size) {
-    BinField *pTable = BaseStatTable[table].pTable;
+bool FillBaseStat(int table, int row, char* szStat, void* result, size_t size) {
+    BinField* pTable = BaseStatTable[table].pTable;
 
     int column = -1;
     for (int i = 0; i < BaseStatTable[table].wTableSize; i++)
@@ -110,8 +109,8 @@ bool FillBaseStat(int table, int row, char *szStat, void *result, size_t size) {
     return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(int table, int row, int column, void *result, size_t size) {
-    BinField *pTable = BaseStatTable[table].pTable;
+bool FillBaseStat(int table, int row, int column, void* result, size_t size) {
+    BinField* pTable = BaseStatTable[table].pTable;
     DWORD dwRetValue = GetBaseTable(table, row);
 
     if (!dwRetValue || column > BaseStatTable[table].wTableSize)
@@ -124,7 +123,7 @@ bool FillBaseStat(int table, int row, int column, void *result, size_t size) {
     case FIELDTYPE_DATA_ASCII:
         if (size < pTable[column].dwFieldLength)
             return false;
-        memcpy_s(result, pTable[column].dwFieldLength, (BYTE *)(dwRetValue + pTable[column].dwFieldOffset), pTable[column].dwFieldLength);
+        memcpy_s(result, pTable[column].dwFieldLength, (BYTE*)(dwRetValue + pTable[column].dwFieldOffset), pTable[column].dwFieldLength);
         break;
     case FIELDTYPE_DATA_DWORD:
         memcpy(result, (LPVOID)(dwRetValue + pTable[column].dwFieldOffset), sizeof(DWORD));
@@ -141,7 +140,7 @@ bool FillBaseStat(int table, int row, int column, void *result, size_t size) {
     case FIELDTYPE_NAME_TO_WORD_2:
         memcpy(result, (LPVOID)(dwRetValue + pTable[column].dwFieldOffset), sizeof(WORD));
         if (((WORD)result) >= 0xFFFF)
-            *(WORD *)result = (((WORD)result) - 0xFFFF) * -1;
+            *(WORD*)result = (((WORD)result) - 0xFFFF) * -1;
         break;
     case FIELDTYPE_NAME_TO_INDEX:
     case FIELDTYPE_NAME_TO_WORD:
@@ -157,7 +156,7 @@ bool FillBaseStat(int table, int row, int column, void *result, size_t size) {
         break;
     case FIELDTYPE_DATA_BIT:
         memcpy(result, (LPVOID)(dwRetValue + pTable[column].dwFieldOffset), sizeof(DWORD));
-        *(BOOL *)result = (*(BOOL *)result & (1 << pTable[column].dwFieldLength)) ? 1 : 0;
+        *(BOOL*)result = (*(BOOL*)result & (1 << pTable[column].dwFieldLength)) ? 1 : 0;
         break;
     case FIELDTYPE_ASCII_TO_CODE:
     case FIELDTYPE_DATA_RAW:
@@ -173,7 +172,7 @@ bool FillBaseStat(int table, int row, int column, void *result, size_t size) {
     return true;
 }
 
-DWORD FillBaseStat(JSContext *cx, jsval *argv, int table, int row, int column, char *szTable, char *szStat) {
+DWORD FillBaseStat(JSContext* cx, jsval* argv, int table, int row, int column, char* szTable, char* szStat) {
     if (szTable) {
         table = -1;
         for (int i = 0; BaseStatTable[i].pTable != NULL; i++)
@@ -186,7 +185,7 @@ DWORD FillBaseStat(JSContext *cx, jsval *argv, int table, int row, int column, c
             return false;
     }
 
-    BinField *pTable = BaseStatTable[table].pTable;
+    BinField* pTable = BaseStatTable[table].pTable;
 
     if (szStat) {
         column = -1;
@@ -205,7 +204,7 @@ DWORD FillBaseStat(JSContext *cx, jsval *argv, int table, int row, int column, c
 
     DWORD dwBuffer = 0;
     WORD wBuffer = 0;
-    char *szBuffer = NULL;
+    char* szBuffer = NULL;
     DWORD dwHelperSize = pTable[column + 1].dwFieldOffset - pTable[column].dwFieldOffset;
     if (dwHelperSize > 4)
         dwHelperSize = 4;

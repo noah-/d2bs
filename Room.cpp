@@ -2,7 +2,7 @@
 #include "CriticalSections.h"
 #include "D2Ptrs.h"
 
-BOOL RevealRoom(Room2 *pRoom2, BOOL revealPresets) {
+BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
     bool bAdded = false;
     bool bInit = false;
 
@@ -11,9 +11,9 @@ BOOL RevealRoom(Room2 *pRoom2, BOOL revealPresets) {
     if (!pRoom2)
         return false;
 
-    AutoCriticalRoom *cRoom = new AutoCriticalRoom;
+    AutoCriticalRoom* cRoom = new AutoCriticalRoom;
 
-    UnitAny *player = D2CLIENT_GetPlayerUnit();
+    UnitAny* player = D2CLIENT_GetPlayerUnit();
     // Check if we have Room1(Needed in order to reveal)
     if (!(pRoom2 && pRoom2->pLevel && pRoom2->pRoom1)) {
         D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
@@ -51,10 +51,10 @@ BOOL RevealRoom(Room2 *pRoom2, BOOL revealPresets) {
 /*void DrawPresets(Room2 *pRoom2)
  *	This will find all the shrines, special automap icons, and level names and place on map.
  */
-void DrawPresets(Room2 *pRoom2) {
+void DrawPresets(Room2* pRoom2) {
     // UnitAny* Player = D2CLIENT_GetPlayerUnit();
     // Grabs all the preset units in room.
-    for (PresetUnit *pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext) {
+    for (PresetUnit* pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext) {
         int mCell = -1;
         if (pUnit->dwType == 1) // Special NPCs.
         {
@@ -87,7 +87,7 @@ void DrawPresets(Room2 *pRoom2) {
 
             if (mCell == -1) {
                 // Get the object cell
-                ObjectTxt *obj = D2COMMON_GetObjectText(pUnit->dwTxtFileNo);
+                ObjectTxt* obj = D2COMMON_GetObjectText(pUnit->dwTxtFileNo);
 
                 if (mCell == -1) {
                     mCell = obj->nAutoMap; // Set the cell number then.
@@ -97,7 +97,7 @@ void DrawPresets(Room2 *pRoom2) {
 
         // Draw the cell if wanted.
         if ((mCell > 0) && (mCell < 1258)) {
-            AutomapCell *pCell = D2CLIENT_NewAutomapCell();
+            AutomapCell* pCell = D2CLIENT_NewAutomapCell();
             pCell->nCellNo = (WORD)mCell;
             int pX = (pUnit->dwPosX + (pRoom2->dwPosX * 5));
             int pY = (pUnit->dwPosY + (pRoom2->dwPosY * 5));

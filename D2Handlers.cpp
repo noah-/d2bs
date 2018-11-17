@@ -21,13 +21,13 @@
 
 using namespace std;
 
-bool __fastcall UpdatePlayerGid(Script *script, void *, uint) {
+bool __fastcall UpdatePlayerGid(Script* script, void*, uint) {
     script->UpdatePlayerGid();
     return true;
 }
 
 DWORD WINAPI D2Thread(LPVOID lpParam) {
-    sLine *command;
+    sLine* command;
     bool beginStarter = true;
     bool bInGame = false;
     Vars.bUseRawCDKey = 0;
@@ -58,7 +58,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     command = GetCommand(L"-profile");
 
     if (command) {
-        const char *profile = UnicodeToAnsi(command->szText);
+        const char* profile = UnicodeToAnsi(command->szText);
 
         if (SwitchToProfile(profile))
             Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
@@ -117,13 +117,13 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     return NULL;
 }
 
-DWORD __fastcall GameInput(wchar_t *wMsg) {
+DWORD __fastcall GameInput(wchar_t* wMsg) {
     bool send = true;
 
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = false;
     else {
-        char *szBuffer = UnicodeToAnsi(wMsg);
+        char* szBuffer = UnicodeToAnsi(wMsg);
         send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
@@ -131,13 +131,13 @@ DWORD __fastcall GameInput(wchar_t *wMsg) {
     return send ? 0 : -1; // -1 means block, 0 means send
 }
 
-DWORD __fastcall ChannelInput(wchar_t *wMsg) {
+DWORD __fastcall ChannelInput(wchar_t* wMsg) {
     bool send = true;
 
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = false;
     else {
-        char *szBuffer = UnicodeToAnsi(wMsg);
+        char* szBuffer = UnicodeToAnsi(wMsg);
         send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
@@ -145,7 +145,7 @@ DWORD __fastcall ChannelInput(wchar_t *wMsg) {
     return send; // false means ignore, true means send
 }
 
-DWORD __fastcall GamePacketReceived(BYTE *pPacket, DWORD dwSize) {
+DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize) {
     switch (pPacket[0]) {
     case 0xAE:
         Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
@@ -172,13 +172,15 @@ DWORD __fastcall GamePacketReceived(BYTE *pPacket, DWORD dwSize) {
     return !GamePacketEvent(pPacket, dwSize);
 }
 
-DWORD __fastcall GamePacketSent(BYTE *pPacket, DWORD dwSize) { return !GamePacketSentEvent(pPacket, dwSize); }
+DWORD __fastcall GamePacketSent(BYTE* pPacket, DWORD dwSize) {
+    return !GamePacketSentEvent(pPacket, dwSize);
+}
 
 LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    COPYDATASTRUCT *pCopy;
+    COPYDATASTRUCT* pCopy;
     switch (uMsg) {
     case WM_COPYDATA:
-        pCopy = (COPYDATASTRUCT *)lParam;
+        pCopy = (COPYDATASTRUCT*)lParam;
 
         if (pCopy) {
             if (pCopy->dwData == 0x1337) // 0x1337 = Execute Script
@@ -186,16 +188,16 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 while (!Vars.bActive || (ScriptEngine::GetState() != Running)) {
                     Sleep(100);
                 }
-                ScriptEngine::RunCommand((char *)pCopy->lpData);
+                ScriptEngine::RunCommand((char*)pCopy->lpData);
             } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
             {
-                const char *profile = (char *)pCopy->lpData;
+                const char* profile = (char*)pCopy->lpData;
                 if (SwitchToProfile(profile))
                     Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
                 else
                     Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
             } else
-                CopyDataEvent(pCopy->dwData, (char *)pCopy->lpData);
+                CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
         }
         return TRUE;
     }
@@ -294,7 +296,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam) {
 }
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam) {
-    MOUSEHOOKSTRUCT *mouse = (MOUSEHOOKSTRUCT *)lParam;
+    MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
     POINT pt = mouse->pt;
     ScreenToClient(mouse->hwnd, &pt);
 
@@ -379,14 +381,14 @@ void FlushPrint() {
             if (ClientState() == ClientStateInGame) {
                 // Convert and send every line.
                 for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it) {
-                    wchar_t *output = AnsiToUnicode(it->c_str());
+                    wchar_t* output = AnsiToUnicode(it->c_str());
                     D2CLIENT_PrintGameString(output, 0);
                     delete[] output;
                 }
-            } else if (ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) {
+            } else if (ClientState() == ClientStateMenu && findControl(4, (char*)NULL, -1, 28, 410, 354, 298)) {
                 // TODO: Double check this function, make sure it is working as intended.
                 for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-                    D2MULTI_PrintChannelText((char *)it->c_str(), 0);
+                    D2MULTI_PrintChannelText((char*)it->c_str(), 0);
             }
         }
 
@@ -426,13 +428,13 @@ void GameDrawOOG(void) {
     Sleep(10);
 }
 
-void __stdcall AddUnit(UnitAny *lpUnit) {
+void __stdcall AddUnit(UnitAny* lpUnit) {
     //	EnterCriticalSection(&Vars.cUnitListSection);
     //	Vars.vUnitList.push_back(make_pair<DWORD, DWORD>(lpUnit->dwUnitId, lpUnit->dwType));
     //	LeaveCriticalSection(&Vars.cUnitListSection);
 }
 
-void __stdcall RemoveUnit(UnitAny *lpUnit) {
+void __stdcall RemoveUnit(UnitAny* lpUnit) {
     //	EnterCriticalSection(&Vars.cUnitListSection);
     // no need to check the return--it has to be there or the real game would have bigger issues with it
     //	for(vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin(); it != Vars.vUnitList.end(); it++)
@@ -446,14 +448,14 @@ void __stdcall RemoveUnit(UnitAny *lpUnit) {
     //	LeaveCriticalSection(&Vars.cUnitListSection);
 }
 
-void __fastcall WhisperHandler(char *szAcc, char *szText) {
+void __fastcall WhisperHandler(char* szAcc, char* szText) {
     if (!Vars.bDontCatchNextMsg)
         WhisperEvent(szAcc, szText);
     else
         Vars.bDontCatchNextMsg = FALSE;
 }
 
-DWORD __fastcall GameAttack(UnitInteraction *pAttack) {
+DWORD __fastcall GameAttack(UnitInteraction* pAttack) {
     if (!pAttack || !pAttack->lpTargetUnit || pAttack->lpTargetUnit->dwType != UNIT_MONSTER)
         return (DWORD)-1;
 
@@ -466,7 +468,7 @@ DWORD __fastcall GameAttack(UnitInteraction *pAttack) {
     return NULL;
 }
 
-void __fastcall GamePlayerAssignment(UnitAny *pPlayer) {
+void __fastcall GamePlayerAssignment(UnitAny* pPlayer) {
     if (!pPlayer)
         return;
 
@@ -506,15 +508,17 @@ void GameLeave(void) {
     //	EnterCriticalSection(&Vars.cGameLoopSection);
 }
 
-BOOL __fastcall RealmPacketRecv(BYTE *pPacket, DWORD dwSize) { return !RealmPacketEvent(pPacket, dwSize); }
+BOOL __fastcall RealmPacketRecv(BYTE* pPacket, DWORD dwSize) {
+    return !RealmPacketEvent(pPacket, dwSize);
+}
 
-BOOL __fastcall ChatPacketRecv(BYTE *pPacket, int len) {
+BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len) {
     bool blockPacket = false;
 
     if (pPacket[1] == 0xF) {
         DWORD mode = pPacket[4];
-        char *who = (char *)pPacket + 28;
-        char *said = (char *)pPacket + 29 + strlen(who);
+        char* who = (char*)pPacket + 28;
+        char* said = (char*)pPacket + 29 + strlen(who);
 
         switch (pPacket[4]) {
         case 0x02: // channel join

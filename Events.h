@@ -2,24 +2,24 @@
 
 #include <windows.h>
 
-bool ChatEvent(char *lpszNick, char *lpszMsg);
-bool ChatInputEvent(char *lpszMsg);
+bool ChatEvent(char* lpszNick, char* lpszMsg);
+bool ChatInputEvent(char* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
-void CopyDataEvent(DWORD dwMode, char *lpszMsg);
-void GameMsgEvent(char *lpszMsg);
-void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char *name1, char *name2);
-bool WhisperEvent(char *lpszNick, char *lpszMsg);
+void CopyDataEvent(DWORD dwMode, char* lpszMsg);
+void GameMsgEvent(char* lpszMsg);
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2);
+bool WhisperEvent(char* lpszNick, char* lpszMsg);
 bool KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 void PlayerAssignEvent(DWORD dwUnitId);
 void MouseClickEvent(int button, POINT pt, bool bUp);
 void MouseMoveEvent(POINT pt);
-void ScriptBroadcastEvent(JSContext *cx, uintN argc, jsval *argv);
+void ScriptBroadcastEvent(JSContext* cx, uintN argc, jsval* argv);
 void GoldDropEvent(DWORD GID, BYTE Mode);
-void ItemActionEvent(DWORD GID, char *Code, BYTE Mode, bool Global);
-bool GamePacketEvent(BYTE *pPacket, DWORD dwSize);
-bool GamePacketSentEvent(BYTE *pPacket, DWORD dwSize);
-bool RealmPacketEvent(BYTE *pPacket, DWORD dwSize);
+void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
+bool GamePacketEvent(BYTE* pPacket, DWORD dwSize);
+bool GamePacketSentEvent(BYTE* pPacket, DWORD dwSize);
+bool RealmPacketEvent(BYTE* pPacket, DWORD dwSize);
 void ReleaseGameLock(void);
 
 void TakeGameLock(void);
@@ -30,12 +30,12 @@ struct ChatEventHelper {
 
 struct CopyDataHelper {
     DWORD mode;
-    char *msg;
+    char* msg;
 };
 
 struct ItemEventHelper {
     DWORD id;
-    char *code;
+    char* code;
     WORD mode;
     bool global;
 };
@@ -67,12 +67,12 @@ struct QuadArgHelper {
 };
 
 struct BCastEventHelper {
-    JSContext *cx;
-    jsval *argv;
+    JSContext* cx;
+    jsval* argv;
     uintN argc;
 };
 struct PacketEventHelper {
-    char *name;
-    BYTE *pPacket;
+    char* name;
+    BYTE* pPacket;
     DWORD dwSize;
 };

@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////
 
 CLASS_CTOR(socket);
-JSBool socket_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
+JSBool socket_equality(JSContext* cx, JSObject* obj, jsval v, JSBool* bp);
 
 JSAPI_PROP(socket_getProperty);
 JSAPI_STRICT_PROP(socket_setProperty);
@@ -18,7 +18,7 @@ JSAPI_FUNC(socket_close);
 JSAPI_FUNC(socket_send);
 JSAPI_FUNC(socket_read);
 
-void socket_finalize(JSFreeOp *fop, JSObject *obj);
+void socket_finalize(JSFreeOp* fop, JSObject* obj);
 
 enum { SOCKET_READABLE, SOCKET_WRITEABLE };
 

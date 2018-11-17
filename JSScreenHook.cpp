@@ -5,8 +5,8 @@
 #include "File.h"
 using namespace std;
 
-void hook_finalize(JSFreeOp *fop, JSObject *obj) {
-    Genhook *hook = (Genhook *)JS_GetPrivate(obj);
+void hook_finalize(JSFreeOp* fop, JSObject* obj) {
+    Genhook* hook = (Genhook*)JS_GetPrivate(obj);
 
     if (hook) {
         JS_SetPrivate(obj, NULL);
@@ -15,9 +15,9 @@ void hook_finalize(JSFreeOp *fop, JSObject *obj) {
 }
 
 JSAPI_FUNC(hook_remove) {
-    JSObject *obj = JS_THIS_OBJECT(cx, vp);
+    JSObject* obj = JS_THIS_OBJECT(cx, vp);
     Genhook::EnterGlobalSection();
-    Genhook *hook = (Genhook *)JS_GetPrivate(cx, obj);
+    Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
     if (hook) {
         // hook->SetIsVisible(false);
         delete hook;
@@ -34,7 +34,7 @@ JSAPI_FUNC(hook_remove) {
 // Function to create a frame which gets called on a "new Frame ()"
 // Parameters: x, y, xsize, ysize, alignment, automap, onClick, onHover
 JSAPI_FUNC(frame_ctor) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
 
     uint x = 0, y = 0, x2 = 0, y2 = 0;
     Align align = Left;
@@ -58,12 +58,12 @@ JSAPI_FUNC(frame_ctor) {
     if (argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
         hover = JS_ARGV(cx, vp)[7];
 
-    JSObject *hook = BuildObject(cx, &frame_class, frame_methods, frame_props);
+    JSObject* hook = BuildObject(cx, &frame_class, frame_methods, frame_props);
     if (!hook)
         THROW_ERROR(cx, "Failed to create frame object");
 
     // framehooks don't work out of game -- they just crash
-    FrameHook *pFrameHook = new FrameHook(script, hook, x, y, x2, y2, automap, align, IG);
+    FrameHook* pFrameHook = new FrameHook(script, hook, x, y, x2, y2, automap, align, IG);
 
     if (!pFrameHook)
         THROW_ERROR(cx, "Failed to create framehook");
@@ -78,7 +78,7 @@ JSAPI_FUNC(frame_ctor) {
 }
 
 JSAPI_PROP(frame_getProperty) {
-    FrameHook *pFramehook = (FrameHook *)JS_GetPrivate(cx, obj);
+    FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
     if (!pFramehook)
         return JS_TRUE;
 
@@ -117,7 +117,7 @@ JSAPI_PROP(frame_getProperty) {
 }
 
 JSAPI_STRICT_PROP(frame_setProperty) {
-    FrameHook *pFramehook = (FrameHook *)JS_GetPrivate(cx, obj);
+    FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
     if (!pFramehook)
         return JS_TRUE;
 
@@ -166,7 +166,7 @@ JSAPI_STRICT_PROP(frame_setProperty) {
 
 // Parameters: x, y, xsize, ysize, color, opacity, alignment, automap, onClick, onHover
 JSAPI_FUNC(box_ctor) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
 
     ScreenhookState state = (script->GetState() == OutOfGame) ? OOG : IG;
     uint x = 0, y = 0, x2 = 0, y2 = 0;
@@ -196,11 +196,11 @@ JSAPI_FUNC(box_ctor) {
     if (argc > 9 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[9]))
         hover = JS_ARGV(cx, vp)[9];
 
-    JSObject *hook = BuildObject(cx, &box_class, box_methods, box_props);
+    JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props);
     if (!hook)
         THROW_ERROR(cx, "Failed to create box object");
 
-    BoxHook *pBoxHook = new BoxHook(script, hook, x, y, x2, y2, color, opacity, automap, align, state);
+    BoxHook* pBoxHook = new BoxHook(script, hook, x, y, x2, y2, color, opacity, automap, align, state);
 
     if (!pBoxHook)
         THROW_ERROR(cx, "Unable to initalize a box class.");
@@ -214,7 +214,7 @@ JSAPI_FUNC(box_ctor) {
     return JS_TRUE;
 }
 JSAPI_PROP(box_getProperty) {
-    BoxHook *pBoxHook = (BoxHook *)JS_GetPrivate(cx, obj);
+    BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
     if (!pBoxHook)
         return JS_TRUE;
 
@@ -259,7 +259,7 @@ JSAPI_PROP(box_getProperty) {
 }
 
 JSAPI_STRICT_PROP(box_setProperty) {
-    BoxHook *pBoxHook = (BoxHook *)JS_GetPrivate(cx, obj);
+    BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
     if (!pBoxHook)
         return JS_TRUE;
 
@@ -316,7 +316,7 @@ JSAPI_STRICT_PROP(box_setProperty) {
 
 // Parameters: x, y, x2, y2, color, automap, click, hover
 JSAPI_FUNC(line_ctor) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
 
     ScreenhookState state = (script->GetState() == OutOfGame) ? OOG : IG;
     int x = 0, y = 0, x2 = 0, y2 = 0;
@@ -341,11 +341,11 @@ JSAPI_FUNC(line_ctor) {
     if (argc > 7 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[7]))
         hover = JS_ARGV(cx, vp)[7];
 
-    JSObject *hook = BuildObject(cx, &line_class, line_methods, line_props);
+    JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props);
     if (!hook)
         THROW_ERROR(cx, "Failed to create line object");
 
-    LineHook *pLineHook = new LineHook(script, hook, x, y, x2, y2, color, automap, Left, state);
+    LineHook* pLineHook = new LineHook(script, hook, x, y, x2, y2, color, automap, Left, state);
 
     if (!pLineHook)
         THROW_ERROR(cx, "Unable to initalize a line class.");
@@ -360,7 +360,7 @@ JSAPI_FUNC(line_ctor) {
 }
 
 JSAPI_PROP(line_getProperty) {
-    LineHook *pLineHook = (LineHook *)JS_GetPrivate(cx, obj);
+    LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
     if (!pLineHook)
         return JS_TRUE;
 
@@ -399,7 +399,7 @@ JSAPI_PROP(line_getProperty) {
 }
 
 JSAPI_STRICT_PROP(line_setProperty) {
-    LineHook *pLineHook = (LineHook *)JS_GetPrivate(cx, obj);
+    LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
     if (!pLineHook)
         return JS_TRUE;
 
@@ -448,7 +448,7 @@ JSAPI_STRICT_PROP(line_setProperty) {
 
 // Parameters: text, x, y, color, font, align, automap, onHover, onText
 JSAPI_FUNC(text_ctor) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
 
     ScreenhookState state = (script->GetState() == OutOfGame) ? OOG : IG;
     uint x = 0, y = 0;
@@ -456,7 +456,7 @@ JSAPI_FUNC(text_ctor) {
     Align align = Left;
     bool automap = false;
     jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-    char *szText = "";
+    char* szText = "";
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         szText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
@@ -479,11 +479,11 @@ JSAPI_FUNC(text_ctor) {
     if (argc > 8 && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[8]))
         hover = JS_ARGV(cx, vp)[8];
 
-    JSObject *hook = BuildObject(cx, &text_class, text_methods, text_props);
+    JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props);
     if (!hook)
         THROW_ERROR(cx, "Failed to create text object");
 
-    TextHook *pTextHook = new TextHook(script, hook, szText, x, y, font, color, automap, align, state);
+    TextHook* pTextHook = new TextHook(script, hook, szText, x, y, font, color, automap, align, state);
 
     if (!pTextHook)
         THROW_ERROR(cx, "Failed to create texthook");
@@ -498,7 +498,7 @@ JSAPI_FUNC(text_ctor) {
 }
 
 JSAPI_PROP(text_getProperty) {
-    TextHook *pTextHook = (TextHook *)JS_GetPrivate(cx, obj);
+    TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
     if (!pTextHook)
         return JS_TRUE;
 
@@ -540,7 +540,7 @@ JSAPI_PROP(text_getProperty) {
 }
 
 JSAPI_STRICT_PROP(text_setProperty) {
-    TextHook *pTextHook = (TextHook *)JS_GetPrivate(cx, obj);
+    TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
     if (!pTextHook)
         return JS_TRUE;
 
@@ -565,7 +565,7 @@ JSAPI_STRICT_PROP(text_setProperty) {
         break;
     case TEXT_TEXT:
         if (vp.isString()) {
-            char *pText = JS_EncodeString(cx, vp.toString());
+            char* pText = JS_EncodeString(cx, vp.toString());
             if (!pText)
                 return JS_TRUE;
             pTextHook->SetText(pText);
@@ -598,7 +598,7 @@ JSAPI_STRICT_PROP(text_setProperty) {
 
 // Parameters: image, x, y, color, align, automap, onHover, onimage
 JSAPI_FUNC(image_ctor) {
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
 
     ScreenhookState state = (script->GetState() == OutOfGame) ? OOG : IG;
     uint x = 0, y = 0;
@@ -606,7 +606,7 @@ JSAPI_FUNC(image_ctor) {
     Align align = Left;
     bool automap = false;
     jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-    char *szText = "";
+    char* szText = "";
     char path[_MAX_FNAME + _MAX_PATH];
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
@@ -633,11 +633,11 @@ JSAPI_FUNC(image_ctor) {
     else
         THROW_ERROR(cx, "Invalid image file path");
 
-    JSObject *hook = BuildObject(cx, &image_class, image_methods, image_props);
+    JSObject* hook = BuildObject(cx, &image_class, image_methods, image_props);
     if (!hook)
         THROW_ERROR(cx, "Failed to create image object");
 
-    ImageHook *pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state, 3);
+    ImageHook* pImageHook = new ImageHook(script, hook, path, x, y, color, automap, align, state, 3);
 
     if (!pImageHook)
         THROW_ERROR(cx, "Failed to create ImageHook");
@@ -652,7 +652,7 @@ JSAPI_FUNC(image_ctor) {
 }
 
 JSAPI_PROP(image_getProperty) {
-    ImageHook *pImageHook = (ImageHook *)JS_GetPrivate(cx, obj);
+    ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
     if (!pImageHook)
         return JS_TRUE;
 
@@ -688,7 +688,7 @@ JSAPI_PROP(image_getProperty) {
 }
 
 JSAPI_STRICT_PROP(image_setProperty) {
-    ImageHook *pImageHook = (ImageHook *)JS_GetPrivate(cx, obj);
+    ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
     if (!pImageHook)
         return JS_TRUE;
 
@@ -705,7 +705,7 @@ JSAPI_STRICT_PROP(image_setProperty) {
         break;
     case IMAGE_LOCATION:
         if (vp.isString()) {
-            char *pimage = JS_EncodeString(cx, vp.toString());
+            char* pimage = JS_EncodeString(cx, vp.toString());
             if (!pimage)
                 return JS_TRUE;
             pImageHook->SetImage(pimage);
@@ -738,7 +738,7 @@ JSAPI_FUNC(screenToAutomap) {
         // the arg must be an object with an x and a y that we can convert
         if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
             // get the params
-            JSObject *arg = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]);
+            JSObject* arg = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]);
             jsval x, y;
             if (JS_GetProperty(cx, arg, "x", &x) == JS_FALSE || JS_GetProperty(cx, arg, "y", &y) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to get x and/or y values");
@@ -751,8 +751,8 @@ JSAPI_FUNC(screenToAutomap) {
             POINT result = ScreenToAutomap(ix, iy);
             x = INT_TO_JSVAL(result.x);
             y = INT_TO_JSVAL(result.y);
-            JSObject *res = JS_NewObject(cx, NULL, NULL, NULL);
-            jsval *argv = JS_ARGV(cx, vp);
+            JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
+            jsval* argv = JS_ARGV(cx, vp);
             if (JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to set x and/or y values");
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
@@ -762,14 +762,14 @@ JSAPI_FUNC(screenToAutomap) {
         // the args must be ints
         if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_IS_INT(JS_ARGV(cx, vp)[1])) {
             int32 ix, iy;
-            jsval *argv = JS_ARGV(cx, vp);
+            jsval* argv = JS_ARGV(cx, vp);
             if (JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to convert x and/or y values");
             // convert the values
             POINT result = ScreenToAutomap(ix, iy);
             argv[0] = INT_TO_JSVAL(result.x);
             argv[1] = INT_TO_JSVAL(result.y);
-            JSObject *res = JS_NewObject(cx, NULL, NULL, NULL);
+            JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
             if (JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to set x and/or y values");
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));
@@ -781,12 +781,12 @@ JSAPI_FUNC(screenToAutomap) {
 }
 
 JSAPI_FUNC(automapToScreen) {
-    jsval *argv = JS_ARGV(cx, vp);
+    jsval* argv = JS_ARGV(cx, vp);
     if (argc == 1) {
         // the arg must be an object with an x and a y that we can convert
         if (JSVAL_IS_OBJECT(argv[0])) {
             // get the params
-            JSObject *arg = JSVAL_TO_OBJECT(argv[0]);
+            JSObject* arg = JSVAL_TO_OBJECT(argv[0]);
             jsval x, y;
             if (JS_GetProperty(cx, arg, "x", &x) == JS_FALSE || JS_GetProperty(cx, arg, "y", &y) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to get x and/or y values");
@@ -828,7 +828,7 @@ JSAPI_FUNC(automapToScreen) {
             AutomapToScreen(&result);
             argv[0] = INT_TO_JSVAL(result.x);
             argv[1] = INT_TO_JSVAL(result.y);
-            JSObject *res = JS_NewObject(cx, NULL, NULL, NULL);
+            JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
             if (JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
                 THROW_ERROR(cx, "Failed to set x and/or y values");
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(res));

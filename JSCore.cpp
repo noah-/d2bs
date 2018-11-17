@@ -33,15 +33,15 @@ JSAPI_FUNC(my_utf8ToEuc) {
         return JS_FALSE;
     }
     JS_EndRequest(cx);
-    char *Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (Text == NULL) {
         JS_ReportError(cx, "Could not get string for value");
         JS_free(cx, Text);
         return JS_FALSE;
     }
 
-    wchar_t *szText = AnsiToUnicode(Text);
-    char *euc = UnicodeToAnsi(szText, CP_ACP);
+    wchar_t* szText = AnsiToUnicode(Text);
+    char* euc = UnicodeToAnsi(szText, CP_ACP);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, euc)));
     JS_free(cx, Text);
     delete[] szText;
@@ -59,7 +59,7 @@ JSAPI_FUNC(my_print) {
                 return JS_FALSE;
             }
             JS_EndRequest(cx);
-            char *Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
             if (Text == NULL) {
                 JS_ReportError(cx, "Could not get string for value");
                 JS_free(cx, Text);
@@ -86,10 +86,10 @@ JSAPI_FUNC(my_setTimeout) {
         JS_ReportError(cx, "invalid params passed to setTimeout");
 
     if (JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[0]) && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
-        Script *self = (Script *)JS_GetContextPrivate(cx);
+        Script* self = (Script*)JS_GetContextPrivate(cx);
         int freq = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
         self->RegisterEvent("setTimeout", JS_ARGV(cx, vp)[0]);
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = self;
         evt->name = strdup("setTimeout");
         evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
@@ -106,10 +106,10 @@ JSAPI_FUNC(my_setInterval) {
         JS_ReportError(cx, "invalid params passed to setInterval");
 
     if (JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[0]) && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
-        Script *self = (Script *)JS_GetContextPrivate(cx);
+        Script* self = (Script*)JS_GetContextPrivate(cx);
         int freq = JSVAL_TO_INT(JS_ARGV(cx, vp)[1]);
         self->RegisterEvent("setInterval", JS_ARGV(cx, vp)[0]);
-        Event *evt = new Event;
+        Event* evt = new Event;
         evt->owner = self;
         evt->name = strdup("setInterval");
         evt->arg3 = new jsval(JS_ARGV(cx, vp)[0]);
@@ -134,7 +134,7 @@ JSAPI_FUNC(my_delay) {
         return JS_FALSE;
     }
     JS_EndRequest(cx);
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
     DWORD start = GetTickCount();
 
     int amt = nDelay - (GetTickCount() - start);
@@ -148,7 +148,7 @@ JSAPI_FUNC(my_delay) {
 
             while (script->EventList.size() > 0 && !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu))) {
                 EnterCriticalSection(&Vars.cEventSection);
-                Event *evt = script->EventList.back();
+                Event* evt = script->EventList.back();
                 script->EventList.pop_back();
                 LeaveCriticalSection(&Vars.cEventSection);
                 ExecScriptEvent(evt, false);
@@ -172,13 +172,13 @@ JSAPI_FUNC(my_delay) {
 JSAPI_FUNC(my_load) {
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
     if (!script) {
         JS_ReportError(cx, "Failed to get script object");
         return JS_FALSE;
     }
 
-    char *file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath))) {
         JS_ReportError(cx, "File name too long!");
@@ -193,13 +193,13 @@ JSAPI_FUNC(my_load) {
     sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
     StringReplace(buf, '/', '\\', _MAX_PATH + _MAX_FNAME);
 
-    JSAutoStructuredCloneBuffer **autoBuffer = new JSAutoStructuredCloneBuffer *;
+    JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
     for (uintN i = 1; i < argc; i++) {
         autoBuffer[i - 1] = new JSAutoStructuredCloneBuffer;
         autoBuffer[i - 1]->write(cx, JS_ARGV(cx, vp)[i]);
     }
 
-    Script *newScript = ScriptEngine::CompileFile(buf, scriptState, argc - 1, autoBuffer);
+    Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc - 1, autoBuffer);
     JS_free(cx, file);
     if (newScript) {
         newScript->BeginThread(ScriptThread);
@@ -216,13 +216,13 @@ JSAPI_FUNC(my_load) {
 JSAPI_FUNC(my_include) {
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
     if (!script) {
         JS_ReportError(cx, "Failed to get script object");
         return JS_FALSE;
     }
 
-    char *file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long!");
@@ -241,7 +241,7 @@ JSAPI_FUNC(my_include) {
 JSAPI_FUNC(my_stop) {
     if (argc > 0 && (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == 1) ||
         (JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[0]) && JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[0]) == TRUE)) {
-        Script *script = (Script *)JS_GetContextPrivate(cx);
+        Script* script = (Script*)JS_GetContextPrivate(cx);
         if (script)
             script->Stop();
     } else
@@ -276,7 +276,7 @@ JSAPI_FUNC(my_getThreadPriority) {
 }
 
 JSAPI_FUNC(my_isIncluded) {
-    char *file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long");
@@ -285,7 +285,7 @@ JSAPI_FUNC(my_isIncluded) {
 
     char path[_MAX_FNAME + _MAX_PATH];
     sprintf_s(path, _MAX_FNAME + _MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
-    Script *script = (Script *)JS_GetContextPrivate(cx);
+    Script* script = (Script*)JS_GetContextPrivate(cx);
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
     JS_free(cx, file);
     return JS_TRUE;
@@ -312,7 +312,7 @@ JSAPI_FUNC(my_debugLog) {
                 return JS_FALSE;
             }
             JS_EndRequest(cx);
-            char *Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
             if (Text == NULL) {
                 JS_ReportError(cx, "Could not get string for value");
                 return JS_FALSE;
@@ -332,14 +332,14 @@ JSAPI_FUNC(my_debugLog) {
     return JS_TRUE;
 }
 JSAPI_FUNC(my_copy) {
-    char *data = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* data = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     JS_ValueToString(cx, JS_ARGV(cx, vp)[0]);
     HGLOBAL hText;
-    char *pText;
+    char* pText;
     hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(data) + 1);
-    pText = (char *)GlobalLock(hText);
-    char *tempData;
+    pText = (char*)GlobalLock(hText);
+    char* tempData;
 
     strcpy_s(pText, strlen(data) + 1, data);
     GlobalUnlock(hText);
@@ -356,8 +356,8 @@ JSAPI_FUNC(my_paste) {
     HANDLE foo = GetClipboardData(CF_TEXT);
     CloseClipboard();
     LPVOID lptstr = GlobalLock(foo);
-    (char *)lptstr;
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)lptstr)));
+    (char*)lptstr;
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)lptstr)));
     return JS_TRUE;
 }
 JSAPI_FUNC(my_sendCopyData) {
@@ -377,14 +377,14 @@ JSAPI_FUNC(my_sendCopyData) {
 
     if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[1])) {
         if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32 *)&hWnd);
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&hWnd);
         } else if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1])) {
             windowName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
         }
     }
 
     if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[2]))
-        JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32 *)&nModeId);
+        JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32*)&nModeId);
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3])) {
         data = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
@@ -420,7 +420,7 @@ JSAPI_FUNC(my_sendDDE) {
     JS_BeginRequest(cx);
 
     if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
-        JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32 *)&mode);
+        JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&mode);
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         pszDDEServer = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
@@ -436,7 +436,7 @@ JSAPI_FUNC(my_sendDDE) {
 
     JS_EndRequest(cx);
     char buffer[255] = "";
-    if (SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char **)&buffer, 255)) {
+    if (SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255)) {
         if (mode == 0)
             JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer)));
     } else
@@ -456,9 +456,9 @@ JSAPI_FUNC(my_keystate) {
 
 JSAPI_FUNC(my_addEventListener) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1])) {
-        char *evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (evtName && strlen(evtName)) {
-            Script *self = (Script *)JS_GetContextPrivate(cx);
+            Script* self = (Script*)JS_GetContextPrivate(cx);
             self->RegisterEvent(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])), JS_ARGV(cx, vp)[1]);
         } else
             THROW_ERROR(cx, "Event name is invalid!");
@@ -469,9 +469,9 @@ JSAPI_FUNC(my_addEventListener) {
 
 JSAPI_FUNC(my_removeEventListener) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1])) {
-        char *evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (evtName && strlen(evtName)) {
-            Script *self = (Script *)JS_GetContextPrivate(cx);
+            Script* self = (Script*)JS_GetContextPrivate(cx);
             self->UnregisterEvent(evtName, JS_ARGV(cx, vp)[1]);
         } else
             THROW_ERROR(cx, "Event name is invalid!");
@@ -482,8 +482,8 @@ JSAPI_FUNC(my_removeEventListener) {
 
 JSAPI_FUNC(my_clearEvent) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-        Script *self = (Script *)JS_GetContextPrivate(cx);
-        char *evt = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        Script* self = (Script*)JS_GetContextPrivate(cx);
+        char* evt = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         self->ClearEvent(evt);
         JS_free(cx, evt);
     }
@@ -491,7 +491,7 @@ JSAPI_FUNC(my_clearEvent) {
 }
 
 JSAPI_FUNC(my_clearAllEvents) {
-    Script *self = (Script *)JS_GetContextPrivate(cx);
+    Script* self = (Script*)JS_GetContextPrivate(cx);
     self->ClearAllEvents();
     return JS_TRUE;
 }
@@ -544,7 +544,7 @@ JSAPI_FUNC(my_handler) {
 
 JSAPI_FUNC(my_loadMpq) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    char *path = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* path = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (isValidPath(path))
         LoadMPQ(path);
@@ -561,11 +561,11 @@ JSAPI_FUNC(my_sendPacket) {
     }
 
     JS_BeginRequest(cx);
-    BYTE *aPacket;
+    BYTE* aPacket;
     uint32 len = 0;
 
     if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
-        JSObject *obj;
+        JSObject* obj;
         JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
 
         if (!JS_IsArrayBufferObject(obj)) {
@@ -589,7 +589,7 @@ JSAPI_FUNC(my_sendPacket) {
 
         for (uint i = 0; i < argc; i += 2, len += size) {
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], &size);
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t *)&aPacket[len]);
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t*)&aPacket[len]);
         }
     }
 
@@ -609,11 +609,11 @@ JSAPI_FUNC(my_getPacket) {
     }
 
     JS_BeginRequest(cx);
-    BYTE *aPacket;
+    BYTE* aPacket;
     uint32 len = 0;
 
     if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
-        JSObject *obj;
+        JSObject* obj;
         JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
 
         if (!JS_IsArrayBufferObject(obj)) {
@@ -637,7 +637,7 @@ JSAPI_FUNC(my_getPacket) {
 
         for (uint i = 0; i < argc; i += 2, len += size) {
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i], &size);
-            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t *)&aPacket[len]);
+            JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[i + 1], (uint32_t*)&aPacket[len]);
         }
     }
 
@@ -661,7 +661,7 @@ JSAPI_FUNC(my_getIP) {
     InternetCloseHandle(hFile);
     InternetCloseHandle(hInternet);
     JS_BeginRequest(cx);
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer)));
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)buffer)));
     JS_EndRequest(cx);
     return JS_TRUE;
 }

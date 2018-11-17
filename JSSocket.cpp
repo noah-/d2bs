@@ -21,7 +21,7 @@ struct SocketData {
 EMPTY_CTOR(socket)
 
 JSAPI_PROP(socket_getProperty) {
-    SocketData *sdata = (SocketData *)JS_GetInstancePrivate(cx, obj, &socket_class, NULL);
+    SocketData* sdata = (SocketData*)JS_GetInstancePrivate(cx, obj, &socket_class, NULL);
 
     if (sdata) {
         jsval ID;
@@ -59,7 +59,9 @@ JSAPI_PROP(socket_getProperty) {
     return JS_TRUE;
 }
 
-JSAPI_STRICT_PROP(socket_setProperty) { return JS_TRUE; }
+JSAPI_STRICT_PROP(socket_setProperty) {
+    return JS_TRUE;
+}
 
 JSAPI_FUNC(socket_open) {
 
@@ -67,7 +69,7 @@ JSAPI_FUNC(socket_open) {
         JS_SET_RVAL(cx, vp, JSVAL_FALSE);
         return JS_TRUE;
     }
-    char *hostName = NULL;
+    char* hostName = NULL;
     int32 port = 0;
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         hostName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
@@ -81,25 +83,25 @@ JSAPI_FUNC(socket_open) {
         return JS_TRUE;
     }
 
-    SocketData *Sdata = new SocketData;
+    SocketData* Sdata = new SocketData;
 
     Sdata->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    struct hostent *host;
+    struct hostent* host;
     host = gethostbyname(hostName);
     if (host == NULL)
         THROW_ERROR(cx, "Cannot find host");
     SOCKADDR_IN SockAddr;
     SockAddr.sin_port = htons(port);
     SockAddr.sin_family = AF_INET;
-    SockAddr.sin_addr.s_addr = *((unsigned long *)host->h_addr);
+    SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
     Sdata->mode = Sdata->socket;
 
-    if (connect(Sdata->socket, (SOCKADDR *)(&SockAddr), sizeof(SockAddr)) != 0) {
+    if (connect(Sdata->socket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
         THROW_ERROR(cx, "Failed to connect");
     }
 
-    JSObject *res = BuildObject(cx, &socket_class, socket_methods, socket_props, Sdata);
+    JSObject* res = BuildObject(cx, &socket_class, socket_methods, socket_props, Sdata);
     if (!res) {
         closesocket(Sdata->socket);
         WSACleanup();
@@ -110,7 +112,7 @@ JSAPI_FUNC(socket_open) {
 }
 
 JSAPI_FUNC(socket_close) {
-    SocketData *sData = (SocketData *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
+    SocketData* sData = (SocketData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
 
     closesocket(sData->socket);
     WSACleanup();
@@ -119,9 +121,9 @@ JSAPI_FUNC(socket_close) {
 }
 
 JSAPI_FUNC(socket_send) {
-    SocketData *sData = (SocketData *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
+    SocketData* sData = (SocketData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
 
-    char *msg = NULL;
+    char* msg = NULL;
     int32 port = 0;
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         msg = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
@@ -132,7 +134,7 @@ JSAPI_FUNC(socket_send) {
 }
 
 JSAPI_FUNC(socket_read) {
-    SocketData *sData = (SocketData *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
+    SocketData* sData = (SocketData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
 
     char buffer[10000] = {0};
     std::string returnVal;
@@ -154,9 +156,9 @@ JSAPI_FUNC(socket_read) {
     return JS_TRUE;
 }
 
-void socket_finalize(JSFreeOp *fop, JSObject *obj) {
+void socket_finalize(JSFreeOp* fop, JSObject* obj) {
 
-    SocketData *sData = (SocketData *)JS_GetPrivate(obj);
+    SocketData* sData = (SocketData*)JS_GetPrivate(obj);
     if (sData) {
         closesocket(sData->socket);
         WSACleanup();

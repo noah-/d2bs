@@ -7,8 +7,10 @@
 
 #include <windows.h>
 
-typedef DWORD(__stdcall *PluginEntryFunc)(DWORD dwReason, LPVOID lpData);
-DWORD __stdcall PluginEntry(DWORD dwReason, LPVOID lpData) { return TRUE; }
+typedef DWORD(__stdcall* PluginEntryFunc)(DWORD dwReason, LPVOID lpData);
+DWORD __stdcall PluginEntry(DWORD dwReason, LPVOID lpData) {
+    return TRUE;
+}
 typedef struct {
     DWORD dwMagicword;
     DWORD dwVersion;
@@ -20,7 +22,9 @@ PLUGIN_INTERFACE Interface = {0x44320000, 0x01000912, "D2BS", PluginEntry};
 #ifdef __cplusplus
 extern "C" {
 #endif
-__declspec(dllexport) LPPLUGIN_INTERFACE __cdecl QueryInterface(void) { return &Interface; }
+__declspec(dllexport) LPPLUGIN_INTERFACE __cdecl QueryInterface(void) {
+    return &Interface;
+}
 #ifdef __cplusplus
 }
 #endif

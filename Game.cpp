@@ -16,7 +16,7 @@ void __fastcall UseStatPoint(WORD stat, int count) {
         return;
 
     BYTE packet[3] = {0x3A};
-    *(WORD *)&packet[1] = stat;
+    *(WORD*)&packet[1] = stat;
 
     for (int i = 0; i < count; i++) {
         D2CLIENT_SendGamePacket(3, packet);
@@ -30,7 +30,7 @@ void __fastcall UseSkillPoint(WORD skill, int count) {
         return;
 
     BYTE packet[3] = {0x3B};
-    *(WORD *)&packet[1] = skill;
+    *(WORD*)&packet[1] = skill;
 
     for (int i = 0; i < count; i++) {
         D2CLIENT_SendGamePacket(3, packet);

@@ -24,26 +24,26 @@ using namespace std;
 
 struct SqliteDB;
 struct DBStmt;
-typedef std::set<DBStmt *> StmtList;
+typedef std::set<DBStmt*> StmtList;
 
 struct SqliteDB {
-    sqlite3 *db;
+    sqlite3* db;
     bool open;
-    char *path;
+    char* path;
     StmtList stmts;
 };
 
 struct DBStmt {
-    sqlite3_stmt *stmt;
+    sqlite3_stmt* stmt;
     bool open, canGet;
-    SqliteDB *assoc_db;
-    JSObject *current_row;
+    SqliteDB* assoc_db;
+    JSObject* current_row;
 };
 
-void close_db_stmt(DBStmt *stmt);
-bool clean_sqlite_db(SqliteDB *db);
+void close_db_stmt(DBStmt* stmt);
+bool clean_sqlite_db(SqliteDB* db);
 
-bool clean_sqlite_db(SqliteDB *db) {
+bool clean_sqlite_db(SqliteDB* db) {
     if (db && db->open) {
         for (StmtList::iterator it = db->stmts.begin(); it != db->stmts.end(); it++) {
             close_db_stmt(*it);
@@ -55,7 +55,7 @@ bool clean_sqlite_db(SqliteDB *db) {
     return true;
 }
 
-void close_db_stmt(DBStmt *stmt) {
+void close_db_stmt(DBStmt* stmt) {
     if (stmt->stmt && stmt->open) {
         sqlite3_finalize(stmt->stmt);
         stmt->stmt = NULL;
@@ -79,7 +79,7 @@ EMPTY_CTOR(sqlite_stmt)
 JSAPI_FUNC(sqlite_ctor) {
     if (argc > 0 && !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters in SQLite constructor");
-    char *path = ":memory:";
+    char* path = ":memory:";
     if (argc > 0)
         path = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
@@ -88,7 +88,7 @@ JSAPI_FUNC(sqlite_ctor) {
         if (!isValidPath(path))
             THROW_ERROR(cx, "Invalid characters in database name");
 
-        char *tmp = new char[_MAX_PATH + _MAX_FNAME];
+        char* tmp = new char[_MAX_PATH + _MAX_FNAME];
         sprintf_s(tmp, _MAX_PATH + _MAX_FNAME, "%s\\%s", Vars.szScriptPath, path);
         path = _strdup(tmp);
         delete[] tmp;
@@ -98,7 +98,7 @@ JSAPI_FUNC(sqlite_ctor) {
     if (JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1]))
         autoOpen = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[1]);
 
-    sqlite3 *db = NULL;
+    sqlite3* db = NULL;
     if (autoOpen) {
         if (SQLITE_OK != sqlite3_open(path, &db)) {
             char msg[1024];
@@ -107,7 +107,7 @@ JSAPI_FUNC(sqlite_ctor) {
         }
     }
 
-    SqliteDB *dbobj = new SqliteDB; // leaked?
+    SqliteDB* dbobj = new SqliteDB; // leaked?
     dbobj->db = db;
     dbobj->open = autoOpen;
     dbobj->path = _strdup(path);
@@ -116,7 +116,7 @@ JSAPI_FUNC(sqlite_ctor) {
     if (path[0] != ':')
         free(path);
 
-    JSObject *jsdb = BuildObject(cx, &sqlite_db, sqlite_methods, sqlite_props, dbobj);
+    JSObject* jsdb = BuildObject(cx, &sqlite_db, sqlite_methods, sqlite_props, dbobj);
     if (!jsdb) {
         sqlite3_close(db);
         free(dbobj->path);
@@ -129,7 +129,7 @@ JSAPI_FUNC(sqlite_ctor) {
 }
 
 JSAPI_FUNC(sqlite_execute) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
+    SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
     if (dbobj->open != true)
         THROW_ERROR(cx, "Database must first be opened!");
     if (argc < 1 || argc > 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
@@ -148,14 +148,14 @@ JSAPI_FUNC(sqlite_execute) {
 }
 
 JSAPI_FUNC(sqlite_query) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
+    SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
     if (dbobj->open != true)
         THROW_ERROR(cx, "Database must first be opened!");
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters to SQLite.query");
 
-    char *sql = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    sqlite3_stmt *stmt;
+    char* sql = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    sqlite3_stmt* stmt;
     if (SQLITE_OK != sqlite3_prepare_v2(dbobj->db, sql, strlen(sql), &stmt, NULL)) {
         THROW_ERROR(cx, sqlite3_errmsg(dbobj->db));
     }
@@ -189,7 +189,7 @@ JSAPI_FUNC(sqlite_query) {
         }
     }
 
-    DBStmt *dbstmt = new DBStmt;
+    DBStmt* dbstmt = new DBStmt;
     dbstmt->stmt = stmt;
     dbstmt->open = true;
     dbstmt->canGet = false;
@@ -197,7 +197,7 @@ JSAPI_FUNC(sqlite_query) {
     dbstmt->current_row = NULL;
     dbobj->stmts.insert(dbstmt);
 
-    JSObject *row = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, dbstmt);
+    JSObject* row = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, dbstmt);
     if (!row) {
         sqlite3_finalize(stmt);
         delete dbstmt;
@@ -209,7 +209,7 @@ JSAPI_FUNC(sqlite_query) {
 }
 
 JSAPI_FUNC(sqlite_close) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
+    SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
     if (!clean_sqlite_db(dbobj)) {
         char msg[1024];
         sprintf_s(msg, sizeof(msg), "Could not close database: %s", sqlite3_errmsg(dbobj->db));
@@ -220,7 +220,7 @@ JSAPI_FUNC(sqlite_close) {
 }
 
 JSAPI_FUNC(sqlite_open) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
+    SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
     if (!dbobj->open) {
         if (SQLITE_OK != sqlite3_open(dbobj->path, &dbobj->db)) {
             char msg[1024];
@@ -233,7 +233,7 @@ JSAPI_FUNC(sqlite_open) {
 }
 
 JSAPI_PROP(sqlite_getProperty) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetInstancePrivate(cx, obj, &sqlite_db, NULL);
+    SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db, NULL);
 
     jsval ID;
     JS_IdToValue(cx, id, &ID);
@@ -249,12 +249,12 @@ JSAPI_PROP(sqlite_getProperty) {
         break;
     case SQLITE_STMTS: {
         JS_BeginRequest(cx);
-        JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
+        JSObject* stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
         vp.set(OBJECT_TO_JSVAL(stmts));
         int i = 0;
         for (StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
             if ((*it)->open) {
-                JSObject *stmt = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, *it);
+                JSObject* stmt = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, *it);
                 jsval tmp = OBJECT_TO_JSVAL(stmt);
                 JS_SetElement(cx, stmts, i, &tmp);
             }
@@ -269,8 +269,8 @@ JSAPI_PROP(sqlite_getProperty) {
     return JS_TRUE;
 }
 
-void sqlite_finalize(JSFreeOp *fop, JSObject *obj) {
-    SqliteDB *dbobj = (SqliteDB *)JS_GetPrivate(obj);
+void sqlite_finalize(JSFreeOp* fop, JSObject* obj) {
+    SqliteDB* dbobj = (SqliteDB*)JS_GetPrivate(obj);
     JS_SetPrivate(obj, NULL);
     if (dbobj) {
         clean_sqlite_db(dbobj);
@@ -297,8 +297,8 @@ void sqlite_finalize(JSFreeOp *fop, JSObject *obj) {
 //}
 
 JSAPI_FUNC(sqlite_stmt_getobject) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
-    sqlite3_stmt *stmt = stmtobj->stmt;
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    sqlite3_stmt* stmt = stmtobj->stmt;
 
     if (!stmtobj->canGet) {
         JS_SET_RVAL(cx, vp, JSVAL_NULL);
@@ -314,13 +314,13 @@ JSAPI_FUNC(sqlite_stmt_getobject) {
         JS_SET_RVAL(cx, vp, JSVAL_TRUE);
         return JS_TRUE;
     }
-    JSObject *obj2 = JS_New(cx, NULL, NULL, NULL);
+    JSObject* obj2 = JS_New(cx, NULL, NULL, NULL);
     // JSObject *obj2 = JS_ConstructObject(cx, NULL, NULL);
     jsval val;
     if (!obj2)
         THROW_ERROR(cx, "Failed to create row result object");
     for (int i = 0; i < cols; i++) {
-        const char *colnam = sqlite3_column_name(stmt, i);
+        const char* colnam = sqlite3_column_name(stmt, i);
         switch (sqlite3_column_type(stmt, i)) {
         case SQLITE_INTEGER:
             // jsdouble == double, so this conversion is no problem
@@ -334,7 +334,7 @@ JSAPI_FUNC(sqlite_stmt_getobject) {
                 THROW_ERROR(cx, "Failed to add column to row results");
             break;
         case SQLITE_TEXT:
-            val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char *>(sqlite3_column_text(stmt, i))));
+            val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
             if (!JS_SetProperty(cx, obj2, colnam, &val))
                 THROW_ERROR(cx, "Failed to add column to row results");
             break;
@@ -357,8 +357,8 @@ JSAPI_FUNC(sqlite_stmt_getobject) {
 }
 
 JSAPI_FUNC(sqlite_stmt_colcount) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
-    sqlite3_stmt *stmt = stmtobj->stmt;
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    sqlite3_stmt* stmt = stmtobj->stmt;
 
     if (!stmtobj->canGet)
         THROW_ERROR(cx, "Statement is not ready");
@@ -368,8 +368,8 @@ JSAPI_FUNC(sqlite_stmt_colcount) {
 }
 
 JSAPI_FUNC(sqlite_stmt_colval) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
-    sqlite3_stmt *stmt = stmtobj->stmt;
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    sqlite3_stmt* stmt = stmtobj->stmt;
 
     if (!stmtobj->canGet)
         THROW_ERROR(cx, "Statement is not ready");
@@ -389,7 +389,7 @@ JSAPI_FUNC(sqlite_stmt_colval) {
         JS_SET_RVAL(cx, vp, rval);
         break;
     case SQLITE_TEXT:
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char *>(sqlite3_column_text(stmt, i)))));
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)))));
         break;
     case SQLITE_BLOB:
         // currently not supported
@@ -403,8 +403,8 @@ JSAPI_FUNC(sqlite_stmt_colval) {
 }
 
 JSAPI_FUNC(sqlite_stmt_colname) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
-    sqlite3_stmt *stmt = stmtobj->stmt;
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    sqlite3_stmt* stmt = stmtobj->stmt;
 
     if (!stmtobj->canGet)
         THROW_ERROR(cx, "Statement is not ready");
@@ -418,7 +418,7 @@ JSAPI_FUNC(sqlite_stmt_colname) {
 }
 
 JSAPI_FUNC(sqlite_stmt_execute) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
 
     int res = sqlite3_step(stmtobj->stmt);
 
@@ -430,8 +430,8 @@ JSAPI_FUNC(sqlite_stmt_execute) {
 }
 
 JSAPI_FUNC(sqlite_stmt_bind) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
-    sqlite3_stmt *stmt = stmtobj->stmt;
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    sqlite3_stmt* stmt = stmtobj->stmt;
     if (argc < 2 || argc > 2 || !(JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) || JSVAL_IS_INT(JS_ARGV(cx, vp)[0])))
         THROW_ERROR(cx, "Invalid parameters for SQLiteStatement.bind");
 
@@ -470,7 +470,7 @@ JSAPI_FUNC(sqlite_stmt_bind) {
 }
 
 JSAPI_FUNC(sqlite_stmt_next) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
 
     int res = sqlite3_step(stmtobj->stmt);
 
@@ -488,7 +488,7 @@ JSAPI_FUNC(sqlite_stmt_next) {
 
 JSAPI_FUNC(sqlite_stmt_skip) {
     JS_SET_RVAL(cx, vp, JS_ARGV(cx, vp)[0]);
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameter to SQLiteStatement.skip");
     for (int i = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) - 1; i >= 0; i++) {
@@ -508,7 +508,7 @@ JSAPI_FUNC(sqlite_stmt_skip) {
 }
 
 JSAPI_FUNC(sqlite_stmt_reset) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_stmt, NULL);
     if (SQLITE_OK != sqlite3_reset(stmtobj->stmt))
         THROW_ERROR(cx, sqlite3_errmsg(stmtobj->assoc_db->db));
     stmtobj->canGet = false;
@@ -517,8 +517,8 @@ JSAPI_FUNC(sqlite_stmt_reset) {
 }
 
 JSAPI_FUNC(sqlite_stmt_close) {
-    JSObject *obj = JS_THIS_OBJECT(cx, vp);
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
+    JSObject* obj = JS_THIS_OBJECT(cx, vp);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
     if (stmtobj->current_row)
         JS_RemoveRoot(cx, &stmtobj->current_row);
     close_db_stmt(stmtobj);
@@ -534,7 +534,7 @@ JSAPI_FUNC(sqlite_stmt_close) {
 }
 
 JSAPI_PROP(sqlite_stmt_getProperty) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
+    DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 
     jsval ID;
     JS_IdToValue(cx, id, &ID);
@@ -549,8 +549,8 @@ JSAPI_PROP(sqlite_stmt_getProperty) {
     return JS_TRUE;
 }
 
-void sqlite_stmt_finalize(JSFreeOp *fop, JSObject *obj) {
-    DBStmt *stmtobj = (DBStmt *)JS_GetPrivate(obj);
+void sqlite_stmt_finalize(JSFreeOp* fop, JSObject* obj) {
+    DBStmt* stmtobj = (DBStmt*)JS_GetPrivate(obj);
     JS_SetPrivate(obj, NULL);
     if (stmtobj) {
         if (stmtobj->stmt && stmtobj->open) {

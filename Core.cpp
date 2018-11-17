@@ -11,7 +11,7 @@
 #include "CriticalSections.h"
 #include "Console.h"
 
-bool SplitLines(const std::string &str, size_t maxlen, const char delim, std::list<std::string> &lst) {
+bool SplitLines(const std::string& str, size_t maxlen, const char delim, std::list<std::string>& lst) {
     using namespace std;
 
     if (str.length() < 1 || maxlen < 2)
@@ -52,11 +52,11 @@ bool SplitLines(const std::string &str, size_t maxlen, const char delim, std::li
     return true;
 }
 
-void Print(const char *szFormat, ...) {
+void Print(const char* szFormat, ...) {
     va_list vaArgs;
     va_start(vaArgs, szFormat);
     int len = _vscprintf(szFormat, vaArgs);
-    char *str = new char[len + 1];
+    char* str = new char[len + 1];
     vsprintf_s(str, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
@@ -85,23 +85,23 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr) {
     }
 }
 
-void __fastcall Say(const char *szFormat, ...) {
+void __fastcall Say(const char* szFormat, ...) {
     va_list vaArgs;
     va_start(vaArgs, szFormat);
     int len = _vscprintf(szFormat, vaArgs);
-    char *szBuffer = new char[len + 1];
+    char* szBuffer = new char[len + 1];
     vsprintf_s(szBuffer, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
     Vars.bDontCatchNextMsg = TRUE;
 
     if (*p_D2CLIENT_PlayerUnit) {
-        wchar_t *wBuffer = AnsiToUnicode(szBuffer);
-        memcpy((wchar_t *)p_D2CLIENT_ChatMsg, wBuffer, (wcslen(wBuffer) + 1) * sizeof(wchar_t));
+        wchar_t* wBuffer = AnsiToUnicode(szBuffer);
+        memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, (wcslen(wBuffer) + 1) * sizeof(wchar_t));
         delete[] wBuffer;
         wBuffer = NULL;
 
-        MSG *aMsg = new MSG;
+        MSG* aMsg = new MSG;
         aMsg->hwnd = D2GFX_GetHwnd();
         aMsg->message = WM_CHAR;
         aMsg->wParam = VK_RETURN;
@@ -128,14 +128,14 @@ void __fastcall Say(const char *szFormat, ...) {
     }
     // help button and ! ok msg for disconnected
     else if (findControl(CONTROL_BUTTON, 5308, -1, 187, 470, 80, 20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351, 337, 96, 32))) {
-        memcpy((char *)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
+        memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
         D2MULTI_DoChat();
     }
 
     delete[] szBuffer;
 }
 
-bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny *pUnit) {
+bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit) {
     if (ClientState() != ClientStateInGame)
         return false;
 
@@ -182,7 +182,7 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny *pUnit) {
     return TRUE;
 }
 
-void LoadMPQ(const char *mpq) {
+void LoadMPQ(const char* mpq) {
     D2WIN_InitMPQ(mpq, 0, 0, 3000);
     *p_BNCLIENT_XPacKey = *p_BNCLIENT_ClassicKey = *p_BNCLIENT_KeyOwner = NULL;
     // BNCLIENT_DecodeAndLoadKeys();
@@ -190,7 +190,7 @@ void LoadMPQ(const char *mpq) {
 
 int UTF8FindByteIndex(std::string str, int maxutf8len) {
     int utf8len = 0, byteIndex = 0;
-    const char *tstr = str.c_str();
+    const char* tstr = str.c_str();
     size_t strlen = str.size();
 
     for (byteIndex = 0; byteIndex < strlen; byteIndex++) {
@@ -205,7 +205,7 @@ int UTF8FindByteIndex(std::string str, int maxutf8len) {
 }
 
 int UTF8Length(std::string str) {
-    const char *tmp = str.c_str();
+    const char* tmp = str.c_str();
     int len = 0;
     while (*tmp)
         len += (*tmp++ & 0xc0) != 0x80;

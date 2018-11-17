@@ -19,7 +19,9 @@ class CSyncObj {
         ::InitializeCriticalSection(&m_cs);
         IsLocked = false;
     }
-    virtual ~CSyncObj() { ::DeleteCriticalSection(&m_cs); }
+    virtual ~CSyncObj() {
+        ::DeleteCriticalSection(&m_cs);
+    }
 
     /////////////////////////////////////////////////////////////////
     // Public Operations

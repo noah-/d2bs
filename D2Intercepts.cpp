@@ -68,7 +68,9 @@ void __declspec(naked) GamePacketSent_Interception() {
     }
 }
 
-void GameDraw_Intercept(void) { GameDraw(); }
+void GameDraw_Intercept(void) {
+    GameDraw();
+}
 
 void __declspec(naked) GameInput_Intercept() {
     __asm {
@@ -87,10 +89,10 @@ BlockIt:
     }
 }
 
-UnitAny *GetSelectedUnit_Intercept(void) {
+UnitAny* GetSelectedUnit_Intercept(void) {
     if (Vars.bClickAction) {
         if (Vars.dwSelectedUnitId) {
-            UnitAny *pUnit = D2CLIENT_FindUnit(Vars.dwSelectedUnitId, Vars.dwSelectedUnitType);
+            UnitAny* pUnit = D2CLIENT_FindUnit(Vars.dwSelectedUnitId, Vars.dwSelectedUnitType);
 
             return pUnit;
         }
@@ -133,20 +135,6 @@ VOID __declspec(naked) ChatPacketRecv_Interception() {
 		call edi
 Block:
 		ret
-    }
-}
-
-void __declspec(naked) MsgLoop_Intercept() {
-    __asm {
-		jz skip
-		push ecx
-		mov ecx, 30
-		call Sleep
-		pop ecx
-		pop eax
-		jmp D2CLIENT_MsgLoop_I
-skip:
-		call D2CLIENT_MsgLoop_II
     }
 }
 
@@ -195,7 +183,9 @@ Skip:
     }
 }
 
-void GameDrawOOG_Intercept(void) { GameDrawOOG(); }
+void GameDrawOOG_Intercept(void) {
+    GameDrawOOG();
+}
 
 void __declspec(naked) GameActChange_Intercept(void) {
     __asm
@@ -245,7 +235,7 @@ SkipInput:
     }
 }
 
-void __declspec(naked) AddUnit_Intercept(UnitAny *lpUnit) {
+void __declspec(naked) AddUnit_Intercept(UnitAny* lpUnit) {
     __asm
     {
 		call [D2CLIENT_GameAddUnit_I]
@@ -257,7 +247,7 @@ void __declspec(naked) AddUnit_Intercept(UnitAny *lpUnit) {
     }
 }
 
-void __declspec(naked) RemoveUnit_Intercept(UnitAny *lpUnit) {
+void __declspec(naked) RemoveUnit_Intercept(UnitAny* lpUnit) {
     __asm {
 		pushad
 		push dword ptr ds:[esi+edx*4]
@@ -322,10 +312,12 @@ int EraseCacheFiles() {
     return 0;
 }
 
-HMODULE __stdcall Multi(LPSTR Class, LPSTR Window) { return 0; }
+HMODULE __stdcall Multi(LPSTR Class, LPSTR Window) {
+    return 0;
+}
 
-HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent,
-                            HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
+HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu,
+                            HINSTANCE hInstance, LPVOID lpParam) {
     WCHAR szWindowName[200] = L"D2";
 
     if (wcslen(Vars.szTitle) > 1)
@@ -364,7 +356,7 @@ WINUSERAPI
 int WINAPI MessageBoxA(__in_opt HWND hWnd, __in_opt LPCSTR lpText, __in_opt LPCSTR lpCaption, __in UINT uType);
 
 int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
-    char *dllAddrs;
+    char* dllAddrs;
 
     Log("Error message box, caption: \"%s\", message:\n%s\n%s", lpCaption, lpText, dllAddrs = DllLoadAddrStrs());
 
@@ -373,7 +365,7 @@ int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, 
     return MessageBoxA(hWnd, lpText, lpCaption, uType);
 }
 #include <DbgHelp.h>
-LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo) {
+LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS* ExceptionInfo) {
     // NOT WORKING ONE, WORKING ONE IS IN Helpers.cpp
     MessageBox(NULL, "QWE", "QWE", MB_OK);
     HANDLE hFile = INVALID_HANDLE_VALUE;
@@ -406,7 +398,7 @@ void FogException() {
     }
 }
 
-char __fastcall ErrorReportLaunch(const char *crash_file, int a2) {
+char __fastcall ErrorReportLaunch(const char* crash_file, int a2) {
     Log("Crash File: %s\n", crash_file);
     exit(0);
 }

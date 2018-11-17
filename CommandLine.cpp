@@ -24,11 +24,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "ArrayEx.h"
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 
-CArrayEx<sLine *, sLine *> aCommand;
+CArrayEx<sLine*, sLine*> aCommand;
 
 // Commands.
-sLine CLine[] = {{L"-d2c", 0},    {L"-d2x", 0},   {L"-title", 0},  {L"-mpq", 0},     {L"-profile", 0},
-                 {L"-handle", 0}, {L"-multi", 0}, {L"-sleepy", 0}, {L"-cachefix", 0}};
+sLine CLine[] = {{L"-d2c", 0}, {L"-d2x", 0}, {L"-title", 0}, {L"-mpq", 0}, {L"-profile", 0}, {L"-handle", 0}, {L"-multi", 0}, {L"-sleepy", 0}, {L"-cachefix", 0}};
 
 DWORD ParseStringForText(LPWSTR Source, LPWSTR text) {
     WCHAR BUF[4059];
@@ -78,7 +77,7 @@ VOID ParseCommandLine(LPWSTR Command) {
                     memcpy(szText + wcslen(szText), (LPWSTR)&byt, sizeof(byt));
             }
         }
-        sLine *sl = new sLine;
+        sLine* sl = new sLine;
         sl->isBool = CLine[x].isBool;
         wcscpy_s(sl->Param, sizeof(sl->Param), CLine[x].Param);
         if (!sl->isBool)
@@ -88,7 +87,7 @@ VOID ParseCommandLine(LPWSTR Command) {
     }
 }
 
-sLine *GetCommand(LPWSTR Param) {
+sLine* GetCommand(LPWSTR Param) {
     for (int x = 0; x < aCommand.GetSize(); x++)
         if (!_wcsicmp(aCommand[x]->Param, Param))
             return aCommand[x];

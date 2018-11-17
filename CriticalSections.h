@@ -7,8 +7,11 @@ class CriticalRoom {
     bool bEnteredCriticalSection;
 
   public:
-    CriticalRoom() : bEnteredCriticalSection(false) {}
-    ~CriticalRoom() { LeaveSection(); }
+    CriticalRoom() : bEnteredCriticalSection(false) {
+    }
+    ~CriticalRoom() {
+        LeaveSection();
+    }
 
     void EnterSection() {
         InterlockedIncrement(&Vars.SectionCount);
@@ -43,6 +46,10 @@ class AutoCriticalRoom {
     }
 
   public:
-    AutoCriticalRoom() : bEnteredCriticalSection(false) { EnterSection(); }
-    ~AutoCriticalRoom() { LeaveSection(); }
+    AutoCriticalRoom() : bEnteredCriticalSection(false) {
+        EnterSection();
+    }
+    ~AutoCriticalRoom() {
+        LeaveSection();
+    }
 };

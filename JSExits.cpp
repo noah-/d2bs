@@ -2,13 +2,13 @@
 
 EMPTY_CTOR(exit)
 
-void exit_finalize(JSFreeOp *fop, JSObject *obj) {
-    myExit *pExit = (myExit *)JS_GetPrivate(obj);
+void exit_finalize(JSFreeOp* fop, JSObject* obj) {
+    myExit* pExit = (myExit*)JS_GetPrivate(obj);
     delete pExit;
 }
 
 JSAPI_PROP(exit_getProperty) {
-    myExit *pExit = (myExit *)JS_GetPrivate(cx, obj);
+    myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
     vp.set(JSVAL_VOID);
 

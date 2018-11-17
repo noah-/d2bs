@@ -10,27 +10,27 @@
 #include "DbgHelp.h"
 #include "Profile.h"
 
-wchar_t *AnsiToUnicode(const char *str, UINT codepage) {
-    wchar_t *buf = NULL;
+wchar_t* AnsiToUnicode(const char* str, UINT codepage) {
+    wchar_t* buf = NULL;
     int len = MultiByteToWideChar(codepage, 0, str, -1, buf, 0);
     buf = new wchar_t[len];
     MultiByteToWideChar(codepage, 0, str, -1, buf, len);
     return buf;
 }
 
-char *UnicodeToAnsi(const wchar_t *str, UINT codepage) {
-    char *buf = NULL;
+char* UnicodeToAnsi(const wchar_t* str, UINT codepage) {
+    char* buf = NULL;
     int len = WideCharToMultiByte(codepage, 0, str, -1, buf, 0, (codepage ? NULL : "?"), NULL);
     buf = new char[len];
     WideCharToMultiByte(codepage, 0, str, -1, buf, len, (codepage ? NULL : "?"), NULL);
     return buf;
 }
 
-void StringToLower(char *p) {
+void StringToLower(char* p) {
     for (; *p; ++p)
         *p = tolower(*p);
 }
-bool StringToBool(const char *str) {
+bool StringToBool(const char* str) {
     switch (tolower(str[0])) {
     case 't':
     case '1':
@@ -42,19 +42,18 @@ bool StringToBool(const char *str) {
     }
 }
 
-void StringReplace(char *str, const char find, const char replace, size_t buflen) {
+void StringReplace(char* str, const char find, const char replace, size_t buflen) {
     for (size_t i = 0; i < buflen; i++) {
         if (str[i] == find)
             str[i] = replace;
     }
 }
 
-bool SwitchToProfile(const char *profile) {
+bool SwitchToProfile(const char* profile) {
     if (Vars.bUseProfileScript != TRUE || !Profile::ProfileExists(profile))
         return false;
 
-    char file[_MAX_FNAME + _MAX_PATH] = "", defaultStarter[_MAX_FNAME] = "", defaultConsole[_MAX_FNAME] = "", defaultGame[_MAX_FNAME] = "",
-                           scriptPath[_MAX_PATH] = "";
+    char file[_MAX_FNAME + _MAX_PATH] = "", defaultStarter[_MAX_FNAME] = "", defaultConsole[_MAX_FNAME] = "", defaultGame[_MAX_FNAME] = "", scriptPath[_MAX_PATH] = "";
     sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
     GetPrivateProfileString(profile, "ScriptPath", "scripts", scriptPath, _MAX_PATH, file);
@@ -77,9 +76,9 @@ bool SwitchToProfile(const char *profile) {
 }
 
 void InitSettings(void) {
-    char fname[_MAX_FNAME + MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], debug[6],
-        quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6],
-        logConsole[6], enableUnsupported[6], forwardMessageBox[6], consoleFont[6];
+    char fname[_MAX_FNAME + MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], debug[6], quitOnHostile[6],
+        quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6],
+        enableUnsupported[6], forwardMessageBox[6], consoleFont[6];
 
     sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
@@ -169,7 +168,7 @@ bool InitHooks(void) {
     return true;
 }
 
-const char *GetStarterScriptName(void) {
+const char* GetStarterScriptName(void) {
     return (ClientState() == ClientStateInGame ? Vars.szDefault : ClientState() == ClientStateMenu ? Vars.szStarter : NULL);
 }
 
@@ -178,15 +177,15 @@ ScriptState GetStarterScriptState(void) {
     return (ClientState() == ClientStateInGame ? InGame : ClientState() == ClientStateMenu ? OutOfGame : InGame);
 }
 
-bool ExecCommand(const char *command) {
+bool ExecCommand(const char* command) {
     ScriptEngine::RunCommand(command);
     return true;
 }
 
-bool StartScript(const char *scriptname, ScriptState state) {
+bool StartScript(const char* scriptname, ScriptState state) {
     char file[_MAX_FNAME + _MAX_PATH];
     sprintf_s(file, _MAX_FNAME + _MAX_PATH, "%s\\%s", Vars.szScriptPath, scriptname);
-    Script *script = ScriptEngine::CompileFile(file, state);
+    Script* script = ScriptEngine::CompileFile(file, state);
     return (script && script->BeginThread(ScriptThread));
 }
 
@@ -204,7 +203,7 @@ void Reload(void) {
     Sleep(500);
 
     if (!Vars.bUseProfileScript) {
-        const char *script = GetStarterScriptName();
+        const char* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
@@ -212,18 +211,18 @@ void Reload(void) {
     }
 }
 
-bool ProcessCommand(const char *command, bool unprocessedIsCommand) {
+bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
     bool result = false;
-    char *buf = _strdup(command);
-    char *next_token1 = NULL;
-    char *argv = strtok_s(buf, " ", &next_token1);
+    char* buf = _strdup(command);
+    char* next_token1 = NULL;
+    char* argv = strtok_s(buf, " ", &next_token1);
 
     // no command?
     if (argv == NULL)
         return false;
 
     if (_strcmpi(argv, "start") == 0) {
-        const char *script = GetStarterScriptName();
+        const char* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
@@ -240,7 +239,7 @@ bool ProcessCommand(const char *command, bool unprocessedIsCommand) {
         ScriptEngine::FlushCache();
         result = true;
     } else if (_strcmpi(argv, "load") == 0) {
-        const char *script = command + 5;
+        const char* script = command + 5;
         if (StartScript(script, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
@@ -256,7 +255,7 @@ bool ProcessCommand(const char *command, bool unprocessedIsCommand) {
         double value = 1 / zero;
         Print("%d", value);
     } else if (_strcmpi(argv, "profile") == 0) {
-        const char *profile = command + 8;
+        const char* profile = command + 8;
         if (SwitchToProfile(profile))
             Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
         else
@@ -277,7 +276,7 @@ bool ProcessCommand(const char *command, bool unprocessedIsCommand) {
 
 void GameJoined(void) {
     if (!Vars.bUseProfileScript) {
-        const char *starter = GetStarterScriptName();
+        const char* starter = GetStarterScriptName();
         if (starter != NULL) {
             Print("ÿc2D2BSÿc0 :: Starting %s", starter);
             if (StartScript(starter, GetStarterScriptState()))
@@ -290,7 +289,7 @@ void GameJoined(void) {
 
 void MenuEntered(bool beginStarter) {
     if (beginStarter && !Vars.bUseProfileScript) {
-        const char *starter = GetStarterScriptName();
+        const char* starter = GetStarterScriptName();
         if (starter != NULL) {
             Print("ÿc2D2BSÿc0 :: Starting %s", starter);
             if (StartScript(starter, GetStarterScriptState()))
@@ -301,11 +300,11 @@ void MenuEntered(bool beginStarter) {
     }
 }
 
-SYMBOL_INFO *GetSymFromAddr(HANDLE hProcess, DWORD64 addr) {
-    char *symbols = new char[sizeof(SYMBOL_INFO) + 512];
+SYMBOL_INFO* GetSymFromAddr(HANDLE hProcess, DWORD64 addr) {
+    char* symbols = new char[sizeof(SYMBOL_INFO) + 512];
     memset(symbols, 0, sizeof(SYMBOL_INFO) + 512);
 
-    SYMBOL_INFO *sym = (SYMBOL_INFO *)(symbols);
+    SYMBOL_INFO* sym = (SYMBOL_INFO*)(symbols);
     sym->SizeOfStruct = sizeof(SYMBOL_INFO);
     sym->MaxNameLen = 512;
 
@@ -319,8 +318,8 @@ SYMBOL_INFO *GetSymFromAddr(HANDLE hProcess, DWORD64 addr) {
     return sym;
 }
 
-IMAGEHLP_LINE64 *GetLineFromAddr(HANDLE hProcess, DWORD64 addr) {
-    IMAGEHLP_LINE64 *line = new IMAGEHLP_LINE64;
+IMAGEHLP_LINE64* GetLineFromAddr(HANDLE hProcess, DWORD64 addr) {
+    IMAGEHLP_LINE64* line = new IMAGEHLP_LINE64;
     line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
     DWORD dummy;
@@ -332,16 +331,16 @@ IMAGEHLP_LINE64 *GetLineFromAddr(HANDLE hProcess, DWORD64 addr) {
     return line;
 }
 
-char *DllLoadAddrStrs() {
-    const char *dlls[] = {"D2Client.DLL", "D2Common.DLL", "D2Gfx.DLL",    "D2Lang.DLL", "D2Win.DLL", "D2Net.DLL",  "D2Game.DLL",
+char* DllLoadAddrStrs() {
+    const char* dlls[] = {"D2Client.DLL", "D2Common.DLL", "D2Gfx.DLL",    "D2Lang.DLL", "D2Win.DLL", "D2Net.DLL",  "D2Game.DLL",
                           "D2Launch.DLL", "Fog.DLL",      "BNClient.DLL", "Storm.DLL",  "D2Cmp.DLL", "D2Multi.DLL"};
     size_t strMaxLen;
-    char *result;
+    char* result;
     char lineBuf[80];
     unsigned int i;
 
     strMaxLen = sizeof(lineBuf) * sizeof(dlls) / sizeof(dlls[0]);
-    result = (char *)malloc(strMaxLen);
+    result = (char*)malloc(strMaxLen);
 
     result[0] = '\0';
 
@@ -356,9 +355,9 @@ char *DllLoadAddrStrs() {
     return result;
 }
 
-LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS *ptrs) {
-    EXCEPTION_RECORD *rec = ptrs->ExceptionRecord;
-    CONTEXT *ctx = ptrs->ContextRecord;
+LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
+    EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
+    CONTEXT* ctx = ptrs->ContextRecord;
     DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
 
     char path[MAX_PATH + _MAX_FNAME] = "";
@@ -370,8 +369,8 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS *ptrs) {
 
     unsigned int i;
     int len;
-    char *szString;
-    char *dllAddrs;
+    char* szString;
+    char* dllAddrs;
 
     SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_FAIL_CRITICAL_ERRORS | SYMOPT_NO_PROMPTS | SYMOPT_DEFERRED_LOADS);
     SymInitialize(hProcess, Vars.szPath, TRUE);
@@ -398,13 +397,13 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS *ptrs) {
         if (stack.AddrPC.Offset == 0)
             break;
 
-        SYMBOL_INFO *sym = GetSymFromAddr(hProcess, stack.AddrPC.Offset);
+        SYMBOL_INFO* sym = GetSymFromAddr(hProcess, stack.AddrPC.Offset);
 
         if (sym) {
             char msg[1024];
             ULONG64 base2 = (sym->Address - sym->ModBase);
 
-            IMAGEHLP_LINE64 *line = GetLineFromAddr(hProcess, stack.AddrPC.Offset);
+            IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, stack.AddrPC.Offset);
             if (line)
                 sprintf_s(msg, 1024, "\t%s+0x%08x, File: %s line %d\n", sym->Name, base2, strrchr(line->FileName, '\\') + 1, line->LineNumber);
             else
@@ -418,24 +417,23 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS *ptrs) {
             trace.append(addr);
         }
 
-        delete[](char *) sym;
+        delete[](char*) sym;
     }
 
-    SYMBOL_INFO *sym = GetSymFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
+    SYMBOL_INFO* sym = GetSymFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
 
-    IMAGEHLP_LINE64 *line = GetLineFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
+    IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
 
-    len =
-        _scprintf("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
-                  "D2BS loaded at: 0x%08x\n"
-                  "Registers:\n"
-                  "\tEIP: 0x%08x, ESP: 0x%08x\n"
-                  "\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
-                  "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
-                  "Stack Trace:\n%s\nEnd of stack trace.",
-                  rec->ExceptionCode, rec->ExceptionAddress, sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\') + 1 : "Unknown",
-                  line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs,
-                  ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
+    len = _scprintf("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+                    "D2BS loaded at: 0x%08x\n"
+                    "Registers:\n"
+                    "\tEIP: 0x%08x, ESP: 0x%08x\n"
+                    "\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
+                    "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
+                    "Stack Trace:\n%s\nEnd of stack trace.",
+                    rec->ExceptionCode, rec->ExceptionAddress, sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\') + 1 : "Unknown",
+                    line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax,
+                    ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
     dllAddrs = DllLoadAddrStrs();
 
     szString = new char[len + 1];
@@ -448,15 +446,15 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS *ptrs) {
               "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
               "Stack Trace:\n%s\nEnd of stack trace.",
               rec->ExceptionCode, rec->ExceptionAddress, sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\') + 1 : "Unknown",
-              line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax,
-              ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
+              line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax, ctx->Ebx,
+              ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
 
     Log("%s\n%s", szString, dllAddrs);
 
     free(dllAddrs);
 
     delete[] szString;
-    delete[](char *) sym;
+    delete[](char*) sym;
     delete line;
 
     SymCleanup(hProcess);

@@ -15,30 +15,30 @@ enum ScriptState { InGame, OutOfGame, Command };
 class Script;
 
 typedef std::map<std::string, bool> IncludeList;
-typedef std::list<AutoRoot *> FunctionList;
+typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
-typedef std::list<Script *> ScriptList;
+typedef std::list<Script*> ScriptList;
 
 struct Event {
     Event() : count(0){};
-    Script *owner;
-    JSObject *object;
+    Script* owner;
+    JSObject* object;
     FunctionList functions;
-    JSAutoStructuredCloneBuffer **argv;
+    JSAutoStructuredCloneBuffer** argv;
     uintN argc;
-    char *name;
-    void *arg1;
-    void *arg2;
-    void *arg3;
-    void *arg4;
-    void *arg5;
+    char* name;
+    void* arg1;
+    void* arg2;
+    void* arg3;
+    void* arg4;
+    void* arg5;
     volatile long count;
     inline void threadFinished() {
         // clean up after both threads are done with the event
-        char *evtName = (char *)name;
+        char* evtName = (char*)name;
         InterlockedIncrement(&count);
         if (count > 1) {
-            Event *evt = this;
+            Event* evt = this;
 
             if (strcmp(evtName, "itemaction") == 0) {
                 delete arg1;
@@ -57,8 +57,8 @@ struct Event {
                 delete evt->arg1;
                 free(evt->arg2);
             }
-            if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatinput") == 0 || strcmp(evtName, "whispermsg") == 0 ||
-                strcmp(evtName, "chatmsgblocker") == 0 || strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
+            if (strcmp(evtName, "chatmsg") == 0 || strcmp(evtName, "chatinput") == 0 || strcmp(evtName, "whispermsg") == 0 || strcmp(evtName, "chatmsgblocker") == 0 ||
+                strcmp(evtName, "chatinputblocker") == 0 || strcmp(evtName, "whispermsgblocker") == 0) {
                 free(evt->arg1);
                 free(evt->arg2);
                 delete evt->arg4;
@@ -108,12 +108,12 @@ class Script {
     std::string fileName;
     int execCount;
     ScriptState scriptState;
-    JSContext *context;
-    JSScript *script;
-    JSRuntime *runtime;
-    myUnit *me;
+    JSContext* context;
+    JSScript* script;
+    JSRuntime* runtime;
+    myUnit* me;
     uintN argc;
-    JSAutoStructuredCloneBuffer **argv;
+    JSAutoStructuredCloneBuffer** argv;
 
     JSObject *globalObject, *scriptObject;
     bool isLocked, isPaused, isReallyPaused, isAborted;
@@ -124,9 +124,9 @@ class Script {
 
     CRITICAL_SECTION lock;
 
-    Script(const char *file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer **argv = NULL);
-    Script(const Script &);
-    Script &operator=(const Script &);
+    Script(const char* file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
+    Script(const Script&);
+    Script& operator=(const Script&);
     ~Script(void);
 
   public:
@@ -139,18 +139,34 @@ class Script {
     void Resume(void);
     bool IsPaused(void);
     bool BeginThread(LPTHREAD_START_ROUTINE ThreadFunc);
-    void RunCommand(const char *command);
-    inline void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
-    inline bool IsReallyPaused(void) { return isReallyPaused; }
+    void RunCommand(const char* command);
+    inline void SetPauseState(bool reallyPaused) {
+        isReallyPaused = reallyPaused;
+    }
+    inline bool IsReallyPaused(void) {
+        return isReallyPaused;
+    }
     void Stop(bool force = false, bool reallyForce = false);
 
-    inline const char *GetFilename(void) { return fileName.c_str(); }
-    const char *GetShortFilename(void);
-    inline JSContext *GetContext(void) { return context; }
-    inline JSRuntime *GetRuntime(void) { return runtime; }
-    inline JSObject *GetGlobalObject(void) { return globalObject; }
-    inline JSObject *GetScriptObject(void) { return scriptObject; }
-    inline ScriptState GetState(void) { return scriptState; }
+    inline const char* GetFilename(void) {
+        return fileName.c_str();
+    }
+    const char* GetShortFilename(void);
+    inline JSContext* GetContext(void) {
+        return context;
+    }
+    inline JSRuntime* GetRuntime(void) {
+        return runtime;
+    }
+    inline JSObject* GetGlobalObject(void) {
+        return globalObject;
+    }
+    inline JSObject* GetScriptObject(void) {
+        return scriptObject;
+    }
+    inline ScriptState GetState(void) {
+        return scriptState;
+    }
     inline void TriggerOperationCallback(void) {
         if (hasActiveCX)
             JS_TriggerOperationCallback(runtime);
@@ -165,31 +181,37 @@ class Script {
     void UpdatePlayerGid(void);
     // Hack. Include from console needs to run on the RunCommandThread / cx.
     //		 a better solution may be to keep a list of threadId / cx and have a GetCurrentThreadCX()
-    inline void SetContext(JSContext *cx) { context = cx; }
+    inline void SetContext(JSContext* cx) {
+        context = cx;
+    }
     bool IsRunning(void);
     bool IsAborted(void);
-    void Lock() { EnterCriticalSection(&lock); } // needed for events walking function list
-    void Unlock() { LeaveCriticalSection(&lock); }
-    bool IsIncluded(const char *file);
-    bool Include(const char *file);
+    void Lock() {
+        EnterCriticalSection(&lock);
+    } // needed for events walking function list
+    void Unlock() {
+        LeaveCriticalSection(&lock);
+    }
+    bool IsIncluded(const char* file);
+    bool Include(const char* file);
 
-    bool IsListenerRegistered(const char *evtName);
-    void RegisterEvent(const char *evtName, jsval evtFunc);
-    bool IsRegisteredEvent(const char *evtName, jsval evtFunc);
-    void UnregisterEvent(const char *evtName, jsval evtFunc);
-    void ClearEvent(const char *evtName);
+    bool IsListenerRegistered(const char* evtName);
+    void RegisterEvent(const char* evtName, jsval evtFunc);
+    bool IsRegisteredEvent(const char* evtName, jsval evtFunc);
+    void UnregisterEvent(const char* evtName, jsval evtFunc);
+    void ClearEvent(const char* evtName);
     void ClearAllEvents(void);
-    void FireEvent(Event *);
-    std::list<Event *> EventList;
+    void FireEvent(Event*);
+    std::list<Event*> EventList;
 };
 
 struct RUNCOMMANDSTRUCT {
-    Script *script;
-    const char *command;
+    Script* script;
+    const char* command;
 };
 
-DWORD WINAPI RunCommandThread(void *data);
-DWORD WINAPI ScriptThread(void *data);
-DWORD WINAPI FuncThread(void *data);
+DWORD WINAPI RunCommandThread(void* data);
+DWORD WINAPI ScriptThread(void* data);
+DWORD WINAPI FuncThread(void* data);
 DWORD WINAPI EventThread(LPVOID lpParam);
-bool callEventFunction(JSContext *cx, Event *evt);
+bool callEventFunction(JSContext* cx, Event* evt);

@@ -17,7 +17,7 @@ JSAPI_FUNC(my_openDir);
 
 JSAPI_PROP(dir_getProperty);
 
-void dir_finalize(JSFreeOp *fop, JSObject *obj);
+void dir_finalize(JSFreeOp* fop, JSObject* obj);
 
 //////////////////////////////////////////////////////////////////
 // directory stuff
@@ -34,7 +34,9 @@ static JSFunctionSpec dir_methods[] = {JS_FS("create", dir_create, 1, FUNCTION_F
 class DirData {
   public:
     char name[_MAX_FNAME];
-    DirData(char *newname) { strcpy_s(name, _MAX_FNAME, newname); }
+    DirData(char* newname) {
+        strcpy_s(name, _MAX_FNAME, newname);
+    }
 };
 
 #endif

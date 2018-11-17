@@ -13,12 +13,12 @@
 //	Profile(ProfileType.tcpIpHost, charname, diff)
 //	Profile(ProfileType.tcpIpJoin, charname, ip)
 CLASS_CTOR(profile) {
-    Profile *prof;
+    Profile* prof;
     ProfileType pt;
-    char *str1;
-    char *str2;
-    char *str3;
-    char *str4;
+    char* str1;
+    char* str2;
+    char* str3;
+    char* str4;
     unsigned int i;
 
     str1 = str2 = str3 = str4 = NULL;
@@ -46,9 +46,8 @@ CLASS_CTOR(profile) {
         // Profile(ProfileType.battleNet, account, pass, charname, gateway)
         else if (argc == 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_BATTLENET) {
             // JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "issss", &pt, &str1, &str2, &str3, &str4);
-            prof = new Profile(PROFILETYPE_BATTLENET, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])),
-                               JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])), JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3])),
-                               JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4])));
+            prof = new Profile(PROFILETYPE_BATTLENET, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])), JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])),
+                               JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3])), JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4])));
         }
         // Profile(ProfileType.openBattleNet, account, pass, charname, gateway)
         else if (argc == 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_OPEN_BATTLENET) {
@@ -65,11 +64,11 @@ CLASS_CTOR(profile) {
         // Profile(ProfileType.tcpIpJoin, charname, ip)
         else if (argc == 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_TCPIP_JOIN) {
             // JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "iss", &pt, &str1, &str2);
-            prof = new Profile(PROFILETYPE_TCPIP_JOIN, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])),
-                               JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])));
+            prof =
+                new Profile(PROFILETYPE_TCPIP_JOIN, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])), JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])));
         } else
             THROW_ERROR(cx, "Invalid parameters.");
-    } catch (char *ex) {
+    } catch (char* ex) {
         THROW_ERROR(cx, ex);
     }
 
@@ -80,10 +79,10 @@ CLASS_CTOR(profile) {
 
 JSAPI_FUNC(profile_login) {
     JS_SET_RVAL(cx, vp, JSVAL_VOID);
-    char *error;
-    Profile *prof;
+    char* error;
+    Profile* prof;
 
-    prof = (Profile *)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+    prof = (Profile*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (prof->login(&error) != 0)
         THROW_ERROR(cx, error);
@@ -91,10 +90,10 @@ JSAPI_FUNC(profile_login) {
     return JS_TRUE;
 }
 
-void profile_finalize(JSFreeOp *fop, JSObject *obj) {
-    Profile *prof;
+void profile_finalize(JSFreeOp* fop, JSObject* obj) {
+    Profile* prof;
 
-    prof = (Profile *)JS_GetPrivate(obj);
+    prof = (Profile*)JS_GetPrivate(obj);
 
     if (prof != NULL)
         delete prof;
@@ -103,9 +102,9 @@ void profile_finalize(JSFreeOp *fop, JSObject *obj) {
 }
 
 JSAPI_PROP(profile_getProperty) {
-    Profile *prof;
+    Profile* prof;
 
-    prof = (Profile *)JS_GetPrivate(cx, obj);
+    prof = (Profile*)JS_GetPrivate(cx, obj);
     jsval ID;
     JS_IdToValue(cx, id, &ID);
     switch (JSVAL_TO_INT(ID)) {
