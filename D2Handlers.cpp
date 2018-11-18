@@ -36,6 +36,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
         Log("D2BS Engine startup complete. %s", D2BS_VERSION);
         Print("ÿc2D2BSÿc0 :: Engine startup complete!");
         D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
+        Vars.dwLocale = *p_D2CLIENT_Lang;
     } else {
         Log("D2BS Engine startup failed.");
         Print("ÿc2D2BSÿc0 :: Engine startup failed!");

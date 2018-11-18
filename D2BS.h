@@ -46,6 +46,7 @@ struct Variables {
     BOOL bChangedAct;
     BOOL bGameLoopEntered;
     DWORD dwGameThreadId;
+    DWORD dwLocale;
 
     DWORD dwMaxGameTime;
     DWORD dwGameTimeout;
