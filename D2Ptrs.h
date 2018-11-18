@@ -352,9 +352,9 @@ enum {
     // D2Net Functions
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), 0x12AE50)      // Updated 1.14d //0052AE50-BASE
-    FUNCPTR(D2NET, ReceivePacket, void __fastcall, (BYTE * aPacket, DWORD aLen), 0x12AEB0)              // Updated 1.14d //0052AEB0-BASE
-    FUNCPTR(D2NET, ReceivePacket_I, void __fastcall, (BYTE * aPacket, DWORD aLen, int* arg3), 0x12B920) // Updated 1.14d //0052B920-BASE
+    FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), 0x12AE50)       // Updated 1.14d //0052AE50-BASE
+    FUNCPTR(D2NET, ReceivePacket, void __fastcall, (BYTE * aPacket, DWORD aLen), 0x12AEB0)               // Updated 1.14d //0052AEB0-BASE
+    FUNCPTR(D2NET, ReceivePacket_I, void __fastcall, (BYTE * aPacket, DWORD aLen, int* arg3), 0x12B920)  // Updated 1.14d //0052B920-BASE
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Net Globals
