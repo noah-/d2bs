@@ -46,7 +46,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup(name);
+        evt->name = _strdup(name);
         evt->arg1 = new DWORD((DWORD)helper->key);
 
         script->FireEvent(evt);
@@ -57,7 +57,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup(name);
+        evt->name = _strdup(name);
         evt->arg1 = new DWORD((DWORD)helper->key);
         evt->arg4 = new DWORD(false);
         ResetEvent(Vars.eventSignal);
@@ -88,7 +88,7 @@ bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("playerassign");
+        evt->name = _strdup("playerassign");
         evt->arg1 = new DWORD((DWORD)helper->arg1);
 
         script->FireEvent(evt);
@@ -107,7 +107,7 @@ bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("mouseclick");
+        evt->name = _strdup("mouseclick");
         evt->arg1 = new DWORD(helper->arg1);
         evt->arg2 = new DWORD(helper->arg2);
         evt->arg3 = new DWORD(helper->arg3);
@@ -129,7 +129,7 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("mousemove");
+        evt->name = _strdup("mousemove");
         evt->arg1 = new DWORD(helper->arg1);
         evt->arg2 = new DWORD(helper->arg2);
 
@@ -152,7 +152,7 @@ bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("scriptmsg");
+        evt->name = _strdup("scriptmsg");
         evt->arg1 = new DWORD(argc);
         evt->argv = new JSAutoStructuredCloneBuffer*;
         for (uint i = 0; i < argc; i++) {
@@ -231,7 +231,7 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("copydata");
+        evt->name = _strdup("copydata");
         evt->arg1 = new DWORD(helper->mode);
         evt->arg2 = _strdup(helper->msg);
 
@@ -251,7 +251,7 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("itemaction");
+        evt->name = _strdup("itemaction");
         evt->arg1 = new DWORD(helper->id);
         evt->arg2 = _strdup(helper->code);
         evt->arg3 = new DWORD(helper->mode);
@@ -273,7 +273,7 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup("gameevent");
+        evt->name = _strdup("gameevent");
         evt->arg1 = new BYTE(helper->mode);
         evt->arg2 = new DWORD(helper->param1);
         evt->arg3 = new DWORD(helper->param2);
@@ -298,7 +298,7 @@ bool __fastcall PacketEventCallback(Script* script, void* argv, uint argc) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
-        evt->name = strdup(helper->name);
+        evt->name = _strdup(helper->name);
         evt->arg1 = new BYTE[helper->dwSize];
         evt->arg2 = new DWORD(helper->dwSize);
         evt->arg4 = new DWORD(false);
