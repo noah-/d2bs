@@ -25,7 +25,7 @@ struct Event {
     JSObject* object;
     FunctionList functions;
     JSAutoStructuredCloneBuffer** argv;
-    uintN argc;
+    uint argc;
     char* name;
     void* arg1;
     void* arg2;
@@ -112,7 +112,7 @@ class Script {
     JSScript* script;
     JSRuntime* runtime;
     myUnit* me;
-    uintN argc;
+    uint argc;
     JSAutoStructuredCloneBuffer** argv;
 
     JSObject *globalObject, *scriptObject;
@@ -124,7 +124,7 @@ class Script {
 
     CRITICAL_SECTION lock;
 
-    Script(const char* file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
+    Script(const char* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
     Script(const Script&);
     Script& operator=(const Script&);
     ~Script(void);

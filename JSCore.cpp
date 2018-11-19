@@ -50,7 +50,7 @@ JSAPI_FUNC(my_utf8ToEuc) {
 
 JSAPI_FUNC(my_print) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    for (uintN i = 0; i < argc; i++) {
+    for (uint i = 0; i < argc; i++) {
         if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i])) {
             JS_BeginRequest(cx);
             if (!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i]))) {
@@ -194,7 +194,7 @@ JSAPI_FUNC(my_load) {
     StringReplace(buf, '/', '\\', _MAX_PATH + _MAX_FNAME);
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
-    for (uintN i = 1; i < argc; i++) {
+    for (uint i = 1; i < argc; i++) {
         autoBuffer[i - 1] = new JSAutoStructuredCloneBuffer;
         autoBuffer[i - 1]->write(cx, JS_ARGV(cx, vp)[i]);
     }
@@ -303,7 +303,7 @@ JSAPI_FUNC(my_version) {
 }
 
 JSAPI_FUNC(my_debugLog) {
-    for (uintN i = 0; i < argc; i++) {
+    for (uint i = 0; i < argc; i++) {
         if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i])) {
             JS_BeginRequest(cx);
             if (!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i]))) {

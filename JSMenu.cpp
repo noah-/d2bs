@@ -124,7 +124,7 @@ JSAPI_FUNC(my_addProfile) {
         THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
     char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
-    for (uintN i = 0; i < 6; i++) {
+    for (uint i = 0; i < 6; i++) {
         if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[i])) {
             THROW_ERROR(cx, "Invalid argument passed to addProfile");
         } else

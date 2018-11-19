@@ -1049,7 +1049,7 @@ JSAPI_FUNC(my_playSound) {
 JSAPI_FUNC(my_say) {
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
 
-    for (uintN i = 0; i < argc; i++) {
+    for (uint i = 0; i < argc; i++) {
         if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[i])) {
             JS_BeginRequest(cx);
             if (!JS_ConvertValue(cx, JS_ARGV(cx, vp)[i], JSTYPE_STRING, &(JS_ARGV(cx, vp)[i]))) {

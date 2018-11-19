@@ -199,7 +199,7 @@ JSAPI_FUNC(filetools_writeText) {
         return JS_FALSE;
     }
 
-    for (uintN i = 1; i < argc; i++)
+    for (uint i = 1; i < argc; i++)
         if (!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
             result = false;
 
@@ -229,7 +229,7 @@ JSAPI_FUNC(filetools_appendText) {
         return JS_FALSE;
     }
 
-    for (uintN i = 1; i < argc; i++)
+    for (uint i = 1; i < argc; i++)
         if (!writeValue(fptr, cx, JS_ARGV(cx, vp)[i], false, true))
             result = false;
 

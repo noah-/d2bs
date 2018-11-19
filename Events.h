@@ -14,7 +14,7 @@ bool KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 void PlayerAssignEvent(DWORD dwUnitId);
 void MouseClickEvent(int button, POINT pt, bool bUp);
 void MouseMoveEvent(POINT pt);
-void ScriptBroadcastEvent(JSContext* cx, uintN argc, jsval* argv);
+void ScriptBroadcastEvent(JSContext* cx, uint argc, jsval* argv);
 void GoldDropEvent(DWORD GID, BYTE Mode);
 void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
 bool GamePacketEvent(BYTE* pPacket, DWORD dwSize);
@@ -69,7 +69,7 @@ struct QuadArgHelper {
 struct BCastEventHelper {
     JSContext* cx;
     jsval* argv;
-    uintN argc;
+    uint argc;
 };
 struct PacketEventHelper {
     char* name;

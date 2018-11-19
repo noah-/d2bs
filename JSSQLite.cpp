@@ -163,7 +163,7 @@ JSAPI_FUNC(sqlite_query) {
         THROW_ERROR(cx, "Statement has no effect");
     }
 
-    for (uintN i = 1; i < argc; i++) {
+    for (uint i = 1; i < argc; i++) {
         switch (JS_TypeOfValue(cx, JS_ARGV(cx, vp)[i])) {
         case JSTYPE_VOID:
             sqlite3_bind_null(stmt, i);
