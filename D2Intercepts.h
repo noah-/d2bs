@@ -14,6 +14,7 @@ void GameAttack_Intercept();
 void PlayerAssignment_Intercept();
 void GameCrashFix_Intercept();
 void GameDrawOOG_Intercept(void);
+void CongratsScreen_Intercept(void);
 void GameActChange_Intercept(void);
 void GameActChange2_Intercept(void);
 void GameLeave_Intercept(void);
