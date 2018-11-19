@@ -12,8 +12,6 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/StandardInteger.h"
 
-#pragma warning (disable : 4127)
-
 /*
  * It's reasonable to ask why we have this header at all.  Don't isnan,
  * copysign, the built-in comparison operators, and the like solve these

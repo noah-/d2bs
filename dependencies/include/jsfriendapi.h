@@ -14,8 +14,6 @@
 #include "jspubtd.h"
 #include "jsprvtd.h"
 
-#pragma warning (disable : 4127)
-
 /*
  * This macro checks if the stack pointer has exceeded a given limit. If
  * |tolerance| is non-zero, it returns true only if the stack pointer has

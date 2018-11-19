@@ -20,8 +20,6 @@
 #include "zlib.h"
 #endif
 
-#pragma warning (disable : 4127)
-
 /* Forward declarations. */
 struct JSContext;
 

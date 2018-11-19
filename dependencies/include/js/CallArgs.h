@@ -38,8 +38,6 @@
 #include "js/RootingAPI.h"
 #include "js/Value.h"
 
-#pragma warning (disable : 4127)
-
 struct JSContext;
 class JSObject;
 

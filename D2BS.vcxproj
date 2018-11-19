@@ -151,7 +151,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4800;4480;4702;4512;4530;4238;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>false</CompileAsManaged>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>

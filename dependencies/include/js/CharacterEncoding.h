@@ -14,8 +14,6 @@
 
 #include "jspubtd.h"
 
-#pragma warning (disable : 4127)
-
 namespace JS {
 
 /*
