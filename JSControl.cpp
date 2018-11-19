@@ -309,7 +309,7 @@ JSAPI_FUNC(my_getControl) {
     int32 nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
     int32* args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
     JS_BeginRequest(cx);
-    for (uintN i = 0; i < argc; i++)
+    for (uint i = 0; i < argc; i++)
         if (JSVAL_IS_INT(JS_ARGV(cx, vp)[i]))
             JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[i], args[i]);
     JS_EndRequest(cx);

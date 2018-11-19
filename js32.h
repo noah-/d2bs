@@ -24,7 +24,6 @@
 typedef unsigned int uint;
 typedef uint32_t uint32;
 typedef int32_t int32;
-typedef unsigned int uintN;
 typedef unsigned int jsrefcount;
 typedef double jsdouble;
 typedef int32_t jsint;
@@ -55,7 +54,7 @@ struct JSClassSpec {
     JSClass* classp;
     JSClass* proto;
     JSNative ctor;
-    uintN argc;
+    uint argc;
     JSFunctionSpec* methods;
     JSPropertySpec* properties;
     JSFunctionSpec* static_methods;
@@ -98,11 +97,11 @@ class JSAutoRoot {
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_STATIC_VAR (JSPROP_ENUMERATE | JSPROP_PERMANENT)
 
-#define CLASS_CTOR(name) JSBool name##_ctor(JSContext* cx, uintN argc, jsval* vp)
+#define CLASS_CTOR(name) JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp)
 
-//#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
+//#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uint argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
 //  #define EMPTY_CTOR(name) \
-//JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval) { \
+//JSBool name##_ctor (JSContext *cx, JSObject* obj, uint argc, jsval *argv, jsval *rval) { \
 //	THROW_ERROR(cx, "Invalid Operation"); }
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL,
@@ -128,17 +127,17 @@ EXPORT JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* obj, JSClassSpec
 #define JSPROP_DEFAULT JSPROP_ENUMERATE | JSPROP_PERMANENT
 #define JSPROP_STATIC JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY
 
-#define JSAPI_FUNC(name) JSBool name##(JSContext * cx, uintN argc, jsval * vp)
+#define JSAPI_FUNC(name) JSBool name##(JSContext * cx, uint argc, jsval * vp)
 #define FUNCTION_FLAGS JSFUN_STUB_GSOPS
-//#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uintN argc, jsval* vp) { return THROW_ERROR(cx, "Invalid Operation");}
+//#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uint argc, jsval* vp) { return THROW_ERROR(cx, "Invalid Operation");}
 #define EMPTY_CTOR(name)                                                                                                                                                 \
-    JSBool name##_ctor(JSContext* cx, uintN argc, jsval* vp) {                                                                                                           \
+    JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp) {                                                                                                           \
         THROW_ERROR(cx, "Invalid Operation");                                                                                                                            \
     }
 
 #define JSAPI_PROP(name) JSBool name##(JSContext * cx, JSHandleObject obj, JSHandleId id, JSMutableHandleValue vp)
 #define JSAPI_STRICT_PROP(name) JSBool name##(JSContext * cx, JSHandleObject obj, JSHandleId id, JSBool strict, JSMutableHandleValue vp)
-//#define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *rval, jsval *rval)
+//#define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uint argc, jsval *rval, jsval *rval)
 //#define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 #define JS_PS(name, id, flags, getter, setter)                                                                                                                           \
