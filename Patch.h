@@ -24,6 +24,9 @@ PatchHook Patches[] = {
     // this patch needs a constant in ChatPacketRecv_Interception updated also
     {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x121B20), (DWORD)ChatPacketRecv_Interception, 7}, // Updated 1.14d //00521B20-BASE
 
+	//{PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x11FDD0),	(DWORD)0x51FF5B,	4}, //Extrawork
+	{PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x11FD82),	(DWORD)0x51FF5B,	4}, //Extrawork
+
     {PatchCall, GetDllOffset("D2Multi.dll", 0x48813), (DWORD)Whisper_Intercept, 7},      // Updated 1.14d //00448813-BASE
     {PatchCall, GetDllOffset("D2Multi.dll", 0x42A61), (DWORD)ChannelInput_Intercept, 5}, // Updated 1.14d //00442A61-BASE
 
