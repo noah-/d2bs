@@ -42,7 +42,7 @@ class ScriptEngine {
 
     static void FlushCache(void);
 
-    static Script* CompileFile(const char* file, ScriptState state, uintN argc = 0, JSAutoStructuredCloneBuffer** argv = NULL, bool recompile = false);
+    static Script* CompileFile(const char* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL, bool recompile = false);
     static void RunCommand(const char* command);
     static void DisposeScript(Script* script);
 
@@ -60,7 +60,7 @@ class ScriptEngine {
     }
 
     static void StopAll(bool forceStop = false);
-    static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
+    static void ExecEventAsync(char* evtName, AutoRoot** argv, uint argc);
     static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props, JSFunctionSpec* s_methods,
                           JSPropertySpec* s_props);
     static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
@@ -76,11 +76,11 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc);
 struct EventHelper {
     char* evtName;
     AutoRoot** argv;
-    uintN argc;
+    uint argc;
     bool executed;
 };
 JSBool operationCallback(JSContext* cx);
-JSBool contextCallback(JSContext* cx, uintN contextOp);
+JSBool contextCallback(JSContext* cx, uint contextOp);
 // gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext* cx, const char* message, JSErrorReport* report);
 bool ExecScriptEvent(Event* evt, bool clearList);

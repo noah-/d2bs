@@ -27,7 +27,7 @@ JSContext* ScriptEngine::context = NULL;
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
+Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
     if (GetState() != Running)
         return NULL;
     char* fileName = _strdup(file);
@@ -319,7 +319,7 @@ JSBool operationCallback(JSContext* cx) {
     }
 }
 
-JSBool contextCallback(JSContext* cx, uintN contextOp) {
+JSBool contextCallback(JSContext* cx, uint contextOp) {
     if (contextOp == JSCONTEXT_NEW) {
         JS_BeginRequest(cx);
 
@@ -703,7 +703,7 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
             DWORD* argc = (DWORD*)evt->arg1;
             JS_BeginRequest(cx);
             jsval* argv = new jsval[*argc];
-            for (uintN i = 0; i < *argc; i++)
+            for (uint i = 0; i < *argc; i++)
                 evt->argv[i]->read(cx, &argv[i]);
 
             for (int j = 0; j < *argc; j++)
@@ -718,7 +718,7 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
             for (int j = 0; j < *argc; j++)
                 JS_RemoveValueRoot(cx, &argv[j]);
         }
-        for (uintN i = 0; i < evt->argc; i++) {
+        for (uint i = 0; i < evt->argc; i++) {
             evt->argv[i]->clear();
             delete evt->argv[i];
         }

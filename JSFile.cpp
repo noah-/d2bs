@@ -410,7 +410,7 @@ JSAPI_FUNC(file_readAll) {
 JSAPI_FUNC(file_write) {
     FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
     if (fdata && fdata->fptr) {
-        for (uintN i = 0; i < argc; i++)
+        for (uint i = 0; i < argc; i++)
             writeValue(fdata->fptr, cx, JS_ARGV(cx, vp)[i], !!(fdata->mode > 2), fdata->locked);
 
         if (fdata->autoflush) {

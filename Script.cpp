@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Script::Script(const char* file, ScriptState state, uintN argc, JSAutoStructuredCloneBuffer** argv)
+Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
     : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
       threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
     InitializeCriticalSection(&lock);
@@ -186,7 +186,7 @@ void Script::Run(void) {
 
     // args passed from load
     jsval* argvalue = new jsval[argc];
-    for (uintN i = 0; i < argc; i++)
+    for (uint i = 0; i < argc; i++)
         argv[i]->read(context, &argvalue[i]);
 
     for (uint j = 0; j < argc; j++)
@@ -203,7 +203,7 @@ void Script::Run(void) {
     for (uint j = 0; j < argc; j++)
         JS_RemoveValueRoot(GetContext(), &argvalue[j]);
 
-    /*for(uintN i = 0; i < argc; i++)  //crashes spidermonkey cleans itself up?
+    /*for(uint i = 0; i < argc; i++)  //crashes spidermonkey cleans itself up?
     {
             argv[i]->clear();
             delete argv[i];
