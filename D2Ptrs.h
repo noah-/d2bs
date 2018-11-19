@@ -261,6 +261,8 @@ enum {
 
     ASMPTR(D2CLIENT, GameLeave_I, 0x81830) // Updated 1.14d //00481830-BASE
 
+	ASMPTR(D2CLIENT, CongratsScreen_I, 0xF6190) // Updated 1.14d //004F6190-BASE
+
     // ASMPTR(D2CLIENT, ClickMap_I, 0x11C8B4) //6FBCC8B4
     // ASMPTR(D2CLIENT, ClickMap_II, 0x11D2CC)//6FBCD2CC //MoveOn
     // ASMPTR(D2CLIENT, ClickMap_III, 0x5BB50)//ClickMap_III //CallOne

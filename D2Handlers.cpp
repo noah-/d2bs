@@ -430,6 +430,13 @@ void GameDrawOOG(void) {
     Sleep(10);
 }
 
+void SetMaxDiff(void) {
+	BnetData* pData = *p_D2LAUNCH_BnData;
+	if (pData && *p_D2CLIENT_ExpCharFlag && D2CLIENT_GetDifficulty() == 1) {
+		pData->nMaxDiff = 10;
+	}
+}
+
 void __stdcall AddUnit(UnitAny* lpUnit) {
     //	EnterCriticalSection(&Vars.cUnitListSection);
     //	Vars.vUnitList.push_back(make_pair<DWORD, DWORD>(lpUnit->dwUnitId, lpUnit->dwType));

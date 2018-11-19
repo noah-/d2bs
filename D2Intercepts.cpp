@@ -187,6 +187,17 @@ void GameDrawOOG_Intercept(void) {
     GameDrawOOG();
 }
 
+void __declspec(naked) CongratsScreen_Intercept(void) {
+	__asm
+	{
+		call D2CLIENT_CongratsScreen_I
+		pushad
+		call SetMaxDiff
+		popad
+		retn
+	}
+}
+
 void __declspec(naked) GameActChange_Intercept(void) {
     __asm
     {
