@@ -16,6 +16,8 @@
 #include "jsapi.h"
 #include "jsprvtd.h"
 
+#pragma warning (disable : 4127)
+
 #ifdef __cplusplus
 
 namespace js {

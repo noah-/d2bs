@@ -24,6 +24,8 @@
 
 #include "js/TemplateLib.h"
 
+#pragma warning (disable : 4127)
+
 /* The public JS engine namespace. */
 namespace JS {}
 

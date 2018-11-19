@@ -35,6 +35,8 @@
 #include "js/Value.h"
 #include "js/Vector.h"
 
+#pragma warning (disable : 4127)
+
 /************************************************************************/
 
 namespace JS {
