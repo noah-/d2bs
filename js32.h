@@ -1,7 +1,9 @@
 #pragma comment(lib, "psapi.lib") // Added to support GetProcessMemoryInfo()
 #pragma once
 
+#ifndef XP_WIN
 #define XP_WIN
+#endif
 
 //#ifndef DEBUG
 //#define DEBUG
@@ -90,7 +92,8 @@ class JSAutoRoot {
     }
 };
 
-#define JS_AddRoot(cx, vp) JS_AddObjectRoot(cx, (JSObject**)(vp), NAME(__LINE__, vp))
+//#define JS_AddRoot(cx, vp) JS_AddObjectRoot(cx, (JSObject**)(vp), NAME(__LINE__, vp))
+#define JS_AddRoot(cx, vp) JS_AddObjectRoot(cx, (JSObject**)(vp))
 #define JS_RemoveRoot(cx, vp) JS_RemoveObjectRoot(cx, (JSObject**)(vp));
 #define JSVAL_IS_FUNCTION(cx, var) (!JSVAL_IS_PRIMITIVE(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
 

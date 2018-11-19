@@ -3,7 +3,9 @@
 
 #pragma once
 
+#ifndef XP_WIN
 #define XP_WIN
+#endif
 
 #define D2BS_VERSION "1.5.1876U"
 
