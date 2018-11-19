@@ -13,6 +13,7 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize);
 DWORD __fastcall GamePacketSent(BYTE* pPacket, DWORD dwSize);
 void __fastcall GameResetFrames(UnitAny* pOwner);
 void GameDrawOOG(void);
+void SetMaxDiff(void);
 void __stdcall AddUnit(UnitAny* lpUnit);
 void __stdcall RemoveUnit(UnitAny* lpUnit);
 void __fastcall WhisperHandler(char* szAcc, char* szText);
