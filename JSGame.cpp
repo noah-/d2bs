@@ -1424,14 +1424,12 @@ JSAPI_FUNC(my_moveNPC) {
 
     if (!Vars.bEnableUnsupported) {
         THROW_WARNING(cx, vp, "moveNPC requires EnableUnsupported = true in d2bs.ini");
-        return JS_TRUE;
     }
 
     if (argc < 2)
         THROW_ERROR(cx, "Not enough parameters were passed to moveNPC!");
 
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
-
     myUnit* pNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]));
 
     if (!pNpc || pNpc->dwType != 1)

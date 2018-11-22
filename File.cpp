@@ -68,8 +68,9 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool lock
             result = fwrite(str, sizeof(char), strlen(str), fptr);
         else
             result = _fwrite_nolock(str, sizeof(char), strlen(str), fptr);
-        return (int)strlen(str) == result;
+
         JS_free(cx, str);
+        return (int)strlen(str) == result;
         break;
     case JSTYPE_NUMBER:
         if (isBinary) {

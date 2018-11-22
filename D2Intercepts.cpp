@@ -382,7 +382,7 @@ LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS* Exceptio
     HANDLE hFile = INVALID_HANDLE_VALUE;
     for (int i = 0; hFile == INVALID_HANDLE_VALUE; ++i) {
         char fname[100];
-        sprintf(fname, "Crash%03d.dump", i);
+        sprintf_s(fname, "Crash%03d.dump", i);
         hFile = CreateFile(fname, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     }
     DWORD ProcessId = GetCurrentProcessId();

@@ -124,9 +124,8 @@ JSAPI_FUNC(socket_close) {
 
 JSAPI_FUNC(socket_send) {
     SocketData* sData = (SocketData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &socket_class, NULL);
-
     char* msg = NULL;
-    int32 port = 0;
+
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         msg = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
@@ -159,7 +158,6 @@ JSAPI_FUNC(socket_read) {
 }
 
 void socket_finalize(JSFreeOp* fop, JSObject* obj) {
-
     SocketData* sData = (SocketData*)JS_GetPrivate(obj);
     if (sData) {
         closesocket(sData->socket);
