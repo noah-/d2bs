@@ -46,6 +46,7 @@ JSAPI_FUNC(my_utf8ToEuc) {
     JS_free(cx, Text);
     delete[] szText;
     delete[] euc;
+    return JS_TRUE;
 }
 
 JSAPI_FUNC(my_print) {
@@ -339,7 +340,6 @@ JSAPI_FUNC(my_copy) {
     char* pText;
     hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(data) + 1);
     pText = (char*)GlobalLock(hText);
-    char* tempData;
 
     strcpy_s(pText, strlen(data) + 1, data);
     GlobalUnlock(hText);
@@ -557,21 +557,19 @@ JSAPI_FUNC(my_sendPacket) {
 
     if (!Vars.bEnableUnsupported) {
         THROW_WARNING(cx, vp, "sendPacket requires EnableUnsupported = true in d2bs.ini");
-        return JS_TRUE;
     }
 
-    JS_BeginRequest(cx);
     BYTE* aPacket;
     uint32 len = 0;
+    JS_BeginRequest(cx);
 
     if (JSVAL_IS_OBJECT(JS_ARGV(cx, vp)[0])) {
         JSObject* obj;
         JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
 
         if (!JS_IsArrayBufferObject(obj)) {
-            THROW_WARNING(cx, vp, "invalid ArrayBuffer parameter");
             JS_EndRequest(cx);
-            return JS_TRUE;
+            THROW_WARNING(cx, vp, "invalid ArrayBuffer parameter");
         }
 
         len = JS_GetArrayBufferByteLength(obj);
@@ -579,9 +577,8 @@ JSAPI_FUNC(my_sendPacket) {
         memcpy(aPacket, JS_GetArrayBufferData(obj), len);
     } else {
         if (argc % 2 != 0) {
-            THROW_WARNING(cx, vp, "invalid packet format");
             JS_EndRequest(cx);
-            return JS_TRUE;
+            THROW_WARNING(cx, vp, "invalid packet format");
         }
 
         aPacket = new BYTE[2 * argc];
@@ -605,7 +602,6 @@ JSAPI_FUNC(my_getPacket) {
 
     if (!Vars.bEnableUnsupported) {
         THROW_WARNING(cx, vp, "getPacket requires EnableUnsupported = true in d2bs.ini");
-        return JS_TRUE;
     }
 
     JS_BeginRequest(cx);
@@ -617,9 +613,8 @@ JSAPI_FUNC(my_getPacket) {
         JS_ValueToObject(cx, JS_ARGV(cx, vp)[0], &obj);
 
         if (!JS_IsArrayBufferObject(obj)) {
-            THROW_WARNING(cx, vp, "invalid ArrayBuffer parameter");
             JS_EndRequest(cx);
-            return JS_TRUE;
+            THROW_WARNING(cx, vp, "invalid ArrayBuffer parameter");
         }
 
         len = JS_GetArrayBufferByteLength(obj);
@@ -627,9 +622,8 @@ JSAPI_FUNC(my_getPacket) {
         memcpy(aPacket, JS_GetArrayBufferData(obj), len);
     } else {
         if (argc % 2 != 0) {
-            THROW_WARNING(cx, vp, "invalid packet format");
             JS_EndRequest(cx);
-            return JS_TRUE;
+            THROW_WARNING(cx, vp, "invalid packet format");
         }
 
         aPacket = new BYTE[2 * argc];
