@@ -265,7 +265,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
             Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
-        free(scriptW);
+        delete[] scriptW;
         result = true;
     } else if (_strcmpi(argv, "reload") == 0) {
         Reload();

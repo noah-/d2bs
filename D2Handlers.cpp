@@ -31,7 +31,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     bool beginStarter = true;
     bool bInGame = false;
     Vars.bUseRawCDKey = 0;
+    Log("D2Thread starting");
+    Log("InitSettings()");
     InitSettings();
+    Log("InitHooks()");
     if (InitHooks()) {
         Log("D2BS Engine startup complete. %s", D2BS_VERSION);
         Print("ÿc2D2BSÿc0 :: Engine startup complete!");
@@ -199,7 +202,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
                 else
                     Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
-                free(profileW);
+                delete[] profileW;
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
         }

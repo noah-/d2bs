@@ -43,7 +43,7 @@ CLASS_CTOR(profile) {
         else if (argc == 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
             str0 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
             prof = new Profile(str0);
-            free(str0);
+            delete[] str0;
         }
         // Profile(ProfileType.singlePlayer, charname, diff)
         else if (argc == 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_SINGLEPLAYER) {
@@ -51,8 +51,8 @@ CLASS_CTOR(profile) {
             str1 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])));
             str2 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])));
             prof = new Profile(PROFILETYPE_SINGLEPLAYER, str1, str2);
-            free(str1);
-            free(str2);
+            delete[] str1;
+            delete[] str2;
         }
         // Profile(ProfileType.battleNet, account, pass, charname, gateway)
         else if (argc == 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_BATTLENET) {
@@ -62,10 +62,10 @@ CLASS_CTOR(profile) {
             str3 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3])));
             str4 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4])));
             prof = new Profile(PROFILETYPE_BATTLENET, str1, str2, str3, str4);
-            free(str1);
-            free(str2);
-            free(str3);
-            free(str4);
+            delete[] str1;
+            delete[] str2;
+            delete[] str3;
+            delete[] str4;
         }
         // Profile(ProfileType.openBattleNet, account, pass, charname, gateway)
         else if (argc == 5 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_OPEN_BATTLENET) {
@@ -75,10 +75,10 @@ CLASS_CTOR(profile) {
             str3 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3])));
             str4 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4])));
             prof = new Profile(PROFILETYPE_OPEN_BATTLENET, str1, str2, str3, str4);
-            free(str1);
-            free(str2);
-            free(str3);
-            free(str4);
+            delete[] str1;
+            delete[] str2;
+            delete[] str3;
+            delete[] str4;
         }
         // Profile(ProfileType.tcpIpHost, charname, diff)
         else if (argc == 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_TCPIP_HOST) {
@@ -86,8 +86,8 @@ CLASS_CTOR(profile) {
             str1 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])));
             str2 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])));
             prof = new Profile(PROFILETYPE_TCPIP_HOST, str1, str2);
-            free(str1);
-            free(str2);
+            delete[] str1;
+            delete[] str2;
         }
         // Profile(ProfileType.tcpIpJoin, charname, ip)
         else if (argc == 3 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]) && JSVAL_TO_INT(JS_ARGV(cx, vp)[0]) == PROFILETYPE_TCPIP_JOIN) {
@@ -95,8 +95,8 @@ CLASS_CTOR(profile) {
             str1 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])));
             str2 = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2])));
             prof = new Profile(PROFILETYPE_TCPIP_JOIN, str1, str2);
-            free(str1);
-            free(str2);
+            delete[] str1;
+            delete[] str2;
         } else
             THROW_ERROR(cx, "Invalid parameters.");
     } catch (char* ex) {
@@ -147,22 +147,22 @@ JSAPI_PROP(profile_getProperty) {
     case PROFILE_IP:
         nStr = UnicodeToAnsi(prof->ip);
         vp.setString(JS_NewStringCopyZ(cx, nStr));
-        free(nStr);
+        delete[] nStr;
         break;
     case PROFILE_USERNAME:
         nStr = UnicodeToAnsi(prof->username);
         vp.setString(JS_NewStringCopyZ(cx, nStr));
-        free(nStr);
+        delete[] nStr;
         break;
     case PROFILE_GATEWAY:
         nStr = UnicodeToAnsi(prof->gateway);
         vp.setString(JS_NewStringCopyZ(cx, nStr));
-        free(nStr);
+        delete[] nStr;
         break;
     case PROFILE_CHARACTER:
         nStr = UnicodeToAnsi(prof->charname);
         vp.setString(JS_NewStringCopyZ(cx, nStr));
-        free(nStr);
+        delete[] nStr;
         break;
     case PROFILE_DIFFICULTY:
         vp.setInt32(prof->diff);

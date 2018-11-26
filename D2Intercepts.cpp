@@ -332,9 +332,13 @@ HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindow
     WCHAR szWindowName[200] = L"D2";
 
     if (wcslen(Vars.szTitle) > 1)
-        wcscpy_s(szWindowName, sizeof(szWindowName), Vars.szTitle);
+        wcscpy_s(szWindowName, 200, Vars.szTitle);
 
-    return CreateWindowExW(dwExStyle, AnsiToUnicode(lpClassName), szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+    wchar_t* lpClassNameW = AnsiToUnicode(lpClassName);
+
+    HWND result = CreateWindowExW(dwExStyle, lpClassNameW, szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+
+    return result;
 }
 
 HANDLE __stdcall CacheFix(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition,
