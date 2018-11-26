@@ -52,6 +52,7 @@ int D2GetScreenSizeX();
 int D2GetScreenSizeY();
 
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = 3);
+CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ = 3);
 
 AutomapLayer* InitAutomapLayer(DWORD levelno);
 DWORD __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo);
@@ -59,9 +60,12 @@ void myDrawAutomapCell(CellFile* cellfile, int xpos, int ypos, BYTE col);
 DWORD ReadFile(HANDLE hFile, void* buf, DWORD len);
 void* memcpy2(void* dest, const void* src, size_t count);
 HANDLE OpenFileRead(char* filename);
+HANDLE OpenFileRead(wchar_t* filename);
 BYTE* AllocReadFile(char* filename);
+BYTE* AllocReadFile(wchar_t* filename);
 CellFile* LoadBmpCellFile(BYTE* buf1, int width, int height);
 CellFile* LoadBmpCellFile(char* filename);
+CellFile* LoadBmpCellFile(wchar_t* filename);
 CellFile* myInitCellFile(CellFile* cf);
 
 static inline UnitAny* GetPlayerUnit() {

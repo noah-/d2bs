@@ -149,7 +149,7 @@ void Script::Run(void) {
         }
 
         if (scriptState == Command) {
-            if (strlen(Vars.szConsole) > 0) {
+            if (wcslen(Vars.szConsole) > 0) {
                 script = JS_CompileFile(context, globalObject, fileName.c_str());
             } else {
                 char* cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
@@ -250,7 +250,7 @@ const char* Script::GetShortFilename() {
     if (strcmp(fileName.c_str(), "Command Line") == 0)
         return fileName.c_str();
     else
-        return (fileName.c_str() + strlen(Vars.szScriptPath) + 1);
+        return (fileName.c_str() + wcslen(Vars.szScriptPath) + 1);
 }
 
 void Script::Stop(bool force, bool reallyForce) {
@@ -263,7 +263,7 @@ void Script::Stop(bool force, bool reallyForce) {
     isPaused = false;
     isReallyPaused = false;
     if (GetState() != Command) {
-        const char* displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
+        const char* displayName = fileName.c_str() + wcslen(Vars.szScriptPath) + 1;
         Print("Script %s ended", displayName);
     }
 

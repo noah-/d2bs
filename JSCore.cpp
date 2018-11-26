@@ -181,7 +181,7 @@ JSAPI_FUNC(my_load) {
 
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath))) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath))) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
@@ -225,7 +225,7 @@ JSAPI_FUNC(my_include) {
 
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
@@ -279,7 +279,7 @@ JSAPI_FUNC(my_getThreadPriority) {
 JSAPI_FUNC(my_isIncluded) {
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long");
         return JS_FALSE;
     }

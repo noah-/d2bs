@@ -12,7 +12,7 @@ JSAPI_FUNC(my_login) {
     if (ClientState() != ClientStateMenu)
         return JS_TRUE;
 
-    char* profile = NULL;
+    wchar_t* profile = NULL;
 
     bool copiedProfile = false;
     char* error;
@@ -21,15 +21,15 @@ JSAPI_FUNC(my_login) {
 
     if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         if (Vars.szProfile != NULL) {
-            int size = strlen(Vars.szProfile) + 1;
-            profile = new char[size];
-            strcpy_s(profile, size, Vars.szProfile);
+            int size = wcslen(Vars.szProfile) + 1;
+            profile = new wchar_t[size];
+            wcscpy_s(profile, size, Vars.szProfile);
             copiedProfile = true;
         } else
             THROW_ERROR(cx, "Invalid profile specified!");
     } else {
         profile = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        strcpy_s(Vars.szProfile, 256, profile);
+        wcscpy_s(Vars.szProfile, 256, profile);
     }
 
     if (!profile)

@@ -60,7 +60,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     command = GetCommand(L"-profile");
 
     if (command) {
-        const char* profile = UnicodeToAnsi(command->szText);
+        const wchar_t* profile = command->szText;
 
         if (SwitchToProfile(profile))
             Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
