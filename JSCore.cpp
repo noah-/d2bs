@@ -186,13 +186,13 @@ JSAPI_FUNC(my_load) {
         return JS_FALSE;
     }
 
-    char buf[_MAX_PATH + _MAX_FNAME];
+    wchar_t buf[_MAX_PATH + _MAX_FNAME];
     ScriptState scriptState = script->GetState();
     if (scriptState == Command)
         scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
-    sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
-    StringReplace(buf, '/', '\\', _MAX_PATH + _MAX_FNAME);
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, file);
+    StringReplace(buf, L'/', L'\\', _MAX_PATH + _MAX_FNAME);
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
     for (uint i = 1; i < argc; i++) {

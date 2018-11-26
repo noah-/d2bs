@@ -9,24 +9,24 @@ class Profile {
   protected:
     ProfileType type;
     union {
-        char ip[16];
-        char username[48];
+        wchar_t ip[16];
+        wchar_t username[48];
     };
-    char password[256];
-    char gateway[256];
-    char charname[24];
-    char diff;
+    wchar_t password[256];
+    wchar_t gateway[256];
+    wchar_t charname[24];
+    wchar_t diff;
     unsigned int maxLoginTime;
     unsigned int maxCharTime;
 
-    void init(const char* profileName);
+    void init(const wchar_t* profileName);
 
-    void init(ProfileType pt, char* _ipUsername, char* _password, char* _charname, char* _gateway, char _diff, unsigned int _maxLoginTime, unsigned int _maxCharTime) {
+    void init(ProfileType pt, wchar_t* _ipUsername, wchar_t* _password, wchar_t* _charname, wchar_t* _gateway, wchar_t _diff, unsigned int _maxLoginTime, unsigned int _maxCharTime) {
         type = pt;
-        strcpy_s(username, sizeof(username), _ipUsername);
-        strcpy_s(password, sizeof(password), _password);
-        strcpy_s(gateway, sizeof(gateway), _gateway);
-        strcpy_s(charname, sizeof(charname), _charname);
+        wcscpy_s(username, wcslen(username), _ipUsername);
+        wcscpy_s(password, wcslen(password), _password);
+        wcscpy_s(gateway, wcslen(gateway), _gateway);
+        wcscpy_s(charname, wcslen(charname), _charname);
         diff = _diff;
         maxLoginTime = _maxLoginTime;
         maxCharTime = _maxCharTime;
@@ -39,23 +39,23 @@ class Profile {
     }
 
     // Get profile by name
-    Profile(char* profileName) {
+    Profile(wchar_t* profileName) {
         init(profileName);
     }
 
     // Create single player or tcp/ip host profile
-    Profile(ProfileType pt, char* charName, char _diff) {
-        init(pt, "", "", charName, "", _diff, 5000, 5000);
+    Profile(ProfileType pt, wchar_t* charName, wchar_t _diff) {
+        init(pt, L"", L"", charName, L"", _diff, 5000, 5000);
     }
 
     // Create battle.net or open battle.net profile
-    Profile(ProfileType pt, char* account, char* _pass, char* _charname, char* _gateway) {
+    Profile(ProfileType pt, wchar_t* account, wchar_t* _pass, wchar_t* _charname, wchar_t* _gateway) {
         init(pt, account, _pass, _charname, _gateway, 0, 5000, 5000);
     }
 
     // Create tcp/ip join profile
-    Profile(ProfileType pt, char* _charname, char* ip) {
-        init(pt, ip, "", _charname, "", 0, 5000, 5000);
+    Profile(ProfileType pt, wchar_t* _charname, wchar_t* ip) {
+        init(pt, ip, L"", _charname, L"", 0, 5000, 5000);
     }
 
     friend JSAPI_PROP(profile_getProperty);
@@ -63,6 +63,7 @@ class Profile {
     DWORD login(char** error);
 
     static bool ProfileExists(const wchar_t* profile);
+    static bool ProfileExists(const char* profile);
 };
 
 #endif
