@@ -24,6 +24,7 @@
 
 #include "File.h"
 #include "D2BS.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -268,7 +269,7 @@ wchar_t* getPathRelScript(const wchar_t* filename, int bufLen, wchar_t* fullPath
     GetFullPathNameW(relPath, bufLen, fullPath, NULL);
 
     // Get the full path of the script path, check it is the prefix of fullPath
-    scrPathLen = GetFullPathNameW(Vars.szScriptPath, wcslen(fullScriptPath), fullScriptPath, NULL);
+    scrPathLen = GetFullPathNameW(Vars.szScriptPath, _MAX_PATH + _MAX_FNAME, fullScriptPath, NULL);
 
     // Check that fullScriptPath is the prefix of fullPath
     // As GetFullPathName seems to not add a trailing \, if there is not a
@@ -298,22 +299,21 @@ char* getPathRelScript(const char* filename, int bufLen, char* fullPath) {
     int strLenScript;
     DWORD scrPathLen;
 
-    char nScriptPath[_MAX_PATH];
-    wcstombs(nScriptPath,Vars.szScriptPath,wcslen(Vars.szScriptPath));
+    char* nScriptPath = UnicodeToAnsi(Vars.szScriptPath);
 
     strLenScript = wcslen(Vars.szScriptPath);
 
     // Make the filename relative to the script path
     relPath = (char*)_alloca(strLenScript + strlen(filename) + 2);
     strcpy_s(relPath, strLenScript + strlen(filename) + 2, nScriptPath);
-    relPath[strLenScript] = L'\\';
+    relPath[strLenScript] = '\\';
     strcpy_s(relPath + strLenScript + 1, strlen(filename) + 1, filename);
 
     // Transform to the full pathname
     GetFullPathName(relPath, bufLen, fullPath, NULL);
 
     // Get the full path of the script path, check it is the prefix of fullPath
-    scrPathLen = GetFullPathName(nScriptPath, strlen(fullScriptPath), fullScriptPath, NULL);
+    scrPathLen = GetFullPathName(nScriptPath, _MAX_PATH + _MAX_FNAME, fullScriptPath, NULL);
 
     // Check that fullScriptPath is the prefix of fullPath
     // As GetFullPathName seems to not add a trailing \, if there is not a
