@@ -62,7 +62,7 @@ class Profile {
 
     DWORD login(char** error);
 
-    static bool ProfileExists(const char* profile);
+    static bool ProfileExists(const wchar_t* profile);
 };
 
 #endif

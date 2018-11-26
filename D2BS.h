@@ -32,7 +32,7 @@ struct Module {
         DWORD dwBaseAddress;
     };
     DWORD _1;
-    char szPath[MAX_PATH];
+    wchar_t szPath[MAX_PATH];
 };
 
 struct Variables {
@@ -76,12 +76,12 @@ struct Variables {
     HMODULE hModule;
     HWND hHandle;
 
-    char szPath[_MAX_PATH];
-    char szScriptPath[_MAX_PATH];
-    char szProfile[256];
-    char szStarter[_MAX_FNAME];
-    char szConsole[_MAX_FNAME];
-    char szDefault[_MAX_FNAME];
+    wchar_t szPath[_MAX_PATH];
+    wchar_t szScriptPath[_MAX_PATH];
+    wchar_t szProfile[256];
+    wchar_t szStarter[_MAX_FNAME];
+    wchar_t szConsole[_MAX_FNAME];
+    wchar_t szDefault[_MAX_FNAME];
     char szClassic[30];
     char szLod[30];
     wchar_t szTitle[256];

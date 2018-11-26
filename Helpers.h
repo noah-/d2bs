@@ -10,7 +10,7 @@ char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);
 bool StringToBool(const char* str);
 void StringReplace(char* str, const char find, const char replace, size_t buflen);
-bool SwitchToProfile(const char* profile);
+bool SwitchToProfile(const wchar_t* profile);
 void InitSettings(void);
 bool InitHooks(void);
 bool ExecCommand(const char* command);

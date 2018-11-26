@@ -56,18 +56,18 @@ void Profile::init(const char* profileName) {
     }
 }
 
-bool Profile::ProfileExists(const char* profile) {
-    char file[_MAX_FNAME + _MAX_PATH], profiles[65535] = "";
-    sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+bool Profile::ProfileExists(const wchar_t* profile) {
+    wchar_t file[_MAX_FNAME + _MAX_PATH], profiles[65535] = L"";
+    swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%sd2bs.ini", Vars.szPath);
 
-    int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
+    int count = GetPrivateProfileStringW(NULL, NULL, NULL, profiles, 65535, file);
     if (count > 0) {
         int i = 0;
         while (i < count) {
-            if (_strcmpi(profiles + i, profile) == 0)
+            if (_wcsicmp(profiles + i, profile) == 0)
                 return true;
 
-            i += strlen(profiles + i) + 1;
+            i += wcslen(profiles + i) + 1;
         }
     }
     return false;
