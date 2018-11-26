@@ -12,6 +12,7 @@
 #include "Console.h"
 #include "D2Ptrs.h"
 #include "Events.h"
+#include "Helpers.h"
 
 using namespace std;
 Script* ScriptEngine::console = NULL;
@@ -27,11 +28,14 @@ JSContext* ScriptEngine::context = NULL;
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
+Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
     if (GetState() != Running)
         return NULL;
-    char* fileName = _strdup(file);
-    _strlwr_s(fileName, strlen(file) + 1);
+
+    wchar_t* fileNameW = _wcsdup(file);
+    _wcslwr_s(fileNameW, wcslen(file) + 1);
+
+    char* fileName = UnicodeToAnsi(fileNameW);
 
     try {
         if (scripts.count(fileName))

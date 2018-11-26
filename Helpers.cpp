@@ -62,6 +62,13 @@ void StringReplace(char* str, const char find, const char replace, size_t buflen
     }
 }
 
+void StringReplace(wchar_t* str, const wchar_t find, const wchar_t replace, size_t buflen) {
+    for (size_t i = 0; i < buflen; i++) {
+        if (str[i] == find)
+            str[i] = replace;
+    }
+}
+
 bool SwitchToProfile(const wchar_t* profile) {
     if (Vars.bUseProfileScript != TRUE || !Profile::ProfileExists(profile))
         return false;
@@ -195,9 +202,9 @@ bool ExecCommand(const char* command) {
     return true;
 }
 
-bool StartScript(const char* scriptname, ScriptState state) {
-    char file[_MAX_FNAME + _MAX_PATH];
-    sprintf_s(file, _MAX_FNAME + _MAX_PATH, "%s\\%s", Vars.szScriptPath, scriptname);
+bool StartScript(const wchar_t* scriptname, ScriptState state) {
+    wchar_t file[_MAX_FNAME + _MAX_PATH];
+    swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, scriptname);
     Script* script = ScriptEngine::CompileFile(file, state);
     return (script && script->BeginThread(ScriptThread));
 }
@@ -216,7 +223,7 @@ void Reload(void) {
     Sleep(500);
 
     if (!Vars.bUseProfileScript) {
-        const char* script = GetStarterScriptName();
+        const wchar_t* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
@@ -253,10 +260,12 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
         result = true;
     } else if (_strcmpi(argv, "load") == 0) {
         const char* script = command + 5;
-        if (StartScript(script, GetStarterScriptState()))
+        wchar_t *scriptW = AnsiToUnicode(script);
+        if (StartScript(scriptW, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
             Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+        free(scriptW);
         result = true;
     } else if (_strcmpi(argv, "reload") == 0) {
         Reload();
@@ -289,7 +298,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
 
 void GameJoined(void) {
     if (!Vars.bUseProfileScript) {
-        const char* starter = GetStarterScriptName();
+        const wchar_t* starter = GetStarterScriptName();
         if (starter != NULL) {
             Print("ÿc2D2BSÿc0 :: Starting %s", starter);
             if (StartScript(starter, GetStarterScriptState()))
@@ -302,7 +311,7 @@ void GameJoined(void) {
 
 void MenuEntered(bool beginStarter) {
     if (beginStarter && !Vars.bUseProfileScript) {
-        const char* starter = GetStarterScriptName();
+        const wchar_t* starter = GetStarterScriptName();
         if (starter != NULL) {
             Print("ÿc2D2BSÿc0 :: Starting %s", starter);
             if (StartScript(starter, GetStarterScriptState()))

@@ -50,13 +50,17 @@ JSAPI_PROP(unit_getProperty) {
     jsval ID;
     JS_IdToValue(cx, id, &ID);
     JS_BeginRequest(cx);
+    char* nProfile;
+
     switch (JSVAL_TO_INT(ID)) {
     case ME_PID:
         vp.setDouble((jsdouble)GetCurrentProcessId());
         // JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);
         break;
     case ME_PROFILE:
-        vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
+        nProfile = UnicodeToAnsi(Vars.szProfile);
+        vp.setString(JS_NewStringCopyZ(cx, nProfile));
+        free(nProfile);
         // vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
         break;
     case ME_GAMEREADY:

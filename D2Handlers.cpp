@@ -194,10 +194,12 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
             {
                 const char* profile = (char*)pCopy->lpData;
-                if (SwitchToProfile(profile))
+                wchar_t* profileW = AnsiToUnicode(profile);
+                if (SwitchToProfile(profileW))
                     Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
                 else
                     Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+                free(profileW);
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
         }

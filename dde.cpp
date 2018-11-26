@@ -13,7 +13,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
         return (HDDEDATA)TRUE;
     case XTYP_POKE:
         DdeGetData(hdata, (LPBYTE)pszItem, 255, 0);
-        if (SwitchToProfile(pszItem))
+        if (SwitchToProfile(AnsiToUnicode(pszItem)))
             Log("Switched to profile %s", pszItem);
         else
             Log("Profile %s not found", pszItem);

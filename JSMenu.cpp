@@ -28,8 +28,9 @@ JSAPI_FUNC(my_login) {
         } else
             THROW_ERROR(cx, "Invalid profile specified!");
     } else {
-        profile = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        profile = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
         wcscpy_s(Vars.szProfile, 256, profile);
+        free(profile);
     }
 
     if (!profile)
@@ -53,13 +54,17 @@ JSAPI_FUNC(my_selectChar) {
         THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
     char* profile = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-    if (!Profile::ProfileExists(profile))
+    wchar_t* profileW = AnsiToUnicode(profile);
+
+    if (!Profile::ProfileExists(profileW))
         THROW_ERROR(cx, "Invalid profile specified");
     char charname[24], file[_MAX_FNAME + MAX_PATH];
     sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
     GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname)));
+
+    free(profileW);
     return JS_TRUE;
 }
 
