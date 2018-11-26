@@ -14,7 +14,6 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
         return (HDDEDATA)TRUE;
     case XTYP_POKE:
         DdeGetData(hdata, (LPBYTE)pszItem, 255, 0);
-        //TODO: THIS IS GETTING THE INCORECT DATA
         profileW = AnsiToUnicode(pszItem);
         if (SwitchToProfile(profileW))
             Log("Switched to profile %s", profileW);
@@ -60,6 +59,8 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
     DWORD pidInst = 0;
     HCONV hConv;
     DWORD dwTimeout = 5000;
+
+    Log("SendDDE(%d, %s, %s, %s, %s, %s, %u)", mode, pszDDEServer, pszTopic, pszItem, pszData, *result, size);
 
     int ret = DdeInitialize(&pidInst, (PFNCALLBACK)DdeCallback, APPCMD_CLIENTONLY, 0);
     if (ret != DMLERR_NO_ERROR) {

@@ -1,5 +1,7 @@
 #include "ScriptEngine.h"
 #include "js32.h"
+#include "D2Helpers.h"
+#include "Helpers.h"
 //#include <cstdarg>
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent) {
@@ -23,8 +25,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
     JS_EndRequest(cx);
     return obj;
 }
-JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName)
-
+JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::wstring fileName)
 {
     std::ifstream t(fileName.c_str(), std::ios::binary);
     std::string str;
@@ -45,8 +46,10 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string file
         str[2] = ' ';
     }
 
-    JSScript* rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), fileName.c_str(), 1);
-    JS_AddNamedScriptRoot(cx, &rval, fileName.c_str());
+    char* nFileName = UnicodeToAnsi(fileName.c_str());
+    //TODO: FIX THIS PROPERLY SO IT WORKS WITH REAL UNICODE PATHS
+    JSScript* rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), nFileName, 1);
+    JS_AddNamedScriptRoot(cx, &rval, nFileName);
     JS_RemoveScriptRoot(cx, &rval);
 
     return rval;
