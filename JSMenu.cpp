@@ -14,7 +14,6 @@ JSAPI_FUNC(my_login) {
 
     wchar_t* profile = NULL;
 
-    bool copiedProfile = false;
     char* error;
 
     Profile* prof;
@@ -24,13 +23,11 @@ JSAPI_FUNC(my_login) {
             int size = wcslen(Vars.szProfile) + 1;
             profile = new wchar_t[size];
             wcscpy_s(profile, size, Vars.szProfile);
-            copiedProfile = true;
         } else
             THROW_ERROR(cx, "Invalid profile specified!");
     } else {
         profile = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
         wcscpy_s(Vars.szProfile, 256, profile);
-        delete[] profile;
     }
 
     if (!profile)
@@ -39,8 +36,8 @@ JSAPI_FUNC(my_login) {
         THROW_ERROR(cx, "Profile does not exist!");
 
     prof = new Profile(profile);
-    if (copiedProfile)
-        delete[] profile;
+
+    delete[] profile;
 
     if (prof->login(&error) != 0)
         THROW_ERROR(cx, error);

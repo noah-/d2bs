@@ -70,8 +70,10 @@ void ScriptEngine::RunCommand(const char* command) {
 void ScriptEngine::DisposeScript(Script* script) {
     LockScriptList("DisposeScript");
 
-    if (scripts.count(script->GetFilename()))
-        scripts.erase(script->GetFilename());
+    char* nFilename = UnicodeToAnsi(script->GetFilename());
+
+    if (scripts.count(nFilename))
+        scripts.erase(nFilename);
 
     UnLockScriptList("DisposeScript");
 

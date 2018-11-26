@@ -300,11 +300,11 @@ void GameJoined(void) {
     if (!Vars.bUseProfileScript) {
         const wchar_t* starter = GetStarterScriptName();
         if (starter != NULL) {
-            Print("ÿc2D2BSÿc0 :: Starting %s", starter);
+            Print("ÿc2D2BSÿc0 :: Starting %ls", starter);
             if (StartScript(starter, GetStarterScriptState()))
-                Print("ÿc2D2BSÿc0 :: %s running.", starter);
+                Print("ÿc2D2BSÿc0 :: %ls running.", starter);
             else
-                Print("ÿc2D2BSÿc0 :: Failed to start %s!", starter);
+                Print("ÿc2D2BSÿc0 :: Failed to start %ls!", starter);
         }
     }
 }
@@ -313,11 +313,11 @@ void MenuEntered(bool beginStarter) {
     if (beginStarter && !Vars.bUseProfileScript) {
         const wchar_t* starter = GetStarterScriptName();
         if (starter != NULL) {
-            Print("ÿc2D2BSÿc0 :: Starting %s", starter);
+            Print("ÿc2D2BSÿc0 :: Starting %ls", starter);
             if (StartScript(starter, GetStarterScriptState()))
-                Print("ÿc2D2BSÿc0 :: %s running.", starter);
+                Print("ÿc2D2BSÿc0 :: %ls running.", starter);
             else
-                Print("ÿc2D2BSÿc0 :: Failed to start %s!", starter);
+                Print("ÿc2D2BSÿc0 :: Failed to start %ls!", starter);
         }
     }
 }

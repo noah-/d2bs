@@ -109,7 +109,7 @@ class JSAutoRoot {
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL,
                       JSObject* parent = NULL);
-JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::string fileName);
+JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::wstring fileName);
 #define THROW_ERROR(cx, msg)                                                                                                                                             \
     {                                                                                                                                                                    \
         JS_ReportError(cx, msg);                                                                                                                                         \

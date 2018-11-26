@@ -23,9 +23,13 @@ JSAPI_PROP(script_getProperty) {
         return JS_TRUE;
     jsval ID;
     JS_IdToValue(cx, id, &ID);
+    char* nShortFilename = NULL;
+
     switch (JSVAL_TO_INT(ID)) {
     case SCRIPT_FILENAME:
-        vp.setString(JS_InternString(cx, script->GetShortFilename()));
+        nShortFilename = UnicodeToAnsi(script->GetShortFilename());
+        vp.setString(JS_InternString(cx, nShortFilename));
+        delete[] nShortFilename;
         break;
     case SCRIPT_GAMETYPE:
         vp.setBoolean(script->GetState() == InGame ? false : true);
@@ -208,11 +212,14 @@ JSAPI_FUNC(my_getScripts) {
 bool __fastcall FindScriptByName(Script* script, void* argv, uint argc) {
     FindHelper* helper = (FindHelper*)argv;
     static uint pathlen = wcslen(Vars.szScriptPath) + 1;
-    const char* fname = script->GetShortFilename();
+    const wchar_t* fnameW = script->GetShortFilename();
+    const char* fname = UnicodeToAnsi(fnameW);
     if (_strcmpi(fname, helper->name) == 0) {
         helper->script = script;
+        delete[] fname;
         return false;
     }
+    delete[] fname;
     return true;
 }
 

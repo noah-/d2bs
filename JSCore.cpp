@@ -230,9 +230,9 @@ JSAPI_FUNC(my_include) {
         return JS_FALSE;
     }
 
-    char buf[_MAX_PATH + _MAX_FNAME];
-    sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
-    if (_access(buf, 0) == 0)
+    wchar_t buf[_MAX_PATH + _MAX_FNAME];
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%s", Vars.szScriptPath, file);
+    if (_waccess(buf, 0) == 0)
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)));
 
     JS_free(cx, file);
@@ -284,8 +284,8 @@ JSAPI_FUNC(my_isIncluded) {
         return JS_FALSE;
     }
 
-    char path[_MAX_FNAME + _MAX_PATH];
-    sprintf_s(path, _MAX_FNAME + _MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
+    wchar_t path[_MAX_FNAME + _MAX_PATH];
+    swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%ls\\libs\\%s", Vars.szScriptPath, file);
     Script* script = (Script*)JS_GetContextPrivate(cx);
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
     JS_free(cx, file);
