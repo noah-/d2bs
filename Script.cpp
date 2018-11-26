@@ -38,6 +38,34 @@ Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredC
     }
 }
 
+Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
+    : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
+      threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
+    InitializeCriticalSection(&lock);
+    // moved the runtime initilization to thread start
+    LastGC = 0;
+    hasActiveCX = false;
+    eventSignal = CreateEvent(nullptr, true, false, nullptr);
+
+    if (scriptState == Command && wcslen(file) < 1) {
+        fileName = string("Command Line");
+    } else {
+        if (_waccess(file, 0) != 0)
+            throw std::exception("File not found");
+
+        wchar_t* tmpName = _wcsdup(file);
+        if (!tmpName)
+            throw std::exception("Could not dup filename");
+
+        _wcslwr_s(tmpName, wcslen(file) + 1);
+        char* nTmpName = UnicodeToAnsi(tmpName);
+        fileName = string(nTmpName);
+        replace(fileName.begin(), fileName.end(), '/', '\\');
+        free(tmpName);
+        delete[] nTmpName;
+    }
+}
+
 Script::~Script(void) {
     isAborted = true;
     hasActiveCX = false;

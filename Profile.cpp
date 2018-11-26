@@ -129,6 +129,8 @@ DWORD Profile::login(char** error) {
 
     Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
+    char* nString;
+
     while (!loginComplete) {
         location = OOG_GetLocation();
         switch (location) {
@@ -138,17 +140,21 @@ DWORD Profile::login(char** error) {
 
         case OOG_CHAR_SELECT:
             // Sleep(5000);
-            if (!OOG_SelectCharacter(UnicodeToAnsi(charname)))
+            nString = UnicodeToAnsi(charname);
+            if (!OOG_SelectCharacter(nString))
                 errorMsg = "Invalid character name";
+            delete[] nString;
             break;
         case OOG_MAIN_MENU:
             if (type == PROFILETYPE_SINGLEPLAYER)
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 324, 272, 35)))
                     errorMsg = "Failed to click the Single button?";
             if (type == PROFILETYPE_BATTLENET) {
-                OOG_SelectGateway(UnicodeToAnsi(gateway), 256);
+                nString = UnicodeToAnsi(gateway);
+                OOG_SelectGateway(nString, 256);
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 366, 272, 35)))
                     errorMsg = "Failed to click the 'Battle.net' button?";
+                delete[] nString;
             }
             if (isOtherMP(type)) {
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 433, 272, 35)))
@@ -165,13 +171,21 @@ DWORD Profile::login(char** error) {
             }
             pControl = findControl(1, (char*)NULL, -1, 322, 342, 162, 19);
             if (pControl)
-                SetControlText(pControl, UnicodeToAnsi(username));
+            {
+                nString = UnicodeToAnsi(username);
+                SetControlText(pControl, nString);
+                delete[] nString;
+            }
             else
                 errorMsg = "Failed to set the 'Username' text-edit box.";
             // Password text-edit box
             pControl = findControl(1, (char*)NULL, -1, 322, 396, 162, 19);
             if (pControl)
-                SetControlText(pControl, UnicodeToAnsi(password));
+            {
+                nString = UnicodeToAnsi(password);
+                SetControlText(pControl, nString);
+                delete[] nString;
+            }
             else
                 errorMsg = "Failed to set the 'Password' text-edit box.";
 

@@ -60,7 +60,7 @@ JSAPI_PROP(unit_getProperty) {
     case ME_PROFILE:
         nProfile = UnicodeToAnsi(Vars.szProfile);
         vp.setString(JS_NewStringCopyZ(cx, nProfile));
-        free(nProfile);
+        delete[] nProfile;
         // vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
         break;
     case ME_GAMEREADY:

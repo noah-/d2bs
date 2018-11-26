@@ -30,7 +30,7 @@ JSAPI_FUNC(my_login) {
     } else {
         profile = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
         wcscpy_s(Vars.szProfile, 256, profile);
-        free(profile);
+        delete[] profile;
     }
 
     if (!profile)
@@ -64,7 +64,7 @@ JSAPI_FUNC(my_selectChar) {
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname)));
 
-    free(profileW);
+    delete[] profileW;
     return JS_TRUE;
 }
 

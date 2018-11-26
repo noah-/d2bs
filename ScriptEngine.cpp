@@ -44,12 +44,12 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
         Script* script = new Script(fileName, state, argc, argv);
         scripts[fileName] = script;
 
-        free(fileName);
+        delete[] fileName;
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
         Print(const_cast<char*>(e.what()));
-        free(fileName);
+        delete[] fileName;
         return NULL;
     }
 }
@@ -119,8 +119,8 @@ BOOL ScriptEngine::Startup(void) {
         // EnterCriticalSection(&lock);
         LockScriptList("startup - enter");
         if (wcslen(Vars.szConsole) > 0) {
-            char file[_MAX_FNAME + _MAX_PATH];
-            sprintf_s(file, _MAX_FNAME + _MAX_PATH, "%s\\%s", Vars.szScriptPath, Vars.szConsole);
+            wchar_t file[_MAX_FNAME + _MAX_PATH];
+            swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, Vars.szConsole);
             console = new Script(file, Command);
         } else {
             console = new Script("", Command);
