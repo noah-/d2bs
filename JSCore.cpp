@@ -231,7 +231,10 @@ JSAPI_FUNC(my_include) {
     }
 
     wchar_t buf[_MAX_PATH + _MAX_FNAME];
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%s", Vars.szScriptPath, file);
+    wchar_t *fileW = AnsiToUnicode(file);
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
+    delete[] fileW;
+
     if (_waccess(buf, 0) == 0)
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)));
 
