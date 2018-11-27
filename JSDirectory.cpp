@@ -25,6 +25,7 @@
 #include "JSDirectory.h"
 #include "D2BS.h"
 #include "File.h"
+#include "Helpers.h"
 //#include "js32.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,16 +38,18 @@ JSAPI_FUNC(my_openDir) {
     if (argc != 1)
         return JS_TRUE;
 
-    char path[_MAX_PATH];
+    wchar_t path[_MAX_PATH];
     char* name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (!isValidPath(name))
         return JS_TRUE;
 
-    sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, name);
+    wchar_t* nameW = AnsiToUnicode(name);
+    swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, nameW);
+    delete[] nameW;
 
-    if ((_mkdir(path) == -1) && (errno == ENOENT)) {
-        JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
+    if ((_wmkdir(path) == -1) && (errno == ENOENT)) {
+        JS_ReportError(cx, "Couldn't get directory %s, path '%ls' not found", name, path);
         return JS_FALSE;
     } else {
         DirData* d = new DirData(name);
