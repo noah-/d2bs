@@ -207,7 +207,9 @@ JSAPI_FUNC(sandbox_isIncluded) {
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && box) {
         char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         wchar_t buf[_MAX_PATH + _MAX_FNAME];
-        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%s", Vars.szScriptPath, file);
+        wchar_t *fileW = AnsiToUnicode(file);
+        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
+        delete[] fileW;
         char *nBuff = UnicodeToAnsi(buf);
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::string(nBuff))));
         delete[] nBuff;
