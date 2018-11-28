@@ -42,7 +42,10 @@ JSAPI_FUNC(my_openDir) {
     char* name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (!isValidPath(name))
+    {
+        Log("The following path was deemed invalid: %s. (%s, %s)", name, "JSDirectory.cpp", "dir_getFiles");
         return JS_FALSE;
+    }
 
     wchar_t* nameW = AnsiToUnicode(name);
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, nameW);
