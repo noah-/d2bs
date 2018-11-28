@@ -290,7 +290,7 @@ void Script::Stop(bool force, bool reallyForce) {
     isReallyPaused = false;
     if (GetState() != Command) {
         const wchar_t* displayName = fileName.c_str() + wcslen(Vars.szScriptPath) + 1;
-        Print("Script %s ended", displayName);
+        Print("Script %ls ended", displayName);
     }
 
     // trigger call back so script ends
