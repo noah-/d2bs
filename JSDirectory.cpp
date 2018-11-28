@@ -42,14 +42,16 @@ JSAPI_FUNC(my_openDir) {
     char* name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (!isValidPath(name))
-        return JS_TRUE;
+        return JS_FALSE;
 
     wchar_t* nameW = AnsiToUnicode(name);
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, nameW);
     delete[] nameW;
 
     if ((_wmkdir(path) == -1) && (errno == ENOENT)) {
-        JS_ReportError(cx, "Couldn't get directory %s, path '%ls' not found", name, path);
+        char* nPath = UnicodeToAnsi(path);
+        JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
+        delete[] nPath;
         return JS_FALSE;
     } else {
         DirData* d = new DirData(name);
@@ -69,7 +71,7 @@ JSAPI_FUNC(my_openDir) {
 
 JSAPI_FUNC(dir_getFiles) {
     if (argc > 1)
-        return JS_TRUE;
+        return JS_FALSE;
     if (argc < 1)
         JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
@@ -84,8 +86,16 @@ JSAPI_FUNC(dir_getFiles) {
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, nameW);
     delete[] nameW;
 
-    _wgetcwd(oldpath, _MAX_PATH);
-    _wchdir(path);
+    if(!_wgetcwd(oldpath, _MAX_PATH))
+    {
+        Log("Error getting current working directory. (%s, %s)", "JSDirectory.cpp", "dir_getFiles");
+        return JS_FALSE;
+    }
+    if(_wchdir(path) == -1)
+    {
+        Log("Changing directory to %s. (%s, %s)", path, "JSDirectory.cpp", "dir_getFiles");
+        return JS_FALSE;
+    }
 
     _finddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
@@ -103,14 +113,18 @@ JSAPI_FUNC(dir_getFiles) {
         JS_EndRequest(cx);
     }
     JS_free(cx, search);
-    _wchdir(oldpath);
+    if(_wchdir(oldpath) == -1)
+    {
+        Log("Error changing directory back to %s. (%s, %s)", oldpath, "JSDirectory.cpp", "dir_getFiles");
+        return JS_FALSE;
+    }
 
     return JS_TRUE;
 }
 
 JSAPI_FUNC(dir_getFolders) {
     if (argc > 1)
-        return JS_TRUE;
+        return JS_FALSE;
     if (argc < 1)
         JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
@@ -125,8 +139,16 @@ JSAPI_FUNC(dir_getFolders) {
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, nameW);
     delete[] nameW;
 
-    _wgetcwd(oldpath, _MAX_PATH);
-    _wchdir(path);
+    if(!_wgetcwd(oldpath, _MAX_PATH))
+    {
+        Log("Error getting current working directory. (%s, %s)", "JSDirectory.cpp", "dir_getFolders");
+        return JS_FALSE;
+    }
+    if(_wchdir(path) == -1)
+    {
+        Log("Changing directory to %s. (%s, %s)", path, "JSDirectory.cpp", "dir_getFolders");
+        return JS_FALSE;
+    }
 
     _finddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
@@ -144,7 +166,11 @@ JSAPI_FUNC(dir_getFolders) {
         JS_EndRequest(cx);
     }
 
-    _wchdir(oldpath);
+    if(_wchdir(oldpath) == -1)
+    {
+        Log("Error changing directory back to %s. (%s, %s)", oldpath, "JSDirectory.cpp", "dir_getFolders");
+        return JS_FALSE;
+    }
 
     return JS_TRUE;
 }
@@ -158,7 +184,7 @@ JSAPI_FUNC(dir_create) {
 
     if (!isValidPath(name)) {
         JS_free(cx, name);
-        return JS_TRUE;
+        return JS_FALSE;
     }
     wchar_t* nameW = AnsiToUnicode(name);
     wchar_t* dnameW = AnsiToUnicode(d->name);
