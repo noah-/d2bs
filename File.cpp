@@ -353,12 +353,14 @@ bool isValidPath(const wchar_t* name) {
 bool isValidPath(const char* name) {
     wchar_t fullPath[_MAX_PATH + _MAX_FNAME];
 
-    wchar_t wName[_MAX_FNAME];
-    mbstowcs(wName, name, strlen(name));
+    wchar_t* wName = AnsiToUnicode(name);
 
     // Use getPathRelScript to validate based on full paths
     if (getPathRelScript(wName, _MAX_PATH + _MAX_FNAME, fullPath) == NULL)
         return false;
 
-    return (!wcsstr(wName, L"..\\") && !wcsstr(wName, L"../") && (wcscspn(wName, L"\":?*<>|") == wcslen(wName)));
+    bool retVal = (!wcsstr(wName, L"..\\") && !wcsstr(wName, L"../") && (wcscspn(wName, L"\":?*<>|") == wcslen(wName)));
+    delete[] wName;
+
+    return retVal;
 }
