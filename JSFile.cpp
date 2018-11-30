@@ -23,6 +23,7 @@
 #include "JSFile.h"
 #include "D2BS.h"
 #include "File.h"
+#include "Helpers.h"
 
 struct FileData {
     int mode;
@@ -191,7 +192,11 @@ JSAPI_FUNC(file_open) {
 
     static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 
-    FILE* fptr = fileOpenRelScript(file, modes[mode], cx);
+    wchar_t* fileW = AnsiToUnicode(file);
+    wchar_t* modesW = AnsiToUnicode(modes[mode]);
+    FILE* fptr = fileOpenRelScript(fileW, modesW, cx);
+    delete[] fileW;
+    delete[] modesW;
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr == NULL)
@@ -257,7 +262,11 @@ JSAPI_FUNC(file_reopen) {
     if (fdata)
         if (!fdata->fptr) {
             static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-            fdata->fptr = fileOpenRelScript(fdata->path, modes[fdata->mode], cx);
+            wchar_t* pathW = AnsiToUnicode(fdata->path);
+            wchar_t* modesW = AnsiToUnicode(modes[fdata->mode]);
+            fdata->fptr = fileOpenRelScript(pathW, modesW, cx);
+            delete[] pathW;
+            delete[] modesW;
 
             // If fileOpenRelScript failed, it already reported the error
             if (fdata->fptr == NULL)

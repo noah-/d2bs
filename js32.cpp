@@ -2,6 +2,7 @@
 #include "js32.h"
 #include "D2Helpers.h"
 #include "Helpers.h"
+#include "File.h"
 //#include <cstdarg>
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent) {
@@ -46,7 +47,8 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::wstring fil
         str[2] = ' ';
     }
 
-    char* nFileName = UnicodeToAnsi(fileName.c_str());
+    wchar_t* wFileName = (wchar_t*)fileName.c_str();
+    char* nFileName = UnicodeToAnsi(wFileName);
     //TODO: FIX THIS PROPERLY SO IT WORKS WITH REAL UNICODE PATHS
     JSScript* rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), nFileName, 1);
     JS_AddNamedScriptRoot(cx, &rval, nFileName);

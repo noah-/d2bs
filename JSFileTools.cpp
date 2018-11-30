@@ -133,6 +133,7 @@ JSAPI_FUNC(filetools_exists) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid file name");
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+
     wchar_t* fileW = AnsiToUnicode(file);
     wchar_t fullpath[_MAX_PATH + _MAX_FNAME];
 
@@ -148,7 +149,9 @@ JSAPI_FUNC(filetools_readText) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "You must supply a file name");
     char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE* fptr = fileOpenRelScript(fname, "r", cx);
+    wchar_t* fileW = AnsiToUnicode(fname);
+    FILE* fptr = fileOpenRelScript(fileW, L"r", cx);
+    delete[] fileW;
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr == NULL)
@@ -191,7 +194,9 @@ JSAPI_FUNC(filetools_writeText) {
     EnterCriticalSection(&Vars.cFileSection);
 
     char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE* fptr = fileOpenRelScript(fname, "w", cx);
+    wchar_t* fileW = AnsiToUnicode(fname);
+    FILE* fptr = fileOpenRelScript(fileW, L"w", cx);
+    delete[] fileW;
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error
@@ -221,7 +226,9 @@ JSAPI_FUNC(filetools_appendText) {
     EnterCriticalSection(&Vars.cFileSection);
 
     char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    FILE* fptr = fileOpenRelScript(fname, "a+", cx);
+    wchar_t* fileW = AnsiToUnicode(fname);
+    FILE* fptr = fileOpenRelScript(fileW, L"a+", cx);
+    delete[] fileW;
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error
