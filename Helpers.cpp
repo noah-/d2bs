@@ -310,13 +310,15 @@ void GameJoined(void) {
 void MenuEntered(bool beginStarter) {
     if (beginStarter && !Vars.bUseProfileScript) {
         const wchar_t* starter = GetStarterScriptName();
+        char* starterN = UnicodeToAnsi(starter);
         if (starter != NULL) {
-            Print("ÿc2D2BSÿc0 :: Starting %ls", starter);
+            Print("ÿc2D2BSÿc0 :: Starting %s", starterN);
             if (StartScript(starter, GetStarterScriptState()))
-                Print("ÿc2D2BSÿc0 :: %ls running.", starter);
+                Print("ÿc2D2BSÿc0 :: %s running.", starterN);
             else
-                Print("ÿc2D2BSÿc0 :: Failed to start %ls!", starter);
+                Print("ÿc2D2BSÿc0 :: Failed to start %s!", starterN);
         }
+        delete[] starterN;
     }
 }
 
