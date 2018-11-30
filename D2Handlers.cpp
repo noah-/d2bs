@@ -61,11 +61,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
 
     if (command) {
         const wchar_t* profile = command->szText;
-
+        char* profileN = UnicodeToAnsi(profile);
         if (SwitchToProfile(profile))
-            Print("ÿc2D2BSÿc0 :: Switched to profile %ls", profile);
+            Print("ÿc2D2BSÿc0 :: Switched to profile %s", profileN);
         else
-            Print("ÿc2D2BSÿc0 :: Profile %ls not found", profile);
+            Print("ÿc2D2BSÿc0 :: Profile %s not found", profileN);
+        delete[] profileN;
     }
 
     while (Vars.bActive) {
@@ -198,9 +199,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 const char* profile = (char*)pCopy->lpData;
                 wchar_t* profileW = AnsiToUnicode(profile);
                 if (SwitchToProfile(profileW))
-                    Print("ÿc2D2BSÿc0 :: Switched to profile %ls", profile);
+                    Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
                 else
-                    Print("ÿc2D2BSÿc0 :: Profile %ls not found", profile);
+                    Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
                 delete[] profileW;
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
