@@ -5,10 +5,14 @@
 #include "D2Ptrs.h"
 #include "js32.h"
 
+#define DEBUG_LOGW(MESSAGE) Log("%ls (%s, %d)", MESSAGE, __FILE__, __LINE__)
+#define DEBUG_LOG(MESSAGE) Log("%s (%s, %d)", MESSAGE, __FILE__, __LINE__)
+
 enum DistanceType { Euclidean, Chebyshev, Manhattan };
 
 enum ClientGameState { ClientStateNull, ClientStateMenu, ClientStateInGame, ClientStateBusy };
 
+void Debug_Log(wchar_t* szFormat, ...);
 void Log(char* szFormat, ...);
 void LogNoFormat(char* szString);
 

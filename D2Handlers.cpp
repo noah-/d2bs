@@ -126,7 +126,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg) {
         Vars.bDontCatchNextMsg = false;
     else {
         char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
 
@@ -140,7 +140,7 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg) {
         Vars.bDontCatchNextMsg = false;
     else {
         char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
 
@@ -190,7 +190,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 while (!Vars.bActive || (ScriptEngine::GetState() != Running)) {
                     Sleep(100);
                 }
-                ScriptEngine::RunCommand((char*)pCopy->lpData);
+                wchar_t* lpDataW = AnsiToUnicode((char*)pCopy->lpData);
+                ScriptEngine::RunCommand(lpDataW);
+                delete[] lpDataW;
             } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
             {
                 const char* profile = (char*)pCopy->lpData;

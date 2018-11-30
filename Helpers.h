@@ -17,7 +17,7 @@ bool InitHooks(void);
 bool ExecCommand(const char* command);
 bool StartScript(const wchar_t* script, ScriptState state);
 void Reload(void);
-bool ProcessCommand(const char* command, bool unprocessedIsCommand);
+bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand);
 
 void GameJoined(void);
 void MenuEntered(bool beginStarter);

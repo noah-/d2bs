@@ -133,12 +133,13 @@ JSAPI_FUNC(filetools_exists) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid file name");
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char fullpath[_MAX_PATH + _MAX_FNAME];
+    wchar_t* fileW = AnsiToUnicode(file);
+    wchar_t fullpath[_MAX_PATH + _MAX_FNAME];
 
-    if (getPathRelScript(file, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
+    if (getPathRelScript(fileW, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
         THROW_ERROR(cx, "Invalid file name");
 
-    JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!(_access(fullpath, 0) != 0 && errno == ENOENT)));
+    JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!(_waccess(fullpath, 0) != 0 && errno == ENOENT)));
 
     return JS_TRUE;
 }

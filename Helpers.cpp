@@ -197,7 +197,7 @@ ScriptState GetStarterScriptState(void) {
     return (ClientState() == ClientStateInGame ? InGame : ClientState() == ClientStateMenu ? OutOfGame : InGame);
 }
 
-bool ExecCommand(const char* command) {
+bool ExecCommand(const wchar_t* command) {
     ScriptEngine::RunCommand(command);
     return true;
 }
@@ -231,43 +231,41 @@ void Reload(void) {
     }
 }
 
-bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
+bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand) {
     bool result = false;
-    char* buf = _strdup(command);
-    char* next_token1 = NULL;
-    char* argv = strtok_s(buf, " ", &next_token1);
+    wchar_t* buf = _wcsdup(command);
+    wchar_t* next_token1 = NULL;
+    wchar_t* argv = wcstok_s(buf, L" ", &next_token1);
 
     // no command?
     if (argv == NULL)
         return false;
 
-    if (_strcmpi(argv, "start") == 0) {
+    if (_wcsicmp(argv, L"start") == 0) {
         const wchar_t* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
             Print("ÿc2D2BSÿc0 :: Started %s", script);
         else
             Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
         result = true;
-    } else if (_strcmpi(argv, "stop") == 0) {
+    } else if (_wcsicmp(argv, L"stop") == 0) {
         if (ScriptEngine::GetCount() > 0)
             Print("ÿc2D2BSÿc0 :: Stopping all scripts");
         ScriptEngine::StopAll();
         result = true;
-    } else if (_strcmpi(argv, "flush") == 0) {
+    } else if (_wcsicmp(argv, L"flush") == 0) {
         if (Vars.bDisableCache != TRUE)
             Print("ÿc2D2BSÿc0 :: Flushing the script cache");
         ScriptEngine::FlushCache();
         result = true;
-    } else if (_strcmpi(argv, "load") == 0) {
-        const char* script = command + 5;
-        wchar_t *scriptW = AnsiToUnicode(script);
-        if (StartScript(scriptW, GetStarterScriptState()))
-            Print("ÿc2D2BSÿc0 :: Started %s", script);
+    } else if (_wcsicmp(argv, L"load") == 0) {
+        const wchar_t* script = command + 5;
+        if (StartScript(script, GetStarterScriptState()))
+            Print("ÿc2D2BSÿc0 :: Started %ls", script);
         else
-            Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
-        delete[] scriptW;
+            Print("ÿc2D2BSÿc0 :: Failed to start %ls", script);
         result = true;
-    } else if (_strcmpi(argv, "reload") == 0) {
+    } else if (_wcsicmp(argv, L"reload") == 0) {
         Reload();
         result = true;
     }
@@ -285,7 +283,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand) {
         result = true;
     }
 #endif
-    else if (_strcmpi(argv, "exec") == 0 && !unprocessedIsCommand) {
+    else if (_wcsicmp(argv, L"exec") == 0 && !unprocessedIsCommand) {
         ExecCommand(command + 5);
         result = true;
     } else if (unprocessedIsCommand) {

@@ -23,7 +23,9 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
         break;
     case XTYP_EXECUTE:
         DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
-        ScriptEngine::RunCommand(pszItem);
+        profileW = AnsiToUnicode(pszItem);
+        ScriptEngine::RunCommand(profileW);
+        delete[] profileW;
         break;
     }
     return (HDDEDATA)0;

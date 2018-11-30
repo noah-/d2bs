@@ -31,7 +31,9 @@ void Console::ExecuteCommand(void) {
     commands.push_back(cmd.str());
     commandPos = commands.size();
 
-    ProcessCommand(cmd.str().c_str(), true);
+    wchar_t* commandW = AnsiToUnicode(cmd.str().c_str());
+    ProcessCommand(commandW, true);
+    delete[] commandW;
 
     cmd.str("");
 }
