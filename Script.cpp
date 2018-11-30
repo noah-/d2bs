@@ -51,7 +51,12 @@ Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructur
         fileName = wstring(L"Command Line");
     } else {
         if (_waccess(file, 0) != 0)
+        {
+            wchar_t* asdf = const_cast< wchar_t* >(file);
+            DEBUG_LOGW(asdf);
+
             throw std::exception("File not found");
+        }
 
         wchar_t* tmpName = _wcsdup(file);
         if (!tmpName)
@@ -97,21 +102,21 @@ DWORD Script::GetThreadId(void) {
     return (threadHandle == INVALID_HANDLE_VALUE ? -1 : threadId);
 }
 
-void Script::RunCommand(const char* command) {
+void Script::RunCommand(const wchar_t* command) {
     RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-    size_t commandLength = strlen(command) + 1;
-    char* passCommand = new char[commandLength];
-    strcpy_s(passCommand, commandLength, command);
+    size_t commandLength = wcslen(command) + 1;
+    wchar_t* passCommand = new wchar_t[commandLength];
+    wcscpy_s(passCommand, commandLength, command);
 
     rcs->script = this;
     rcs->command = passCommand;
 
     if (isAborted) { // this should never happen -bob
-        char* command = "delay(1000000);";
+        wchar_t* command = L"delay(1000000);";
         RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-        size_t commandLength = strlen(command) + 1;
-        char* passCommand = new char[commandLength];
-        strcpy_s(passCommand, commandLength, command);
+        size_t commandLength = wcslen(command) + 1;
+        wchar_t* passCommand = new wchar_t[commandLength];
+        wcscpy_s(passCommand, commandLength, command);
 
         rcs->script = this;
         rcs->command = passCommand;
@@ -496,7 +501,8 @@ DWORD WINAPI RunCommandThread(void* data) {
     JS_BeginRequest(cx);
     jsval rval;
     JS_AddNamedValueRoot(cx, &rval, "Cmd line rtl");
-    if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval)) {
+    char* commandN = UnicodeToAnsi(rcs->command);
+    if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), commandN, strlen(commandN), "Command Line", 0, &rval)) {
         if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
             JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
             char* text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
@@ -504,6 +510,7 @@ DWORD WINAPI RunCommandThread(void* data) {
             JS_free(cx, text);
         }
     }
+    delete[] commandN;
     JS_RemoveRoot(cx, &rval);
     JS_EndRequest(cx);
     JS_TriggerOperationCallback(JS_GetRuntime(cx));
