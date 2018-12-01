@@ -197,7 +197,7 @@ ScriptState GetStarterScriptState(void) {
     return (ClientState() == ClientStateInGame ? InGame : ClientState() == ClientStateMenu ? OutOfGame : InGame);
 }
 
-bool ExecCommand(const wchar_t* command) {
+bool ExecCommand(const char* command) {
     ScriptEngine::RunCommand(command);
     return true;
 }
@@ -284,10 +284,14 @@ bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand) {
     }
 #endif
     else if (_wcsicmp(argv, L"exec") == 0 && !unprocessedIsCommand) {
-        ExecCommand(command + 5);
+        char* utf8Cmd = UnicodeToAnsi(command + 5);
+        ExecCommand(utf8Cmd);
+        delete[] utf8Cmd;
         result = true;
     } else if (unprocessedIsCommand) {
-        ExecCommand(command);
+        char* utf8Cmd = UnicodeToAnsi(command);
+        ExecCommand(utf8Cmd);
+        delete[] utf8Cmd;
         result = true;
     }
     free(buf);
