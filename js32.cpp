@@ -47,12 +47,14 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::wstring fil
         str[2] = ' ';
     }
 
-    wchar_t* wFileName = (wchar_t*)fileName.c_str();
-    char* nFileName = UnicodeToAnsi(wFileName);
+    char* nFileName = UnicodeToAnsi(fileName.c_str());
     //TODO: FIX THIS PROPERLY SO IT WORKS WITH REAL UNICODE PATHS
     JSScript* rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), nFileName, 1);
+    //wchar_t* wStr = AnsiToUnicode(str.c_str());
+    //JSScript* rval = JS_CompileUCScript(cx, globalObject, wStr, wcslen(wStr), nFileName, 1);
     JS_AddNamedScriptRoot(cx, &rval, nFileName);
     JS_RemoveScriptRoot(cx, &rval);
+    delete[] nFileName;
 
     return rval;
 }
