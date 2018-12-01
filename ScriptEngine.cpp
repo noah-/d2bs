@@ -54,7 +54,7 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
     }
 }
 
-void ScriptEngine::RunCommand(const wchar_t* command) {
+void ScriptEngine::RunCommand(const char* command) {
     if (GetState() != Running)
         return;
     try {

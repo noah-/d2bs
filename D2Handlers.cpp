@@ -191,9 +191,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 while (!Vars.bActive || (ScriptEngine::GetState() != Running)) {
                     Sleep(100);
                 }
-                wchar_t* lpDataW = AnsiToUnicode((char*)pCopy->lpData);
-                ScriptEngine::RunCommand(lpDataW);
-                delete[] lpDataW;
+                ScriptEngine::RunCommand((char*)pCopy->lpData);
             } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
             {
                 const char* profile = (char*)pCopy->lpData;

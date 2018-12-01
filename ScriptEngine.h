@@ -43,7 +43,7 @@ class ScriptEngine {
     static void FlushCache(void);
 
     static Script* CompileFile(const wchar_t* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL, bool recompile = false);
-    static void RunCommand(const wchar_t* command);
+    static void RunCommand(const char* command);
     static void DisposeScript(Script* script);
 
     static void LockScriptList(char* loc);
