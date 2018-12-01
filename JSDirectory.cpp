@@ -100,19 +100,20 @@ JSAPI_FUNC(dir_getFiles) {
         return JS_FALSE;
     }
 
-    _finddata_t found;
+    _wfinddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
-
-    if ((hFile = _findfirst(search, &found)) != -1L) {
+    wchar_t* searchW = AnsiToUnicode(search);
+    
+    if ((hFile = _wfindfirst(searchW, &found)) != -1L) {
         JS_BeginRequest(cx);
         jsint element = 0;
         do {
             if ((found.attrib & _A_SUBDIR))
                 continue;
-            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, UnicodeToAnsi(found.name)));
             JS_SetElement(cx, jsarray, element++, &file);
-        } while (_findnext(hFile, &found) == 0);
+        } while (_wfindnext(hFile, &found) == 0);
         JS_EndRequest(cx);
     }
     JS_free(cx, search);
@@ -153,19 +154,20 @@ JSAPI_FUNC(dir_getFolders) {
         return JS_FALSE;
     }
 
-    _finddata_t found;
+    _wfinddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
+    wchar_t* searchW = AnsiToUnicode(search);
 
-    if ((hFile = _findfirst(search, &found)) != -1L) {
+    if ((hFile = _wfindfirst(searchW, &found)) != -1L) {
         jsint element = 0;
         JS_BeginRequest(cx);
         do {
-            if (!strcmp(found.name, "..") || !strcmp(found.name, ".") || !(found.attrib & _A_SUBDIR))
+            if (!wcscmp(found.name, L"..") || !wcscmp(found.name, L".") || !(found.attrib & _A_SUBDIR))
                 continue;
-            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, UnicodeToAnsi(found.name)));
             JS_SetElement(cx, jsarray, element++, &file);
-        } while (_findnext(hFile, &found) == 0);
+        } while (_wfindnext(hFile, &found) == 0);
         JS_EndRequest(cx);
     }
 
