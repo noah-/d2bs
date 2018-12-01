@@ -111,7 +111,7 @@ JSAPI_FUNC(dir_getFiles) {
         do {
             if ((found.attrib & _A_SUBDIR))
                 continue;
-            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, UnicodeToAnsi(found.name)));
+            jsval file = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, found.name));
             JS_SetElement(cx, jsarray, element++, &file);
         } while (_wfindnext(hFile, &found) == 0);
         JS_EndRequest(cx);
@@ -165,7 +165,7 @@ JSAPI_FUNC(dir_getFolders) {
         do {
             if (!wcscmp(found.name, L"..") || !wcscmp(found.name, L".") || !(found.attrib & _A_SUBDIR))
                 continue;
-            jsval file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, UnicodeToAnsi(found.name)));
+            jsval file = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, found.name));
             JS_SetElement(cx, jsarray, element++, &file);
         } while (_wfindnext(hFile, &found) == 0);
         JS_EndRequest(cx);
