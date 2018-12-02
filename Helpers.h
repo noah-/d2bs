@@ -5,6 +5,7 @@
 
 #include "Script.h"
 
+bool GetStackWalk( std::string &outWalk);
 wchar_t* AnsiToUnicode(const char* str, UINT codepage = CP_UTF8);
 char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);
@@ -23,5 +24,5 @@ void MenuEntered(bool beginStarter);
 
 char* DllLoadAddrStrs();
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs);
-
+int __cdecl _purecall(void);
 #endif

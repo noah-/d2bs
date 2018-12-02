@@ -7,11 +7,12 @@ using namespace std;
 
 void hook_finalize(JSFreeOp* fop, JSObject* obj) {
     Genhook* hook = (Genhook*)JS_GetPrivate(obj);
-
+    Genhook::EnterGlobalSection();
     if (hook) {
         JS_SetPrivate(obj, NULL);
         delete hook;
     }
+    Genhook::LeaveGlobalSection();
 }
 
 JSAPI_FUNC(hook_remove) {

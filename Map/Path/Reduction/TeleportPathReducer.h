@@ -86,28 +86,28 @@ public:
 		int x, y;
 		if(Euclidean(bestPtSoFar,center) < 500)
 		{
-		for(int j = 0; j < distanceList.size(); j++)
-		{
-			x=distanceList[j].first + center.first;
-			y=distanceList[j].second + center.second;
-			if(!Reject(Point(x, y),true))
-			{						
-				if( val > Euclidean(Point(x, y), endpoint))
-					{
-						val = Euclidean(Point(x, y), endpoint);
-						best = Point(x, y);
-						out.push_back(best);
-					}
-			}
-		}
-		if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
-		{		
-			map->PathingPointList.insert(best);
-			out.push_back(best);
-			if(Euclidean(best,endpoint) < Euclidean(bestPtSoFar , endpoint) )
-				bestPtSoFar = best;
-			return;
-		}
+		    for(uint j = 0; j < distanceList.size(); j++)
+		    {
+			    x=distanceList[j].first + center.first;
+			    y=distanceList[j].second + center.second;
+			    if(!Reject(Point(x, y),true))
+			    {						
+				    if( val > Euclidean(Point(x, y), endpoint))
+				    {
+					    val = Euclidean(Point(x, y), endpoint);
+					    best = Point(x, y);
+					    out.push_back(best);
+				    }
+			    }
+		    }
+		    if (best.first != 0 && map->PathingPointList.find(best) == map->PathingPointList.end() && Euclidean(best, endpoint) < Euclidean(center, endpoint))
+		    {		
+			    map->PathingPointList.insert(best);
+			    out.push_back(best);
+			    if(Euclidean(best,endpoint) < Euclidean(bestPtSoFar , endpoint) )
+				    bestPtSoFar = best;
+			    return;
+		    }
 		}
 		justExpand = true;
 		//expand point normally if smart tele isnt found
@@ -122,7 +122,7 @@ public:
 				out.push_back(Point(center.first+i, center.second+j));
 				map->PathingPointList.insert(Point(center.first+i, center.second+j));
 			}
-		}		
+		}
 	
 		/*if(map->GetLevel()->dwLevelNo != 74)
 			return;
