@@ -13,7 +13,8 @@ std::deque<std::string> Console::history = std::deque<std::string>();
 std::deque<std::string> Console::lines = std::deque<std::string>();
 std::deque<std::string> Console::commands = std::deque<std::string>();
 std::stringstream Console::cmd = std::stringstream();
-unsigned int Console::lineCount = 12;
+unsigned int Console::lineCount = 14;
+unsigned int Console::lineLength = 100;
 unsigned int Console::commandPos = 0;
 unsigned int Console::height = 0;
 unsigned int Console::scrollIndex = 0;
@@ -100,8 +101,16 @@ void Console::ScrollDown(void) {
 void Console::AddLine(std::string line) {
     EnterCriticalSection(&Vars.cConsoleSection);
 
-    // add the new line to the list
-    history.push_back(line);
+    if (line.length() > lineLength) {
+        std::list<std::string> buf;
+        SplitLines(line, lineLength, ' ', buf);
+        for (std::list<std::string>::iterator it2 = buf.begin(); it2 != buf.end(); it2++) {
+            history.push_back(*it2);
+        }
+    } else {
+        // add the new line to the list
+        history.push_back(line);
+    }
 
     while (history.size() > 300) // set history cap at 300
         history.pop_front();
@@ -207,58 +216,64 @@ void Console::Draw(void) {
         POINT size = GetScreenSize();
         int xsize = size.x;
         int ysize = size.y;
-        size = CalculateTextLen(">", Vars.dwConsoleFont);
+        size = CalculateTextLen("@", Vars.dwConsoleFont);
         int charsize = size.x;
-        int charheight = size.y / 2 + 2;
-        if (charheight < 12)
-            charheight = 12;
+        int charheight = max(12, size.y / 2 + 2);
         // the default console height is 30% of the screen size
-        int height = min((int)(((double)ysize) * .3), charheight*12);
-        int cx = charsize + 9;
-        int linelen = (size.x / charsize) - 10;
-        Console::height = height + 4;
-        lineCount = Console::height / charheight;
+        int height = ((int)(((double)ysize) * .3) / charheight) * charheight + charheight;
+        lineLength = xsize / charsize - 2;
+        lineCount = height / charheight;
+        int cmdlines = 0;
+        int cmdsize = 0;
+        std::string cmdstr;
+        std::list<std::string> cmdsplit;
+        
+        if (IsEnabled()) {
+            cmdstr = cmd.str();
+            if (cmdstr.length() > lineLength) {
+                SplitLines(cmdstr, lineLength, ' ', cmdsplit);
+                cmdlines += cmdsplit.size() - 1;
+            }
+        }
 
-        int cmdsize = CalculateTextLen(cmd.str().c_str(), Vars.dwConsoleFont).x;
-        if ((cmdsize / xsize) > 0)
-            Console::height += (cmdsize / xsize) * charheight + 1;
-
+        Console::height = height + (cmdlines * charheight) + 4;
         // draw the box large enough to hold the whole thing
         D2GFX_DrawRectangle(0, 0, xsize, Console::height, 0xdf, 0);
-
-        int offset = 0;
 
         std::deque<std::string>::reverse_iterator it = lines.rbegin();
         if (scrollIndex == 0 && lines.size() == lineCount && IsEnabled()) { // handle index 0, top of console
             it++;
         }
         for (int i = lineCount - (int)IsEnabled(); i > 0 && it != lines.rend(); i--, it++) {
-            if (CalculateTextLen(it->c_str(), Vars.dwConsoleFont).x > (xsize - (2 + charheight) * 2)) {
+            /*if (strlen(it->c_str()) > linelen) {
                 std::list<std::string> buf;
                 SplitLines(*it, linelen, ' ', buf);
-                for (std::list<std::string>::iterator it2 = buf.begin(); it2 != buf.end(); it2++)
-                    myDrawText(it2->c_str(), 2 + charheight, 2 + ((i--) * charheight), 0, Vars.dwConsoleFont);
-            } else
-                myDrawText(it->c_str(), 2 + charheight, 2 + (i * charheight), 0, Vars.dwConsoleFont);
+                for (std::list<std::string>::reverse_iterator it2 = buf.rbegin(); it2 != buf.rend(); it2++) {
+                    myDrawText(it2->c_str(), 2 + charsize, 2 + (i-- * charheight), 0, Vars.dwConsoleFont);
+                }
+                i++;
+            } else*/
+                myDrawText(it->c_str(), 2 + charsize, 4 + (i * charheight), 0, Vars.dwConsoleFont);
         }
 
         if (IsEnabled()) {
-            myDrawText(">", 1, height, 0, Vars.dwConsoleFont);
-            int lx = cx + cmdsize - charsize + 6, ly = height - charheight + 4;
-            if (count % 30)
-                D2GFX_DrawLine(lx, ly, lx, height, 0xFF, 0xFF);
-
-            std::string cmdstr = cmd.str();
             if (cmdstr.length() > 0) {
-                if ((cmdsize / xsize) > 0) {
-                    std::list<std::string> lines;
-                    SplitLines(cmdstr, linelen, ' ', lines);
+                if (cmdsplit.size() > 0) {
                     int i = 0;
-                    for (std::list<std::string>::iterator it2 = lines.begin(); it2 != lines.end(); it2++, i++)
-                        myDrawText(it2->c_str(), charsize + 5, height + (charheight * i) + 1, 0, Vars.dwConsoleFont);
-                } else
-                    myDrawText(cmdstr.c_str(), charsize + 5, height + 1, 0, Vars.dwConsoleFont);
+                    for (std::list<std::string>::iterator it2 = cmdsplit.begin(); it2 != cmdsplit.end(); it2++, i++) {
+                        cmdsize = CalculateTextLen(it2->c_str(), Vars.dwConsoleFont).x;
+                        myDrawText(it2->c_str(), 2 + charsize, height + (charheight * i) + 3, 0, Vars.dwConsoleFont);
+                    }
+                } else {
+                    cmdsize = CalculateTextLen(cmdstr.c_str(), Vars.dwConsoleFont).x;
+                    myDrawText(cmdstr.c_str(), 2 + charsize, height + 3, 0, Vars.dwConsoleFont);
+                }
             }
+
+            int lx = cmdsize + charsize + 2, ly = Console::height - charheight;
+            myDrawText(">", 1, Console::height - 1, 0, Vars.dwConsoleFont);
+            if (count % 30)
+                D2GFX_DrawLine(lx, ly, lx, ly + charheight - 2, 0xFF, 0xFF);
         }
     }
     LeaveCriticalSection(&Vars.cConsoleSection);
