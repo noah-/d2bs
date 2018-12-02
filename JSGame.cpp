@@ -892,13 +892,14 @@ JSAPI_FUNC(my_getSkillById) {
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "Unknown")));
     JS_EndRequest(cx);
     int row = 0;
-    if (FillBaseStat("skills", nId, "skilldesc", &row, sizeof(int)))
+    if (FillBaseStat("skills", nId, "skilldesc", &row, sizeof(int))) {
         if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
             wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
             char* str = UnicodeToAnsi(szName);
             JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
             delete[] str;
         }
+    }
 
     return JS_TRUE;
 }

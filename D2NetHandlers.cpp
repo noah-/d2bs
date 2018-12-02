@@ -55,13 +55,15 @@ DWORD HPMPUpdateHandler(BYTE* pPacket, DWORD dwSize) {
 DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize) {
     char* pName = (char*)pPacket + 10;
     char* pMessage = (char*)pPacket + strlen(pName) + 11;
-    char* enc = UnicodeToAnsi(AnsiToUnicode(pMessage, CP_ACP)); // convert d2 string to unicode to utf-8 for js compatibility
+    wchar_t* uc = AnsiToUnicode(pMessage, CP_ACP);
+    char* enc = UnicodeToAnsi(uc); // convert d2 string to unicode to utf-8 for js compatibility
 
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = FALSE;
 
     DWORD result = !(ChatEvent(pName, enc));
     delete[] enc;
+    delete[] uc;
 
     return result;
 }

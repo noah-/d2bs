@@ -137,9 +137,13 @@ JSAPI_PROP(unit_getProperty) {
         vp.setInt32(D2GFX_GetScreenSize());
         break;
     case OOG_WINDOWTITLE:
-        wchar_t szTitle[256];
-        GetWindowTextW(D2GFX_GetHwnd(), szTitle, 256);
-        vp.setString(JS_NewStringCopyZ(cx, UnicodeToAnsi(szTitle)));
+        {
+            wchar_t szTitle[256];
+            GetWindowTextW(D2GFX_GetHwnd(), szTitle, 256);
+            char* title = UnicodeToAnsi(szTitle);
+            vp.setString(JS_NewStringCopyZ(cx, title));
+            delete[] title;
+        }
         break;
     case ME_PING:
         vp.setInt32(*p_D2CLIENT_Ping);
@@ -1722,6 +1726,7 @@ JSAPI_FUNC(my_overhead) {
     if (!WaitForGameReady())
         THROW_WARNING(cx, vp, "Game not ready");
 
+    JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
     if (!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
@@ -1739,16 +1744,18 @@ JSAPI_FUNC(my_overhead) {
             wchar_t* tmpw = AnsiToUnicode(lpszText);
             // Convert back to multibyte in locale code page
             char* tmpc = UnicodeToAnsi(tmpw, CP_ACP);
-
             OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, tmpc, *p_D2CLIENT_OverheadTrigger);
             if (pMsg) {
                 // D2COMMON_FixOverheadMsg(pMsg, NULL);
                 pUnit->pOMsg = pMsg;
             }
+            delete[] tmpc;
+            delete[] tmpw;
         }
         JS_free(cx, lpszText);
     }
 
+    JS_SET_RVAL(cx, vp, JSVAL_TRUE);
     return JS_TRUE;
 }
 

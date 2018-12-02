@@ -54,7 +54,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     command = GetCommand(L"-mpq");
 
     if (command) {
-        LoadMPQ(UnicodeToAnsi(command->szText));
+        char* mpq = UnicodeToAnsi(command->szText);
+        LoadMPQ(mpq);
+        delete[] mpq;
     }
 
     command = GetCommand(L"-profile");
@@ -66,6 +68,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
             Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
         else
             Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+
+        delete[] profile;
     }
 
     while (Vars.bActive) {

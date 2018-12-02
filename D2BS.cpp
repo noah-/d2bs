@@ -61,11 +61,13 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
             Vars.bUseRawCDKey = 1;
             const char* keys = UnicodeToAnsi(command->szText);
             strncat_s(Vars.szClassic, keys, strlen(keys));
+            delete[] keys;
         }
 
         if (command = GetCommand(L"-d2x")) {
             const char* keys = UnicodeToAnsi(command->szText);
             strncat_s(Vars.szLod, keys, strlen(keys));
+            delete[] keys;
         }
 
 #if 0
