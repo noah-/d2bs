@@ -187,17 +187,17 @@ class Genhook {
 
 class TextHook : public Genhook {
   private:
-    char* text;
+    wchar_t* text;
     ushort font, color;
 
     TextHook(const TextHook&);
     TextHook& operator=(const TextHook&);
 
   public:
-    TextHook(Script* owner, JSObject* nself, char* text, uint x, uint y, ushort nfont, ushort ncolor, bool automap = false, Align align = Left,
+    TextHook(Script* owner, JSObject* nself, const wchar_t* text, uint x, uint y, ushort nfont, ushort ncolor, bool automap = false, Align align = Left,
              ScreenhookState state = Perm)
         : Genhook(owner, nself, x, y, 0, automap, align, state), text(NULL), font(nfont), color(ncolor) {
-        this->text = _strdup(text);
+        this->text = _wcsdup(text);
     }
     ~TextHook(void) {
         free(text);
@@ -219,7 +219,7 @@ class TextHook : public Genhook {
         color = ncolor;
         Unlock();
     }
-    void SetText(const char* ntext);
+    void SetText(const wchar_t* ntext);
 
     ushort GetFont(void) const {
         return font;
@@ -227,7 +227,7 @@ class TextHook : public Genhook {
     ushort GetColor(void) const {
         return color;
     }
-    const char* GetText(void) const {
+    const wchar_t* GetText(void) const {
         return text;
     }
 };

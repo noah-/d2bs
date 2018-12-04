@@ -190,7 +190,6 @@ bool StartScript(const char* scriptname, ScriptState state) {
 }
 
 void Reload(void) {
-
     if (ScriptEngine::GetCount() > 0)
         Print("ÿc2D2BSÿc0 :: Stopping all scripts");
     ScriptEngine::StopAll();

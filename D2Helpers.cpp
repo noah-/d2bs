@@ -199,15 +199,24 @@ POINT CalculateTextLen(const char* szwText, int Font) {
     if (!szwText)
         return ret;
 
-    wchar_t* Buffer = AnsiToUnicode(szwText);
+    wchar_t* buf = AnsiToUnicode(szwText);
+    ret = CalculateTextLen(buf, Font);
+    delete[] buf;
+    return ret;
+}
+
+POINT CalculateTextLen(const wchar_t* szwText, int Font) {
+    POINT ret = {0, 0};
+
+    if (!szwText)
+        return ret;
 
     DWORD dwWidth, dwFileNo;
     DWORD dwOldSize = D2WIN_SetTextSize(Font);
-    ret.y = D2WIN_GetTextSize(Buffer, &dwWidth, &dwFileNo);
+    ret.y = D2WIN_GetTextSize((wchar_t*)szwText, &dwWidth, &dwFileNo);
     ret.x = dwWidth;
     D2WIN_SetTextSize(dwOldSize);
 
-    delete[] Buffer;
     return ret;
 }
 
@@ -367,25 +376,19 @@ void AutomapToScreen(POINT* pPos) {
     pPos->y = 8 + p_D2CLIENT_Offset->y + (pPos->y * (*p_D2CLIENT_AutomapMode));
 }
 
-void myDrawText(const char* szwText, int x, int y, int color, int font) {
-    wchar_t* text = AnsiToUnicode(szwText);
+void myDrawText(const wchar_t* szwText, int x, int y, int color, int font) {
     DWORD dwOld = D2WIN_SetTextSize(font);
-    D2WIN_DrawText(text, x, y, color, 0);
+    D2WIN_DrawText(szwText, x, y, color, 0);
     D2WIN_SetTextSize(dwOld);
-
-    delete[] text;
 }
 
-void myDrawCenterText(const char* szText, int x, int y, int color, int font, int div) {
+void myDrawCenterText(const wchar_t* szText, int x, int y, int color, int font, int div) {
     DWORD dwWidth = NULL, dwFileNo = NULL, dwOldSize = NULL;
-    wchar_t* Buffer = AnsiToUnicode(szText);
 
     dwOldSize = D2WIN_SetTextSize(font);
-    D2WIN_GetTextSize(Buffer, &dwWidth, &dwFileNo);
+    D2WIN_GetTextSize((wchar_t*)szText, &dwWidth, &dwFileNo);
     D2WIN_SetTextSize(dwOldSize);
     myDrawText(szText, x - (dwWidth >> div), y, color, font);
-
-    delete[] Buffer;
 }
 
 void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
@@ -498,6 +501,12 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType) {
 }
 
 // TODO: Rewrite this and split it into two functions
+CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
+    char* path = UnicodeToAnsi(lpszPath);
+    CellFile* ret = LoadCellFile(path, bMPQ);
+    delete[] path;
+    return ret;
+}
 
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
     // AutoDetect the Cell File

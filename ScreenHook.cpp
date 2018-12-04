@@ -14,22 +14,11 @@ HookList Genhook::invisible = HookList();
 CRITICAL_SECTION Genhook::globalSection = {0};
 
 void DrawLogo(void) {
-    static char img[_MAX_PATH + _MAX_FNAME] = "";
-    static char version[] = "D2BS " D2BS_VERSION;
-    static int x = (CalculateTextLen(version, 0).x / 2);
-
-    if (img[0] == '\0')
-        sprintf_s(img, sizeof(img), "%sversion.bmp", Vars.szPath);
-
-    CellFile* vimg = LoadCellFile(img, FALSE);
-    int dx = (GetScreenSize().x / 2);
-    if (!Console::IsVisible()) {
-        myDrawAutomapCell(vimg, dx, 9, 0);
-        myDrawText(version, dx - x, 14, 4, 0);
-    } else {
-        myDrawAutomapCell(vimg, dx, Console::GetHeight() + 9, 0);
-        myDrawText(version, dx - x, Console::GetHeight() + 14, 4, 0);
-    }
+    static wchar_t version[] = L"D2BS " D2BS_VERSION;
+    static int len = CalculateTextLen(version, 0).x;
+    int dx = GetScreenSize().x - len - 1;
+    int dy = GetScreenSize().y - 1;
+    myDrawText(version, dx, dy, 4, 0);
 }
 
 bool zOrderSort(Genhook* first, Genhook* second) {
@@ -333,7 +322,7 @@ void TextHook::Draw(void) {
             loc = ScreenToAutomap(x, y);
         }
         EnterCriticalSection(&Vars.cTextHookSection);
-        myDrawText(text, loc.x, loc.y, color, font);
+        myDrawText((const wchar_t*)text, loc.x, loc.y, color, font);
         LeaveCriticalSection(&Vars.cTextHookSection);
     }
     Unlock();
@@ -347,12 +336,12 @@ bool TextHook::IsInRange(int dx, int dy) {
     return (xp < dx && y > dy && (xp + w) > dx && (y - h) < dy);
 }
 
-void TextHook::SetText(const char* ntext) {
+void TextHook::SetText(const wchar_t* ntext) {
     EnterGlobalSection();
     free(text);
     text = NULL;
     if (ntext)
-        text = _strdup(ntext);
+        text = _wcsdup(ntext);
     LeaveGlobalSection();
 }
 

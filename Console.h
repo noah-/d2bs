@@ -12,9 +12,9 @@
 class Console {
   private:
     static bool visible, enabled;
-    static std::deque<std::string> lines, commands, history;
-    static unsigned int lineCount, lineLength, commandPos, height, scrollIndex;
-    static std::stringstream cmd;
+    static std::deque<std::wstring> lines, commands, history;
+    static unsigned int lineCount, lineWidth, commandPos, height, scrollIndex;
+    static std::wstringstream cmd;
 
   public:
     static void Toggle(void);
@@ -31,6 +31,9 @@ class Console {
     }
     static bool IsEnabled(void) {
         return enabled;
+    }
+    static unsigned int MaxWidth(void) {
+        return lineWidth;
     }
 
     static void AddKey(unsigned int key);

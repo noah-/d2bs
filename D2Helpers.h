@@ -19,14 +19,15 @@ DWORD GetPlayerArea(void);
 void SendMouseClick(int x, int y, int clicktype);
 void SendKeyPress(uint type, uint key, uint ext);
 POINT CalculateTextLen(const char* szwText, int Font);
+POINT CalculateTextLen(const wchar_t* szwText, int Font);
 void WorldToScreen(POINT* pPos);
 void ScreenToWorld(POINT* ptPos);
 POINT ScreenToAutomap(int x, int y);
 void AutomapToScreen(POINT* pPos);
 Level* GetLevel(DWORD dwLevelNo);
 void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);
-void myDrawText(const char* szwText, int x, int y, int color, int font);
-void myDrawCenterText(const char* szwText, int x, int y, int color, int font, int div);
+void myDrawText(const wchar_t* szwText, int x, int y, int color, int font);
+void myDrawCenterText(const wchar_t* szwText, int x, int y, int color, int font, int div);
 // UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location);
 BYTE CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin = NULL);
 DWORD GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo);
@@ -51,6 +52,7 @@ POINT GetScreenSize();
 int D2GetScreenSizeX();
 int D2GetScreenSizeY();
 
+CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ = 3);
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = 3);
 
 AutomapLayer* InitAutomapLayer(DWORD levelno);

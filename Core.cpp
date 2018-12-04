@@ -11,45 +11,71 @@
 #include "CriticalSections.h"
 #include "Console.h"
 
-bool SplitLines(const std::string& str, size_t maxlen, const char delim, std::list<std::string>& lst) {
+bool SplitLines(const std::wstring& str, size_t maxWidth, const wchar_t delim, std::list<std::wstring>& lst) {
     using namespace std;
+    wstring tmp(str);
 
-    if (str.length() < 1 || maxlen < 2)
+    if (str.length() < 1 || maxWidth < 40)
         return false;
 
-    size_t pos;
-    string tmp(str);
+    // base case
+    if (CalculateTextLen(str.c_str(), Vars.dwConsoleFont).x < maxWidth) {
+        lst.push_back(tmp);
+        return true;
+    }
 
-    // Try getting appropriate maxlength for UTF8 string
-    double ratio = (double)tmp.size() / UTF8Length(tmp);
-    int maxLength = (int)((int)maxlen - ((ratio - 1.0) * 20));
+    int byteIdx = MaxLineFit(str, 0, str.length() + 1, maxWidth);
+    wstring ts = str.substr(0, byteIdx);
+    uint cmdsize = CalculateTextLen(ts.c_str(), Vars.dwConsoleFont).x;
+    int numchars = ts.length();
+    int sizechar = (cmdsize +  numchars - 1) / numchars;
+    int maxLength = (maxWidth + sizechar - 1) / sizechar - 1;
 
-    while (UTF8Length(tmp) > maxLength) {
+    // byteIdx-1 since std::string::npos indexes from 0
+    int pos = tmp.find_last_of(delim, byteIdx - 1);
+    if (!pos || pos == string::npos) {
+        // Target delimiter was not found, breaking at byteIdx
+        wstring ts = tmp.substr(0, byteIdx);
+        lst.push_back(ts);
+        tmp.erase(0, byteIdx);
+    } else {
+        // We found the last delimiter before byteIdx
+        wstring ts = tmp.substr(0, pos);
+        lst.push_back(ts);
+        tmp.erase(0, pos);
+    }
+
+    return SplitLines(tmp, maxWidth, delim, lst);
+
+    /*while (UTF8Length(tmp) > maxLength) {
         // Get byte index for UTF8 string
         int byteIdx = UTF8FindByteIndex(tmp, maxLength);
         // byteIdx-1 since std::string::npos indexes from 0
         pos = tmp.find_last_of(delim, byteIdx - 1);
         if (!pos || pos == string::npos) {
             // Target delimiter was not found, breaking at byteIdx
-            lst.push_back(tmp.substr(0, byteIdx));
+            string ts = tmp.substr(0, byteIdx);
+            lst.push_back(ts);
             tmp.erase(0, byteIdx);
             continue;
         }
-        pos = tmp.find_last_of(delim, byteIdx - 1);
-        if (pos && pos != string::npos) {
+        //pos = tmp.find_last_of(delim, byteIdx - 1);
+        if (pos) {
             // We found the last delimiter before byteIdx
-            lst.push_back(tmp.substr(0, pos) + delim);
+            string ts = tmp.substr(0, pos);
+            lst.push_back(ts);
             tmp.erase(0, pos);
         } else
             DebugBreak();
     }
+
     if (!tmp.length())
         DebugBreak();
 
     if (tmp.length())
         lst.push_back(tmp);
 
-    return true;
+    return true;*/
 }
 
 void Print(const char* szFormat, ...) {
@@ -115,15 +141,15 @@ void __fastcall Say(const char* szFormat, ...) {
         aMsg = NULL;
 
         /*
-                        Vars.bDontCatchNextMsg = FALSE;
-                        int len = 6+strlen(szMessage);
-                        BYTE* pPacket = new BYTE[6+strlen(szMessage)];
-                        memset(pPacket, 0, len);
-                        pPacket[0] = 0x15;
-                        pPacket[1] = 0x01;
-                        memcpy(pPacket+3, szMessage, len-6);
-                        D2CLIENT_SendGamePacket(len, pPacket);
-                        delete [] pPacket;
+        Vars.bDontCatchNextMsg = FALSE;
+        int len = 6+strlen(szMessage);
+        BYTE* pPacket = new BYTE[6+strlen(szMessage)];
+        memset(pPacket, 0, len);
+        pPacket[0] = 0x15;
+        pPacket[1] = 0x01;
+        memcpy(pPacket+3, szMessage, len-6);
+        D2CLIENT_SendGamePacket(len, pPacket);
+        delete [] pPacket;
         */
     }
     // help button and ! ok msg for disconnected
@@ -211,4 +237,22 @@ int UTF8Length(std::string str) {
         len += (*tmp++ & 0xc0) != 0x80;
 
     return len;
+}
+
+int GetTextLength(const std::wstring& str, int index) {
+    return CalculateTextLen(str.substr(0, index).c_str(), Vars.dwConsoleFont).x;
+}
+
+int MaxLineFit(const std::wstring& str, int start_idx, int end_idx, int maxWidth) {
+   if (start_idx == end_idx) {
+      return GetTextLength(str, start_idx) <= maxWidth ? start_idx : -1;
+   }
+
+   int mid_idx = start_idx + (end_idx - start_idx) / 2;
+
+   if (maxWidth < GetTextLength(str, mid_idx))
+      return MaxLineFit(str, start_idx, mid_idx, maxWidth);
+
+   int ret = MaxLineFit(str, mid_idx+1, end_idx, maxWidth);
+   return ret == -1 ? mid_idx : ret;
 }

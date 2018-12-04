@@ -457,10 +457,10 @@ JSAPI_FUNC(text_ctor) {
     Align align = Left;
     bool automap = false;
     jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-    char* szText = "";
+    const wchar_t* szText = L"";
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        szText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!szText)
         return JS_TRUE;
     if (argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
@@ -519,7 +519,7 @@ JSAPI_PROP(text_getProperty) {
         vp.setInt32(pTextHook->GetFont());
         break;
     case TEXT_TEXT:
-        vp.setString(JS_NewStringCopyZ(cx, pTextHook->GetText()));
+        vp.setString(JS_NewUCStringCopyZ(cx, pTextHook->GetText()));
         break;
     case TEXT_ALIGN:
         vp.setInt32(pTextHook->GetAlign());
@@ -566,11 +566,10 @@ JSAPI_STRICT_PROP(text_setProperty) {
         break;
     case TEXT_TEXT:
         if (vp.isString()) {
-            char* pText = JS_EncodeString(cx, vp.toString());
+            const wchar_t* pText = JS_GetStringCharsZ(cx, vp.toString());
             if (!pText)
                 return JS_TRUE;
             pTextHook->SetText(pText);
-            JS_free(cx, pText);
         }
         break;
     case TEXT_ALIGN:

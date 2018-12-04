@@ -294,7 +294,7 @@ JSAPI_FUNC(my_isIncluded) {
 
 JSAPI_FUNC(my_version) {
     if (argc < 1) {
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION)));
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_InternUCString(cx, D2BS_VERSION)));
         return JS_TRUE;
     }
 

@@ -371,35 +371,32 @@ void FlushPrint() {
     std::swap(Vars.qPrintBuffer, clean);
     LeaveCriticalSection(&Vars.cPrintSection);
 
-    const uint MAX_LEN = 98;
-
     while (!clean.empty()) {
         std::string str = clean.front();
 
         // Break into lines through \n.
-        list<string> lines;
+        list<wstring> lines;
         string temp;
         stringstream ss(str);
-        while (getline(ss, temp))
-            SplitLines(temp, MAX_LEN, ' ', lines);
 
-        if (Vars.bUseGamePrint) {
-            if (ClientState() == ClientStateInGame) {
+        if (Vars.bUseGamePrint && ClientState() == ClientStateInGame) {
+        while (getline(ss, temp))
+                SplitLines(AnsiToUnicode(temp.c_str()), Console::MaxWidth() - 100, ' ', lines);
+
                 // Convert and send every line.
-                for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it) {
-                    wchar_t* output = AnsiToUnicode(it->c_str());
-                    D2CLIENT_PrintGameString(output, 0);
-                    delete[] output;
+            for (list<wstring>::iterator it = lines.begin(); it != lines.end(); ++it) {
+                D2CLIENT_PrintGameString((wchar_t*)it->c_str(), 0);
                 }
-            } else if (ClientState() == ClientStateMenu && findControl(4, (char*)NULL, -1, 28, 410, 354, 298)) {
+        /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (char*)NULL, -1, 28, 410, 354, 298)) {
+            while (getline(ss, temp))
+                SplitLines(temp, Console::MaxWidth() - 100, ' ', lines);
                 // TODO: Double check this function, make sure it is working as intended.
                 for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-                    D2MULTI_PrintChannelText((char*)it->c_str(), 0);
-            }
+                    D2MULTI_PrintChannelText((char*)it->c_str(), 0);*/
+        } else {
+            while (getline(ss, temp))
+                Console::AddLine(temp);
         }
-
-        for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-            Console::AddLine(*it);
 
         clean.pop();
     }
