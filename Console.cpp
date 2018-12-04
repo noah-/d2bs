@@ -208,7 +208,7 @@ void Console::ShowBuffer(void) {
 }
 
 void Console::Draw(void) {
-    static DWORD count = 0;
+    static DWORD count = GetTickCount();
     EnterCriticalSection(&Vars.cConsoleSection);
     if (IsVisible()) {
         POINT size = GetScreenSize();
@@ -219,7 +219,7 @@ void Console::Draw(void) {
         int charheight = max(12, size.y / 2 + 2);
         // the default console height is 30% of the screen size
         int height = ((int)(((double)ysize) * .3) / charheight) * charheight + charheight;
-        lineWidth = xsize - 15;
+        lineWidth = xsize - (2 * charsize);
         lineCount = height / charheight;
         int cmdlines = 0;
         int cmdsize = 0;
@@ -242,16 +242,9 @@ void Console::Draw(void) {
         if (scrollIndex == 0 && lines.size() == lineCount && IsEnabled()) { // handle index 0, top of console
             it++;
         }
+
         for (int i = lineCount - (int)IsEnabled(); i > 0 && it != lines.rend(); i--, it++) {
-            /*if (strlen(it->c_str()) > linelen) {
-                std::list<std::string> buf;
-                SplitLines(*it, linelen, ' ', buf);
-                for (std::list<std::string>::reverse_iterator it2 = buf.rbegin(); it2 != buf.rend(); it2++) {
-                    myDrawText(it2->c_str(), 2 + charsize, 2 + (i-- * charheight), 0, Vars.dwConsoleFont);
-                }
-                i++;
-            } else*/
-                myDrawText(it->c_str(), 2 + charsize, 4 + (i * charheight), 0, Vars.dwConsoleFont);
+            myDrawText(it->c_str(), charsize, 4 + (i * charheight), 0, Vars.dwConsoleFont);
         }
 
         if (IsEnabled()) {
@@ -260,23 +253,25 @@ void Console::Draw(void) {
                     int i = 0;
                     for (std::list<std::wstring>::iterator it2 = cmdsplit.begin(); it2 != cmdsplit.end(); it2++, i++) {
                         cmdsize = CalculateTextLen(it2->c_str(), Vars.dwConsoleFont).x;
-                        myDrawText(it2->c_str(), 2 + charsize, height + (charheight * i) + 3, 0, Vars.dwConsoleFont);
+                        myDrawText(it2->c_str(), charsize, height + (charheight * i) + 3, 0, Vars.dwConsoleFont);
                     }
                 } else {
                     cmdsize = CalculateTextLen(cmdstr.c_str(), Vars.dwConsoleFont).x;
-                    myDrawText(cmdstr.c_str(), 2 + charsize, height + 3, 0, Vars.dwConsoleFont);
+                    myDrawText(cmdstr.c_str(), charsize, height + 3, 0, Vars.dwConsoleFont);
                 }
             }
 
-            int lx = cmdsize + charsize + 2, ly = Console::height - charheight;
+            int lx = cmdsize + charsize, ly = Console::height - (charheight / 3);
             myDrawText(L">", 1, Console::height - 3, 0, Vars.dwConsoleFont);
-            if (count % 30)
-                D2GFX_DrawLine(lx, ly, lx, ly + charheight - 2, 0xFF, 0xFF);
+            DWORD tick = GetTickCount();
+            if ((tick - count) < 600) {
+                D2GFX_DrawRectangle(lx, ly, lx + ((charsize * 2) / 3), ly + 2, 0xFF, 0x07);
+            } else if ((tick - count) > 1100) {
+                count = tick;
+            }
         }
     }
     LeaveCriticalSection(&Vars.cConsoleSection);
-
-    count++;
 }
 
 unsigned int Console::GetHeight(void) {

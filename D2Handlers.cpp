@@ -33,7 +33,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     Vars.bUseRawCDKey = 0;
     InitSettings();
     if (InitHooks()) {
-        Log("D2BS Engine startup complete. %s", D2BS_VERSION);
+        Log("D2BS Engine startup complete. %ls", D2BS_VERSION);
         Print("ÿc2D2BSÿc0 :: Engine startup complete!");
         D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
         Vars.dwLocale = *p_D2CLIENT_Lang;

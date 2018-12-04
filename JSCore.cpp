@@ -258,7 +258,7 @@ JSAPI_FUNC(my_beep) {
         nBeepId = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
     MessageBeep(nBeepId);
-
+    JS_SET_RVAL(cx, vp, JSVAL_TRUE);
     return JS_TRUE;
 }
 
@@ -293,13 +293,14 @@ JSAPI_FUNC(my_isIncluded) {
 }
 
 JSAPI_FUNC(my_version) {
+    JS_SET_RVAL(cx, vp, JSVAL_TRUE);
+
     if (argc < 1) {
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_InternUCString(cx, D2BS_VERSION)));
         return JS_TRUE;
     }
 
-    Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.14d.", D2BS_VERSION);
-
+    Print("ÿc4D2BSÿc1 ÿc3%ls for Diablo II 1.14d.", D2BS_VERSION);
     return JS_TRUE;
 }
 
