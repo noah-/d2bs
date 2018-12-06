@@ -97,7 +97,7 @@ void Script::RunCommand(const char* command) {
     Event* evt = new Event;
     evt->owner = this;
     evt->argc = argc;
-    evt->name = strdup("Command");
+    evt->name = _strdup("Command");
     evt->arg1 = passCommand;
     EnterCriticalSection(&Vars.cEventSection);
     evt->owner->EventList.push_front(evt);
