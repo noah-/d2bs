@@ -35,6 +35,9 @@ class Console {
     static unsigned int MaxWidth(void) {
         return lineWidth;
     }
+    static unsigned int Console::GetHeight(void) {
+        return height;
+    }
 
     static void AddKey(unsigned int key);
     static void ExecuteCommand(void);
@@ -47,7 +50,6 @@ class Console {
     static void UpdateLines(void);
     static void Clear(void);
     static void Draw(void);
-    static unsigned int GetHeight(void);
 };
 
 #endif

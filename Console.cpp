@@ -259,7 +259,3 @@ void Console::Draw(void) {
     }
     LeaveCriticalSection(&Vars.cConsoleSection);
 }
-
-unsigned int Console::GetHeight(void) {
-    return height;
-}

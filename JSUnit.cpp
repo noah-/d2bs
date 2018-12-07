@@ -1053,10 +1053,11 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray) {
                 JS_SetElement(cx, arr, len, &obj);
                 JS_EndRequest(cx);
             }
-        } else
+        } else {
             JS_BeginRequest(cx);
-        JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
-        JS_EndRequest(cx);
+            JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
+            JS_EndRequest(cx);
+        }
     } else {
         // Make sure to bit shift life, mana and stamina properly!
         int value = pStat[nStat].dwStatValue;

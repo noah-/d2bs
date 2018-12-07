@@ -393,10 +393,10 @@ void FlushPrint() {
                 // TODO: Double check this function, make sure it is working as intended.
                 for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
                     D2MULTI_PrintChannelText((char*)it->c_str(), 0);*/
-        } else {
+        }
+
             while (getline(ss, temp))
                 Console::AddLine(temp);
-        }
 
         clean.pop();
     }
