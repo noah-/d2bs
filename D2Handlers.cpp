@@ -380,8 +380,10 @@ void FlushPrint() {
         stringstream ss(str);
 
         if (Vars.bUseGamePrint && ClientState() == ClientStateInGame) {
-        while (getline(ss, temp))
+            while (getline(ss, temp)) {
                 SplitLines(AnsiToUnicode(temp.c_str()), Console::MaxWidth() - 100, ' ', lines);
+                Console::AddLine(temp);
+            }
 
                 // Convert and send every line.
             for (list<wstring>::iterator it = lines.begin(); it != lines.end(); ++it) {
@@ -393,10 +395,10 @@ void FlushPrint() {
                 // TODO: Double check this function, make sure it is working as intended.
                 for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
                     D2MULTI_PrintChannelText((char*)it->c_str(), 0);*/
-        }
-
+        } else {
             while (getline(ss, temp))
                 Console::AddLine(temp);
+        }
 
         clean.pop();
     }
