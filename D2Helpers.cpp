@@ -36,13 +36,13 @@ void LogNoFormat(char* szString) {
     localtime_s(&time, &tTime);
     strftime(szTime, sizeof(szTime), "%x %X", &time);
 
-    char path[_MAX_PATH + _MAX_FNAME] = "";
-    sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
+    wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
+    swprintf_s(path, _MAX_PATH + _MAX_FNAME, L"%sd2bs.log", Vars.szPath);
 
 #ifdef DEBUG
     FILE* log = stderr;
 #else
-    FILE* log = _fsopen(path, "a+", _SH_DENYNO);
+    FILE* log = _wfsopen(path, L"a+", _SH_DENYNO);
 #endif
     fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
 #ifndef DEBUG
@@ -508,12 +508,12 @@ CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
     return ret;
 }
 
-CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
+CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
     // AutoDetect the Cell File
     if (bMPQ == 3) {
         // Check in our directory first
-        char path[_MAX_FNAME + _MAX_PATH];
-        sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, lpszPath);
+        wchar_t path[_MAX_FNAME + _MAX_PATH];
+        swprintf_s(path, sizeof(path), L"%s\\%s", Vars.szScriptPath, lpszPath);
 
         HANDLE hFile = OpenFileRead(path);
 
@@ -527,11 +527,50 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
         // return NULL;
     }
 
-    unsigned __int32 hash = sfh(lpszPath, (int)strlen(lpszPath));
+    unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
+
     if (Vars.mCachedCellFiles.count(hash) > 0)
         return Vars.mCachedCellFiles[hash];
     if (bMPQ == TRUE) {
-        CellFile* result = (CellFile*)D2WIN_LoadCellFile(lpszPath, 0);
+        CellFile* result = (CellFile*)D2WIN_LoadCellFile((char*)lpszPath, 0);
+        Vars.mCachedCellFiles[hash] = result;
+        return result;
+    } else if (bMPQ == FALSE) {
+        // see if the file exists first
+        if (!(_waccess(lpszPath, 0) != 0 && errno == ENOENT)) {
+            CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+            Vars.mCachedCellFiles[hash] = result;
+            return result;
+        }
+    }
+
+    return NULL;
+}
+
+CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
+    // AutoDetect the Cell File
+    if (bMPQ == 3) {
+        // Check in our directory first
+        wchar_t path[_MAX_FNAME + _MAX_PATH];
+        swprintf_s(path, sizeof(path), L"%s\\%s", Vars.szScriptPath, lpszPath);
+
+        HANDLE hFile = OpenFileRead(path);
+
+        if (hFile != INVALID_HANDLE_VALUE) {
+            CloseHandle(hFile);
+            return LoadCellFile(path, FALSE);
+        } else {
+            return LoadCellFile(lpszPath, TRUE);
+        }
+
+        // return NULL;
+    }
+
+    unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
+    if (Vars.mCachedCellFiles.count(hash) > 0)
+        return Vars.mCachedCellFiles[hash];
+    if (bMPQ == TRUE) {
+        CellFile* result = (CellFile*)D2WIN_LoadCellFile((char*)lpszPath, 0);
         Vars.mCachedCellFiles[hash] = result;
         return result;
     } else if (bMPQ == FALSE) {
@@ -603,7 +642,22 @@ HANDLE OpenFileRead(char* filename) {
     return CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 }
 
+HANDLE OpenFileRead(wchar_t* filename) {
+    return CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+
 BYTE* AllocReadFile(char* filename) {
+    HANDLE hFile = OpenFileRead(filename);
+    int filesize = GetFileSize(hFile, 0);
+    if (filesize <= 0)
+        return 0;
+    BYTE* buf = new BYTE[filesize];
+    ReadFile(hFile, buf, filesize);
+    CloseHandle(hFile);
+    return buf;
+}
+
+BYTE* AllocReadFile(wchar_t* filename) {
     HANDLE hFile = OpenFileRead(filename);
     int filesize = GetFileSize(hFile, 0);
     if (filesize <= 0)
@@ -646,6 +700,20 @@ CellFile* LoadBmpCellFile(BYTE* buf1, int width, int height) {
 }
 
 CellFile* LoadBmpCellFile(char* filename) {
+    BYTE* ret = 0;
+
+    BYTE* buf1 = AllocReadFile(filename);
+    BITMAPFILEHEADER* bmphead1 = (BITMAPFILEHEADER*)buf1;
+    BITMAPINFOHEADER* bmphead2 = (BITMAPINFOHEADER*)(buf1 + sizeof(BITMAPFILEHEADER));
+    if (buf1 && (bmphead1->bfType == 'MB') && (bmphead2->biBitCount == 8) && (bmphead2->biCompression == BI_RGB)) {
+        ret = (BYTE*)LoadBmpCellFile(buf1 + bmphead1->bfOffBits, bmphead2->biWidth, bmphead2->biHeight);
+    }
+    delete[] buf1;
+
+    return (CellFile*)ret;
+}
+
+CellFile* LoadBmpCellFile(wchar_t* filename) {
     BYTE* ret = 0;
 
     BYTE* buf1 = AllocReadFile(filename);

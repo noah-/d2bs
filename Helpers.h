@@ -11,13 +11,14 @@ char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);
 bool StringToBool(const char* str);
 void StringReplace(char* str, const char find, const char replace, size_t buflen);
-bool SwitchToProfile(const char* profile);
+void StringReplace(wchar_t* str, const wchar_t find, const wchar_t replace, size_t buflen);
+bool SwitchToProfile(const wchar_t* profile);
 void InitSettings(void);
 bool InitHooks(void);
 bool ExecCommand(const char* command);
-bool StartScript(const char* script, ScriptState state);
+bool StartScript(const wchar_t* script, ScriptState state);
 void Reload(void);
-bool ProcessCommand(const char* command, bool unprocessedIsCommand);
+bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand);
 
 void GameJoined(void);
 void MenuEntered(bool beginStarter);

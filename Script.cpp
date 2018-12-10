@@ -22,7 +22,7 @@ Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredC
     eventSignal = CreateEvent(nullptr, true, false, nullptr);
 
     if (scriptState == Command && strlen(file) < 1) {
-        fileName = string("Command Line");
+        fileName = wstring(L"Command Line");
     } else {
         if (_access(file, 0) != 0)
             throw std::exception("File not found");
@@ -32,8 +32,39 @@ Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredC
             throw std::exception("Could not dup filename");
 
         _strlwr_s(tmpName, strlen(file) + 1);
-        fileName = string(tmpName);
+        fileName = wstring(AnsiToUnicode(tmpName));
         replace(fileName.begin(), fileName.end(), '/', '\\');
+        free(tmpName);
+    }
+}
+
+Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
+    : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
+      threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
+    InitializeCriticalSection(&lock);
+    // moved the runtime initilization to thread start
+    LastGC = 0;
+    hasActiveCX = false;
+    eventSignal = CreateEvent(nullptr, true, false, nullptr);
+
+    if (scriptState == Command && wcslen(file) < 1) {
+        fileName = wstring(L"Command Line");
+    } else {
+        if (_waccess(file, 0) != 0)
+        {
+            wchar_t* asdf = const_cast< wchar_t* >(file);
+            DEBUG_LOGW(asdf);
+
+            throw std::exception("File not found");
+        }
+
+        wchar_t* tmpName = _wcsdup(file);
+        if (!tmpName)
+            throw std::exception("Could not dup filename");
+
+        _wcslwr_s(tmpName, wcslen(file) + 1);
+        fileName = wstring(tmpName);
+        replace(fileName.begin(), fileName.end(), L'/', L'\\');
         free(tmpName);
     }
 }
@@ -149,15 +180,15 @@ void Script::Run(void) {
         }
 
         if (scriptState == Command) {
-            if (strlen(Vars.szConsole) > 0) {
-                script = JS_CompileFile(context, globalObject, fileName.c_str());
+            if (wcslen(Vars.szConsole) > 0) {
+                script = JS_CompileFile(context, globalObject, fileName);
             } else {
                 char* cmd = "function main() {print('ÿc2D2BSÿc0 :: Started Console'); while (true){delay(10000)};}  ";
                 script = JS_CompileScript(context, globalObject, cmd, strlen(cmd), "Command Line", 1);
             }
             JS_AddNamedScriptRoot(context, &script, "console script");
         } else
-            script = JS_CompileFile(context, globalObject, fileName.c_str());
+            script = JS_CompileFile(context, globalObject, fileName);
 
         if (!script)
             throw std::exception("Couldn't compile the script");
@@ -246,11 +277,11 @@ bool Script::IsPaused(void) {
     return isPaused;
 }
 
-const char* Script::GetShortFilename() {
-    if (strcmp(fileName.c_str(), "Command Line") == 0)
+const wchar_t* Script::GetShortFilename() {
+    if (wcscmp(fileName.c_str(), L"Command Line") == 0)
         return fileName.c_str();
     else
-        return (fileName.c_str() + strlen(Vars.szScriptPath) + 1);
+        return (fileName.c_str() + wcslen(Vars.szScriptPath) + 1);
 }
 
 void Script::Stop(bool force, bool reallyForce) {
@@ -263,8 +294,10 @@ void Script::Stop(bool force, bool reallyForce) {
     isPaused = false;
     isReallyPaused = false;
     if (GetState() != Command) {
-        const char* displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
-        Print("Script %s ended", displayName);
+        const wchar_t* displayName = fileName.c_str() + wcslen(Vars.szScriptPath) + 1;
+        char* displayNameN = UnicodeToAnsi(displayName);
+        Print("Script %s ended", displayNameN);
+        delete[] displayNameN;
     }
 
     // trigger call back so script ends
@@ -284,35 +317,41 @@ void Script::Stop(bool force, bool reallyForce) {
     LeaveCriticalSection(&lock);
 }
 
-bool Script::IsIncluded(const char* file) {
+bool Script::IsIncluded(const wchar_t* file) {
     uint count = 0;
-    char* fname = _strdup(file);
+    wchar_t* fname = _wcsdup(file);
     if (!fname)
         return false;
 
-    _strlwr_s(fname, strlen(fname) + 1);
-    StringReplace(fname, '/', '\\', strlen(fname));
-    count = includes.count(string(fname));
+    _wcslwr_s(fname, wcslen(fname) + 1);
+    StringReplace(fname, '/', '\\', wcslen(fname));
+    char* nFname = UnicodeToAnsi(fname);
+    count = includes.count(string(nFname));
     free(fname);
+    delete[] nFname;
 
     return !!count;
 }
 
-bool Script::Include(const char* file) {
+bool Script::Include(const wchar_t* file) {
     // since includes will happen on the same thread, locking here is acceptable
     EnterCriticalSection(&lock);
-    char* fname = _strdup((char*)file);
+    wchar_t* fname = _wcsdup(file);
     if (!fname)
         return false;
-    _strlwr_s(fname, strlen(fname) + 1);
-    StringReplace(fname, '/', '\\', strlen(fname));
+    _wcslwr_s(fname, wcslen(fname) + 1);
+    StringReplace(fname, L'/', L'\\', wcslen(fname));
 
     // don't invoke the string ctor more than once...
-    string currentFileName = string(fname);
+    char* nFname = UnicodeToAnsi(fname);
+    char* nFileName = UnicodeToAnsi(fileName.c_str());
+    string currentFileName = string(nFname);
     // ignore already included, 'in-progress' includes, and self-inclusion
-    if (!!includes.count(currentFileName) || !!inProgress.count(string(currentFileName)) || (fileName == string(currentFileName))) {
+    if (!!includes.count(currentFileName) || !!inProgress.count(currentFileName) || (currentFileName.compare(nFileName) == 0)) {
         LeaveCriticalSection(&lock);
         free(fname);
+        delete[] nFname;
+        delete[] nFileName;
         return true;
     }
     bool rval = false;
@@ -324,13 +363,13 @@ bool Script::Include(const char* file) {
     JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
     if (script) {
         jsval dummy;
-        inProgress[fname] = true;
+        inProgress[nFname] = true;
         rval = !!JS_ExecuteScript(cx, GetGlobalObject(), script, &dummy);
         if (rval)
-            includes[fname] = true;
+            includes[nFname] = true;
         else
             JS_ReportPendingException(cx);
-        inProgress.erase(fname);
+        inProgress.erase(nFname);
         // JS_RemoveRoot(&scriptObj);
     } else
         JS_ReportPendingException(cx);
@@ -339,6 +378,8 @@ bool Script::Include(const char* file) {
     // JS_RemoveScriptRoot(cx, &script);
     LeaveCriticalSection(&lock);
     free(fname);
+    delete[] nFname;
+    delete[] nFileName;
     return rval;
 }
 

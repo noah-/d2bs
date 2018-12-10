@@ -1,33 +1,34 @@
 #include "D2BS.h"
 #include "Profile.h"
 #include "Control.h"
+#include "Helpers.h"
 
-void Profile::init(const char* profileName) {
-    char file[_MAX_FNAME + MAX_PATH], difficulty[10], _maxLoginTime[10], _maxCharTime[10], mode[256];
+void Profile::init(const wchar_t* profileName) {
+    wchar_t file[_MAX_FNAME + MAX_PATH], difficulty[10], _maxLoginTime[10], _maxCharTime[10], mode[256];
     int tmp;
 
     if (profileName == NULL)
         throw "Can't open null profile name.";
 
-    if (profileName[0] == '\0')
+    if (profileName[0] == L'\0')
         throw "Can't open empty profile name.";
 
-    sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+    swprintf_s(file, _MAX_FNAME + MAX_PATH, L"%sd2bs.ini", Vars.szPath);
 
-    GetPrivateProfileString(profileName, "mode", "single", mode, sizeof(mode), file);
-    GetPrivateProfileString(profileName, "character", "ERROR", charname, sizeof(charname), file);
-    GetPrivateProfileString(profileName, "spdifficulty", "0", difficulty, sizeof(difficulty), file);
-    GetPrivateProfileString(profileName, "username", "ERROR", username, sizeof(username), file);
-    GetPrivateProfileString(profileName, "password", "ERROR", password, sizeof(password), file);
-    GetPrivateProfileString(profileName, "gateway", "ERROR", gateway, sizeof(gateway), file);
+    GetPrivateProfileStringW(profileName, L"mode", L"single", mode, sizeof(mode), file);
+    GetPrivateProfileStringW(profileName, L"character", L"ERROR", charname, sizeof(charname), file);
+    GetPrivateProfileStringW(profileName, L"spdifficulty", L"0", difficulty, sizeof(difficulty), file);
+    GetPrivateProfileStringW(profileName, L"username", L"ERROR", username, sizeof(username), file);
+    GetPrivateProfileStringW(profileName, L"password", L"ERROR", password, sizeof(password), file);
+    GetPrivateProfileStringW(profileName, L"gateway", L"ERROR", gateway, sizeof(gateway), file);
 
-    GetPrivateProfileString("settings", "MaxLoginTime", "5", _maxLoginTime, sizeof(maxLoginTime), file);
-    GetPrivateProfileString("settings", "MaxCharSelectTime", "5", _maxCharTime, sizeof(maxCharTime), file);
+    GetPrivateProfileStringW(L"settings", L"MaxLoginTime", L"5", _maxLoginTime, sizeof(maxLoginTime), file);
+    GetPrivateProfileStringW(L"settings", L"MaxCharSelectTime", L"5", _maxCharTime, sizeof(maxCharTime), file);
 
-    maxLoginTime = abs(atoi(_maxLoginTime) * 1000);
-    maxCharTime = abs(atoi(_maxCharTime) * 1000);
+    maxLoginTime = abs(_wtoi(_maxLoginTime) * 1000);
+    maxCharTime = abs(_wtoi(_maxCharTime) * 1000);
 
-    tmp = atoi(difficulty);
+    tmp = _wtoi(difficulty);
 
     if (tmp < 0 || tmp > 2)
         throw "Invalid difficulty.";
@@ -50,10 +51,27 @@ void Profile::init(const char* profileName) {
         type = PROFILETYPE_TCPIP_HOST;
         break;
     case 'j':
-        strncpy_s(ip, "localhost", (size_t)strlen("localhost"));
+        wcsncpy_s(ip, L"localhost", (size_t)wcslen(L"localhost"));
         type = PROFILETYPE_TCPIP_JOIN;
         break;
     }
+}
+
+bool Profile::ProfileExists(const wchar_t* profile) {
+    wchar_t file[_MAX_FNAME + _MAX_PATH], profiles[65535] = L"";
+    swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%sd2bs.ini", Vars.szPath);
+
+    int count = GetPrivateProfileStringW(NULL, NULL, NULL, profiles, 65535, file);
+    if (count > 0) {
+        int i = 0;
+        while (i < count) {
+            if (_wcsicmp(profiles + i, profile) == 0)
+                return true;
+
+            i += wcslen(profiles + i) + 1;
+        }
+    }
+    return false;
 }
 
 bool Profile::ProfileExists(const char* profile) {
@@ -111,6 +129,8 @@ DWORD Profile::login(char** error) {
 
     Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
+    char* nString;
+
     while (!loginComplete) {
         location = OOG_GetLocation();
         switch (location) {
@@ -120,17 +140,21 @@ DWORD Profile::login(char** error) {
 
         case OOG_CHAR_SELECT:
             // Sleep(5000);
-            if (!OOG_SelectCharacter(charname))
+            nString = UnicodeToAnsi(charname);
+            if (!OOG_SelectCharacter(nString))
                 errorMsg = "Invalid character name";
+            delete[] nString;
             break;
         case OOG_MAIN_MENU:
             if (type == PROFILETYPE_SINGLEPLAYER)
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 324, 272, 35)))
                     errorMsg = "Failed to click the Single button?";
             if (type == PROFILETYPE_BATTLENET) {
-                OOG_SelectGateway(gateway, 256);
+                nString = UnicodeToAnsi(gateway);
+                OOG_SelectGateway(nString, 256);
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 366, 272, 35)))
                     errorMsg = "Failed to click the 'Battle.net' button?";
+                delete[] nString;
             }
             if (isOtherMP(type)) {
                 if (!clickControl(findControl(6, (char*)NULL, -1, 264, 433, 272, 35)))
@@ -147,13 +171,21 @@ DWORD Profile::login(char** error) {
             }
             pControl = findControl(1, (char*)NULL, -1, 322, 342, 162, 19);
             if (pControl)
-                SetControlText(pControl, username);
+            {
+                nString = UnicodeToAnsi(username);
+                SetControlText(pControl, nString);
+                delete[] nString;
+            }
             else
                 errorMsg = "Failed to set the 'Username' text-edit box.";
             // Password text-edit box
             pControl = findControl(1, (char*)NULL, -1, 322, 396, 162, 19);
             if (pControl)
-                SetControlText(pControl, password);
+            {
+                nString = UnicodeToAnsi(password);
+                SetControlText(pControl, nString);
+                delete[] nString;
+            }
             else
                 errorMsg = "Failed to set the 'Password' text-edit box.";
 
@@ -206,10 +238,11 @@ DWORD Profile::login(char** error) {
                     errorMsg = "Failed to click the 'Join Game' button?";
             break;
         case OOG_ENTER_IP_ADDRESS:
-            if (_strcmpi(ip, "")) {
+            if (_wcsicmp(ip, L"")) {
                 pControl = findControl(1, (char*)NULL, -1, 300, 268, -1, -1);
                 if (pControl) {
-                    SetControlText(pControl, ip);
+                    char *nIP = UnicodeToAnsi(ip);
+                    SetControlText(pControl, nIP);
 
                     // Click the OK button
                     // Sleep(5000);

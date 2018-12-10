@@ -1,6 +1,7 @@
 #include "JSSandbox.h"
 #include "D2BS.h"
 #include "ScriptEngine.h"
+#include "Helpers.h"
 
 JSAPI_FUNC(sandbox_ctor) {
     sandbox* box = new sandbox; // leaked?
@@ -177,9 +178,10 @@ JSAPI_FUNC(sandbox_include) {
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
         char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        if (file && strlen(file) <= _MAX_FNAME && box) {
-            char buf[_MAX_PATH + _MAX_FNAME];
-            sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
+        wchar_t *fileW = AnsiToUnicode(file);
+        if (fileW && wcslen(fileW) <= _MAX_FNAME && box) {
+            wchar_t buf[_MAX_PATH + _MAX_FNAME];
+            swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
             if (box->list.count(std::string(file)) == -1) {
                 JSScript* tmp = JS_CompileFile(box->context, box->innerObj, buf);
                 if (tmp) {
@@ -204,9 +206,14 @@ JSAPI_FUNC(sandbox_isIncluded) {
     sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && box) {
         char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        char buf[_MAX_PATH + _MAX_FNAME];
-        sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
-        JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::string(buf))));
+        wchar_t buf[_MAX_PATH + _MAX_FNAME];
+        wchar_t *fileW = AnsiToUnicode(file);
+        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
+        delete[] fileW;
+        char *nBuff = UnicodeToAnsi(buf);
+        JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::string(nBuff))));
+        delete[] nBuff;
+
     } else
         THROW_ERROR(cx, "Invalid parameter, file expected");
     return JS_TRUE;

@@ -105,7 +105,7 @@ struct Event {
 
 class Script {
   private:
-    std::string fileName;
+    std::wstring fileName;
     int execCount;
     ScriptState scriptState;
     JSContext* context;
@@ -125,6 +125,7 @@ class Script {
     CRITICAL_SECTION lock;
 
     Script(const char* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
+    Script(const wchar_t* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
     Script(const Script&);
     Script& operator=(const Script&);
     ~Script(void);
@@ -148,10 +149,10 @@ class Script {
     }
     void Stop(bool force = false, bool reallyForce = false);
 
-    inline const char* GetFilename(void) {
+    inline const wchar_t* GetFilename(void) {
         return fileName.c_str();
     }
-    const char* GetShortFilename(void);
+    const wchar_t* GetShortFilename(void);
     inline JSContext* GetContext(void) {
         return context;
     }
@@ -192,8 +193,8 @@ class Script {
     void Unlock() {
         LeaveCriticalSection(&lock);
     }
-    bool IsIncluded(const char* file);
-    bool Include(const char* file);
+    bool IsIncluded(const wchar_t* file);
+    bool Include(const wchar_t* file);
 
     bool IsListenerRegistered(const char* evtName);
     void RegisterEvent(const char* evtName, jsval evtFunc);

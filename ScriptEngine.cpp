@@ -12,6 +12,7 @@
 #include "Console.h"
 #include "D2Ptrs.h"
 #include "Events.h"
+#include "Helpers.h"
 
 using namespace std;
 Script* ScriptEngine::console = NULL;
@@ -27,25 +28,28 @@ JSContext* ScriptEngine::context = NULL;
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
+Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv, bool recompile) {
     if (GetState() != Running)
         return NULL;
-    char* fileName = _strdup(file);
-    _strlwr_s(fileName, strlen(file) + 1);
+
+    wchar_t* fileNameW = _wcsdup(file);
+    _wcslwr_s(fileNameW, wcslen(file) + 1);
+
+    char* fileName = UnicodeToAnsi(fileNameW);
 
     try {
         if (scripts.count(fileName))
             scripts[fileName]->Stop();
 
-        Script* script = new Script(fileName, state, argc, argv);
+        Script* script = new Script(fileNameW, state, argc, argv);
         scripts[fileName] = script;
 
-        free(fileName);
+        delete[] fileName;
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
         Print(const_cast<char*>(e.what()));
-        free(fileName);
+        delete[] fileName;
         return NULL;
     }
 }
@@ -66,8 +70,10 @@ void ScriptEngine::RunCommand(const char* command) {
 void ScriptEngine::DisposeScript(Script* script) {
     LockScriptList("DisposeScript");
 
-    if (scripts.count(script->GetFilename()))
-        scripts.erase(script->GetFilename());
+    char* nFilename = UnicodeToAnsi(script->GetFilename());
+
+    if (scripts.count(nFilename))
+        scripts.erase(nFilename);
 
     UnLockScriptList("DisposeScript");
 
@@ -114,9 +120,9 @@ BOOL ScriptEngine::Startup(void) {
         // InitializeCriticalSection(&lock);
         // EnterCriticalSection(&lock);
         LockScriptList("startup - enter");
-        if (strlen(Vars.szConsole) > 0) {
-            char file[_MAX_FNAME + _MAX_PATH];
-            sprintf_s(file, _MAX_FNAME + _MAX_PATH, "%s\\%s", Vars.szScriptPath, Vars.szConsole);
+        if (wcslen(Vars.szConsole) > 0) {
+            wchar_t file[_MAX_FNAME + _MAX_PATH];
+            swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, Vars.szConsole);
             console = new Script(file, Command);
         } else {
             console = new Script("", Command);
@@ -426,7 +432,7 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
     char* filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
     char* displayName = filename;
     if (_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
-        displayName = filename + strlen(Vars.szPath);
+        displayName = filename + wcslen(Vars.szPath);
 
     Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
 

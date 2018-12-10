@@ -8,15 +8,18 @@ HSZ hszD2BSns;
 
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ hsz2, HDDEDATA hdata, DWORD dwData1, DWORD dwData2) {
     char pszItem[65535] = "";
+    wchar_t* profileW = NULL;
     switch (uType) {
     case XTYP_CONNECT:
         return (HDDEDATA)TRUE;
     case XTYP_POKE:
         DdeGetData(hdata, (LPBYTE)pszItem, 255, 0);
-        if (SwitchToProfile(pszItem))
-            Log("Switched to profile %s", pszItem);
+        profileW = AnsiToUnicode(pszItem);
+        if (SwitchToProfile(profileW))
+            Log("Switched to profile %s", profileW);
         else
-            Log("Profile %s not found", pszItem);
+            Log("Profile %s not found", profileW);
+        delete[] profileW;
         break;
     case XTYP_EXECUTE:
         DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
@@ -56,6 +59,8 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
     DWORD pidInst = 0;
     HCONV hConv;
     DWORD dwTimeout = 5000;
+
+    Log("SendDDE(%d, %s, %s, %s, %s, %s, %u)", mode, pszDDEServer, pszTopic, pszItem, pszData, *result, size);
 
     int ret = DdeInitialize(&pidInst, (PFNCALLBACK)DdeCallback, APPCMD_CLIENTONLY, 0);
     if (ret != DMLERR_NO_ERROR) {

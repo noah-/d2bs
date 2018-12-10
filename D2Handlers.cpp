@@ -62,14 +62,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     command = GetCommand(L"-profile");
 
     if (command) {
-        const char* profile = UnicodeToAnsi(command->szText);
-
+        const wchar_t* profile = command->szText;
         if (SwitchToProfile(profile))
             Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
         else
             Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
-
-        delete[] profile;
     }
 
     while (Vars.bActive) {
@@ -130,7 +127,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg) {
         Vars.bDontCatchNextMsg = false;
     else {
         char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
 
@@ -144,7 +141,7 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg) {
         Vars.bDontCatchNextMsg = false;
     else {
         char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(szBuffer + 1, false)) || ChatInputEvent(szBuffer));
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
         delete[] szBuffer;
     }
 
@@ -198,10 +195,12 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
             {
                 const char* profile = (char*)pCopy->lpData;
-                if (SwitchToProfile(profile))
+                wchar_t* profileW = AnsiToUnicode(profile);
+                if (SwitchToProfile(profileW))
                     Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
                 else
                     Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+                delete[] profileW;
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
         }

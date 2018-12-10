@@ -12,24 +12,22 @@ JSAPI_FUNC(my_login) {
     if (ClientState() != ClientStateMenu)
         return JS_TRUE;
 
-    char* profile = NULL;
+    wchar_t* profile = NULL;
 
-    bool copiedProfile = false;
     char* error;
 
     Profile* prof;
 
     if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         if (Vars.szProfile != NULL) {
-            int size = strlen(Vars.szProfile) + 1;
-            profile = new char[size];
-            strcpy_s(profile, size, Vars.szProfile);
-            copiedProfile = true;
+            int size = wcslen(Vars.szProfile) + 1;
+            profile = new wchar_t[size];
+            wcscpy_s(profile, size, Vars.szProfile);
         } else
             THROW_ERROR(cx, "Invalid profile specified!");
     } else {
-        profile = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        strcpy_s(Vars.szProfile, 256, profile);
+        profile = AnsiToUnicode(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
+        wcscpy_s(Vars.szProfile, 256, profile);
     }
 
     if (!profile)
@@ -38,8 +36,8 @@ JSAPI_FUNC(my_login) {
         THROW_ERROR(cx, "Profile does not exist!");
 
     prof = new Profile(profile);
-    if (copiedProfile)
-        delete[] profile;
+
+    delete[] profile;
 
     if (prof->login(&error) != 0)
         THROW_ERROR(cx, error);
@@ -53,13 +51,17 @@ JSAPI_FUNC(my_selectChar) {
         THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
     char* profile = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-    if (!Profile::ProfileExists(profile))
+    wchar_t* profileW = AnsiToUnicode(profile);
+
+    if (!Profile::ProfileExists(profileW))
         THROW_ERROR(cx, "Invalid profile specified");
     char charname[24], file[_MAX_FNAME + MAX_PATH];
     sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
     GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname)));
+
+    delete[] profileW;
     return JS_TRUE;
 }
 

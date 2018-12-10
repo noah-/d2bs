@@ -181,18 +181,20 @@ JSAPI_FUNC(my_load) {
 
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath))) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath))) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
 
-    char buf[_MAX_PATH + _MAX_FNAME];
+    wchar_t buf[_MAX_PATH + _MAX_FNAME];
     ScriptState scriptState = script->GetState();
     if (scriptState == Command)
         scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
-    sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
-    StringReplace(buf, '/', '\\', _MAX_PATH + _MAX_FNAME);
+    wchar_t *fileW = AnsiToUnicode(file);
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\%ls", Vars.szScriptPath, fileW);
+    delete[] fileW;
+    StringReplace(buf, L'/', L'\\', _MAX_PATH + _MAX_FNAME);
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
     for (uint i = 1; i < argc; i++) {
@@ -225,14 +227,17 @@ JSAPI_FUNC(my_include) {
 
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
 
-    char buf[_MAX_PATH + _MAX_FNAME];
-    sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
-    if (_access(buf, 0) == 0)
+    wchar_t buf[_MAX_PATH + _MAX_FNAME];
+    wchar_t *fileW = AnsiToUnicode(file);
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
+    delete[] fileW;
+
+    if (_waccess(buf, 0) == 0)
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)));
 
     JS_free(cx, file);
@@ -279,13 +284,15 @@ JSAPI_FUNC(my_getThreadPriority) {
 JSAPI_FUNC(my_isIncluded) {
     char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6)) {
+    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long");
         return JS_FALSE;
     }
 
-    char path[_MAX_FNAME + _MAX_PATH];
-    sprintf_s(path, _MAX_FNAME + _MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
+    wchar_t path[_MAX_FNAME + _MAX_PATH];
+    wchar_t *fileW = AnsiToUnicode(file);
+    swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
+    delete[] fileW;
     Script* script = (Script*)JS_GetContextPrivate(cx);
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
     JS_free(cx, file);
