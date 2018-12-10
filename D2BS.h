@@ -7,7 +7,7 @@
 #define XP_WIN
 #endif
 
-#define D2BS_VERSION L"1.5.1878U"
+#define D2BS_VERSION L"1.5.1879U"
 
 #include <windows.h>
 #include <vector>

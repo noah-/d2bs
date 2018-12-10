@@ -93,7 +93,6 @@ private:
 		std::priority_queue<Node*, std::vector<Node*>, NodeComparer> open;
 		std::set<Point> closed;
 		PointList newNodes;
-        newNodes.reserve(250);
 		Node* begin = alloc.allocate(1);
 		UnitAny* player = D2CLIENT_GetPlayerUnit();
 		DWORD startLvl = player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
@@ -182,12 +181,10 @@ public:
 		//if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs)) return;
 
 		std::vector<Node*> nodes;
-        nodes.reserve(250);
 		FindPath(start, end, &result, nodes, abs);
 		if(result)
 		{
 			PointList in;
-            in.reserve(250);
 			ReverseList(result, in);
 			reducer->Reduce(in, list, abs);
 		}

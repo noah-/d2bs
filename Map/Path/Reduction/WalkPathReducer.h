@@ -188,7 +188,7 @@ public:
 
 	int GetPenalty(Point const & pt, bool abs)
 	{
-        if (checkFlag(map->SpaceHasFlagWide(ActMap::BlockWalk, pt, abs))) {
+        if (checkFlag(map->SpaceGetDataWide(ActMap::BlockWalk, pt, abs))) {
             return 50;
         }
 

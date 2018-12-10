@@ -293,8 +293,7 @@ void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* n
 bool __fastcall PacketEventCallback(Script* script, void* argv, uint argc) {
     PacketEventHelper* helper = (PacketEventHelper*)argv;
 
-    if ((script->IsRunning() && script->IsListenerRegistered("realmpacket") && strcmp(helper->name, "realmpacket") == 0) ||
-        (ClientState() == ClientStateInGame && script->IsRunning() && script->IsListenerRegistered(helper->name))) {
+    if (script->IsRunning() && script->IsListenerRegistered(helper->name)) {
         Event* evt = new Event;
         evt->owner = script;
         evt->argc = argc;
