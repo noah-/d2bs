@@ -48,16 +48,17 @@ bool SplitLines(const std::wstring& str, size_t maxWidth, const wchar_t delim, s
     return SplitLines(tmp, maxWidth, delim, lst);
 }
 
-void Print(const char* szFormat, ...) {
+void Print(const wchar_t* szFormat, ...) {
     va_list vaArgs;
     va_start(vaArgs, szFormat);
-    int len = _vscprintf(szFormat, vaArgs);
-    char* str = new char[len + 1];
-    vsprintf_s(str, len + 1, szFormat, vaArgs);
+
+    int len = _vscwprintf(szFormat, vaArgs);
+    wchar_t* str = new wchar_t[len + 1];
+    vswprintf_s(str, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
     EnterCriticalSection(&Vars.cPrintSection);
-    Vars.qPrintBuffer.push(std::string(str));
+    Vars.qPrintBuffer.push(std::wstring(str));
     LeaveCriticalSection(&Vars.cPrintSection);
 
     delete[] str;
@@ -81,21 +82,18 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr) {
     }
 }
 
-void __fastcall Say(const char* szFormat, ...) {
+void __fastcall Say(const wchar_t* szFormat, ...) {
     va_list vaArgs;
     va_start(vaArgs, szFormat);
-    int len = _vscprintf(szFormat, vaArgs);
-    char* szBuffer = new char[len + 1];
-    vsprintf_s(szBuffer, len + 1, szFormat, vaArgs);
+    int len = _vscwprintf(szFormat, vaArgs);
+    wchar_t* szBuffer = new wchar_t[len + 1];
+    vswprintf_s(szBuffer, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
     Vars.bDontCatchNextMsg = TRUE;
 
     if (*p_D2CLIENT_PlayerUnit) {
-        wchar_t* wBuffer = AnsiToUnicode(szBuffer);
-        memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, (wcslen(wBuffer) + 1) * sizeof(wchar_t));
-        delete[] wBuffer;
-        wBuffer = NULL;
+        memcpy((wchar_t*)p_D2CLIENT_ChatMsg, szBuffer, (len + 1) * sizeof(wchar_t));
 
         MSG* aMsg = new MSG;
         aMsg->hwnd = D2GFX_GetHwnd();
@@ -124,8 +122,10 @@ void __fastcall Say(const char* szFormat, ...) {
     }
     // help button and ! ok msg for disconnected
     else if (findControl(CONTROL_BUTTON, 5308, -1, 187, 470, 80, 20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351, 337, 96, 32))) {
-        memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
+        char* lBuffer = UnicodeToAnsi(szBuffer, CP_ACP);
+        memcpy((char*)p_D2MULTI_ChatBoxMsg, lBuffer, strlen(lBuffer) + 1);
         D2MULTI_DoChat();
+        delete[] lBuffer;
     }
 
     delete[] szBuffer;

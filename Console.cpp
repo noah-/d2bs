@@ -98,13 +98,10 @@ void Console::ScrollDown(void) {
     LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
-void Console::AddLine(std::string line) {
+void Console::AddLine(std::wstring line) {
     EnterCriticalSection(&Vars.cConsoleSection);
-    wchar_t* linetxt = AnsiToUnicode(line.c_str());
-    std::wstring ln(linetxt);
-    delete[] linetxt;
     std::list<std::wstring> buf;
-    SplitLines(ln, Console::MaxWidth(), ' ', buf);
+    SplitLines(line, Console::MaxWidth(), ' ', buf);
     for (std::list<std::wstring>::iterator it2 = buf.begin(); it2 != buf.end(); it2++) {
         history.push_back(*it2);
     }

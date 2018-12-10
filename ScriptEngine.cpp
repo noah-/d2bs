@@ -48,7 +48,9 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
-        Print(const_cast<char*>(e.what()));
+        wchar_t* what = AnsiToUnicode(e.what());
+        Print(what);
+        delete[] what;
         delete[] fileName;
         return NULL;
     }
@@ -63,7 +65,9 @@ void ScriptEngine::RunCommand(const char* command) {
         // LeaveCriticalSection(&lock);
     } catch (std::exception e) {
         // LeaveCriticalSection(&lock);
-        Print(const_cast<char*>(e.what()));
+        wchar_t* what = AnsiToUnicode(e.what());
+        Print(what);
+        delete[] what;
     }
 }
 
@@ -436,7 +440,7 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
 
     Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
 
-    Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
+    Print(L"[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
     free(filename);
 

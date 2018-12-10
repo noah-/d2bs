@@ -33,13 +33,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     Vars.bUseRawCDKey = 0;
     InitSettings();
     if (InitHooks()) {
-        Log("D2BS Engine startup complete. %ls", D2BS_VERSION);
-        Print("ÿc2D2BSÿc0 :: Engine startup complete!");
-        D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
-        Vars.dwLocale = *p_D2CLIENT_Lang;
+        Log("D2BS Engine startup complete. %s", D2BS_VERSION);
+        Print(L"ÿc2D2BSÿc0 :: Engine startup complete!");
     } else {
         Log("D2BS Engine startup failed.");
-        Print("ÿc2D2BSÿc0 :: Engine startup failed!");
+        Print(L"ÿc2D2BSÿc0 :: Engine startup failed!");
         return FALSE;
     }
 
@@ -64,9 +62,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     if (command) {
         const wchar_t* profile = command->szText;
         if (SwitchToProfile(profile))
-            Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+            Print(L"ÿc2D2BSÿc0 :: Switched to profile %s", profile);
         else
-            Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+            Print(L"ÿc2D2BSÿc0 :: Profile %s not found", profile);
     }
 
     while (Vars.bActive) {
@@ -197,9 +195,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 const char* profile = (char*)pCopy->lpData;
                 wchar_t* profileW = AnsiToUnicode(profile);
                 if (SwitchToProfile(profileW))
-                    Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+                    Print(L"ÿc2D2BSÿc0 :: Switched to profile %s", profileW);
                 else
-                    Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+                    Print(L"ÿc2D2BSÿc0 :: Profile %s not found", profileW);
                 delete[] profileW;
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
@@ -366,28 +364,28 @@ void FlushPrint() {
         return;
     }
 
-    std::queue<std::string> clean;
+    std::queue<std::wstring> clean;
     std::swap(Vars.qPrintBuffer, clean);
     LeaveCriticalSection(&Vars.cPrintSection);
 
     while (!clean.empty()) {
-        std::string str = clean.front();
+        std::wstring str = clean.front();
 
         // Break into lines through \n.
         list<wstring> lines;
-        string temp;
-        stringstream ss(str);
+        wstring temp;
+        wstringstream ss(str);
 
         if (Vars.bUseGamePrint && ClientState() == ClientStateInGame) {
             while (getline(ss, temp)) {
-                SplitLines(AnsiToUnicode(temp.c_str()), Console::MaxWidth() - 100, ' ', lines);
+                SplitLines(temp.c_str(), Console::MaxWidth() - 100, ' ', lines);
                 Console::AddLine(temp);
             }
 
-                // Convert and send every line.
+            // Convert and send every line.
             for (list<wstring>::iterator it = lines.begin(); it != lines.end(); ++it) {
                 D2CLIENT_PrintGameString((wchar_t*)it->c_str(), 0);
-                }
+            }
         /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (char*)NULL, -1, 28, 410, 354, 298)) {
             while (getline(ss, temp))
                 SplitLines(temp, Console::MaxWidth() - 100, ' ', lines);

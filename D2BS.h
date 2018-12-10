@@ -93,7 +93,7 @@ struct Variables {
     UINT_PTR uTimer;
     long SectionCount;
 
-    std::queue<std::string> qPrintBuffer;
+    std::queue<std::wstring> qPrintBuffer;
     std::map<unsigned __int32, CellFile*> mCachedCellFiles;
     std::vector<std::pair<DWORD, DWORD>> vUnitList;
     // std::list<Event*> EventList;

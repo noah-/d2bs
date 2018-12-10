@@ -46,7 +46,7 @@ class Console {
     static void NextCommand(void);
     static void ScrollUp(void);
     static void ScrollDown(void);
-    static void AddLine(std::string line);
+    static void AddLine(std::wstring line);
     static void UpdateLines(void);
     static void Clear(void);
     static void Draw(void);

@@ -12,7 +12,6 @@ enum DistanceType { Euclidean, Chebyshev, Manhattan };
 
 enum ClientGameState { ClientStateNull, ClientStateMenu, ClientStateInGame, ClientStateBusy };
 
-void Debug_Log(wchar_t* szFormat, ...);
 void Log(char* szFormat, ...);
 void LogNoFormat(char* szString);
 
@@ -56,8 +55,7 @@ POINT GetScreenSize();
 int D2GetScreenSizeX();
 int D2GetScreenSizeY();
 
-CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ = 3);
-CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = 3);
+CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = TRUE);
 CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ = 3);
 
 AutomapLayer* InitAutomapLayer(DWORD levelno);

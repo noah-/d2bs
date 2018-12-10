@@ -501,53 +501,28 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType) {
 }
 
 // TODO: Rewrite this and split it into two functions
-CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
-    char* path = UnicodeToAnsi(lpszPath);
-    CellFile* ret = LoadCellFile(path, bMPQ);
-    delete[] path;
-    return ret;
-}
-
-CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
-    // AutoDetect the Cell File
-    if (bMPQ == 3) {
-        // Check in our directory first
-        wchar_t path[_MAX_FNAME + _MAX_PATH];
-        swprintf_s(path, sizeof(path), L"%s\\%s", Vars.szScriptPath, lpszPath);
-
-        HANDLE hFile = OpenFileRead(path);
-
-        if (hFile != INVALID_HANDLE_VALUE) {
-            CloseHandle(hFile);
-            return LoadCellFile(path, FALSE);
-        } else {
-            return LoadCellFile(lpszPath, TRUE);
-        }
-
-        // return NULL;
-    }
-
-    unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
-
-    if (Vars.mCachedCellFiles.count(hash) > 0)
-        return Vars.mCachedCellFiles[hash];
-    if (bMPQ == TRUE) {
-        CellFile* result = (CellFile*)D2WIN_LoadCellFile((char*)lpszPath, 0);
-        Vars.mCachedCellFiles[hash] = result;
-        return result;
-    } else if (bMPQ == FALSE) {
-        // see if the file exists first
-        if (!(_waccess(lpszPath, 0) != 0 && errno == ENOENT)) {
-            CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
-            Vars.mCachedCellFiles[hash] = result;
-            return result;
-        }
-    }
-
-    return NULL;
-}
-
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
+    if (bMPQ == TRUE) {
+        unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
+        if (Vars.mCachedCellFiles.count(hash) > 0)
+            return Vars.mCachedCellFiles[hash];
+        CellFile* result = (CellFile*)D2WIN_LoadCellFile((char*)lpszPath, 0);
+        Vars.mCachedCellFiles[hash] = result;
+        return result;
+    } else {
+        wchar_t* path = AnsiToUnicode(lpszPath);
+        CellFile* ret = LoadCellFile(path, bMPQ);
+        delete[] path;
+        return ret;    
+	}
+}
+
+CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
+    if (bMPQ == true) {
+        Log("Cannot specify wide character path for MPQ: %s", lpszPath);
+        return NULL;
+	}
+
     // AutoDetect the Cell File
     if (bMPQ == 3) {
         // Check in our directory first
@@ -562,24 +537,17 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
         } else {
             return LoadCellFile(lpszPath, TRUE);
         }
-
-        // return NULL;
     }
 
     unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
     if (Vars.mCachedCellFiles.count(hash) > 0)
         return Vars.mCachedCellFiles[hash];
-    if (bMPQ == TRUE) {
-        CellFile* result = (CellFile*)D2WIN_LoadCellFile((char*)lpszPath, 0);
+
+    // see if the file exists first
+    if (!(_waccess(lpszPath, 0) != 0 && errno == ENOENT)) {
+        CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
         Vars.mCachedCellFiles[hash] = result;
         return result;
-    } else if (bMPQ == FALSE) {
-        // see if the file exists first
-        if (!(_access(lpszPath, 0) != 0 && errno == ENOENT)) {
-            CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
-            Vars.mCachedCellFiles[hash] = result;
-            return result;
-        }
     }
 
     return NULL;

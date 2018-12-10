@@ -185,6 +185,9 @@ bool InitHooks(void) {
         Sleep(50);
         i++;
     }
+
+    D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
+    Vars.dwLocale = *p_D2CLIENT_Lang;
     return true;
 }
 
@@ -211,11 +214,11 @@ bool StartScript(const wchar_t* scriptname, ScriptState state) {
 
 void Reload(void) {
     if (ScriptEngine::GetCount() > 0)
-        Print("ÿc2D2BSÿc0 :: Stopping all scripts");
+        Print(L"ÿc2D2BSÿc0 :: Stopping all scripts");
     ScriptEngine::StopAll();
 
     if (Vars.bDisableCache != TRUE)
-        Print("ÿc2D2BSÿc0 :: Flushing the script cache");
+        Print(L"ÿc2D2BSÿc0 :: Flushing the script cache");
     ScriptEngine::FlushCache();
 
     // wait for things to catch up
@@ -224,9 +227,9 @@ void Reload(void) {
     if (!Vars.bUseProfileScript) {
         const wchar_t* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
-            Print("ÿc2D2BSÿc0 :: Started %s", script);
+            Print(L"ÿc2D2BSÿc0 :: Started %s", script);
         else
-            Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+            Print(L"ÿc2D2BSÿc0 :: Failed to start %s", script);
     }
 }
 
@@ -243,26 +246,26 @@ bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand) {
     if (_wcsicmp(argv, L"start") == 0) {
         const wchar_t* script = GetStarterScriptName();
         if (StartScript(script, GetStarterScriptState()))
-            Print("ÿc2D2BSÿc0 :: Started %s", script);
+            Print(L"ÿc2D2BSÿc0 :: Started %s", script);
         else
-            Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+            Print(L"ÿc2D2BSÿc0 :: Failed to start %s", script);
         result = true;
     } else if (_wcsicmp(argv, L"stop") == 0) {
         if (ScriptEngine::GetCount() > 0)
-            Print("ÿc2D2BSÿc0 :: Stopping all scripts");
+            Print(L"ÿc2D2BSÿc0 :: Stopping all scripts");
         ScriptEngine::StopAll();
         result = true;
     } else if (_wcsicmp(argv, L"flush") == 0) {
         if (Vars.bDisableCache != TRUE)
-            Print("ÿc2D2BSÿc0 :: Flushing the script cache");
+            Print(L"ÿc2D2BSÿc0 :: Flushing the script cache");
         ScriptEngine::FlushCache();
         result = true;
     } else if (_wcsicmp(argv, L"load") == 0) {
         const wchar_t* script = command + 5;
         if (StartScript(script, GetStarterScriptState()))
-            Print("ÿc2D2BSÿc0 :: Started %ls", script);
+            Print(L"ÿc2D2BSÿc0 :: Started %ls", script);
         else
-            Print("ÿc2D2BSÿc0 :: Failed to start %ls", script);
+            Print(L"ÿc2D2BSÿc0 :: Failed to start %ls", script);
         result = true;
     } else if (_wcsicmp(argv, L"reload") == 0) {
         Reload();
@@ -301,11 +304,11 @@ void GameJoined(void) {
     if (!Vars.bUseProfileScript) {
         const wchar_t* starter = GetStarterScriptName();
         if (starter != NULL) {
-            Print("ÿc2D2BSÿc0 :: Starting %ls", starter);
+            Print(L"ÿc2D2BSÿc0 :: Starting %ls", starter);
             if (StartScript(starter, GetStarterScriptState()))
-                Print("ÿc2D2BSÿc0 :: %ls running.", starter);
+                Print(L"ÿc2D2BSÿc0 :: %ls running.", starter);
             else
-                Print("ÿc2D2BSÿc0 :: Failed to start %ls!", starter);
+                Print(L"ÿc2D2BSÿc0 :: Failed to start %ls!", starter);
         }
     }
 }
@@ -313,15 +316,13 @@ void GameJoined(void) {
 void MenuEntered(bool beginStarter) {
     if (beginStarter && !Vars.bUseProfileScript) {
         const wchar_t* starter = GetStarterScriptName();
-        char* starterN = UnicodeToAnsi(starter);
         if (starter != NULL) {
-            Print("ÿc2D2BSÿc0 :: Starting %s", starterN);
+            Print(L"ÿc2D2BSÿc0 :: Starting %s", starter);
             if (StartScript(starter, GetStarterScriptState()))
-                Print("ÿc2D2BSÿc0 :: %s running.", starterN);
+                Print(L"ÿc2D2BSÿc0 :: %s running.", starter);
             else
-                Print("ÿc2D2BSÿc0 :: Failed to start %s!", starterN);
+                Print(L"ÿc2D2BSÿc0 :: Failed to start %s!", starter);
         }
-        delete[] starterN;
     }
 }
 
