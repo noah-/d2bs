@@ -564,6 +564,19 @@ bool ActMap::OneSpaceHasFlag(int flag, const Point& point, bool abs) const
 	return ((val & flag) == flag);
 }
 
+int ActMap::SpaceGetData(const Point& point, bool abs) const
+{
+	if(!abs) 
+		return SpaceGetData(RelativeToAbs(point), true);
+
+	int val = GetMapData(point, abs)
+		    | GetMapData(Point(point.first - 1, point.second), abs)
+			| GetMapData(Point(point.first + 1, point.second), abs)
+			| GetMapData(Point(point.first, point.second - 1), abs)
+			| GetMapData(Point(point.first, point.second + 1), abs);
+	return val;
+}
+
 bool ActMap::SpaceHasFlag(int flag, const Point& point, bool abs) const
 {
 	if(!abs) 
@@ -575,6 +588,23 @@ bool ActMap::SpaceHasFlag(int flag, const Point& point, bool abs) const
 			| GetMapData(Point(point.first, point.second - 1), abs)
 			| GetMapData(Point(point.first, point.second + 1), abs);
 	return ((val & flag) == flag);
+}
+
+int ActMap::SpaceHasFlagWide(int flag, const Point& point, bool abs) const
+{
+	if(!abs) 
+		return SpaceHasFlagWide(flag, RelativeToAbs(point), true);
+
+	int val = GetMapData(point, abs)
+            /*| GetMapData(Point(point.first - 2, point.second - 2), abs)
+			| GetMapData(Point(point.first + 2, point.second + 2), abs)
+			| GetMapData(Point(point.first + 2, point.second - 2), abs)
+			| GetMapData(Point(point.first - 2, point.second + 2), abs)*/
+		    | GetMapData(Point(point.first - 2, point.second), abs)
+			| GetMapData(Point(point.first + 2, point.second), abs)
+			| GetMapData(Point(point.first, point.second - 2), abs)
+			| GetMapData(Point(point.first, point.second + 2), abs);
+	return val;
 }
 
 bool ActMap::PathHasFlag(int flag, const PointList& points, bool abs) const
