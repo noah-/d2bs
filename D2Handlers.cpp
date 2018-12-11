@@ -34,10 +34,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     InitSettings();
     if (InitHooks()) {
         Log(L"D2BS Engine startup complete. %s", D2BS_VERSION);
-        Print(L"ÿc2D2BSÿc0 :: Engine startup complete!");
+        Print(L"\u00FFc2D2BS\u00FFc0 :: Engine startup complete!");
     } else {
         Log(L"D2BS Engine startup failed.");
-        Print(L"ÿc2D2BSÿc0 :: Engine startup failed!");
+        Print(L"\u00FFc2D2BS\u00FFc0 :: Engine startup failed!");
         return FALSE;
     }
 
@@ -62,9 +62,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     if (command) {
         const wchar_t* profile = command->szText;
         if (SwitchToProfile(profile))
-            Print(L"ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+            Print(L"\u00FFc2D2BS\u00FFc0 :: Switched to profile %s", profile);
         else
-            Print(L"ÿc2D2BSÿc0 :: Profile %s not found", profile);
+            Print(L"\u00FFc2D2BS\u00FFc0 :: Profile %s not found", profile);
     }
 
     while (Vars.bActive) {
@@ -195,9 +195,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 const char* profile = (char*)pCopy->lpData;
                 wchar_t* profileW = AnsiToUnicode(profile);
                 if (SwitchToProfile(profileW))
-                    Print(L"ÿc2D2BSÿc0 :: Switched to profile %s", profileW);
+                    Print(L"\u00FFc2D2BS\u00FFc0 :: Switched to profile %s", profileW);
                 else
-                    Print(L"ÿc2D2BSÿc0 :: Profile %s not found", profileW);
+                    Print(L"\u00FFc2D2BS\u00FFc0 :: Profile %s not found", profileW);
                 delete[] profileW;
             } else
                 CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
