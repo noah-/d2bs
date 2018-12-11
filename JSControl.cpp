@@ -22,7 +22,7 @@ JSAPI_PROP(control_getProperty) {
     if (!pData)
         return JS_FALSE;
 
-    Control* ctrl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* ctrl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (!ctrl)
         return JS_FALSE;
 
@@ -103,7 +103,7 @@ JSAPI_STRICT_PROP(control_setProperty) {
     if (!pData)
         return JS_FALSE;
 
-    Control* ctrl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* ctrl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (!ctrl)
         return JS_FALSE;
 
@@ -163,7 +163,7 @@ JSAPI_FUNC(control_getNext) {
     if (!pData)
         return JS_TRUE;
 
-    Control* pControl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* pControl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (pControl && pControl->pNext)
         pControl = pControl->pNext;
     else
@@ -197,7 +197,7 @@ JSAPI_FUNC(control_click) {
     if (!pData)
         return JS_TRUE;
 
-    Control* pControl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* pControl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (!pControl) {
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
         return JS_TRUE;
@@ -225,7 +225,7 @@ JSAPI_FUNC(control_setText) {
     if (!pData)
         return JS_TRUE;
 
-    Control* pControl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* pControl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (!pControl) {
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
         return JS_TRUE;
@@ -254,7 +254,7 @@ JSAPI_FUNC(control_getText) {
     if (!pData)
         return JS_TRUE;
 
-    Control* pControl = findControl(pData->dwType, (char*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+    Control* pControl = findControl(pData->dwType, (const wchar_t*)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
     if (!pControl) {
         JS_SET_RVAL(cx, vp, INT_TO_JSVAL(0));
         return JS_TRUE;
@@ -314,7 +314,7 @@ JSAPI_FUNC(my_getControl) {
             JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[i], args[i]);
     JS_EndRequest(cx);
 
-    Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
+    Control* pControl = findControl(nType, (const wchar_t*)NULL, -1, nX, nY, nXSize, nYSize);
     if (!pControl)
         return JS_TRUE;
 

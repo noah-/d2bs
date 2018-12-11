@@ -21,7 +21,9 @@ class Profile {
 
     void init(const wchar_t* profileName);
 
-    void init(ProfileType pt, wchar_t* _ipUsername, wchar_t* _password, wchar_t* _charname, wchar_t* _gateway, wchar_t _diff, unsigned int _maxLoginTime, unsigned int _maxCharTime) {
+    void init(ProfileType pt, const wchar_t* _ipUsername, const wchar_t* _password, const wchar_t* _charname, const wchar_t* _gateway, const wchar_t _diff,
+              unsigned int _maxLoginTime,
+              unsigned int _maxCharTime) {
         type = pt;
         wcscpy_s(username, wcslen(username), _ipUsername);
         wcscpy_s(password, wcslen(password), _password);
@@ -39,22 +41,22 @@ class Profile {
     }
 
     // Get profile by name
-    Profile(wchar_t* profileName) {
+    Profile(const wchar_t* profileName) {
         init(profileName);
     }
 
     // Create single player or tcp/ip host profile
-    Profile(ProfileType pt, wchar_t* charName, wchar_t _diff) {
+    Profile(ProfileType pt, const wchar_t* charName, const wchar_t _diff) {
         init(pt, L"", L"", charName, L"", _diff, 5000, 5000);
     }
 
     // Create battle.net or open battle.net profile
-    Profile(ProfileType pt, wchar_t* account, wchar_t* _pass, wchar_t* _charname, wchar_t* _gateway) {
+    Profile(ProfileType pt, const wchar_t* account, const wchar_t* _pass, const wchar_t* _charname, const wchar_t* _gateway) {
         init(pt, account, _pass, _charname, _gateway, 0, 5000, 5000);
     }
 
     // Create tcp/ip join profile
-    Profile(ProfileType pt, wchar_t* _charname, wchar_t* ip) {
+    Profile(ProfileType pt, const wchar_t* _charname, const wchar_t* ip) {
         init(pt, ip, L"", _charname, L"", 0, 5000, 5000);
     }
 

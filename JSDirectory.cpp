@@ -43,7 +43,7 @@ JSAPI_FUNC(my_openDir) {
 
     if (!isValidPath(name))
     {
-        Log(L"The following path was deemed invalid: %s. (%s, %s)", name, L"JSDirectory.cpp", L"dir_getFiles");
+        Log(L"The following path was deemed invalid: %s. (%s, %s)", name, L"JSDirectory.cpp", L"my_openDir");
         return JS_FALSE;
     }
 
@@ -79,7 +79,7 @@ JSAPI_FUNC(dir_getFiles) {
         JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
     DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-    char* search = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    const wchar_t* search = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!search)
         THROW_ERROR(cx, "Failed to get search string");
 
@@ -101,9 +101,8 @@ JSAPI_FUNC(dir_getFiles) {
     _wfinddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
-    wchar_t* searchW = AnsiToUnicode(search);
     
-    if ((hFile = _wfindfirst(searchW, &found)) != -1L) {
+    if ((hFile = _wfindfirst(search, &found)) != -1L) {
         JS_BeginRequest(cx);
         jsint element = 0;
         do {
@@ -114,7 +113,7 @@ JSAPI_FUNC(dir_getFiles) {
         } while (_wfindnext(hFile, &found) == 0);
         JS_EndRequest(cx);
     }
-    JS_free(cx, search);
+
     if(_wchdir(oldpath) == -1)
     {
         Log(L"Error changing directory back to %s. (%s, %s)", oldpath, L"JSDirectory.cpp", L"dir_getFiles");
@@ -131,7 +130,7 @@ JSAPI_FUNC(dir_getFolders) {
         JS_ARGV(cx, vp)[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
     DirData* d = (DirData*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
-    char* search = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    const wchar_t* search = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!search)
         THROW_ERROR(cx, "Failed to get search string");
 
@@ -153,9 +152,8 @@ JSAPI_FUNC(dir_getFolders) {
     _wfinddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
-    wchar_t* searchW = AnsiToUnicode(search);
 
-    if ((hFile = _wfindfirst(searchW, &found)) != -1L) {
+    if ((hFile = _wfindfirst(search, &found)) != -1L) {
         jsint element = 0;
         JS_BeginRequest(cx);
         do {

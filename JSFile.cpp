@@ -27,7 +27,7 @@
 
 struct FileData {
     int mode;
-    char* path;
+    wchar_t* path;
     bool autoflush, locked;
     FILE* fptr;
 #if DEBUG
@@ -81,7 +81,7 @@ JSAPI_PROP(file_getProperty) {
                 vp.setInt32(0); //= JSVAL_ZERO;
             break;
         case FILE_PATH:
-            vp.setString(JS_NewStringCopyZ(cx, fdata->path + 1));
+            vp.setString(JS_NewUCStringCopyZ(cx, fdata->path + 1));
             break;
         case FILE_POSITION:
             if (fdata->fptr) {
@@ -156,7 +156,7 @@ JSAPI_FUNC(file_open) {
         THROW_ERROR(cx, "Parameter 2 not a mode");
 
     // Convert from JS params to C values
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     int32 mode;
     if (JS_ValueToInt32(cx, JS_ARGV(cx, vp)[1], &mode) == JS_FALSE)
         THROW_ERROR(cx, "Could not convert parameter 2");
@@ -190,13 +190,8 @@ JSAPI_FUNC(file_open) {
     if (binary)
         mode += 3;
 
-    static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-
-    wchar_t* fileW = AnsiToUnicode(file);
-    wchar_t* modesW = AnsiToUnicode(modes[mode]);
-    FILE* fptr = fileOpenRelScript(fileW, modesW, cx);
-    delete[] fileW;
-    delete[] modesW;
+    static const wchar_t* modes[] = {L"rt", L"w+t", L"a+t", L"rb", L"w+b", L"a+b"};
+    FILE* fptr = fileOpenRelScript(file, modes[mode], cx);
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr == NULL)
@@ -209,7 +204,7 @@ JSAPI_FUNC(file_open) {
     }
 
     fdata->mode = mode;
-    fdata->path = _strdup(file);
+    fdata->path = _wcsdup(file);
     fdata->autoflush = autoflush;
     fdata->locked = lockFile;
     fdata->fptr = fptr;
@@ -261,12 +256,8 @@ JSAPI_FUNC(file_reopen) {
     FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
     if (fdata)
         if (!fdata->fptr) {
-            static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-            wchar_t* pathW = AnsiToUnicode(fdata->path);
-            wchar_t* modesW = AnsiToUnicode(modes[fdata->mode]);
-            fdata->fptr = fileOpenRelScript(pathW, modesW, cx);
-            delete[] pathW;
-            delete[] modesW;
+            static const wchar_t* modes[] = {L"rt", L"w+t", L"a+t", L"rb", L"w+b", L"a+b"};
+            fdata->fptr = fileOpenRelScript(fdata->path, modes[fdata->mode], cx);
 
             // If fileOpenRelScript failed, it already reported the error
             if (fdata->fptr == NULL)

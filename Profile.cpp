@@ -129,8 +129,6 @@ DWORD Profile::login(char** error) {
 
     Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
-    char* nString;
-
     while (!loginComplete) {
         location = OOG_GetLocation();
         switch (location) {
@@ -140,24 +138,20 @@ DWORD Profile::login(char** error) {
 
         case OOG_CHAR_SELECT:
             // Sleep(5000);
-            nString = UnicodeToAnsi(charname);
-            if (!OOG_SelectCharacter(nString))
+            if (!OOG_SelectCharacter(charname))
                 errorMsg = "Invalid character name";
-            delete[] nString;
             break;
         case OOG_MAIN_MENU:
             if (type == PROFILETYPE_SINGLEPLAYER)
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 324, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 324, 272, 35)))
                     errorMsg = "Failed to click the Single button?";
             if (type == PROFILETYPE_BATTLENET) {
-                nString = UnicodeToAnsi(gateway);
-                OOG_SelectGateway(nString, 256);
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 366, 272, 35)))
+                OOG_SelectGateway(gateway, 256);
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 366, 272, 35)))
                     errorMsg = "Failed to click the 'Battle.net' button?";
-                delete[] nString;
             }
             if (isOtherMP(type)) {
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 433, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 433, 272, 35)))
                     errorMsg = "Failed to click the 'Other Multiplayer' button?";
                 else
                     skippedToBnet = FALSE;
@@ -165,31 +159,27 @@ DWORD Profile::login(char** error) {
             break;
         case OOG_LOGIN:
             if ((type == PROFILETYPE_SINGLEPLAYER || isOtherMP(type)) && skippedToBnet) {
-                if (!clickControl(findControl(6, "EXIT", -1, 33, 572, 128, 35)))
+                if (!clickControl(findControl(6, L"EXIT", -1, 33, 572, 128, 35)))
                     errorMsg = "Failed to click the exit button?";
                 break;
             }
-            pControl = findControl(1, (char*)NULL, -1, 322, 342, 162, 19);
+            pControl = findControl(1, (const wchar_t*)NULL, -1, 322, 342, 162, 19);
             if (pControl)
             {
-                nString = UnicodeToAnsi(username);
-                SetControlText(pControl, nString);
-                delete[] nString;
+                SetControlText(pControl, username);
             }
             else
                 errorMsg = "Failed to set the 'Username' text-edit box.";
             // Password text-edit box
-            pControl = findControl(1, (char*)NULL, -1, 322, 396, 162, 19);
+            pControl = findControl(1, (const wchar_t*)NULL, -1, 322, 396, 162, 19);
             if (pControl)
             {
-                nString = UnicodeToAnsi(password);
-                SetControlText(pControl, nString);
-                delete[] nString;
+                SetControlText(pControl, password);
             }
             else
                 errorMsg = "Failed to set the 'Password' text-edit box.";
 
-            pControl = findControl(6, (char*)NULL, -1, 264, 484, 272, 35);
+            pControl = findControl(6, (const wchar_t*)NULL, -1, 264, 484, 272, 35);
             if (pControl)
                 if (!clickControl(pControl))
                     errorMsg = "Failed to click the 'Log in' button?";
@@ -199,17 +189,17 @@ DWORD Profile::login(char** error) {
             switch (diff) {
             case 0:
                 // normal button
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 297, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 297, 272, 35)))
                     errorMsg = "Failed to click the 'Normal Difficulty' button?";
                 break;
             case 1:
                 // nightmare button
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 340, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 340, 272, 35)))
                     errorMsg = "Failed to click the 'Nightmare Difficulty' button?";
                 break;
             case 2:
                 // hell button
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 383, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)))
                     errorMsg = "Failed to click the 'Hell Difficulty' button?";
                 break;
             default:
@@ -219,11 +209,11 @@ DWORD Profile::login(char** error) {
         case OOG_OTHER_MULTIPLAYER:
             // Open Battle.net
             if (type == PROFILETYPE_OPEN_BATTLENET)
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 310, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 310, 272, 35)))
                     errorMsg = "Failed to click the 'Open Battle.net' button?";
             // TCP/IP Game
             if (isTcpIp(type))
-                if (!clickControl(findControl(6, (char*)NULL, -1, 264, 350, 272, 35)) && !clickedOnce)
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 350, 272, 35)) && !clickedOnce)
                     errorMsg = "Failed to click the 'TCP/IP Game' button?";
                 else
                     clickedOnce = true;
@@ -231,22 +221,21 @@ DWORD Profile::login(char** error) {
             break;
         case OOG_TCP_IP:
             if (type == PROFILETYPE_TCPIP_HOST)
-                if (!clickControl(findControl(6, (char*)NULL, -1, 265, 206, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 265, 206, 272, 35)))
                     errorMsg = "Failed to click the 'Host Game' button?";
             if (type == PROFILETYPE_TCPIP_JOIN)
-                if (!clickControl(findControl(6, (char*)NULL, -1, 265, 264, 272, 35)))
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 265, 264, 272, 35)))
                     errorMsg = "Failed to click the 'Join Game' button?";
             break;
         case OOG_ENTER_IP_ADDRESS:
             if (_wcsicmp(ip, L"")) {
-                pControl = findControl(1, (char*)NULL, -1, 300, 268, -1, -1);
+                pControl = findControl(1, (const wchar_t*)NULL, -1, 300, 268, -1, -1);
                 if (pControl) {
-                    char *nIP = UnicodeToAnsi(ip);
-                    SetControlText(pControl, nIP);
+                    SetControlText(pControl, ip);
 
                     // Click the OK button
                     // Sleep(5000);
-                    if (!clickControl(findControl(6, (char*)NULL, -1, 421, 337, 96, 32))) {
+                    if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 421, 337, 96, 32))) {
                         errorMsg = "Failed to click the OK button";
                     }
                 } else

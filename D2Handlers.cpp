@@ -386,7 +386,7 @@ void FlushPrint() {
             for (list<wstring>::iterator it = lines.begin(); it != lines.end(); ++it) {
                 D2CLIENT_PrintGameString((wchar_t*)it->c_str(), 0);
             }
-        /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (char*)NULL, -1, 28, 410, 354, 298)) {
+        /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (const wchar_t*)NULL, -1, 28, 410, 354, 298)) {
             while (getline(ss, temp))
                 SplitLines(temp, Console::MaxWidth() - 100, ' ', lines);
                 // TODO: Double check this function, make sure it is working as intended.

@@ -8,9 +8,9 @@ Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, i
     if (ClientState() != ClientStateMenu)
         return NULL;
 
-    char* localeStr = NULL;
+    wchar_t* localeStr = NULL;
     if (LocaleID >= 0) {
-        localeStr = UnicodeToAnsi(D2LANG_GetLocaleText((WORD)LocaleID));
+        localeStr = _wcsdup(D2LANG_GetLocaleText((WORD)LocaleID));
         if (!localeStr)
             return NULL;
         Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
@@ -21,7 +21,7 @@ Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, i
     return NULL;
 }
 
-Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY) {
+Control* findControl(int Type, const wchar_t* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY) {
     if (ClientState() != ClientStateMenu)
         return NULL;
 
@@ -78,30 +78,24 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
         }
 
         if (Text && pControl->dwType == CONTROL_BUTTON) {
-            char* text2 = UnicodeToAnsi(pControl->wText2);
-            if (!text2)
+            if (!pControl->wText2)
                 return NULL;
-            if (strcmp(text2, Text) == 0) {
+            if (wcscmp(pControl->wText2, Text) == 0) {
                 bFound = TRUE;
-                delete[] text2;
             } else {
                 bFound = FALSE;
-                delete[] text2;
                 continue;
             }
         }
 
         if (Text && pControl->dwType == CONTROL_TEXTBOX) {
             if (pControl->pFirstText != NULL && pControl->pFirstText->wText[0] != NULL) {
-                char* text2 = UnicodeToAnsi(pControl->pFirstText->wText[0]);
-                if (!text2)
+                if (!pControl->pFirstText->wText[0])
                     return NULL;
-                if (strstr(Text, text2) != 0) {
+                if (wcsstr(Text, pControl->pFirstText->wText[0]) != 0) {
                     bFound = TRUE;
-                    delete[] text2;
                 } else {
                     bFound = FALSE;
-                    delete[] text2;
                     continue;
                 }
             } else {
@@ -137,12 +131,12 @@ bool clickControl(Control* pControl, int x, int y) {
     return false;
 }
 
-BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder) {
-    if (OOG_GetLocation() != OOG_CHAR_SELECT || strlen(szCharacter) > 15 || type > 6 || type < 0)
+BOOL OOG_CreateCharacter(const wchar_t* szCharacter, int type, bool hardcore, bool ladder) {
+    if (OOG_GetLocation() != OOG_CHAR_SELECT || wcslen(szCharacter) > 15 || type > 6 || type < 0)
         return FALSE;
 
     // click the create character button
-    Control* ctrl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 33, 528, 168, 60);
+    Control* ctrl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 33, 528, 168, 60);
     if (ctrl)
         clickControl(ctrl);
 
@@ -161,7 +155,7 @@ BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder
         {232, 364, 200, 300, 4013}, // assassin
     };
 
-    ctrl = findControl(CONTROL_IMAGE, (char*)NULL, -1, locs[type][0], locs[type][1], 88, 184);
+    ctrl = findControl(CONTROL_IMAGE, (const wchar_t*)NULL, -1, locs[type][0], locs[type][1], 88, 184);
     if (ctrl) {
         clickControl(ctrl, locs[type][2], locs[type][3]);
         Sleep(500);
@@ -169,7 +163,7 @@ BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder
     }
 
     // verify that the correct type got selected
-    ctrl = findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 0, 180, 800, 100);
+    ctrl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 0, 180, 800, 100);
     wchar_t* name = D2LANG_GetLocaleText((WORD)locs[type][4]);
     if (_wcsicmp(name, ctrl->pFirstText->wText[0]) != 0)
         return FALSE; // something bad happened?
@@ -182,13 +176,13 @@ BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder
     return FALSE;
 }
 
-BOOL OOG_SelectCharacter(char* szCharacter) {
+BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
     if (ClientState() != ClientStateMenu)
         return NULL;
 
     // Select the first control on the character selection screen.
 
-    Control* pControl = findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 237, 178, 72, 93);
+    Control* pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 178, 72, 93);
     ControlText* cText;
 
     while (pControl != NULL) {
@@ -198,17 +192,15 @@ BOOL OOG_SelectCharacter(char* szCharacter) {
             cText = NULL;
 
         if (cText != NULL) {
-            char* szLine = UnicodeToAnsi(cText->wText[0]);
-            if (!szLine)
+            if (!cText->wText[0])
                 return FALSE;
 
-            char* cLine = _strdup(szLine);
-            char* cCharacter = _strdup(szCharacter);
+            wchar_t* cLine = _wcsdup(cText->wText[0]);
+            wchar_t* cCharacter = _wcsdup(szCharacter);
             StringToLower(cLine);
             StringToLower(cCharacter);
 
-            if (strlen(szLine) == strlen(szCharacter) && strstr(cLine, cCharacter) != NULL) {
-                delete[] szLine;
+            if (wcslen(cLine) == wcslen(cCharacter) && wcsstr(cLine, cCharacter) != NULL) {
                 delete[] cLine;
                 delete[] cCharacter;
                 if (!clickControl(pControl))
@@ -216,7 +208,7 @@ BOOL OOG_SelectCharacter(char* szCharacter) {
 
                 // OK Button
                 // Bobode Sleep(7000);
-                pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 627, 572, 128, 35);
+                pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 627, 572, 128, 35);
                 if (pControl) {
                     if (!clickControl(pControl))
                         return FALSE;
@@ -226,7 +218,6 @@ BOOL OOG_SelectCharacter(char* szCharacter) {
                     return FALSE;
 
             } else {
-                delete[] szLine;
                 delete[] cLine;
                 delete[] cCharacter;
             }
@@ -236,42 +227,37 @@ BOOL OOG_SelectCharacter(char* szCharacter) {
     return FALSE;
 }
 
-void SetControlText(Control* pControl, const char* Text) {
+void SetControlText(Control* pControl, const wchar_t* Text) {
     if (ClientState() != ClientStateMenu)
         return;
 
     if (pControl && Text) {
-        wchar_t* szwText = AnsiToUnicode(Text);
-        if (!szwText)
-            return;
-        D2WIN_SetControlText(pControl, szwText);
-        delete[] szwText;
+        D2WIN_SetControlText(pControl, Text);
     }
 }
 
-BOOL OOG_SelectGateway(char* szGateway, size_t strSize) {
+BOOL OOG_SelectGateway(const wchar_t* szGateway, size_t strSize) {
     if (ClientState() != ClientStateMenu)
         return FALSE;
 
-    if (strstr(szGateway, "ERROR"))
+    if (wcsstr(szGateway, L"ERROR"))
         return FALSE;
     // Select the gateway control.
-    Control* pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 264, 391, 272, 25);
+    Control* pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 391, 272, 25);
 
     // if the control exists and has the text label, check if it matches the selected gateway
     if (pControl && pControl->wText2) {
-        char* szLine = UnicodeToAnsi(pControl->wText2);
-        if (!szLine)
-            return FALSE;
+        wchar_t* wzLine = _wcsdup(pControl->wText2);
+        wchar_t* wzGate = _wcsdup(szGateway);
+        StringToLower(wzLine);
+        StringToLower(wzGate);
 
-        _strlwr_s(szLine, strlen(szLine) + 1);
-        _strlwr_s(szGateway, strSize);
-        if (strstr(szLine, szGateway)) {
+        if (wcsstr(wzLine, wzGate)) {
             // gateway is correct, do nothing and return true
-            delete[] szLine;
+            delete[] wzLine;
             return TRUE;
         } else {
-            delete[] szLine;
+            delete[] wzLine;
             // gateway is NOT correct, change gateway to selected gateway if it exists
             // open the gateway select screen
             if (!clickControl(pControl))
@@ -281,35 +267,42 @@ BOOL OOG_SelectGateway(char* szGateway, size_t strSize) {
             bool gatefound = false;
 
             // loop here till we find the right gateway if we can
-            pControl = findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 257, 500, 292, 160);
+            pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 257, 500, 292, 160);
             ControlText* cText;
             if (pControl && pControl->pFirstText) {
                 cText = pControl->pFirstText;
                 while (cText) {
-                    char* szGatelist = UnicodeToAnsi(cText->wText[0]);
-                    if (!szGatelist)
+                    wchar_t* wzGatelist = _wcsdup(cText->wText[0]);
+                    if (!wzGatelist) {
+                        delete[] wzGate;
                         return FALSE;
+					}
 
-                    _strlwr_s(szGatelist, strlen(szGatelist) + 1);
-                    if (strstr(szGatelist, szGateway)) {
+					StringToLower(wzGatelist);
+                    if (wcsstr(wzGatelist, wzGate)) {
                         // chosen gateway IS in the list and matches, cleanup and break the loop
+                        delete[] wzGatelist;
+                        delete[] wzGate;
                         gatefound = true;
-                        delete[] szGatelist;
                         break;
                     }
-                    delete[] szGatelist;
+                    delete[] wzGatelist;
                     index++;
                     cText = cText->pNext;
                 }
                 if (gatefound) {
                     // click the correct gateway using the control plus a default x and a y based on (index*24)+12
-                    if (!clickControl(pControl, -1, 344 + ((index * 24) + 12)))
-                        return FALSE;
+                    if (!clickControl(pControl, -1, 344 + ((index * 24) + 12))) {
+                        delete[] wzGate;
+						return FALSE;
+                    }
                 }
             }
 
+			delete[] wzGate;
+
             // OK Button, gateway select screen
-            pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 281, 538, 96, 32);
+            pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 281, 538, 96, 32);
             if (pControl) {
                 if (!clickControl(pControl))
                     return FALSE;
@@ -342,10 +335,10 @@ OOG_Location OOG_GetLocation(void) {
     {
         if (findControl(CONTROL_TEXTBOX, 5243, -1, 268, 300, 264, 100))
             return OOG_CHARACTER_SELECT_PLEASE_WAIT; // 16 char select please wait...
-        if (findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 268, 320, 264, 120))
+        if (findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 268, 320, 264, 120))
             return OOG_PLEASE_WAIT; // 25 "Please Wait..."single player already exists also
     } else if (findControl(CONTROL_BUTTON, 5103, -1, 433, 433, 96, 32)) {
-        if (findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 427, 234, 300, 100))
+        if (findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 427, 234, 300, 100))
             return OOG_INLINE; // 2 waiting in line
         else if (findControl(CONTROL_TEXTBOX, 10018, -1, 459, 380, 150, 12))
             return OOG_CREATE; // 4 Create game
@@ -365,7 +358,7 @@ OOG_Location OOG_GetLocation(void) {
         {
             if (findControl(CONTROL_BUTTON, 10018, -1, 264, 297, 272, 35)) // NORMAL
                 return OOG_DIFFICULTY;                                     // 20 single char Difficulty
-            Control* pControl = findControl(CONTROL_TEXTBOX, (char*)NULL, -1, 37, 178, 200, 92);
+            Control* pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 37, 178, 200, 92);
             if (pControl && pControl->pFirstText && pControl->pFirstText->pNext)
                 return OOG_CHAR_SELECT; // 12 char select
             else {
@@ -435,12 +428,12 @@ OOG_Location OOG_GetLocation(void) {
     return OOG_NONE;
 }
 
-bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
+bool OOG_CreateGame(const wchar_t* name, const wchar_t* pass, int difficulty) {
     if (ClientState() != ClientStateMenu)
         return FALSE;
 
     // reject name/password combinations over 15 characters
-    if (!name || !pass || strlen(name) > 15 || strlen(pass) > 15)
+    if (!name || !pass || wcslen(name) > 15 || wcslen(pass) > 15)
         return FALSE;
 
     Control* pControl = NULL;
@@ -452,8 +445,8 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
 
     if (loc == OOG_DIFFICULTY) {
         // just click the difficulty button
-        Control *normal = findControl(CONTROL_BUTTON, (char*)NULL, -1, 264, 297, 272, 35), *nightmare = findControl(CONTROL_BUTTON, (char*)NULL, -1, 264, 340, 272, 35),
-                *hell = findControl(CONTROL_BUTTON, (char*)NULL, -1, 264, 383, 272, 35);
+        Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 297, 272, 35), *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 340, 272, 35),
+                *hell = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 383, 272, 35);
 
         switch (difficulty) {
         case 0: // normal button
@@ -486,7 +479,7 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
     } else {
         // Create button
         if (loc != OOG_CREATE) {
-            pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 533, 469, 120, 20);
+            pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 533, 469, 120, 20);
             if (!pControl || !clickControl(pControl))
                 return FALSE;
             Sleep(100);
@@ -494,19 +487,19 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
         if (OOG_GetLocation() == OOG_CREATE) {
             // Game name edit box
             if (name)
-                SetControlText(findControl(1, (char*)NULL, -1, 432, 162, 158, 20), name);
+                SetControlText(findControl(1, (const wchar_t*)NULL, -1, 432, 162, 158, 20), name);
             else
                 return FALSE;
             Sleep(100);
 
             // Password edit box
             if (pass)
-                SetControlText(findControl(1, (char*)NULL, -1, 432, 217, 158, 20), pass);
+                SetControlText(findControl(1, (const wchar_t*)NULL, -1, 432, 217, 158, 20), pass);
             else
                 return FALSE;
             Sleep(100);
-            Control *normal = findControl(CONTROL_BUTTON, (char*)NULL, -1, 430, 381, 16, 16), *nightmare = findControl(CONTROL_BUTTON, (char*)NULL, -1, 555, 381, 16, 16),
-                    *hell = findControl(CONTROL_BUTTON, (char*)NULL, -1, 698, 381, 16, 16);
+            Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 430, 381, 16, 16), *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 555, 381, 16, 16),
+                    *hell = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 698, 381, 16, 16);
 
             switch (difficulty) {
             case 0: // normal button
@@ -538,7 +531,7 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
             }
 
             // Create Game Button
-            pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 594, 433, 172, 32);
+            pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 594, 433, 172, 32);
             if (!pControl || !clickControl(pControl))
                 return FALSE;
         }
@@ -547,12 +540,12 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty) {
     return TRUE;
 }
 
-bool OOG_JoinGame(const char* name, const char* pass) {
+bool OOG_JoinGame(const wchar_t* name, const wchar_t* pass) {
     if (ClientState() != ClientStateMenu)
         return FALSE;
 
     // reject name/password combinations over 15 characters
-    if (strlen(name) > 15 || strlen(pass) > 15)
+    if (wcslen(name) > 15 || wcslen(pass) > 15)
         return FALSE;
 
     Control* pControl = NULL;
@@ -563,7 +556,7 @@ bool OOG_JoinGame(const char* name, const char* pass) {
 
     // JOIN button
     if (OOG_GetLocation() != OOG_JOIN) {
-        pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 652, 469, 120, 20);
+        pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 652, 469, 120, 20);
         if (!pControl || !clickControl(pControl))
             return FALSE;
         Sleep(100);
@@ -571,17 +564,17 @@ bool OOG_JoinGame(const char* name, const char* pass) {
     if (OOG_GetLocation() == OOG_JOIN) {
         // Game name edit box
         if (name)
-            SetControlText(findControl(1, (char*)NULL, -1, 432, 148, 155, 20), name);
+            SetControlText(findControl(1, (const wchar_t*)NULL, -1, 432, 148, 155, 20), name);
         else
             return FALSE;
         // Password edit box
         if (pass)
-            SetControlText(findControl(1, (char*)NULL, -1, 606, 148, 155, 20), pass);
+            SetControlText(findControl(1, (const wchar_t*)NULL, -1, 606, 148, 155, 20), pass);
         else
             return FALSE;
 
         // Join Game Button
-        pControl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 594, 433, 172, 32);
+        pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 594, 433, 172, 32);
         if (!pControl || !clickControl(pControl))
             return FALSE;
     }

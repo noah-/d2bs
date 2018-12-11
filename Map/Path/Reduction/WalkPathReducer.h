@@ -189,17 +189,17 @@ public:
 	int GetPenalty(Point const & pt, bool abs)
 	{
         if (checkFlag(map->SpaceGetDataWide(ActMap::BlockWalk, pt, abs))) {
-            return 50;
+            return 90;
         }
 
         int data = map->SpaceGetData(pt, abs);
 
-        if (data & ActMap::Object == ActMap::Object) {
-            return 60;
-        }
-
         if (data & ActMap::ClosedDoor == ActMap::ClosedDoor) {
             return 80;
+        }
+
+        if (data & ActMap::Object == ActMap::Object) {
+            return 60;
         }
 
         return 0;;

@@ -9,6 +9,7 @@ bool GetStackWalk( std::string &outWalk);
 wchar_t* AnsiToUnicode(const char* str, UINT codepage = CP_UTF8);
 char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);
+void StringToLower(wchar_t* p);
 bool StringToBool(const char* str);
 void StringReplace(char* str, const char find, const char replace, size_t buflen);
 void StringReplace(wchar_t* str, const wchar_t find, const wchar_t replace, size_t buflen);

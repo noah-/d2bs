@@ -876,10 +876,11 @@ JSAPI_FUNC(my_getSkillByName) {
     for (int i = 0; i < ArraySize(Game_Skills); i++) {
         if (!_strcmpi(Game_Skills[i].name, lpszText)) {
             JS_SET_RVAL(cx, vp, INT_TO_JSVAL(Game_Skills[i].skillID));
-            return JS_TRUE;
+            break;
         }
     }
 
+	JS_free(cx, lpszText);
     return JS_TRUE;
 }
 
@@ -895,9 +896,7 @@ JSAPI_FUNC(my_getSkillById) {
     if (FillBaseStat("skills", nId, "skilldesc", &row, sizeof(int))) {
         if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
             wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
-            char* str = UnicodeToAnsi(szName);
-            JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
-            delete[] str;
+            JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, szName)));
         }
     }
 
@@ -1216,6 +1215,9 @@ JSAPI_FUNC(my_getBaseStat) {
         FillBaseStat(cx, &rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
         JS_SET_RVAL(cx, vp, rval);
         JS_EndRequest(cx);
+
+		if (szTableName != NULL)
+            JS_free(cx, szTableName);
     }
 
     return JS_TRUE;

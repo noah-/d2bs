@@ -429,7 +429,7 @@ enum {
     // D2Win Functions
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control * box, wchar_t* txt), 0xFF5A0)    // Updated 1.14d //004FF5A0-BASE
+    FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control * box, const wchar_t* txt), 0xFF5A0)    // Updated 1.14d //004FF5A0-BASE
     FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0xF9870)                               // Updated 1.14d //004F9870-BASE
     FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), 0xFA9B0) // Updated 1.14d //004FA9B0-BASE
 
