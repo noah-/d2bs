@@ -33,10 +33,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     Vars.bUseRawCDKey = 0;
     InitSettings();
     if (InitHooks()) {
-        Log("D2BS Engine startup complete. %s", D2BS_VERSION);
+        Log(L"D2BS Engine startup complete. %s", D2BS_VERSION);
         Print(L"ÿc2D2BSÿc0 :: Engine startup complete!");
     } else {
-        Log("D2BS Engine startup failed.");
+        Log(L"D2BS Engine startup failed.");
         Print(L"ÿc2D2BSÿc0 :: Engine startup failed!");
         return FALSE;
     }
@@ -149,7 +149,7 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg) {
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize) {
     switch (pPacket[0]) {
     case 0xAE:
-        Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
+        Log(L"Warden activity detected! Terminating Diablo to ensure your safety :)");
         TerminateProcess(GetCurrentProcess(), 0);
         break;
     case 0x15:

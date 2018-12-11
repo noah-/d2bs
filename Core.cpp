@@ -184,6 +184,13 @@ void LoadMPQ(const char* mpq) {
     // BNCLIENT_DecodeAndLoadKeys();
 }
 
+void LoadMPQ(const wchar_t* mpq) {
+    char* path = UnicodeToAnsi(mpq);
+    LoadMPQ(path);
+    delete[] path;
+    // BNCLIENT_DecodeAndLoadKeys();
+}
+
 int UTF8FindByteIndex(std::string str, int maxutf8len) {
     int utf8len = 0, byteIndex = 0;
     const char* tstr = str.c_str();

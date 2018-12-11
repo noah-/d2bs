@@ -377,12 +377,12 @@ bool ImageHook::IsInRange(int dx, int dy) {
     return false;
 }
 
-void ImageHook::SetImage(const char* nimage) {
+void ImageHook::SetImage(const wchar_t* nimage) {
     Lock();
     free(location);
     delete[] image;
 
-    location = _strdup(nimage);
+    location = _wcsdup(nimage);
     image = LoadCellFile(location);
     Unlock();
 }

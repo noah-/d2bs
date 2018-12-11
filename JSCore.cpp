@@ -60,21 +60,19 @@ JSAPI_FUNC(my_print) {
                 return JS_FALSE;
             }
             JS_EndRequest(cx);
-            char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            const wchar_t* Text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
             if (Text == NULL) {
                 JS_ReportError(cx, "Could not get string for value");
-                JS_free(cx, Text);
                 return JS_FALSE;
             }
 
             // bob20				jsrefcount depth = JS_SuspendRequest(cx);
             if (!Text)
-                Print("undefined");
+                Print(L"undefined");
             else {
-                Print("%s", Text);
+                Print(L"%s", Text);
             }
             // bob20				JS_ResumeRequest(cx, depth);
-            JS_free(cx, Text);
         }
     }
     return JS_TRUE;
@@ -179,9 +177,9 @@ JSAPI_FUNC(my_load) {
         return JS_FALSE;
     }
 
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath))) {
+    if (wcslen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath))) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
@@ -191,9 +189,7 @@ JSAPI_FUNC(my_load) {
     if (scriptState == Command)
         scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
-    wchar_t *fileW = AnsiToUnicode(file);
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\%ls", Vars.szScriptPath, fileW);
-    delete[] fileW;
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\%ls", Vars.szScriptPath, file);
     StringReplace(buf, L'/', L'\\', _MAX_PATH + _MAX_FNAME);
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
@@ -203,14 +199,14 @@ JSAPI_FUNC(my_load) {
     }
 
     Script* newScript = ScriptEngine::CompileFile(buf, scriptState, argc - 1, autoBuffer);
-    JS_free(cx, file);
+
     if (newScript) {
         newScript->BeginThread(ScriptThread);
         // JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(BuildObject(cx, &script_class, script_methods, script_props, newScript->GetContext())));
         JS_SET_RVAL(cx, vp, JSVAL_NULL);
     } else {
         // TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
-        Print("File \"%s\" not found.", file);
+        Print(L"File \"%s\" not found.", file);
         JS_SET_RVAL(cx, vp, JSVAL_NULL);
     }
     return JS_TRUE;
@@ -282,20 +278,17 @@ JSAPI_FUNC(my_getThreadPriority) {
 }
 
 JSAPI_FUNC(my_isIncluded) {
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
+    if (wcslen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long");
         return JS_FALSE;
     }
 
     wchar_t path[_MAX_FNAME + _MAX_PATH];
-    wchar_t *fileW = AnsiToUnicode(file);
-    swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
-    delete[] fileW;
+    swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%ls\\libs\\%ls", Vars.szScriptPath, file);
     Script* script = (Script*)JS_GetContextPrivate(cx);
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
-    JS_free(cx, file);
     return JS_TRUE;
 }
 
@@ -307,7 +300,7 @@ JSAPI_FUNC(my_version) {
         return JS_TRUE;
     }
 
-    Print("ÿc4D2BSÿc1 ÿc3%ls for Diablo II 1.14d.", D2BS_VERSION);
+    Print(L"ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.14d.", D2BS_VERSION);
     return JS_TRUE;
 }
 
@@ -321,7 +314,7 @@ JSAPI_FUNC(my_debugLog) {
                 return JS_FALSE;
             }
             JS_EndRequest(cx);
-            char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            const wchar_t* Text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
             if (Text == NULL) {
                 JS_ReportError(cx, "Could not get string for value");
                 return JS_FALSE;
@@ -329,12 +322,11 @@ JSAPI_FUNC(my_debugLog) {
 
             // bob20			jsrefcount depth = JS_SuspendRequest(cx);
             if (!Text)
-                Log("undefined");
+                Log(L"undefined");
             else {
-                Log("%s", Text);
+                Log(L"%s", Text);
             }
             // bob20				JS_ResumeRequest(cx, depth);
-            JS_free(cx, Text);
         }
     }
 
@@ -552,11 +544,12 @@ JSAPI_FUNC(my_handler) {
 
 JSAPI_FUNC(my_loadMpq) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    char* path = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* path = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (isValidPath(path))
+    if (isValidPath(path)) {
         LoadMPQ(path);
-    JS_free(cx, path);
+	}
+
     return JS_TRUE;
 }
 

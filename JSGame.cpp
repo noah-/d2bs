@@ -1059,7 +1059,7 @@ JSAPI_FUNC(my_say) {
                 return JS_FALSE;
             }
 
-            char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            const wchar_t* Text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
             if (Text == NULL) {
                 JS_EndRequest(cx);
                 JS_ReportError(cx, "Could not get string for value");
@@ -1068,9 +1068,8 @@ JSAPI_FUNC(my_say) {
             JS_EndRequest(cx);
             // box18jsrefcount depth = JS_SuspendRequest(cx);
             if (Text)
-                Say("%s", Text);
+                Say(L"%s", Text);
             // box18JS_ResumeRequest(cx, depth);
-            JS_free(cx, Text);
         }
     }
 

@@ -122,7 +122,7 @@ private:
 				ticks=GetTickCount();
 			}
 			if (!GameReady() || startLvl != player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
-				Log("Pather lvl change while pathing");
+				Log(L"Pather lvl change while pathing");
 				return;
 			}
 			if (Vars.bQuitting)

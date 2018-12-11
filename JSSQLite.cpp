@@ -19,6 +19,7 @@
 #include "JSSQLite.h"
 #include "D2BS.h"
 #include "File.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -79,18 +80,18 @@ EMPTY_CTOR(sqlite_stmt)
 JSAPI_FUNC(sqlite_ctor) {
     if (argc > 0 && !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters in SQLite constructor");
-    char* path = ":memory:";
+    wchar_t* path = L":memory:";
     if (argc > 0)
-        path = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        path = _wcsdup(JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
 
     // if the path is not a special placeholder (:memory:, et. al.), sandbox it
     if (path[0] != ':') {
         if (!isValidPath(path))
             THROW_ERROR(cx, "Invalid characters in database name");
 
-        char* tmp = new char[_MAX_PATH + _MAX_FNAME];
-        sprintf_s(tmp, _MAX_PATH + _MAX_FNAME, "%s\\%s", Vars.szScriptPath, path);
-        path = _strdup(tmp);
+        wchar_t* tmp = new wchar_t[_MAX_PATH + _MAX_FNAME];
+        wprintf_s(tmp, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, path);
+        path = _wcsdup(tmp);
         delete[] tmp;
     }
 
@@ -98,9 +99,11 @@ JSAPI_FUNC(sqlite_ctor) {
     if (JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1]))
         autoOpen = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[1]);
 
+    char* p = UnicodeToAnsi(path);
     sqlite3* db = NULL;
     if (autoOpen) {
-        if (SQLITE_OK != sqlite3_open(path, &db)) {
+        if (SQLITE_OK != sqlite3_open(p, &db)) {
+            delete[] p;
             char msg[1024];
             sprintf_s(msg, sizeof(msg), "Could not open database: %s", sqlite3_errmsg(db));
             THROW_ERROR(cx, msg);
@@ -110,7 +113,8 @@ JSAPI_FUNC(sqlite_ctor) {
     SqliteDB* dbobj = new SqliteDB; // leaked?
     dbobj->db = db;
     dbobj->open = autoOpen;
-    dbobj->path = _strdup(path);
+    dbobj->path = _strdup(p);
+    delete[] p;
 
     // if the path is not a special placeholder, it needs to be freed
     if (path[0] != ':')

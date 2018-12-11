@@ -5,15 +5,14 @@
 #include "D2Ptrs.h"
 #include "js32.h"
 
-#define DEBUG_LOGW(MESSAGE) Log("%ls (%s, %d)", MESSAGE, __FILE__, __LINE__)
-#define DEBUG_LOG(MESSAGE) Log("%s (%s, %d)", MESSAGE, __FILE__, __LINE__)
+#define DEBUG_LOG(MESSAGE) Log(L"%s (%s, %d)", MESSAGE, __FILE__, __LINE__)
 
 enum DistanceType { Euclidean, Chebyshev, Manhattan };
 
 enum ClientGameState { ClientStateNull, ClientStateMenu, ClientStateInGame, ClientStateBusy };
 
-void Log(char* szFormat, ...);
-void LogNoFormat(char* szString);
+void Log(wchar_t* szFormat, ...);
+void LogNoFormat(const wchar_t* szString);
 
 ClientGameState ClientState(void);
 bool GameReady(void);
@@ -55,21 +54,21 @@ POINT GetScreenSize();
 int D2GetScreenSizeX();
 int D2GetScreenSizeY();
 
-CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = TRUE);
-CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ = 3);
+CellFile* LoadCellFile(const char* lpszPath, DWORD bMPQ = TRUE);
+CellFile* LoadCellFile(const wchar_t* lpszPath, DWORD bMPQ = 3);
 
 AutomapLayer* InitAutomapLayer(DWORD levelno);
 DWORD __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo);
 void myDrawAutomapCell(CellFile* cellfile, int xpos, int ypos, BYTE col);
 DWORD ReadFile(HANDLE hFile, void* buf, DWORD len);
 void* memcpy2(void* dest, const void* src, size_t count);
-HANDLE OpenFileRead(char* filename);
-HANDLE OpenFileRead(wchar_t* filename);
-BYTE* AllocReadFile(char* filename);
-BYTE* AllocReadFile(wchar_t* filename);
+HANDLE OpenFileRead(const char* filename);
+HANDLE OpenFileRead(const wchar_t* filename);
+BYTE* AllocReadFile(const char* filename);
+BYTE* AllocReadFile(const wchar_t* filename);
 CellFile* LoadBmpCellFile(BYTE* buf1, int width, int height);
-CellFile* LoadBmpCellFile(char* filename);
-CellFile* LoadBmpCellFile(wchar_t* filename);
+CellFile* LoadBmpCellFile(const char* filename);
+CellFile* LoadBmpCellFile(const wchar_t* filename);
 CellFile* myInitCellFile(CellFile* cf);
 
 static inline UnitAny* GetPlayerUnit() {

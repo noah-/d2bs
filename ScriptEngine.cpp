@@ -433,14 +433,14 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
     bool isStrict = JSREPORT_IS_STRICT(report->flags);
     const char* type = (warn ? "Warning" : "Error");
     const char* strict = (isStrict ? "Strict " : "");
-    char* filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
-    char* displayName = filename;
-    if (_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
+    wchar_t* filename = report->filename ? AnsiToUnicode(report->filename) : _wcsdup(L"<unknown>");
+    wchar_t* displayName = filename; 
+    if (_wcsicmp(L"Command Line", filename) != 0 && _wcsicmp(L"<unknown>", filename) != 0)
         displayName = filename + wcslen(Vars.szPath);
 
-    Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
+    Log(L"[%hs%hs] Code(%d) File(%s:%d) %hs\nLine: %hs", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
 
-    Print(L"[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
+    Print(L"[ÿc%d%hs%hsÿc0 (%d)] File(%s:%d) %hs", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
     free(filename);
 
@@ -698,9 +698,8 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
         if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), test.data(), test.length(), "Command Line", 0, &rval)) {
             if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
                 JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-                char* text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
-                Print("%s", text);
-                JS_free(cx, text);
+                const wchar_t* text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, rval));
+                Print(L"%s", text);
             }
         }
         JS_EndRequest(cx);

@@ -384,14 +384,14 @@ char* DllLoadAddrStrs() {
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    Log(L"Stack Walk: %hs", debug.c_str());
 
     EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
     CONTEXT* ctx = ptrs->ContextRecord;
     DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
 
-    char path[MAX_PATH + _MAX_FNAME] = "";
-    sprintf_s(path, sizeof(path), "%s\\D2BS.bin", Vars.szPath);
+    wchar_t path[MAX_PATH + _MAX_FNAME] = L"";
+    swprintf_s(path, sizeof(path), L"%s\\D2BS.bin", Vars.szPath);
 
     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId());
     HANDLE hThread = GetCurrentThread();
@@ -404,7 +404,7 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
 
     SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_FAIL_CRITICAL_ERRORS | SYMOPT_NO_PROMPTS | SYMOPT_DEFERRED_LOADS);
     SymInitializeW(hProcess, Vars.szPath, TRUE);
-    SymLoadModule64(hProcess, NULL, path, NULL, base, 0);
+    SymLoadModuleExW(hProcess, NULL, path, NULL, base, 0, NULL, 0);
 
     STACKFRAME64 stack;
     stack.AddrPC.Offset = context.Eip;
@@ -479,7 +479,7 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
               line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax, ctx->Ebx,
               ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
 
-    Log("%s\n%s", szString, dllAddrs);
+    Log(L"%hs\n%hs", szString, dllAddrs);
 
     free(dllAddrs);
 
@@ -496,7 +496,7 @@ int __cdecl _purecall(void)
 {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    Log(L"Stack Walk: %hs", debug.c_str());
     return 0;
 }
 

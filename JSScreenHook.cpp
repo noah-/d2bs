@@ -519,7 +519,7 @@ JSAPI_PROP(text_getProperty) {
         vp.setInt32(pTextHook->GetFont());
         break;
     case TEXT_TEXT:
-        vp.setString(JS_NewUCStringCopyZ(cx, pTextHook->GetText()));
+        vp.setString(JS_InternUCString(cx, pTextHook->GetText()));
         break;
     case TEXT_ALIGN:
         vp.setInt32(pTextHook->GetAlign());
@@ -606,11 +606,11 @@ JSAPI_FUNC(image_ctor) {
     Align align = Left;
     bool automap = false;
     jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-    char* szText = "";
-    char path[_MAX_FNAME + _MAX_PATH];
+    const wchar_t* szText = L"";
+    wchar_t path[_MAX_FNAME + _MAX_PATH];
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        szText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!szText)
         return JS_TRUE;
     if (argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
@@ -629,7 +629,7 @@ JSAPI_FUNC(image_ctor) {
         hover = JS_ARGV(cx, vp)[7];
 
     if (isValidPath(path))
-        sprintf_s(path, sizeof(path), "%s", szText);
+        wprintf_s(path, sizeof(path), L"%s", szText);
     else
         THROW_ERROR(cx, "Invalid image file path");
 
@@ -666,7 +666,7 @@ JSAPI_PROP(image_getProperty) {
         vp.setInt32(pImageHook->GetY());
         break;
     case IMAGE_LOCATION:
-        vp.setString(JS_NewStringCopyZ(cx, pImageHook->GetImage()));
+        vp.setString(JS_InternUCString(cx, pImageHook->GetImage()));
         break;
     case IMAGE_ALIGN:
         vp.setInt32(pImageHook->GetAlign());
@@ -705,7 +705,7 @@ JSAPI_STRICT_PROP(image_setProperty) {
         break;
     case IMAGE_LOCATION:
         if (vp.isString()) {
-            char* pimage = JS_EncodeString(cx, vp.toString());
+            const wchar_t* pimage = JS_GetStringCharsZ(cx, vp.toString());
             if (!pimage)
                 return JS_TRUE;
             pImageHook->SetImage(pimage);

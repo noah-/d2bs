@@ -16,9 +16,9 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
         DdeGetData(hdata, (LPBYTE)pszItem, 255, 0);
         profileW = AnsiToUnicode(pszItem);
         if (SwitchToProfile(profileW))
-            Log("Switched to profile %s", profileW);
+            Log(L"Switched to profile %s", profileW);
         else
-            Log("Profile %s not found", profileW);
+            Log(L"Profile %s not found", profileW);
         delete[] profileW;
         break;
     case XTYP_EXECUTE:
@@ -60,11 +60,11 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
     HCONV hConv;
     DWORD dwTimeout = 5000;
 
-    Log("SendDDE(%d, %s, %s, %s, %s, %s, %u)", mode, pszDDEServer, pszTopic, pszItem, pszData, *result, size);
+    Log(L"SendDDE(%d, %hs, %hs, %hs, %hs, %hs, %u)", mode, pszDDEServer, pszTopic, pszItem, pszData, *result, size);
 
     int ret = DdeInitialize(&pidInst, (PFNCALLBACK)DdeCallback, APPCMD_CLIENTONLY, 0);
     if (ret != DMLERR_NO_ERROR) {
-        Log("DdeInitialize Error: %X", ret);
+        Log(L"DdeInitialize Error: %X", ret);
         return FALSE;
     }
 
@@ -74,7 +74,7 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
 
     if (!(hszDDEServer && hszTopic && hszCommand)) {
         UINT err = DdeGetLastError(pidInst);
-        Log("Error creating DDE Handles: %d", err);
+        Log(L"Error creating DDE Handles: %d", err);
         return FALSE;
     }
 

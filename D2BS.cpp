@@ -167,6 +167,6 @@ void Shutdown(void) {
     DeleteCriticalSection(&Vars.cUnitListSection);
     DeleteCriticalSection(&Vars.cFileSection);
 
-    Log("D2BS Shutdown complete.");
+    Log(L"D2BS Shutdown complete.");
     Vars.bNeedShutdown = false;
 }

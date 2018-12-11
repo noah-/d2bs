@@ -53,7 +53,7 @@ Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructur
         if (_waccess(file, 0) != 0)
         {
             wchar_t* asdf = const_cast< wchar_t* >(file);
-            DEBUG_LOGW(asdf);
+            DEBUG_LOG(asdf);
 
             throw std::exception("File not found");
         }
@@ -121,7 +121,7 @@ void Script::RunCommand(const char* command) {
         rcs->script = this;
         rcs->command = passCommand;
 
-        Log("Console Aborted HELP!");
+        Log(L"Console Aborted HELP!");
         // HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
     }
 
@@ -295,9 +295,7 @@ void Script::Stop(bool force, bool reallyForce) {
     isReallyPaused = false;
     if (GetState() != Command) {
         const wchar_t* displayName = fileName.c_str() + wcslen(Vars.szScriptPath) + 1;
-        char* displayNameN = UnicodeToAnsi(displayName);
-        Print("Script %s ended", displayNameN);
-        delete[] displayNameN;
+        Print(L"Script %s ended", displayName);
     }
 
     // trigger call back so script ends
@@ -506,9 +504,8 @@ DWORD WINAPI RunCommandThread(void* data) {
     if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval)) {
         if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
             JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
-            char* text = JS_EncodeString(cx, JS_ValueToString(cx, rval));
-            Print("%s", text);
-            JS_free(cx, text);
+            const wchar_t* text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, rval));
+            Print(L"%s", text);
         }
     }
     JS_RemoveRoot(cx, &rval);

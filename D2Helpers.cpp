@@ -14,13 +14,13 @@
 #include "stringhash.h"
 #include "CriticalSections.h"
 
-void Log(char* szFormat, ...) {
+void Log(wchar_t* szFormat, ...) {
     va_list vaArgs;
 
     va_start(vaArgs, szFormat);
-    int len = _vscprintf(szFormat, vaArgs);
-    char* szString = new char[len + 1];
-    vsprintf_s(szString, len + 1, szFormat, vaArgs);
+    int len = _vscwprintf(szFormat, vaArgs);
+    wchar_t* szString = new wchar_t[len + 1];
+    vswprintf_s(szString, len + 1, szFormat, vaArgs);
     va_end(vaArgs);
 
     LogNoFormat(szString);
@@ -28,13 +28,13 @@ void Log(char* szFormat, ...) {
     delete[] szString;
 }
 
-void LogNoFormat(char* szString) {
+void LogNoFormat(const wchar_t* szString) {
     time_t tTime;
     time(&tTime);
-    char szTime[128] = "";
+    wchar_t szTime[128] = L"";
     struct tm time;
     localtime_s(&time, &tTime);
-    strftime(szTime, sizeof(szTime), "%x %X", &time);
+    wcsftime(szTime, sizeof(szTime), L"%x %X", &time);
 
     wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
     swprintf_s(path, _MAX_PATH + _MAX_FNAME, L"%sd2bs.log", Vars.szPath);
@@ -44,7 +44,7 @@ void LogNoFormat(char* szString) {
 #else
     FILE* log = _wfsopen(path, L"a+", _SH_DENYNO);
 #endif
-    fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
+    fwprintf(log, L"[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
 #ifndef DEBUG
     fflush(log);
     fclose(log);
@@ -501,7 +501,7 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType) {
 }
 
 // TODO: Rewrite this and split it into two functions
-CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
+CellFile* LoadCellFile(const char* lpszPath, DWORD bMPQ) {
     if (bMPQ == TRUE) {
         unsigned __int32 hash = sfh((char*)lpszPath, (int)strlen((char*)lpszPath));
         if (Vars.mCachedCellFiles.count(hash) > 0)
@@ -517,9 +517,9 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ) {
 	}
 }
 
-CellFile* LoadCellFile(wchar_t* lpszPath, DWORD bMPQ) {
+CellFile* LoadCellFile(const wchar_t* lpszPath, DWORD bMPQ) {
     if (bMPQ == true) {
-        Log("Cannot specify wide character path for MPQ: %s", lpszPath);
+        Log(L"Cannot specify wide character path for MPQ: %s", lpszPath);
         return NULL;
 	}
 
@@ -606,15 +606,15 @@ void* memcpy2(void* dest, const void* src, size_t count) {
     return (char*)memcpy(dest, src, count) + count;
 }
 
-HANDLE OpenFileRead(char* filename) {
+HANDLE OpenFileRead(const char* filename) {
     return CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 }
 
-HANDLE OpenFileRead(wchar_t* filename) {
+HANDLE OpenFileRead(const wchar_t* filename) {
     return CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 }
 
-BYTE* AllocReadFile(char* filename) {
+BYTE* AllocReadFile(const char* filename) {
     HANDLE hFile = OpenFileRead(filename);
     int filesize = GetFileSize(hFile, 0);
     if (filesize <= 0)
@@ -625,7 +625,7 @@ BYTE* AllocReadFile(char* filename) {
     return buf;
 }
 
-BYTE* AllocReadFile(wchar_t* filename) {
+BYTE* AllocReadFile(const wchar_t* filename) {
     HANDLE hFile = OpenFileRead(filename);
     int filesize = GetFileSize(hFile, 0);
     if (filesize <= 0)
@@ -667,7 +667,7 @@ CellFile* LoadBmpCellFile(BYTE* buf1, int width, int height) {
     return (CellFile*)ret;
 }
 
-CellFile* LoadBmpCellFile(char* filename) {
+CellFile* LoadBmpCellFile(const char* filename) {
     BYTE* ret = 0;
 
     BYTE* buf1 = AllocReadFile(filename);
@@ -681,7 +681,7 @@ CellFile* LoadBmpCellFile(char* filename) {
     return (CellFile*)ret;
 }
 
-CellFile* LoadBmpCellFile(wchar_t* filename) {
+CellFile* LoadBmpCellFile(const wchar_t* filename) {
     BYTE* ret = 0;
 
     BYTE* buf1 = AllocReadFile(filename);

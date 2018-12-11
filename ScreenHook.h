@@ -234,7 +234,7 @@ class TextHook : public Genhook {
 
 class ImageHook : public Genhook {
   private:
-    char* location;
+    wchar_t* location;
     CellFile* image;
     ushort color;
 
@@ -242,10 +242,10 @@ class ImageHook : public Genhook {
     ImageHook& operator=(const ImageHook&);
 
   public:
-    ImageHook(Script* owner, JSObject* nself, const char* nloc, uint x, uint y, ushort ncolor, bool automap = false, Align align = Left, ScreenhookState state = Perm,
+    ImageHook(Script* owner, JSObject* nself, const wchar_t* nloc, uint x, uint y, ushort ncolor, bool automap = false, Align align = Left, ScreenhookState state = Perm,
               bool fromFile = true)
         : Genhook(owner, nself, x, y, 0, automap, align, state), color(ncolor), image(NULL), location(NULL) {
-        location = _strdup(nloc);
+        location = _wcsdup(nloc);
         image = LoadCellFile(location, 3);
     }
     ~ImageHook(void) {
@@ -259,14 +259,14 @@ class ImageHook : public Genhook {
   public:
     bool IsInRange(int dx, int dy);
 
-    void SetImage(const char* nimage);
+    void SetImage(const wchar_t* nimage);
     void SetColor(ushort ncolor) {
         Lock();
         color = ncolor;
         Unlock();
     }
 
-    const char* GetImage(void) const {
+    const wchar_t* GetImage(void) const {
         return location;
     }
     ushort GetColor(void) const {

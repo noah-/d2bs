@@ -35,14 +35,13 @@ JSAPI_FUNC(filetools_remove) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "You must supply a file name");
 
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char fullpath[_MAX_PATH + _MAX_FNAME];
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    wchar_t fullpath[_MAX_PATH + _MAX_FNAME];
 
     if (getPathRelScript(file, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
         THROW_ERROR(cx, "Invalid file name");
 
-    remove(fullpath);
-    JS_free(cx, file);
+    _wremove(fullpath);
     return JS_TRUE;
 }
 
@@ -52,11 +51,11 @@ JSAPI_FUNC(filetools_rename) {
     if (argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         THROW_ERROR(cx, "You must supply a new file name");
 
-    char* orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+    const wchar_t* orig = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* newName = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
 
-    char porig[_MAX_PATH + _MAX_FNAME];
-    char pnewName[_MAX_PATH + _MAX_FNAME];
+    wchar_t porig[_MAX_PATH + _MAX_FNAME];
+    wchar_t pnewName[_MAX_PATH + _MAX_FNAME];
 
     if (getPathRelScript(orig, _MAX_PATH + _MAX_FNAME, porig) == NULL)
         THROW_ERROR(cx, "Invalid original file name");
@@ -64,9 +63,7 @@ JSAPI_FUNC(filetools_rename) {
     if (getPathRelScript(newName, _MAX_PATH + _MAX_FNAME, pnewName) == NULL)
         THROW_ERROR(cx, "Invalid new file name");
 
-    rename(porig, pnewName);
-    JS_free(cx, orig);
-    JS_free(cx, newName);
+    _wrename(porig, pnewName);
     return JS_TRUE;
 }
 
@@ -76,9 +73,9 @@ JSAPI_FUNC(filetools_copy) {
     if (argc < 2 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         THROW_ERROR(cx, "You must supply a new file name");
 
-    char* orig = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    char* newName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
-    char pnewName[_MAX_PATH + _MAX_FNAME];
+    const wchar_t* orig = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* newName = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+    wchar_t pnewName[_MAX_PATH + _MAX_FNAME];
     bool overwrite = false;
 
     if (argc > 2 && JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[2]))
@@ -87,11 +84,11 @@ JSAPI_FUNC(filetools_copy) {
     if (getPathRelScript(newName, _MAX_PATH + _MAX_FNAME, pnewName) == NULL)
         THROW_ERROR(cx, "Invalid new file name");
 
-    if (overwrite && _access(pnewName, 0) == 0)
+    if (overwrite && _waccess(pnewName, 0) == 0)
         return JS_TRUE;
 
-    FILE* fptr1 = fileOpenRelScript(orig, "r", cx);
-    FILE* fptr2 = fileOpenRelScript(newName, "w", cx);
+    FILE* fptr1 = fileOpenRelScript(orig, L"r", cx);
+    FILE* fptr2 = fileOpenRelScript(newName, L"w", cx);
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr1 == NULL || fptr2 == NULL)
@@ -117,27 +114,23 @@ JSAPI_FUNC(filetools_copy) {
         fflush(fptr2);
         fclose(fptr2);
         fclose(fptr1);
-        remove(pnewName); // delete the partial file so it doesnt look like we succeeded
+        _wremove(pnewName); // delete the partial file so it doesnt look like we succeeded
         THROW_ERROR(cx, _strerror("File copy failed"));
     }
 
     fflush(fptr2);
     fclose(fptr2);
     fclose(fptr1);
-    JS_free(cx, orig);
-    JS_free(cx, newName);
     return JS_TRUE;
 }
 
 JSAPI_FUNC(filetools_exists) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid file name");
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-
-    wchar_t* fileW = AnsiToUnicode(file);
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     wchar_t fullpath[_MAX_PATH + _MAX_FNAME];
 
-    if (getPathRelScript(fileW, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
+    if (getPathRelScript(file, _MAX_PATH + _MAX_FNAME, fullpath) == NULL)
         THROW_ERROR(cx, "Invalid file name");
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!(_waccess(fullpath, 0) != 0 && errno == ENOENT)));
@@ -148,10 +141,8 @@ JSAPI_FUNC(filetools_exists) {
 JSAPI_FUNC(filetools_readText) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "You must supply a file name");
-    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    wchar_t* fileW = AnsiToUnicode(fname);
-    FILE* fptr = fileOpenRelScript(fileW, L"r", cx);
-    delete[] fileW;
+    const wchar_t* fname = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, L"r", cx);
 
     // If fileOpenRelScript failed, it already reported the error
     if (fptr == NULL)
@@ -193,10 +184,8 @@ JSAPI_FUNC(filetools_writeText) {
 
     EnterCriticalSection(&Vars.cFileSection);
 
-    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    wchar_t* fileW = AnsiToUnicode(fname);
-    FILE* fptr = fileOpenRelScript(fileW, L"w", cx);
-    delete[] fileW;
+    const wchar_t* fname = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, L"w", cx);
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error
@@ -215,7 +204,6 @@ JSAPI_FUNC(filetools_writeText) {
     LeaveCriticalSection(&Vars.cFileSection);
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(result));
-    JS_free(cx, fname);
     return JS_TRUE;
 }
 
@@ -225,10 +213,8 @@ JSAPI_FUNC(filetools_appendText) {
 
     EnterCriticalSection(&Vars.cFileSection);
 
-    char* fname = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-    wchar_t* fileW = AnsiToUnicode(fname);
-    FILE* fptr = fileOpenRelScript(fileW, L"a+", cx);
-    delete[] fileW;
+    const wchar_t* fname = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    FILE* fptr = fileOpenRelScript(fname, L"a+", cx);
     bool result = true;
 
     // If fileOpenRelScript failed, it already reported the error
