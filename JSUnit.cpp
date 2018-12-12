@@ -596,7 +596,7 @@ JSAPI_FUNC(unit_getUnit) {
         nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
     if (argc > 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
-        strcpy_s(szName, sizeof(szName), JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[1])));
+        strcpy_s(szName, sizeof(szName), JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[1])));
     JS_BeginRequest(cx);
     if (argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nClassId);
@@ -658,7 +658,7 @@ JSAPI_FUNC(unit_getNext) {
             return JS_TRUE;
         JS_BeginRequest(cx);
         if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-            strcpy_s(lpUnit->szName, 128, JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+            strcpy_s(lpUnit->szName, 128, JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(lpUnit->dwClassId));
@@ -691,7 +691,7 @@ JSAPI_FUNC(unit_getNext) {
             return JS_TRUE;
         JS_BeginRequest(cx);
         if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-            strcpy_s(pmyUnit->szName, 128, JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+            strcpy_s(pmyUnit->szName, 128, JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(pmyUnit->dwClassId));
@@ -1701,7 +1701,7 @@ JSAPI_FUNC(unit_setskill) {
         return JS_TRUE;
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        nSkillId = GetSkillByName(JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+        nSkillId = GetSkillByName(JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
     else if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         nSkillId = (WORD)JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
     else
@@ -1743,21 +1743,21 @@ JSAPI_FUNC(my_overhead) {
         return JS_TRUE;
 
     if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_VOID(JS_ARGV(cx, vp)[0])) {
-        char* lpszText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        const wchar_t* lpszText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
         if (lpszText && lpszText[0]) {
             // Fix overhead msg for locale text
-            wchar_t* tmpw = AnsiToUnicode(lpszText);
+            //wchar_t* tmpw = AnsiToUnicode(lpszText);
             // Convert back to multibyte in locale code page
-            char* tmpc = UnicodeToAnsi(tmpw, CP_ACP);
+            char* tmpc = UnicodeToAnsi(lpszText, CP_ACP);
             OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, tmpc, *p_D2CLIENT_OverheadTrigger);
             if (pMsg) {
                 // D2COMMON_FixOverheadMsg(pMsg, NULL);
                 pUnit->pOMsg = pMsg;
             }
             delete[] tmpc;
-            delete[] tmpw;
+            //delete[] tmpw;
         }
-        JS_free(cx, lpszText);
+        //JS_free(cx, lpszText);
     }
 
     JS_SET_RVAL(cx, vp, JSVAL_TRUE);
@@ -1794,7 +1794,7 @@ JSAPI_FUNC(unit_getItem) {
     char szName[128] = "";
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        strcpy_s(szName, sizeof(szName), JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+        strcpy_s(szName, sizeof(szName), JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
 
     if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &nClassId);

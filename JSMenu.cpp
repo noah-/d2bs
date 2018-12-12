@@ -115,18 +115,18 @@ JSAPI_FUNC(my_joinGame) {
 JSAPI_FUNC(my_addProfile) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
     // validate the args...
-    char *profile, *mode, *gateway, *username, *password, *charname;
+    const wchar_t *profile, *mode, *gateway, *username, *password, *charname;
     profile = mode = gateway = username = password = charname = NULL;
     int spdifficulty = 3;
     if (argc < 6 || argc > 7)
         THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
-    char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
+    const wchar_t** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
     for (uint i = 0; i < 6; i++) {
         if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[i])) {
             THROW_ERROR(cx, "Invalid argument passed to addProfile");
         } else
-            *args[i] = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i]));
+            *args[i] = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i]));
     }
 
     for (int i = 0; i < 6; i++) {
@@ -140,16 +140,16 @@ JSAPI_FUNC(my_addProfile) {
     if (spdifficulty > 3 || spdifficulty < 0)
         THROW_ERROR(cx, "Invalid argument passed to addProfile");
 
-    char file[_MAX_FNAME + _MAX_PATH];
+    wchar_t file[_MAX_FNAME + _MAX_PATH];
 
-    sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+    swprintf_s(file, sizeof(file), L"%sd2bs.ini", Vars.szPath);
     if (!Profile::ProfileExists(*args[0])) {
-        char settings[600] = "";
-        sprintf_s(settings, sizeof(settings), "mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
+        wchar_t settings[600] = L"";
+        swprintf_s(settings, sizeof(settings), L"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
                   charname, spdifficulty);
 
         StringReplace(settings, '\t', '\0', 600);
-        WritePrivateProfileSection(*args[0], settings, file);
+        WritePrivateProfileSectionW(*args[0], settings, file);
     }
 
     return JS_TRUE;

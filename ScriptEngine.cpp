@@ -129,7 +129,7 @@ BOOL ScriptEngine::Startup(void) {
             swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, Vars.szConsole);
             console = new Script(file, Command);
         } else {
-            console = new Script("", Command);
+            console = new Script(L"", Command);
         }
         scripts["console"] = console;
         console->BeginThread(ScriptThread);

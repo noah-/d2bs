@@ -97,7 +97,7 @@ JSAPI_FUNC(my_getParty) {
         uint32 nPlayerId = NULL;
 
         if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-            nPlayerName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+            nPlayerName = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         } else if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0])) {
             JS_BeginRequest(cx);
             if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &nPlayerId)) {

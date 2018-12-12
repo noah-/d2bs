@@ -33,8 +33,9 @@ JSAPI_PROP(control_getProperty) {
     JSType a = JS_TypeOfValue(cx, ID);
 
     if (JSID_IS_STRING(id)) {
-        JSString* b = JSVAL_TO_STRING(ID);
-        char* pText = JS_EncodeString(cx, b);
+        // TODO: Figure out what this is for
+		//JSString* b = JSVAL_TO_STRING(ID);
+        //char* pText = JS_EncodeString(cx, b);
 
         return JS_TRUE;
     }
@@ -112,13 +113,10 @@ JSAPI_STRICT_PROP(control_setProperty) {
     switch (JSVAL_TO_INT(ID)) {
     case CONTROL_TEXT:
         if (ctrl->dwType == 1 && vp.isString()) {
-            char* pText = JS_EncodeString(cx, vp.toString());
-            if (!pText)
+            const wchar_t* szwText = JS_GetStringCharsZ(cx, vp.toString());
+            if (!szwText)
                 return JS_TRUE;
-            wchar_t* szwText = AnsiToUnicode(pText);
             D2WIN_SetControlText(ctrl, szwText);
-            delete[] szwText;
-            JS_free(cx, pText);
         }
         break;
     case CONTROL_STATE:
@@ -234,14 +232,11 @@ JSAPI_FUNC(control_setText) {
     if (argc < 0 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 
-    char* pText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-    if (!pText)
+    const wchar_t* szwText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    if (!szwText)
         return JS_TRUE;
-    wchar_t* szwText = AnsiToUnicode(pText);
-    JS_free(cx, pText);
-    D2WIN_SetControlText(pControl, szwText);
 
-    delete[] szwText;
+    D2WIN_SetControlText(pControl, szwText);
     return JS_TRUE;
 }
 

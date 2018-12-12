@@ -869,8 +869,8 @@ JSAPI_FUNC(my_getSkillByName) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 
-    char* lpszText = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-    if (!(lpszText && lpszText[0]))
+    char* lpszText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    if (!lpszText || lpszText[0])
         THROW_ERROR(cx, "Could not convert string");
 
     for (int i = 0; i < ArraySize(Game_Skills); i++) {
@@ -909,7 +909,7 @@ JSAPI_FUNC(my_getTextSize) {
         return JS_TRUE;
     }
 
-    char* pString = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    const wchar_t* pString = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
     if (!pString)
         THROW_ERROR(cx, "Could not convert string");
 
@@ -938,7 +938,6 @@ JSAPI_FUNC(my_getTextSize) {
     }
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(pObj));
     JS_RemoveRoot(cx, &pObj);
-    JS_free(cx, pString);
     return JS_TRUE;
 }
 
@@ -1185,7 +1184,7 @@ JSAPI_FUNC(my_getBaseStat) {
         jsint nStat = -1;
         JS_BeginRequest(cx);
         if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-            szTableName = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+            szTableName = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
             if (!szTableName) {
                 JS_EndRequest(cx);
                 THROW_ERROR(cx, "Invalid table value");
@@ -1200,7 +1199,7 @@ JSAPI_FUNC(my_getBaseStat) {
         JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[1], &nClassId);
 
         if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[2])) {
-            szStatName = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[2]));
+            szStatName = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[2]));
             if (!szStatName) {
                 JS_EndRequest(cx);
                 THROW_ERROR(cx, "Invalid column value");

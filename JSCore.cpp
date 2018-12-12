@@ -33,18 +33,14 @@ JSAPI_FUNC(my_utf8ToEuc) {
         return JS_FALSE;
     }
     JS_EndRequest(cx);
-    char* Text = JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-    if (Text == NULL) {
+    const wchar_t* szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    if (szText == NULL) {
         JS_ReportError(cx, "Could not get string for value");
-        JS_free(cx, Text);
         return JS_FALSE;
     }
 
-    wchar_t* szText = AnsiToUnicode(Text);
     char* euc = UnicodeToAnsi(szText, CP_ACP);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, euc)));
-    JS_free(cx, Text);
-    delete[] szText;
     delete[] euc;
     return JS_TRUE;
 }
@@ -221,22 +217,19 @@ JSAPI_FUNC(my_include) {
         return JS_FALSE;
     }
 
-    char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (strlen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
+    if (wcslen(file) > (_MAX_FNAME + _MAX_PATH - wcslen(Vars.szScriptPath) - 6)) {
         JS_ReportError(cx, "File name too long!");
         return JS_FALSE;
     }
 
     wchar_t buf[_MAX_PATH + _MAX_FNAME];
-    wchar_t *fileW = AnsiToUnicode(file);
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
-    delete[] fileW;
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
 
     if (_waccess(buf, 0) == 0)
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)));
 
-    JS_free(cx, file);
     return JS_TRUE;
 }
 
@@ -333,7 +326,7 @@ JSAPI_FUNC(my_debugLog) {
     return JS_TRUE;
 }
 JSAPI_FUNC(my_copy) {
-    char* data = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* data = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     JS_ValueToString(cx, JS_ARGV(cx, vp)[0]);
     HGLOBAL hText;
@@ -366,20 +359,21 @@ JSAPI_FUNC(my_sendCopyData) {
         return JS_TRUE;
     }
 
-    char *windowClassName = NULL, *windowName = NULL, *data = NULL;
+    const wchar_t *windowClassName = NULL, *windowName = NULL;
+	char *data = NULL;
     jsint nModeId = NULL;
     HWND hWnd = NULL;
 
     JS_BeginRequest(cx);
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0])) {
-        windowClassName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        windowClassName = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     }
 
     if (!JSVAL_IS_NULL(JS_ARGV(cx, vp)[1])) {
         if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1])) {
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&hWnd);
         } else if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1])) {
-            windowName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+            windowName = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
         }
     }
 
@@ -387,12 +381,12 @@ JSAPI_FUNC(my_sendCopyData) {
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[2], (uint32*)&nModeId);
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3])) {
-        data = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
+        data = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
     }
     JS_EndRequest(cx);
 
     if (hWnd == NULL && windowName != NULL) {
-        hWnd = FindWindow(windowClassName, windowName);
+        hWnd = FindWindowW(windowClassName, windowName);
         if (!hWnd) {
             return JS_TRUE;
         }
@@ -409,8 +403,6 @@ JSAPI_FUNC(my_sendCopyData) {
     // bob20	 JS_ResumeRequest(cx, depth);
 
     JS_free(cx, data);
-    JS_free(cx, windowName);
-    JS_free(cx, windowClassName);
     return JS_TRUE;
 }
 
@@ -423,16 +415,16 @@ JSAPI_FUNC(my_sendDDE) {
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], (uint32*)&mode);
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
-        pszDDEServer = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+        pszDDEServer = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[2]))
-        pszTopic = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2]));
+        pszTopic = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[2]));
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[3]))
-        pszItem = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
+        pszItem = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[3]));
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[4]))
-        pszData = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4]));
+        pszData = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[4]));
 
     JS_EndRequest(cx);
     char buffer[255] = "";
@@ -456,10 +448,10 @@ JSAPI_FUNC(my_keystate) {
 
 JSAPI_FUNC(my_addEventListener) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1])) {
-        char* evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* evtName = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (evtName && strlen(evtName)) {
             Script* self = (Script*)JS_GetContextPrivate(cx);
-            self->RegisterEvent(JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])), JS_ARGV(cx, vp)[1]);
+            self->RegisterEvent(evtName, JS_ARGV(cx, vp)[1]);
         } else
             THROW_ERROR(cx, "Event name is invalid!");
         JS_free(cx, evtName);
@@ -469,7 +461,7 @@ JSAPI_FUNC(my_addEventListener) {
 
 JSAPI_FUNC(my_removeEventListener) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && JSVAL_IS_FUNCTION(cx, JS_ARGV(cx, vp)[1])) {
-        char* evtName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* evtName = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (evtName && strlen(evtName)) {
             Script* self = (Script*)JS_GetContextPrivate(cx);
             self->UnregisterEvent(evtName, JS_ARGV(cx, vp)[1]);
@@ -483,7 +475,7 @@ JSAPI_FUNC(my_removeEventListener) {
 JSAPI_FUNC(my_clearEvent) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         Script* self = (Script*)JS_GetContextPrivate(cx);
-        char* evt = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* evt = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         self->ClearEvent(evt);
         JS_free(cx, evt);
     }

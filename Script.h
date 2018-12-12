@@ -14,7 +14,7 @@ enum ScriptState { InGame, OutOfGame, Command };
 
 class Script;
 
-typedef std::map<std::string, bool> IncludeList;
+typedef std::map<std::wstring, bool> IncludeList;
 typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
 typedef std::list<Script*> ScriptList;
@@ -124,7 +124,7 @@ class Script {
 
     CRITICAL_SECTION lock;
 
-    Script(const char* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
+    //Script(const char* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
     Script(const wchar_t* file, ScriptState state, uint argc = 0, JSAutoStructuredCloneBuffer** argv = NULL);
     Script(const Script&);
     Script& operator=(const Script&);

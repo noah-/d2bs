@@ -64,7 +64,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool lock
             return true;
         break;
     case JSTYPE_STRING:
-        str = JS_EncodeString(cx, JSVAL_TO_STRING(value));
+        str = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(value));
         if (locking)
             result = fwrite(str, sizeof(char), strlen(str), fptr);
         else

@@ -4252,9 +4252,9 @@ JS_DecodeBytes(JSContext *cx, const char *src, size_t srclen, jschar *dst,
  * A variation on JS_EncodeCharacters where a null terminated string is
  * returned that you are expected to call JS_free on when done.
  */
-//JS_PUBLIC_API(char *)
-//JS_EncodeString(JSContext *cx, JSRawString str);
-#define JS_EncodeString JS_EncodeStringToUTF8
+JS_PUBLIC_API(char *)
+JS_EncodeString(JSContext *cx, JSRawString str);
+//#define JS_EncodeString JS_EncodeStringToUTF8
 /*
  * Same behavior as JS_EncodeString(), but encode into UTF-8 string
  */

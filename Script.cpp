@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
+/*Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
     : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
       threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
     InitializeCriticalSection(&lock);
@@ -36,7 +36,7 @@ Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredC
         replace(fileName.begin(), fileName.end(), '/', '\\');
         free(tmpName);
     }
-}
+}*/
 
 Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
     : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
@@ -323,10 +323,8 @@ bool Script::IsIncluded(const wchar_t* file) {
 
     _wcslwr_s(fname, wcslen(fname) + 1);
     StringReplace(fname, '/', '\\', wcslen(fname));
-    char* nFname = UnicodeToAnsi(fname);
-    count = includes.count(string(nFname));
+    count = includes.count(wstring(fname));
     free(fname);
-    delete[] nFname;
 
     return !!count;
 }
@@ -341,15 +339,11 @@ bool Script::Include(const wchar_t* file) {
     StringReplace(fname, L'/', L'\\', wcslen(fname));
 
     // don't invoke the string ctor more than once...
-    char* nFname = UnicodeToAnsi(fname);
-    char* nFileName = UnicodeToAnsi(fileName.c_str());
-    string currentFileName = string(nFname);
+    wstring currentFileName = wstring(fname);
     // ignore already included, 'in-progress' includes, and self-inclusion
-    if (!!includes.count(currentFileName) || !!inProgress.count(currentFileName) || (currentFileName.compare(nFileName) == 0)) {
+    if (!!includes.count(fname) || !!inProgress.count(fname) || (currentFileName.compare(fileName.c_str()) == 0)) {
         LeaveCriticalSection(&lock);
         free(fname);
-        delete[] nFname;
-        delete[] nFileName;
         return true;
     }
     bool rval = false;
@@ -361,13 +355,13 @@ bool Script::Include(const wchar_t* file) {
     JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
     if (script) {
         jsval dummy;
-        inProgress[nFname] = true;
+        inProgress[fname] = true;
         rval = !!JS_ExecuteScript(cx, GetGlobalObject(), script, &dummy);
         if (rval)
-            includes[nFname] = true;
+            includes[fname] = true;
         else
             JS_ReportPendingException(cx);
-        inProgress.erase(nFname);
+        inProgress.erase(fname);
         // JS_RemoveRoot(&scriptObj);
     } else
         JS_ReportPendingException(cx);
@@ -376,8 +370,6 @@ bool Script::Include(const wchar_t* file) {
     // JS_RemoveScriptRoot(cx, &script);
     LeaveCriticalSection(&lock);
     free(fname);
-    delete[] nFname;
-    delete[] nFileName;
     return rval;
 }
 

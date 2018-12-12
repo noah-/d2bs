@@ -74,7 +74,7 @@ JSAPI_FUNC(socket_open) {
     char* hostName = NULL;
     int32 port = 0;
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        hostName = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        hostName = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     if (JS_ValueToInt32(cx, JS_ARGV(cx, vp)[1], &port) == JS_FALSE)
         THROW_ERROR(cx, "Could not convert parameter 2");
@@ -127,7 +127,7 @@ JSAPI_FUNC(socket_send) {
     char* msg = NULL;
 
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        msg = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        msg = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
     send(sData->socket, msg, strlen(msg), 0);
 

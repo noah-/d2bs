@@ -8,7 +8,7 @@ EMPTY_CTOR(script)
 
 struct FindHelper {
     DWORD tid;
-    char* name;
+    wchar_t* name;
     Script* script;
 };
 
@@ -156,12 +156,12 @@ JSAPI_FUNC(my_getScript) {
         else
             return JS_TRUE;
     } else if (argc == 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        wchar_t* name = _wcsdup(JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
         if (name)
-            StringReplace(name, '/', '\\', strlen(name));
+            StringReplace(name, L'/', L'\\', wcslen(name));
         FindHelper args = {0, name, NULL};
         ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
-        JS_free(cx, name);
+        free(name);
         if (args.script != NULL)
             iterp = args.script;
         else
@@ -211,15 +211,12 @@ JSAPI_FUNC(my_getScripts) {
 }
 bool __fastcall FindScriptByName(Script* script, void* argv, uint argc) {
     FindHelper* helper = (FindHelper*)argv;
-    static uint pathlen = wcslen(Vars.szScriptPath) + 1;
-    const wchar_t* fnameW = script->GetShortFilename();
-    const char* fname = UnicodeToAnsi(fnameW);
-    if (_strcmpi(fname, helper->name) == 0) {
+    // static uint pathlen = wcslen(Vars.szScriptPath) + 1;
+    const wchar_t* fname = script->GetShortFilename();
+    if (_wcsicmp(fname, helper->name) == 0) {
         helper->script = script;
-        delete[] fname;
         return false;
     }
-    delete[] fname;
     return true;
 }
 

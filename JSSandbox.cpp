@@ -66,7 +66,7 @@ JSAPI_PROP(sandbox_addProperty) {
 
         return JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
     } else if (JSVAL_IS_STRING(ID)) {
-        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(ID));
+        char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         JSBool found;
         if (JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
             return JS_TRUE;
@@ -92,7 +92,7 @@ JSAPI_PROP(sandbox_delProperty) {
         if (box && JS_DeleteProperty(box->context, box->innerObj, name))
             return JS_TRUE;
     } else if (JSVAL_IS_STRING(ID)) {
-        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(ID));
+        char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         if (box && JS_DeleteProperty(box->context, box->innerObj, name))
             return JS_TRUE;
     }
@@ -116,7 +116,7 @@ JSAPI_PROP(sandbox_getProperty) {
         if (JSVAL_IS_VOID(vp.get()) && JS_LookupProperty(cx, obj, name, &vp.get()))
             return JS_TRUE;
     } else if (JSVAL_IS_STRING(ID)) {
-        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(ID));
+        char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         vp.set(JSVAL_VOID);
         if (box && (JS_LookupProperty(box->context, box->innerObj, name, &vp.get())))
             return JS_TRUE;
@@ -141,7 +141,7 @@ JSAPI_STRICT_PROP(sandbox_setProperty) {
             if (JS_SetProperty(box->context, box->innerObj, name, &vp.get()))
                 return JS_TRUE;
     } else if (JSVAL_IS_STRING(ID)) {
-        char* name = JS_EncodeString(cx, JSVAL_TO_STRING(ID));
+        char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         if (box)
             if (JS_SetProperty(box->context, box->innerObj, name, &vp.get()))
                 return JS_TRUE;
@@ -163,7 +163,7 @@ JSAPI_FUNC(sandbox_eval) {
         sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
         if (!box)
             THROW_ERROR(cx, "Invalid execution object!");
-        char* code = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        char* code = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         jsval result;
         if (JS_BufferIsCompilableUnit(box->context, box->innerObj, code, strlen(code)) &&
             JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
@@ -177,12 +177,11 @@ JSAPI_FUNC(sandbox_include) {
     JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
-        char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
-        wchar_t *fileW = AnsiToUnicode(file);
-        if (fileW && wcslen(fileW) <= _MAX_FNAME && box) {
+        const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        if (file && wcslen(file) <= _MAX_FNAME && box) {
             wchar_t buf[_MAX_PATH + _MAX_FNAME];
-            swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
-            if (box->list.count(std::string(file)) == -1) {
+            swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
+            if (box->list.count(std::wstring(file)) == -1) {
                 JSScript* tmp = JS_CompileFile(box->context, box->innerObj, buf);
                 if (tmp) {
                     jsval result;
@@ -205,15 +204,10 @@ JSAPI_FUNC(sandbox_include) {
 JSAPI_FUNC(sandbox_isIncluded) {
     sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sandbox_class, NULL);
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && box) {
-        char* file = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         wchar_t buf[_MAX_PATH + _MAX_FNAME];
-        wchar_t *fileW = AnsiToUnicode(file);
-        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\libs\\%ls", Vars.szScriptPath, fileW);
-        delete[] fileW;
-        char *nBuff = UnicodeToAnsi(buf);
-        JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::string(nBuff))));
-        delete[] nBuff;
-
+        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
+        JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::wstring(buf))));
     } else
         THROW_ERROR(cx, "Invalid parameter, file expected");
     return JS_TRUE;

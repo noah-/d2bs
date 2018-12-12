@@ -139,7 +139,7 @@ JSAPI_FUNC(sqlite_execute) {
     if (argc < 1 || argc > 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters in SQLite.execute");
 
-    char *sql = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])), *err = NULL;
+    char *sql = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])), *err = NULL;
     if (SQLITE_OK != sqlite3_exec(dbobj->db, sql, NULL, NULL, &err)) {
         char msg[2048];
         strcpy_s(msg, sizeof(msg), err);
@@ -158,7 +158,7 @@ JSAPI_FUNC(sqlite_query) {
     if (argc < 1 || !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters to SQLite.query");
 
-    char* sql = JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+    char* sql = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     sqlite3_stmt* stmt;
     if (SQLITE_OK != sqlite3_prepare_v2(dbobj->db, sql, strlen(sql), &stmt, NULL)) {
         THROW_ERROR(cx, sqlite3_errmsg(dbobj->db));
@@ -173,7 +173,7 @@ JSAPI_FUNC(sqlite_query) {
             sqlite3_bind_null(stmt, i);
             break;
         case JSTYPE_STRING:
-            sqlite3_bind_text(stmt, i, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i])), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, i, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i])), -1, SQLITE_STATIC);
             break;
         case JSTYPE_NUMBER:
             if (JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[i]))
@@ -443,7 +443,7 @@ JSAPI_FUNC(sqlite_stmt_bind) {
     if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         colnum = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
     else
-        colnum = sqlite3_bind_parameter_index(stmt, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
+        colnum = sqlite3_bind_parameter_index(stmt, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
 
     if (colnum == 0)
         THROW_ERROR(cx, "Invalid parameter number, parameters start at 1");
@@ -453,7 +453,7 @@ JSAPI_FUNC(sqlite_stmt_bind) {
         sqlite3_bind_null(stmt, colnum);
         break;
     case JSTYPE_STRING:
-        sqlite3_bind_text(stmt, colnum, JS_EncodeString(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, colnum, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])), -1, SQLITE_STATIC);
         break;
     case JSTYPE_NUMBER:
         if (JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[1]))
