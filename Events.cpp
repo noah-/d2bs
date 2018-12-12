@@ -178,7 +178,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc) {
         evt->argc = argc;
         evt->name = _strdup(helper->name);
         evt->arg1 = _strdup(helper->nick);
-        evt->arg2 = _strdup(helper->msg);
+        evt->arg2 = _wcsdup(helper->msg);
 
         script->FireEvent(evt);
     }
@@ -192,7 +192,7 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc) {
         evt->argc = argc;
         evt->name = _strdup(evtname.c_str());
         evt->arg1 = _strdup(helper->nick);
-        evt->arg2 = _strdup(helper->msg);
+        evt->arg2 = _wcsdup(helper->msg);
         evt->arg4 = new DWORD(false);
         ResetEvent(Vars.eventSignal);
         script->FireEvent(evt);
@@ -210,17 +210,17 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc) {
     return block;
 }
 
-bool ChatEvent(char* lpszNick, char* lpszMsg) {
+bool ChatEvent(char* lpszNick, wchar_t* lpszMsg) {
     ChatEventHelper helper = {"chatmsg", lpszNick, lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
-bool ChatInputEvent(char* lpszMsg) {
+bool ChatInputEvent(wchar_t* lpszMsg) {
     ChatEventHelper helper = {"chatinput", "me", lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }
 
-bool WhisperEvent(char* lpszNick, char* lpszMsg) {
+bool WhisperEvent(char* lpszNick, wchar_t* lpszMsg) {
     ChatEventHelper helper = {"whispermsg", lpszNick, lpszMsg};
     return ScriptEngine::ForEachScript(ChatEventCallback, &helper, 2);
 }

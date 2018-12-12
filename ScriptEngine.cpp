@@ -551,7 +551,7 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
             jsval* argv = new jsval[2];
             JS_BeginRequest(cx);
             argv[0] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg1)));
-            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg2)));
+            argv[1] = (STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, (wchar_t*)evt->arg2)));
 
             for (int j = 0; j < 2; j++)
                 JS_AddValueRoot(cx, &argv[j]);

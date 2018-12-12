@@ -124,9 +124,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg) {
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = false;
     else {
-        char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
-        delete[] szBuffer;
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(wMsg));
     }
 
     return send ? 0 : -1; // -1 means block, 0 means send
@@ -138,9 +136,7 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg) {
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = false;
     else {
-        char* szBuffer = UnicodeToAnsi(wMsg);
-        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(szBuffer));
-        delete[] szBuffer;
+        send = !((wMsg[0] == L'.' && ProcessCommand(wMsg + 1, false)) || ChatInputEvent(wMsg));
     }
 
     return send; // false means ignore, true means send
@@ -386,12 +382,12 @@ void FlushPrint() {
             for (list<wstring>::iterator it = lines.begin(); it != lines.end(); ++it) {
                 D2CLIENT_PrintGameString((wchar_t*)it->c_str(), 0);
             }
-        /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (const wchar_t*)NULL, -1, 28, 410, 354, 298)) {
-            while (getline(ss, temp))
-                SplitLines(temp, Console::MaxWidth() - 100, ' ', lines);
-                // TODO: Double check this function, make sure it is working as intended.
-                for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-                    D2MULTI_PrintChannelText((char*)it->c_str(), 0);*/
+            /*} else if (Vars.bUseGamePrint && ClientState() == ClientStateMenu && findControl(4, (const wchar_t*)NULL, -1, 28, 410, 354, 298)) {
+                while (getline(ss, temp))
+                    SplitLines(temp, Console::MaxWidth() - 100, ' ', lines);
+                    // TODO: Double check this function, make sure it is working as intended.
+                    for (list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+                        D2MULTI_PrintChannelText((char*)it->c_str(), 0);*/
         } else {
             while (getline(ss, temp))
                 Console::AddLine(temp);
@@ -459,9 +455,11 @@ void __stdcall RemoveUnit(UnitAny* lpUnit) {
 }
 
 void __fastcall WhisperHandler(char* szAcc, char* szText) {
-    if (!Vars.bDontCatchNextMsg)
-        WhisperEvent(szAcc, szText);
-    else
+    if (!Vars.bDontCatchNextMsg) {
+        wchar_t* szwText = AnsiToUnicode(szText, CP_ACP);
+        WhisperEvent(szAcc, szwText);
+        delete[] szwText;
+    } else
         Vars.bDontCatchNextMsg = FALSE;
 }
 
@@ -529,27 +527,29 @@ BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len) {
         DWORD mode = pPacket[4];
         char* who = (char*)pPacket + 28;
         char* said = (char*)pPacket + 29 + strlen(who);
+        wchar_t* wsaid = AnsiToUnicode(said, CP_ACP);
 
         switch (pPacket[4]) {
         case 0x02: // channel join
-            ChatEvent(who, "joined the channel");
+            ChatEvent(who, L"joined the channel");
             break;
         case 0x03: // channel leave
-            ChatEvent(who, "left the channel");
+            ChatEvent(who, L"left the channel");
             break;
         case 0x04: // whispers
         case 0x0A:
-            WhisperEvent(who, said);
+            WhisperEvent(who, wsaid);
             break;
         case 0x05: // normal text
         case 0x12: // info blue text
         case 0x13: // error message
         case 0x17: // emoted text
-            ChatEvent(who, said);
+            ChatEvent(who, wsaid);
             break;
         default:
             break;
         }
+        delete[] wsaid;
         // ChannelEvent(mode,who,said);
     }
 

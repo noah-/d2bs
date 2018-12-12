@@ -2,14 +2,14 @@
 
 #include <windows.h>
 
-bool ChatEvent(char* lpszNick, char* lpszMsg);
-bool ChatInputEvent(char* lpszMsg);
+bool ChatEvent(char* lpszNick, wchar_t* lpszMsg);
+bool ChatInputEvent(wchar_t* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
 void CopyDataEvent(DWORD dwMode, char* lpszMsg);
 void GameMsgEvent(char* lpszMsg);
 void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2);
-bool WhisperEvent(char* lpszNick, char* lpszMsg);
+bool WhisperEvent(char* lpszNick, wchar_t* lpszMsg);
 bool KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 void PlayerAssignEvent(DWORD dwUnitId);
 void MouseClickEvent(int button, POINT pt, bool bUp);
@@ -25,7 +25,8 @@ void ReleaseGameLock(void);
 void TakeGameLock(void);
 
 struct ChatEventHelper {
-    char *name, *nick, *msg;
+    char *name, *nick;
+    wchar_t* msg;
 };
 
 struct CopyDataHelper {
