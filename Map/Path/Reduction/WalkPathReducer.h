@@ -180,27 +180,32 @@ public:
 				out.push_back(Point(center.first+i, center.second+j));
 			}
 		}*/
-        out.push_back(Point(center.first+1, center.second));
-        out.push_back(Point(center.first-1, center.second));
-        out.push_back(Point(center.first, center.second+1));
-        out.push_back(Point(center.first, center.second-1));
+
+        out.push_back(Point(center.first + 1, center.second));
+        out.push_back(Point(center.first - 1, center.second));
+        out.push_back(Point(center.first, center.second + 1));
+        out.push_back(Point(center.first, center.second - 1));
+        out.push_back(Point(center.first + 1, center.second + 1));
+        out.push_back(Point(center.first - 1, center.second - 1));
+        out.push_back(Point(center.first + 1, center.second - 1));
+        out.push_back(Point(center.first - 1, center.second + 1));
 	}
 
 	int GetPenalty(Point const & pt, bool abs)
 	{
-        if (checkFlag(map->SpaceGetDataWide(ActMap::BlockWalk, pt, abs))) {
-            return 90;
+        if ((map->SpaceGetDataWide(pt, abs) & (ActMap::BlockWalk | ActMap::Object)) != 0) {
+            return 100;
         }
 
         int data = map->SpaceGetData(pt, abs);
 
-        if (data & ActMap::ClosedDoor == ActMap::ClosedDoor) {
-            return 80;
-        }
-
-        if (data & ActMap::Object == ActMap::Object) {
+        if ((data & (ActMap::ClosedDoor | ActMap::Object)) != 0) {
             return 60;
         }
+
+        //if ((data & ) == ActMap::Object) {
+        //    return 60;
+        //}
 
         return 0;;
 		//return map->SpaceHasFlagWide(ActMap::BlockWalk, pt, abs) ? 50 : (data & ActMap::Object == ActMap::Object) ? 60 : (map->SpaceHasFlag(ActMap::ClosedDoor, pt, abs) ? 80 : 0));

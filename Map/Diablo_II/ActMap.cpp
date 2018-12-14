@@ -493,9 +493,9 @@ bool ActMap::SpaceHasFlag(int flag, const Point& point, bool abs) const {
     return ((val & flag) == flag);
 }
 
-int ActMap::SpaceGetDataWide(int flag, const Point& point, bool abs) const {
+int ActMap::SpaceGetDataWide(const Point& point, bool abs) const {
     if (!abs)
-        return SpaceGetDataWide(flag, RelativeToAbs(point), true);
+        return SpaceGetDataWide(RelativeToAbs(point), true);
 
     int val = GetMapData(point, abs)
               /*| GetMapData(Point(point.first - 2, point.second - 2), abs)
