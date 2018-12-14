@@ -24,7 +24,7 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ 
         ScriptEngine::RunCommand(pslzItem);
         break;
     }
-	delete[] pslzItem;
+    delete[] pslzItem;
     return (HDDEDATA)0;
 }
 

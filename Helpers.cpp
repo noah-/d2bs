@@ -79,7 +79,8 @@ bool SwitchToProfile(const wchar_t* profile) {
     if (Vars.bUseProfileScript != TRUE || !Profile::ProfileExists(profile))
         return false;
 
-    wchar_t file[_MAX_FNAME + _MAX_PATH] = L"", defaultStarter[_MAX_FNAME] = L"", defaultConsole[_MAX_FNAME] = L"", defaultGame[_MAX_FNAME] = L"", scriptPath[_MAX_PATH] = L"";
+    wchar_t file[_MAX_FNAME + _MAX_PATH] = L"", defaultStarter[_MAX_FNAME] = L"", defaultConsole[_MAX_FNAME] = L"", defaultGame[_MAX_FNAME] = L"",
+                              scriptPath[_MAX_PATH] = L"";
     swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%sd2bs.ini", Vars.szPath);
 
     GetPrivateProfileStringW(profile, L"ScriptPath", L"scripts", scriptPath, _MAX_PATH, file);
@@ -102,8 +103,8 @@ bool SwitchToProfile(const wchar_t* profile) {
 }
 
 void InitSettings(void) {
-    wchar_t fname[_MAX_FNAME + MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], debug[6], quitOnHostile[6],
-        quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6],
+    wchar_t fname[_MAX_FNAME + MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], debug[6],
+        quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6],
         enableUnsupported[6], forwardMessageBox[6], consoleFont[6];
 
     swprintf_s(fname, sizeof(fname), L"%sd2bs.ini", Vars.szPath);
@@ -494,48 +495,46 @@ LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-int __cdecl _purecall(void)
-{
+int __cdecl _purecall(void) {
     std::string debug;
     GetStackWalk(debug);
     Log(L"Stack Walk: %hs", debug.c_str());
     return 0;
 }
 
-bool GetStackWalk(std::string &outWalk)
-{
+bool GetStackWalk(std::string& outWalk) {
     // Set up the symbol options so that we can gather information from the current
     // executable's PDB files, as well as the Microsoft symbol servers.  We also want
     // to undecorate the symbol names we're returned.  If you want, you can add other
     // symbol servers or paths via a semi-colon separated list in SymInitialized.
-    ::SymSetOptions( SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES | SYMOPT_UNDNAME );
-    if (!::SymInitialize( ::GetCurrentProcess(), "http://msdl.microsoft.com/download/symbols", TRUE )) return false;
- 
+    ::SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES | SYMOPT_UNDNAME);
+    if (!::SymInitialize(::GetCurrentProcess(), "http://msdl.microsoft.com/download/symbols", TRUE))
+        return false;
+
     // Capture up to 25 stack frames from the current call stack.  We're going to
     // skip the first stack frame returned because that's the GetStackWalk function
     // itself, which we don't care about.
-    PVOID addrs[ 25 ] = { 0 };
-    USHORT frames = CaptureStackBackTrace( 1, 25, addrs, NULL );
- 
+    PVOID addrs[25] = {0};
+    USHORT frames = CaptureStackBackTrace(1, 25, addrs, NULL);
+
     for (USHORT i = 0; i < frames; i++) {
-        // Allocate a buffer large enough to hold the symbol information on the stack and get 
+        // Allocate a buffer large enough to hold the symbol information on the stack and get
         // a pointer to the buffer.  We also have to set the size of the symbol structure itself
         // and the number of bytes reserved for the name.
-        ULONG64 buffer[ (sizeof( SYMBOL_INFO ) + 1024 + sizeof( ULONG64 ) - 1) / sizeof( ULONG64 ) ] = { 0 };
-        SYMBOL_INFO *info = (SYMBOL_INFO *)buffer;
-        info->SizeOfStruct = sizeof( SYMBOL_INFO );
+        ULONG64 buffer[(sizeof(SYMBOL_INFO) + 1024 + sizeof(ULONG64) - 1) / sizeof(ULONG64)] = {0};
+        SYMBOL_INFO* info = (SYMBOL_INFO*)buffer;
+        info->SizeOfStruct = sizeof(SYMBOL_INFO);
         info->MaxNameLen = 1024;
- 
+
         // Attempt to get information about the symbol and add it to our output parameter.
         DWORD64 displacement = 0;
-        if (::SymFromAddr( ::GetCurrentProcess(), (DWORD64)addrs[ i ], &displacement, info )) {
-            outWalk.append( info->Name, info->NameLen );
-            outWalk.append( "\n" );
+        if (::SymFromAddr(::GetCurrentProcess(), (DWORD64)addrs[i], &displacement, info)) {
+            outWalk.append(info->Name, info->NameLen);
+            outWalk.append("\n");
         }
     }
- 
-        ::SymCleanup( ::GetCurrentProcess() );
- 
+
+    ::SymCleanup(::GetCurrentProcess());
+
     return true;
 }
-

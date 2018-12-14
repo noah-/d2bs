@@ -5,7 +5,7 @@
 
 #include "Script.h"
 
-bool GetStackWalk( std::string &outWalk);
+bool GetStackWalk(std::string& outWalk);
 wchar_t* AnsiToUnicode(const char* str, UINT codepage = CP_UTF8);
 char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);

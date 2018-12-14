@@ -50,9 +50,8 @@ Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructur
     if (scriptState == Command && wcslen(file) < 1) {
         fileName = wstring(L"Command Line");
     } else {
-        if (_waccess(file, 0) != 0)
-        {
-            wchar_t* asdf = const_cast< wchar_t* >(file);
+        if (_waccess(file, 0) != 0) {
+            wchar_t* asdf = const_cast<wchar_t*>(file);
             DEBUG_LOG(asdf);
 
             throw std::exception("File not found");

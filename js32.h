@@ -103,7 +103,7 @@ class JSAutoRoot {
 #define CLASS_CTOR(name) JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp)
 
 //#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uint argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
-//  #define EMPTY_CTOR(name) \
+//   #define EMPTY_CTOR(name) \
 //JSBool name##_ctor (JSContext *cx, JSObject* obj, uint argc, jsval *argv, jsval *rval) { \
 //	THROW_ERROR(cx, "Invalid Operation"); }
 
@@ -134,7 +134,7 @@ EXPORT JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* obj, JSClassSpec
 #define FUNCTION_FLAGS JSFUN_STUB_GSOPS
 //#define JSAPI_EMPTY_CTOR(name) JSBool name##(JSContext* cx, uint argc, jsval* vp) { return THROW_ERROR(cx, "Invalid Operation");}
 #define EMPTY_CTOR(name)                                                                                                                                                 \
-    JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp) {                                                                                                           \
+    JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp) {                                                                                                            \
         THROW_ERROR(cx, "Invalid Operation");                                                                                                                            \
     }
 

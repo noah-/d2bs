@@ -34,8 +34,8 @@ JSAPI_PROP(control_getProperty) {
 
     if (JSID_IS_STRING(id)) {
         // TODO: Figure out what this is for
-		//JSString* b = JSVAL_TO_STRING(ID);
-        //char* pText = JS_EncodeString(cx, b);
+        // JSString* b = JSVAL_TO_STRING(ID);
+        // char* pText = JS_EncodeString(cx, b);
 
         return JS_TRUE;
     }

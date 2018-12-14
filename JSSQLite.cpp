@@ -170,7 +170,7 @@ JSAPI_FUNC(sqlite_query) {
         THROW_ERROR(cx, "Statement has no effect");
     }
 
-	char* szText;
+    char* szText;
     for (uint i = 1; i < argc; i++) {
         switch (JS_TypeOfValue(cx, JS_ARGV(cx, vp)[i])) {
         case JSTYPE_VOID:
@@ -456,7 +456,7 @@ JSAPI_FUNC(sqlite_stmt_bind) {
     if (colnum == 0)
         THROW_ERROR(cx, "Invalid parameter number, parameters start at 1");
 
-	char* szText; 
+    char* szText;
     switch (JS_TypeOfValue(cx, JS_ARGV(cx, vp)[1])) {
     case JSTYPE_VOID:
         sqlite3_bind_null(stmt, colnum);

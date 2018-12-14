@@ -56,13 +56,13 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize) {
     char* pName = (char*)pPacket + 10;
     char* pMessage = (char*)pPacket + strlen(pName) + 11;
     wchar_t* uc = AnsiToUnicode(pMessage, CP_ACP);
- //   char* enc = UnicodeToAnsi(uc); // convert d2 string to unicode to utf-8 for js compatibility
+    //   char* enc = UnicodeToAnsi(uc); // convert d2 string to unicode to utf-8 for js compatibility
 
     if (Vars.bDontCatchNextMsg)
         Vars.bDontCatchNextMsg = FALSE;
 
     DWORD result = !(ChatEvent(pName, uc));
-//    delete[] enc;
+    //    delete[] enc;
     delete[] uc;
 
     return result;

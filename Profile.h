@@ -22,8 +22,7 @@ class Profile {
     void init(const wchar_t* profileName);
 
     void init(ProfileType pt, const wchar_t* _ipUsername, const wchar_t* _password, const wchar_t* _charname, const wchar_t* _gateway, const wchar_t _diff,
-              unsigned int _maxLoginTime,
-              unsigned int _maxCharTime) {
+              unsigned int _maxLoginTime, unsigned int _maxCharTime) {
         type = pt;
         wcscpy_s(username, wcslen(username), _ipUsername);
         wcscpy_s(password, wcslen(password), _password);

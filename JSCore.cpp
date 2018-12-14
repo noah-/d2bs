@@ -21,7 +21,6 @@
 
 JSAPI_FUNC(my_stringToEUC) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-    JS_free(cx, NULL);
     if (argc == 0 || JSVAL_IS_NULL(JS_ARGV(cx, vp)[0])) {
         return JS_TRUE;
     }
@@ -362,7 +361,7 @@ JSAPI_FUNC(my_sendCopyData) {
     }
 
     const wchar_t *windowClassName = NULL, *windowName = NULL;
-	char *data = NULL;
+    char* data = NULL;
     jsint nModeId = NULL;
     HWND hWnd = NULL;
 
@@ -434,7 +433,7 @@ JSAPI_FUNC(my_sendDDE) {
     char buffer[255] = "";
     BOOL result = SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, sizeof(buffer));
 
-	JS_free(cx, pszDDEServer);
+    JS_free(cx, pszDDEServer);
     JS_free(cx, pszTopic);
     JS_free(cx, pszItem);
     JS_free(cx, pszData);
@@ -552,7 +551,7 @@ JSAPI_FUNC(my_loadMpq) {
 
     if (isValidPath(path)) {
         LoadMPQ(path);
-	}
+    }
 
     return JS_TRUE;
 }

@@ -164,19 +164,15 @@ DWORD Profile::login(char** error) {
                 break;
             }
             pControl = findControl(1, (const wchar_t*)NULL, -1, 322, 342, 162, 19);
-            if (pControl)
-            {
+            if (pControl) {
                 SetControlText(pControl, username);
-            }
-            else
+            } else
                 errorMsg = "Failed to set the 'Username' text-edit box.";
             // Password text-edit box
             pControl = findControl(1, (const wchar_t*)NULL, -1, 322, 396, 162, 19);
-            if (pControl)
-            {
+            if (pControl) {
                 SetControlText(pControl, password);
-            }
-            else
+            } else
                 errorMsg = "Failed to set the 'Password' text-edit box.";
 
             pControl = findControl(6, (const wchar_t*)NULL, -1, 264, 484, 272, 35);

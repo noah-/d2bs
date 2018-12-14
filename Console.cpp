@@ -112,7 +112,7 @@ void Console::AddLine(std::wstring line) {
     if (Vars.bLogConsole)
         LogNoFormat(line.c_str());
 
-    scrollIndex = history.size() < lineCount ? 0 : history.size() - lineCount ;
+    scrollIndex = history.size() < lineCount ? 0 : history.size() - lineCount;
     Console::UpdateLines();
 
     LeaveCriticalSection(&Vars.cConsoleSection);

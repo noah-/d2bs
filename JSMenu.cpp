@@ -146,7 +146,7 @@ JSAPI_FUNC(my_addProfile) {
     if (!Profile::ProfileExists(*args[0])) {
         wchar_t settings[600] = L"";
         swprintf_s(settings, sizeof(settings), L"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
-                  charname, spdifficulty);
+                   charname, spdifficulty);
 
         StringReplace(settings, '\t', '\0', 600);
         WritePrivateProfileSectionW(*args[0], settings, file);

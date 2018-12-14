@@ -28,7 +28,7 @@ bool SplitLines(const std::wstring& str, size_t maxWidth, const wchar_t delim, s
     wstring ts = str.substr(0, byteIdx);
     uint cmdsize = CalculateTextLen(ts.c_str(), Vars.dwConsoleFont).x;
     int numchars = ts.length();
-    int sizechar = (cmdsize +  numchars - 1) / numchars;
+    int sizechar = (cmdsize + numchars - 1) / numchars;
     int maxLength = (maxWidth + sizechar - 1) / sizechar - 1;
 
     // byteIdx-1 since std::string::npos indexes from 0
@@ -221,15 +221,15 @@ int MeasureText(const std::wstring& str, int index) {
 }
 
 int MaxLineFit(const std::wstring& str, int start_idx, int end_idx, int maxWidth) {
-   if (start_idx == end_idx) {
-      return MeasureText(str, start_idx) <= maxWidth ? start_idx : -1;
-   }
+    if (start_idx == end_idx) {
+        return MeasureText(str, start_idx) <= maxWidth ? start_idx : -1;
+    }
 
-   int mid_idx = start_idx + (end_idx - start_idx) / 2;
+    int mid_idx = start_idx + (end_idx - start_idx) / 2;
 
-   if (maxWidth < MeasureText(str, mid_idx))
-      return MaxLineFit(str, start_idx, mid_idx, maxWidth);
+    if (maxWidth < MeasureText(str, mid_idx))
+        return MaxLineFit(str, start_idx, mid_idx, maxWidth);
 
-   int ret = MaxLineFit(str, mid_idx+1, end_idx, maxWidth);
-   return ret == -1 ? mid_idx : ret;
+    int ret = MaxLineFit(str, mid_idx + 1, end_idx, maxWidth);
+    return ret == -1 ? mid_idx : ret;
 }

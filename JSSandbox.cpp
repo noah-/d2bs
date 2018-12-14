@@ -71,9 +71,9 @@ JSAPI_PROP(sandbox_addProperty) {
         if (JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE || found) {
             JS_free(cx, name);
             return JS_TRUE;
-		}
+        }
 
-		JSBool ret = JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
+        JSBool ret = JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
         JS_free(cx, name);
         return ret;
     }
@@ -97,8 +97,8 @@ JSAPI_PROP(sandbox_delProperty) {
         char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         if (box && JS_DeleteProperty(box->context, box->innerObj, name)) {
             JS_free(cx, name);
-			return JS_TRUE;
-		}
+            return JS_TRUE;
+        }
         JS_free(cx, name);
     }
     return JS_FALSE;

@@ -355,9 +355,9 @@ enum {
     // D2Net Functions
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), 0x12AE50)       // Updated 1.14d //0052AE50-BASE
-    FUNCPTR(D2NET, ReceivePacket, void __fastcall, (BYTE * aPacket, DWORD aLen), 0x12AEB0)               // Updated 1.14d //0052AEB0-BASE
-    FUNCPTR(D2NET, ReceivePacket_I, void __fastcall, (BYTE * aPacket, DWORD aLen, int* arg3), 0x12B920)  // Updated 1.14d //0052B920-BASE
+    FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), 0x12AE50)      // Updated 1.14d //0052AE50-BASE
+    FUNCPTR(D2NET, ReceivePacket, void __fastcall, (BYTE * aPacket, DWORD aLen), 0x12AEB0)              // Updated 1.14d //0052AEB0-BASE
+    FUNCPTR(D2NET, ReceivePacket_I, void __fastcall, (BYTE * aPacket, DWORD aLen, int* arg3), 0x12B920) // Updated 1.14d //0052B920-BASE
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Net Globals
@@ -429,9 +429,9 @@ enum {
     // D2Win Functions
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control * box, const wchar_t* txt), 0xFF5A0)    // Updated 1.14d //004FF5A0-BASE
-    FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0xF9870)                               // Updated 1.14d //004F9870-BASE
-    FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), 0xFA9B0) // Updated 1.14d //004FA9B0-BASE
+    FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control * box, const wchar_t* txt), 0xFF5A0) // Updated 1.14d //004FF5A0-BASE
+    FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0xF9870)                                  // Updated 1.14d //004F9870-BASE
+    FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), 0xFA9B0)    // Updated 1.14d //004FA9B0-BASE
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Win Ordinals

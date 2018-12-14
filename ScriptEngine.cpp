@@ -434,7 +434,7 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
     const char* type = (warn ? "Warning" : "Error");
     const char* strict = (isStrict ? "Strict " : "");
     wchar_t* filename = report->filename ? AnsiToUnicode(report->filename) : _wcsdup(L"<unknown>");
-    wchar_t* displayName = filename; 
+    wchar_t* displayName = filename;
     if (_wcsicmp(L"Command Line", filename) != 0 && _wcsicmp(L"<unknown>", filename) != 0)
         displayName = filename + wcslen(Vars.szPath);
 

@@ -513,15 +513,15 @@ CellFile* LoadCellFile(const char* lpszPath, DWORD bMPQ) {
         wchar_t* path = AnsiToUnicode(lpszPath);
         CellFile* ret = LoadCellFile(path, bMPQ);
         delete[] path;
-        return ret;    
-	}
+        return ret;
+    }
 }
 
 CellFile* LoadCellFile(const wchar_t* lpszPath, DWORD bMPQ) {
     if (bMPQ == true) {
         Log(L"Cannot specify wide character path for MPQ: %s", lpszPath);
         return NULL;
-	}
+    }
 
     // AutoDetect the Cell File
     if (bMPQ == 3) {

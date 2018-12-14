@@ -187,16 +187,16 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     Sleep(100);
                 }
                 ScriptEngine::RunCommand(lpwData);
-            } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile                
+            } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
                 if (SwitchToProfile(lpwData))
                     Print(L"\u00FFc2D2BS\u00FFc0 :: Switched to profile %s", lpwData);
                 else
                     Print(L"\u00FFc2D2BS\u00FFc0 :: Profile %s not found", lpwData);
             else
-				CopyDataEvent(pCopy->dwData, lpwData);
+                CopyDataEvent(pCopy->dwData, lpwData);
             delete[] lpwData;
         }
-		
+
         return TRUE;
     }
 

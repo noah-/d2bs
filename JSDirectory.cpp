@@ -41,8 +41,7 @@ JSAPI_FUNC(my_openDir) {
     wchar_t path[_MAX_PATH];
     const wchar_t* name = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
-    if (!isValidPath(name))
-    {
+    if (!isValidPath(name)) {
         Log(L"The following path was deemed invalid: %s. (%s, %s)", name, L"JSDirectory.cpp", L"my_openDir");
         return JS_FALSE;
     }
@@ -87,13 +86,11 @@ JSAPI_FUNC(dir_getFiles) {
     wchar_t path[_MAX_PATH], oldpath[_MAX_PATH];
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, d->name);
 
-    if(!_wgetcwd(oldpath, _MAX_PATH))
-    {
+    if (!_wgetcwd(oldpath, _MAX_PATH)) {
         Log(L"Error getting current working directory. (%s, %s)", L"JSDirectory.cpp", L"dir_getFiles");
         return JS_FALSE;
     }
-    if(_wchdir(path) == -1)
-    {
+    if (_wchdir(path) == -1) {
         Log(L"Changing directory to %s. (%s, %s)", path, L"JSDirectory.cpp", L"dir_getFiles");
         return JS_FALSE;
     }
@@ -101,7 +98,7 @@ JSAPI_FUNC(dir_getFiles) {
     _wfinddata_t found;
     JSObject* jsarray = JS_NewArrayObject(cx, 0, NULL);
     JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsarray));
-    
+
     if ((hFile = _wfindfirst(search, &found)) != -1L) {
         JS_BeginRequest(cx);
         jsint element = 0;
@@ -114,8 +111,7 @@ JSAPI_FUNC(dir_getFiles) {
         JS_EndRequest(cx);
     }
 
-    if(_wchdir(oldpath) == -1)
-    {
+    if (_wchdir(oldpath) == -1) {
         Log(L"Error changing directory back to %s. (%s, %s)", oldpath, L"JSDirectory.cpp", L"dir_getFiles");
         return JS_FALSE;
     }
@@ -138,13 +134,11 @@ JSAPI_FUNC(dir_getFolders) {
     wchar_t path[_MAX_PATH], oldpath[_MAX_PATH];
     swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, d->name);
 
-    if(!_wgetcwd(oldpath, _MAX_PATH))
-    {
+    if (!_wgetcwd(oldpath, _MAX_PATH)) {
         Log(L"Error getting current working directory. (%s, %s)", L"JSDirectory.cpp", L"dir_getFolders");
         return JS_FALSE;
     }
-    if(_wchdir(path) == -1)
-    {
+    if (_wchdir(path) == -1) {
         Log(L"Changing directory to %s. (%s, %s)", path, L"JSDirectory.cpp", L"dir_getFolders");
         return JS_FALSE;
     }
@@ -165,8 +159,7 @@ JSAPI_FUNC(dir_getFolders) {
         JS_EndRequest(cx);
     }
 
-    if(_wchdir(oldpath) == -1)
-    {
+    if (_wchdir(oldpath) == -1) {
         Log(L"Error changing directory back to %s. (%s, %s)", oldpath, L"JSDirectory.cpp", L"dir_getFolders");
         return JS_FALSE;
     }

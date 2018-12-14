@@ -226,7 +226,7 @@ wchar_t* getPathRelScript(const wchar_t* filename, int bufLen, wchar_t* fullPath
     strLenScript = wcslen(Vars.szScriptPath);
 
     // Make the filename relative to the script path
-    relPath = (wchar_t*)_alloca((strLenScript + wcslen(filename) + 2)*2); // *2 for wide chars
+    relPath = (wchar_t*)_alloca((strLenScript + wcslen(filename) + 2) * 2); // *2 for wide chars
     wcscpy_s(relPath, strLenScript + wcslen(filename) + 2, Vars.szScriptPath);
     relPath[strLenScript] = L'\\';
     wcscpy_s(relPath + strLenScript + 1, wcslen(filename) + 1, filename);

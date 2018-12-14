@@ -276,9 +276,9 @@ BOOL OOG_SelectGateway(const wchar_t* szGateway, size_t strSize) {
                     if (!wzGatelist) {
                         delete[] wzGate;
                         return FALSE;
-					}
+                    }
 
-					StringToLower(wzGatelist);
+                    StringToLower(wzGatelist);
                     if (wcsstr(wzGatelist, wzGate)) {
                         // chosen gateway IS in the list and matches, cleanup and break the loop
                         delete[] wzGatelist;
@@ -294,12 +294,12 @@ BOOL OOG_SelectGateway(const wchar_t* szGateway, size_t strSize) {
                     // click the correct gateway using the control plus a default x and a y based on (index*24)+12
                     if (!clickControl(pControl, -1, 344 + ((index * 24) + 12))) {
                         delete[] wzGate;
-						return FALSE;
+                        return FALSE;
                     }
                 }
             }
 
-			delete[] wzGate;
+            delete[] wzGate;
 
             // OK Button, gateway select screen
             pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 281, 538, 96, 32);
@@ -445,7 +445,8 @@ bool OOG_CreateGame(const wchar_t* name, const wchar_t* pass, int difficulty) {
 
     if (loc == OOG_DIFFICULTY) {
         // just click the difficulty button
-        Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 297, 272, 35), *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 340, 272, 35),
+        Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 297, 272, 35),
+                *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 340, 272, 35),
                 *hell = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 383, 272, 35);
 
         switch (difficulty) {
@@ -498,7 +499,8 @@ bool OOG_CreateGame(const wchar_t* name, const wchar_t* pass, int difficulty) {
             else
                 return FALSE;
             Sleep(100);
-            Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 430, 381, 16, 16), *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 555, 381, 16, 16),
+            Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 430, 381, 16, 16),
+                    *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 555, 381, 16, 16),
                     *hell = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 698, 381, 16, 16);
 
             switch (difficulty) {

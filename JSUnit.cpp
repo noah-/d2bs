@@ -700,7 +700,7 @@ JSAPI_FUNC(unit_getNext) {
             char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
             strcpy_s(pmyUnit->szName, 128, szText);
             JS_free(cx, szText);
-		}
+        }
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(pmyUnit->dwClassId));
@@ -713,7 +713,10 @@ JSAPI_FUNC(unit_getNext) {
             // set current object to null breaks the unit_finilize cleanup cycle
             /*JSObject* obj = JS_THIS_OBJECT(cx, vp);
             //JS_ClearScope(cx, obj);
-            
+            
+
+
+
 
 
             if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
@@ -1807,7 +1810,7 @@ JSAPI_FUNC(unit_getItem) {
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
         strcpy_s(szName, sizeof(szName), szText);
-	}
+    }
 
     if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &nClassId);

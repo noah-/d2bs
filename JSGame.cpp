@@ -880,7 +880,7 @@ JSAPI_FUNC(my_getSkillByName) {
         }
     }
 
-	JS_free(cx, lpszText);
+    JS_free(cx, lpszText);
     return JS_TRUE;
 }
 
