@@ -1202,12 +1202,14 @@ JSAPI_FUNC(my_getBaseStat) {
             szStatName = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[2]));
             if (!szStatName) {
                 JS_EndRequest(cx);
+                JS_free(cx, szTableName);
                 THROW_ERROR(cx, "Invalid column value");
             }
         } else if (JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[2]))
             JS_ValueToECMAInt32(cx, JS_ARGV(cx, vp)[2], &nStat);
         else {
             JS_EndRequest(cx);
+            JS_free(cx, szTableName);
             THROW_ERROR(cx, "Invalid column value");
         }
         jsval rval;
@@ -1215,8 +1217,8 @@ JSAPI_FUNC(my_getBaseStat) {
         JS_SET_RVAL(cx, vp, rval);
         JS_EndRequest(cx);
 
-		if (szTableName != NULL)
-            JS_free(cx, szTableName);
+        JS_free(cx, szTableName);
+        JS_free(cx, szStatName);
     }
 
     return JS_TRUE;

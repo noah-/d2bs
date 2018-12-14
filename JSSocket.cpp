@@ -91,6 +91,7 @@ JSAPI_FUNC(socket_open) {
 
     struct hostent* host;
     host = gethostbyname(hostName);
+    JS_free(cx, hostName);
     if (host == NULL)
         THROW_ERROR(cx, "Cannot find host");
     SOCKADDR_IN SockAddr;

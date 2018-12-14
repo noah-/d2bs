@@ -136,9 +136,12 @@ JSAPI_FUNC(my_getParty) {
             }
         }
 
+        JS_free(cx, nPlayerName);
+
         if (!bFound)
             return JS_TRUE;
     }
+
     JSObject* jsUnit = BuildObject(cx, &party_class, party_methods, party_props, pUnit);
     if (!jsUnit)
         return JS_TRUE;

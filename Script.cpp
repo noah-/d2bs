@@ -102,24 +102,18 @@ DWORD Script::GetThreadId(void) {
     return (threadHandle == INVALID_HANDLE_VALUE ? -1 : threadId);
 }
 
-void Script::RunCommand(const char* command) {
+void Script::RunCommand(const wchar_t* command) {
     RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-    size_t commandLength = strlen(command) + 1;
-    char* passCommand = new char[commandLength];
-    strcpy_s(passCommand, commandLength, command);
+    wchar_t* cmdcpy = _wcsdup(command);
 
     rcs->script = this;
-    rcs->command = passCommand;
+    rcs->command = cmdcpy;
 
     if (isAborted) { // this should never happen -bob
-        char* command = "delay(1000000);";
         RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-        size_t commandLength = strlen(command) + 1;
-        char* passCommand = new char[commandLength];
-        strcpy_s(passCommand, commandLength, command);
 
         rcs->script = this;
-        rcs->command = passCommand;
+        rcs->command = _wcsdup(L"delay(1000000);");
 
         Log(L"Console Aborted HELP!");
         // HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
@@ -129,7 +123,7 @@ void Script::RunCommand(const char* command) {
     evt->owner = this;
     evt->argc = argc;
     evt->name = _strdup("Command");
-    evt->arg1 = passCommand;
+    evt->arg1 = cmdcpy;
     EnterCriticalSection(&Vars.cEventSection);
     evt->owner->EventList.push_front(evt);
     LeaveCriticalSection(&Vars.cEventSection);
@@ -493,7 +487,7 @@ DWORD WINAPI RunCommandThread(void* data) {
     JS_BeginRequest(cx);
     jsval rval;
     JS_AddNamedValueRoot(cx, &rval, "Cmd line rtl");
-    if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), rcs->command, strlen(rcs->command), "Command Line", 0, &rval)) {
+    if (JS_EvaluateUCScript(cx, JS_GetGlobalObject(cx), rcs->command, wcslen(rcs->command), "Command Line", 0, &rval)) {
         if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
             JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
             const wchar_t* text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, rval));

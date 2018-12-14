@@ -16,7 +16,7 @@ void StringReplace(wchar_t* str, const wchar_t find, const wchar_t replace, size
 bool SwitchToProfile(const wchar_t* profile);
 void InitSettings(void);
 bool InitHooks(void);
-bool ExecCommand(const char* command);
+bool ExecCommand(const wchar_t* command);
 bool StartScript(const wchar_t* script, ScriptState state);
 void Reload(void);
 bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand);

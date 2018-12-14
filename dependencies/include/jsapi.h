@@ -4254,7 +4254,7 @@ JS_DecodeBytes(JSContext *cx, const char *src, size_t srclen, jschar *dst,
  */
 JS_PUBLIC_API(char *)
 JS_EncodeString(JSContext *cx, JSRawString str);
-//#define JS_EncodeString JS_EncodeStringToUTF8
+
 /*
  * Same behavior as JS_EncodeString(), but encode into UTF-8 string
  */

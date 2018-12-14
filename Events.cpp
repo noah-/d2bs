@@ -233,14 +233,14 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc) {
         evt->argc = argc;
         evt->name = _strdup("copydata");
         evt->arg1 = new DWORD(helper->mode);
-        evt->arg2 = _strdup(helper->msg);
+        evt->arg2 = _wcsdup(helper->msg);
 
         script->FireEvent(evt);
     }
     return true;
 }
 
-void CopyDataEvent(DWORD dwMode, char* lpszMsg) {
+void CopyDataEvent(DWORD dwMode, wchar_t* lpszMsg) {
     CopyDataHelper helper = {dwMode, lpszMsg};
     ScriptEngine::ForEachScript(CopyDataCallback, &helper, 2);
 }

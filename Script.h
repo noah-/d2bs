@@ -140,7 +140,7 @@ class Script {
     void Resume(void);
     bool IsPaused(void);
     bool BeginThread(LPTHREAD_START_ROUTINE ThreadFunc);
-    void RunCommand(const char* command);
+    void RunCommand(const wchar_t* command);
     inline void SetPauseState(bool reallyPaused) {
         isReallyPaused = reallyPaused;
     }
@@ -208,7 +208,7 @@ class Script {
 
 struct RUNCOMMANDSTRUCT {
     Script* script;
-    const char* command;
+    const wchar_t* command;
 };
 
 DWORD WINAPI RunCommandThread(void* data);

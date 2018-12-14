@@ -56,7 +56,7 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
     }
 }
 
-void ScriptEngine::RunCommand(const char* command) {
+void ScriptEngine::RunCommand(const wchar_t* command) {
     if (GetState() != Running)
         return;
     try {
@@ -525,7 +525,7 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
             jsval* argv = new jsval[2];
             JS_BeginRequest(cx);
             argv[0] = JS_NumberValue(*(DWORD*)evt->arg1);
-            argv[1] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg2)));
+            argv[1] = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, (wchar_t*)evt->arg2));
 
             for (int j = 0; j < 2; j++)
                 JS_AddValueRoot(cx, &argv[j]);
@@ -686,16 +686,16 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
         return true;
     }
     if (strcmp(evtName, "Command") == 0) {
-        char* cmd = (char*)evt->arg1;
-        std::string test;
+        wchar_t* cmd = (wchar_t*)evt->arg1;
+        std::wstring test;
 
-        test.append("try{ ");
+        test.append(L"try{ ");
         test.append(cmd);
-        test.append(" } catch (error){print(error)}");
+        test.append(L" } catch (error){print(error)}");
         JS_BeginRequest(cx);
         jsval rval;
 
-        if (JS_EvaluateScript(cx, JS_GetGlobalObject(cx), test.data(), test.length(), "Command Line", 0, &rval)) {
+        if (JS_EvaluateUCScript(cx, JS_GetGlobalObject(cx), test.data(), test.length(), "Command Line", 0, &rval)) {
             if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
                 JS_ConvertValue(cx, rval, JSTYPE_STRING, &rval);
                 const wchar_t* text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, rval));

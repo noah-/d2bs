@@ -6,7 +6,7 @@ bool ChatEvent(char* lpszNick, wchar_t* lpszMsg);
 bool ChatInputEvent(wchar_t* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
-void CopyDataEvent(DWORD dwMode, char* lpszMsg);
+void CopyDataEvent(DWORD dwMode, wchar_t* lpszMsg);
 void GameMsgEvent(char* lpszMsg);
 void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2);
 bool WhisperEvent(char* lpszNick, wchar_t* lpszMsg);
@@ -31,7 +31,7 @@ struct ChatEventHelper {
 
 struct CopyDataHelper {
     DWORD mode;
-    char* msg;
+    wchar_t* msg;
 };
 
 struct ItemEventHelper {

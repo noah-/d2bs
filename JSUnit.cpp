@@ -140,15 +140,13 @@ JSAPI_PROP(unit_getProperty) {
     case OOG_SCREENSIZE:
         vp.setInt32(D2GFX_GetScreenSize());
         break;
-    case OOG_WINDOWTITLE:
-        {
-            wchar_t szTitle[256];
-            GetWindowTextW(D2GFX_GetHwnd(), szTitle, 256);
-            char* title = UnicodeToAnsi(szTitle);
-            vp.setString(JS_NewStringCopyZ(cx, title));
-            delete[] title;
-        }
-        break;
+    case OOG_WINDOWTITLE: {
+        wchar_t szTitle[256];
+        GetWindowTextW(D2GFX_GetHwnd(), szTitle, 256);
+        char* title = UnicodeToAnsi(szTitle);
+        vp.setString(JS_NewStringCopyZ(cx, title));
+        delete[] title;
+    } break;
     case ME_PING:
         vp.setInt32(*p_D2CLIENT_Ping);
         break;
@@ -590,13 +588,13 @@ JSAPI_FUNC(unit_getUnit) {
     uint32 nClassId = (uint32)-1;
     uint32 nMode = (uint32)-1;
     uint32 nUnitId = (uint32)-1;
-    char szName[128] = "";
+    char* szName;
 
     if (argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
     if (argc > 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
-        strcpy_s(szName, sizeof(szName), JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[1])));
+        szName = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[1]));
     JS_BeginRequest(cx);
     if (argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nClassId);
@@ -618,13 +616,17 @@ JSAPI_FUNC(unit_getUnit) {
     } else
         pUnit = GetUnit(szName, nClassId, nType, nMode, nUnitId);
 
-    if (!pUnit)
+    if (!pUnit) {
+        JS_free(cx, szName);
         return JS_TRUE;
+    }
 
     myUnit* pmyUnit = new myUnit; // leaked?
 
-    if (!pmyUnit)
+    if (!pmyUnit) {
+        JS_free(cx, szName);
         return JS_TRUE;
+    }
 
     pmyUnit->_dwPrivateType = PRIVATE_UNIT;
     pmyUnit->dwClassId = nClassId;
@@ -632,6 +634,7 @@ JSAPI_FUNC(unit_getUnit) {
     pmyUnit->dwType = pUnit->dwType;
     pmyUnit->dwUnitId = pUnit->dwUnitId;
     strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
+    JS_free(cx, szName);
 
     JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
@@ -657,8 +660,11 @@ JSAPI_FUNC(unit_getNext) {
         if (!pUnit)
             return JS_TRUE;
         JS_BeginRequest(cx);
-        if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-            strcpy_s(lpUnit->szName, 128, JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+        if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
+            char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+            strcpy_s(lpUnit->szName, 128, szText);
+            JS_free(cx, szText);
+        }
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(lpUnit->dwClassId));
@@ -690,8 +696,11 @@ JSAPI_FUNC(unit_getNext) {
         if (!pUnit || !pOwner)
             return JS_TRUE;
         JS_BeginRequest(cx);
-        if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-            strcpy_s(pmyUnit->szName, 128, JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+        if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
+            char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+            strcpy_s(pmyUnit->szName, 128, szText);
+            JS_free(cx, szText);
+		}
 
         if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
             JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], (uint32*)&(pmyUnit->dwClassId));
@@ -704,7 +713,7 @@ JSAPI_FUNC(unit_getNext) {
             // set current object to null breaks the unit_finilize cleanup cycle
             /*JSObject* obj = JS_THIS_OBJECT(cx, vp);
             //JS_ClearScope(cx, obj);
-            
+            
 
 
             if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
@@ -1700,9 +1709,11 @@ JSAPI_FUNC(unit_setskill) {
     if (argc < 1)
         return JS_TRUE;
 
-    if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        nSkillId = GetSkillByName(JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
-    else if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
+    if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
+        char* name = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        nSkillId = GetSkillByName(name);
+        JS_free(cx, name);
+    } else if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         nSkillId = (WORD)JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
     else
         return JS_TRUE;
@@ -1746,7 +1757,7 @@ JSAPI_FUNC(my_overhead) {
         const wchar_t* lpszText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
         if (lpszText && lpszText[0]) {
             // Fix overhead msg for locale text
-            //wchar_t* tmpw = AnsiToUnicode(lpszText);
+            // wchar_t* tmpw = AnsiToUnicode(lpszText);
             // Convert back to multibyte in locale code page
             char* tmpc = UnicodeToAnsi(lpszText, CP_ACP);
             OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, tmpc, *p_D2CLIENT_OverheadTrigger);
@@ -1755,9 +1766,9 @@ JSAPI_FUNC(my_overhead) {
                 pUnit->pOMsg = pMsg;
             }
             delete[] tmpc;
-            //delete[] tmpw;
+            // delete[] tmpw;
         }
-        //JS_free(cx, lpszText);
+        // JS_free(cx, lpszText);
     }
 
     JS_SET_RVAL(cx, vp, JSVAL_TRUE);
@@ -1793,8 +1804,10 @@ JSAPI_FUNC(unit_getItem) {
     uint32 nUnitId = (uint32)-1;
     char szName[128] = "";
 
-    if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        strcpy_s(szName, sizeof(szName), JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
+    if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
+        char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        strcpy_s(szName, sizeof(szName), szText);
+	}
 
     if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[0], &nClassId);

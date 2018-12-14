@@ -68,12 +68,14 @@ JSAPI_PROP(sandbox_addProperty) {
     } else if (JSVAL_IS_STRING(ID)) {
         char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         JSBool found;
-        if (JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
+        if (JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE || found) {
+            JS_free(cx, name);
             return JS_TRUE;
-        if (found)
-            return JS_TRUE;
+		}
 
-        return JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
+		JSBool ret = JS_DefineProperty(cxptr, ptr, name, vp.get(), NULL, NULL, JSPROP_ENUMERATE);
+        JS_free(cx, name);
+        return ret;
     }
     return JS_FALSE;
 }
@@ -93,8 +95,11 @@ JSAPI_PROP(sandbox_delProperty) {
             return JS_TRUE;
     } else if (JSVAL_IS_STRING(ID)) {
         char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
-        if (box && JS_DeleteProperty(box->context, box->innerObj, name))
-            return JS_TRUE;
+        if (box && JS_DeleteProperty(box->context, box->innerObj, name)) {
+            JS_free(cx, name);
+			return JS_TRUE;
+		}
+        JS_free(cx, name);
     }
     return JS_FALSE;
 }
@@ -118,10 +123,15 @@ JSAPI_PROP(sandbox_getProperty) {
     } else if (JSVAL_IS_STRING(ID)) {
         char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
         vp.set(JSVAL_VOID);
-        if (box && (JS_LookupProperty(box->context, box->innerObj, name, &vp.get())))
+        if (box && (JS_LookupProperty(box->context, box->innerObj, name, &vp.get()))) {
+            JS_free(cx, name);
             return JS_TRUE;
-        if (JSVAL_IS_VOID(vp.get()) && JS_LookupProperty(cx, obj, name, &vp.get()))
+        }
+        if (JSVAL_IS_VOID(vp.get()) && JS_LookupProperty(cx, obj, name, &vp.get())) {
+            JS_free(cx, name);
             return JS_TRUE;
+        }
+        JS_free(cx, name);
     }
     return JS_FALSE;
 }
@@ -142,9 +152,11 @@ JSAPI_STRICT_PROP(sandbox_setProperty) {
                 return JS_TRUE;
     } else if (JSVAL_IS_STRING(ID)) {
         char* name = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(ID));
-        if (box)
-            if (JS_SetProperty(box->context, box->innerObj, name, &vp.get()))
-                return JS_TRUE;
+        if (box && JS_SetProperty(box->context, box->innerObj, name, &vp.get())) {
+            JS_free(cx, name);
+            return JS_TRUE;
+        }
+        JS_free(cx, name);
     }
     return JS_FALSE;
 }

@@ -51,18 +51,18 @@ JSScript* JS_CompileFile(JSContext* cx, JSObject* globalObject, std::wstring fil
     //TODO: FIX THIS PROPERLY SO IT WORKS WITH REAL UNICODE PATHS
 
     //FILE* f = _wfopen(fileName.c_str(), L"r");
-    /*JS::RootedObject obj(cx, globalObject);
+    JS::RootedObject obj(cx, globalObject);
     JS::CompileOptions opts(cx);
     opts.setUTF8(true).setFileAndLine(nFileName, 1);
-    JSScript* rval = JS::Compile(cx, obj, opts, str.c_str(), str.size());*/
+    JSScript* rval = JS::Compile(cx, obj, opts, str.c_str(), str.size());
     //JS_EncodeStringToUTF8(
     //JSScript* rval = JS_CompileScript(cx, globalObject, str.c_str(), str.size(), nFileName, 1);
-    wchar_t* wStr = AnsiToUnicode(str.c_str());
-    JSScript* rval = JS_CompileUCScript(cx, globalObject, wStr, wcslen(wStr), nFileName, 1);
+    //wchar_t* wStr = AnsiToUnicode(str.c_str());
+    //JSScript* rval = JS_CompileUCScript(cx, globalObject, wStr, wcslen(wStr), nFileName, 1);
     JS_AddNamedScriptRoot(cx, &rval, nFileName);
     JS_RemoveScriptRoot(cx, &rval);
     t.close();
-    delete[] wStr;
+    //delete[] wStr;
     delete[] nFileName;
 
     return rval;

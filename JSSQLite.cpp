@@ -144,6 +144,7 @@ JSAPI_FUNC(sqlite_execute) {
         char msg[2048];
         strcpy_s(msg, sizeof(msg), err);
         sqlite3_free(err);
+        JS_free(cx, sql);
         THROW_ERROR(cx, msg);
     }
     JS_free(cx, sql);
@@ -161,19 +162,24 @@ JSAPI_FUNC(sqlite_query) {
     char* sql = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
     sqlite3_stmt* stmt;
     if (SQLITE_OK != sqlite3_prepare_v2(dbobj->db, sql, strlen(sql), &stmt, NULL)) {
+        JS_free(cx, sql);
         THROW_ERROR(cx, sqlite3_errmsg(dbobj->db));
     }
     if (stmt == NULL) {
+        JS_free(cx, sql);
         THROW_ERROR(cx, "Statement has no effect");
     }
 
+	char* szText;
     for (uint i = 1; i < argc; i++) {
         switch (JS_TypeOfValue(cx, JS_ARGV(cx, vp)[i])) {
         case JSTYPE_VOID:
             sqlite3_bind_null(stmt, i);
             break;
         case JSTYPE_STRING:
-            sqlite3_bind_text(stmt, i, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i])), -1, SQLITE_STATIC);
+            szText = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[i]));
+            sqlite3_bind_text(stmt, i, szText, -1, SQLITE_STATIC);
+            JS_free(cx, szText);
             break;
         case JSTYPE_NUMBER:
             if (JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[i]))
@@ -188,6 +194,7 @@ JSAPI_FUNC(sqlite_query) {
             sqlite3_finalize(stmt);
             char msg[1024];
             sprintf_s(msg, sizeof(msg), "Invalid bound parameter %i", i);
+            JS_free(cx, sql);
             THROW_ERROR(cx, msg);
             break;
         }
@@ -205,6 +212,7 @@ JSAPI_FUNC(sqlite_query) {
     if (!row) {
         sqlite3_finalize(stmt);
         delete dbstmt;
+        JS_free(cx, sql);
         THROW_ERROR(cx, "Could not create the sqlite row object");
     }
     JS_free(cx, sql);
@@ -448,12 +456,15 @@ JSAPI_FUNC(sqlite_stmt_bind) {
     if (colnum == 0)
         THROW_ERROR(cx, "Invalid parameter number, parameters start at 1");
 
+	char* szText; 
     switch (JS_TypeOfValue(cx, JS_ARGV(cx, vp)[1])) {
     case JSTYPE_VOID:
         sqlite3_bind_null(stmt, colnum);
         break;
     case JSTYPE_STRING:
-        sqlite3_bind_text(stmt, colnum, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1])), -1, SQLITE_STATIC);
+        szText = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[1]));
+        sqlite3_bind_text(stmt, colnum, szText, -1, SQLITE_STATIC);
+        JS_free(cx, szText);
         break;
     case JSTYPE_NUMBER:
         if (JSVAL_IS_DOUBLE(JS_ARGV(cx, vp)[1]))

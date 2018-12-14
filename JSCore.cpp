@@ -19,9 +19,9 @@
 
 #include "JSScript.h"
 
-JSAPI_FUNC(my_utf8ToEuc) {
+JSAPI_FUNC(my_stringToEUC) {
     JS_SET_RVAL(cx, vp, JSVAL_NULL);
-
+    JS_free(cx, NULL);
     if (argc == 0 || JSVAL_IS_NULL(JS_ARGV(cx, vp)[0])) {
         return JS_TRUE;
     }
@@ -32,14 +32,16 @@ JSAPI_FUNC(my_utf8ToEuc) {
         JS_ReportError(cx, "Converting to string failed");
         return JS_FALSE;
     }
-    JS_EndRequest(cx);
+
     const wchar_t* szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+    JS_EndRequest(cx);
+
     if (szText == NULL) {
         JS_ReportError(cx, "Could not get string for value");
         return JS_FALSE;
     }
 
-    char* euc = UnicodeToAnsi(szText, CP_ACP);
+    char* euc = UnicodeToAnsi(szText, 949);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, euc)));
     delete[] euc;
     return JS_TRUE;
@@ -55,8 +57,9 @@ JSAPI_FUNC(my_print) {
                 JS_ReportError(cx, "Converting to string failed");
                 return JS_FALSE;
             }
-            JS_EndRequest(cx);
+
             const wchar_t* Text = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[i]));
+            JS_EndRequest(cx);
             if (Text == NULL) {
                 JS_ReportError(cx, "Could not get string for value");
                 return JS_FALSE;
@@ -65,9 +68,8 @@ JSAPI_FUNC(my_print) {
             // bob20				jsrefcount depth = JS_SuspendRequest(cx);
             if (!Text)
                 Print(L"undefined");
-            else {
+            else
                 Print(L"%s", Text);
-            }
             // bob20				JS_ResumeRequest(cx, depth);
         }
     }
@@ -388,6 +390,7 @@ JSAPI_FUNC(my_sendCopyData) {
     if (hWnd == NULL && windowName != NULL) {
         hWnd = FindWindowW(windowClassName, windowName);
         if (!hWnd) {
+            JS_free(cx, data);
             return JS_TRUE;
         }
     }
@@ -407,6 +410,7 @@ JSAPI_FUNC(my_sendCopyData) {
 }
 
 JSAPI_FUNC(my_sendDDE) {
+    JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     jsint mode;
     char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
     JS_BeginRequest(cx);
@@ -428,16 +432,24 @@ JSAPI_FUNC(my_sendDDE) {
 
     JS_EndRequest(cx);
     char buffer[255] = "";
-    if (SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255)) {
-        if (mode == 0)
-            JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer)));
-    } else
+    BOOL result = SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, sizeof(buffer));
+
+	JS_free(cx, pszDDEServer);
+    JS_free(cx, pszTopic);
+    JS_free(cx, pszItem);
+    JS_free(cx, pszData);
+
+    if (!result)
         THROW_ERROR(cx, "DDE Failed! Check the log for the error message.");
+
+    if (mode == 0)
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer)));
 
     return JS_TRUE;
 }
 
 JSAPI_FUNC(my_keystate) {
+    JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     if (argc < 1 || !JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         return JS_TRUE;
 

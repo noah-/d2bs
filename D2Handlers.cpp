@@ -180,24 +180,23 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         pCopy = (COPYDATASTRUCT*)lParam;
 
         if (pCopy) {
+            wchar_t* lpwData = AnsiToUnicode((const char*)pCopy->lpData);
             if (pCopy->dwData == 0x1337) // 0x1337 = Execute Script
             {
                 while (!Vars.bActive || (ScriptEngine::GetState() != Running)) {
                     Sleep(100);
                 }
-                ScriptEngine::RunCommand((char*)pCopy->lpData);
-            } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile
-            {
-                const char* profile = (char*)pCopy->lpData;
-                wchar_t* profileW = AnsiToUnicode(profile);
-                if (SwitchToProfile(profileW))
-                    Print(L"\u00FFc2D2BS\u00FFc0 :: Switched to profile %s", profileW);
+                ScriptEngine::RunCommand(lpwData);
+            } else if (pCopy->dwData == 0x31337) // 0x31337 = Set Profile                
+                if (SwitchToProfile(lpwData))
+                    Print(L"\u00FFc2D2BS\u00FFc0 :: Switched to profile %s", lpwData);
                 else
-                    Print(L"\u00FFc2D2BS\u00FFc0 :: Profile %s not found", profileW);
-                delete[] profileW;
-            } else
-                CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
+                    Print(L"\u00FFc2D2BS\u00FFc0 :: Profile %s not found", lpwData);
+            else
+				CopyDataEvent(pCopy->dwData, lpwData);
+            delete[] lpwData;
         }
+		
         return TRUE;
     }
 

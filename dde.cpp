@@ -8,24 +8,23 @@ HSZ hszD2BSns;
 
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, HSZ hsz2, HDDEDATA hdata, DWORD dwData1, DWORD dwData2) {
     char pszItem[65535] = "";
-    wchar_t* profileW = NULL;
+    wchar_t* pslzItem = AnsiToUnicode(pszItem);
     switch (uType) {
     case XTYP_CONNECT:
         return (HDDEDATA)TRUE;
     case XTYP_POKE:
         DdeGetData(hdata, (LPBYTE)pszItem, 255, 0);
-        profileW = AnsiToUnicode(pszItem);
-        if (SwitchToProfile(profileW))
-            Log(L"Switched to profile %s", profileW);
+        if (SwitchToProfile(pslzItem))
+            Log(L"Switched to profile %s", pslzItem);
         else
-            Log(L"Profile %s not found", profileW);
-        delete[] profileW;
+            Log(L"Profile %s not found", pslzItem);
         break;
     case XTYP_EXECUTE:
         DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
-        ScriptEngine::RunCommand(pszItem);
+        ScriptEngine::RunCommand(pslzItem);
         break;
     }
+	delete[] pslzItem;
     return (HDDEDATA)0;
 }
 

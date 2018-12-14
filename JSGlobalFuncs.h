@@ -37,7 +37,7 @@ static JSFunctionSpec global_funcs[] = {
     JS_FN("getIsTalkingNPC", my_getIsTalkingNPC, 0, FUNCTION_FLAGS), JS_FN("getDialogLines", my_getDialogLines, 0, FUNCTION_FLAGS),
 
     // utility functions that don't have anything to do with the game
-    JS_FN("print", my_print, 1, FUNCTION_FLAGS), JS_FN("utf8ToEuc", my_utf8ToEuc, 1, FUNCTION_FLAGS), JS_FN("setTimeout", my_setTimeout, 0, FUNCTION_FLAGS),
+    JS_FN("print", my_print, 1, FUNCTION_FLAGS), JS_FN("stringToEUC", my_stringToEUC, 1, FUNCTION_FLAGS), JS_FN("setTimeout", my_setTimeout, 0, FUNCTION_FLAGS),
     JS_FN("clearTimeout", my_clearInterval, 1, FUNCTION_FLAGS), JS_FN("setInterval", my_setInterval, 0, FUNCTION_FLAGS),
     JS_FN("clearInterval", my_clearInterval, 1, FUNCTION_FLAGS), JS_FN("delay", my_delay, 1, FUNCTION_FLAGS), JS_FN("load", my_load, 1, FUNCTION_FLAGS),
     JS_FN("isIncluded", my_isIncluded, 1, FUNCTION_FLAGS), JS_FN("include", my_include, 1, FUNCTION_FLAGS), JS_FN("stop", my_stop, 0, FUNCTION_FLAGS),
