@@ -40,7 +40,7 @@ JSAPI_FUNC(my_stringToEUC) {
         return JS_FALSE;
     }
 
-    char* euc = UnicodeToAnsi(szText, 949);
+    char* euc = UnicodeToAnsi(szText, CP_ACP);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, euc)));
     delete[] euc;
     return JS_TRUE;
