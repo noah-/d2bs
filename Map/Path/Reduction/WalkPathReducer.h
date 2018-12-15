@@ -180,10 +180,14 @@ public:
 				out.push_back(Point(center.first+i, center.second+j));
 			}
 		}*/
-        out.push_back(Point(center.first+1, center.second));
-        out.push_back(Point(center.first-1, center.second));
-        out.push_back(Point(center.first, center.second+1));
-        out.push_back(Point(center.first, center.second-1));
+        out.push_back(Point(center.first + 1, center.second + 1));
+        out.push_back(Point(center.first + 1, center.second));
+        out.push_back(Point(center.first + 1, center.second - 1));
+        out.push_back(Point(center.first, center.second + 1));
+        out.push_back(Point(center.first, center.second - 1));
+        out.push_back(Point(center.first - 1, center.second + 1));
+        out.push_back(Point(center.first - 1, center.second));
+        out.push_back(Point(center.first - 1, center.second - 1));
 	}
 
 	int GetPenalty(Point const & pt, bool abs)
