@@ -30,7 +30,7 @@ typedef std::set<DBStmt*> StmtList;
 struct SqliteDB {
     sqlite3* db;
     bool open;
-    char* path;
+    wchar_t* path;
     StmtList stmts;
 };
 
@@ -99,11 +99,9 @@ JSAPI_FUNC(sqlite_ctor) {
     if (JSVAL_IS_BOOLEAN(JS_ARGV(cx, vp)[1]))
         autoOpen = !!JSVAL_TO_BOOLEAN(JS_ARGV(cx, vp)[1]);
 
-    char* p = UnicodeToAnsi(path);
     sqlite3* db = NULL;
     if (autoOpen) {
-        if (SQLITE_OK != sqlite3_open(p, &db)) {
-            delete[] p;
+        if (SQLITE_OK != sqlite3_open16(path, &db)) {
             char msg[1024];
             sprintf_s(msg, sizeof(msg), "Could not open database: %s", sqlite3_errmsg(db));
             THROW_ERROR(cx, msg);
@@ -113,8 +111,7 @@ JSAPI_FUNC(sqlite_ctor) {
     SqliteDB* dbobj = new SqliteDB; // leaked?
     dbobj->db = db;
     dbobj->open = autoOpen;
-    dbobj->path = _strdup(p);
-    delete[] p;
+    dbobj->path = _wcsdup(path);
 
     // if the path is not a special placeholder, it needs to be freed
     if (path[0] != ':')
@@ -234,7 +231,7 @@ JSAPI_FUNC(sqlite_close) {
 JSAPI_FUNC(sqlite_open) {
     SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &sqlite_db, NULL);
     if (!dbobj->open) {
-        if (SQLITE_OK != sqlite3_open(dbobj->path, &dbobj->db)) {
+        if (SQLITE_OK != sqlite3_open16(dbobj->path, &dbobj->db)) {
             char msg[1024];
             sprintf_s(msg, sizeof(msg), "Could not open database: %s", sqlite3_errmsg(dbobj->db));
             THROW_ERROR(cx, msg);
@@ -251,7 +248,7 @@ JSAPI_PROP(sqlite_getProperty) {
     JS_IdToValue(cx, id, &ID);
     switch (JSVAL_TO_INT(ID)) {
     case SQLITE_PATH:
-        vp.setString(JS_NewStringCopyZ(cx, dbobj->path));
+        vp.setString(JS_NewUCStringCopyZ(cx, dbobj->path));
         break;
     case SQLITE_OPEN:
         vp.setBoolean(dbobj->open);
@@ -286,7 +283,7 @@ void sqlite_finalize(JSFreeOp* fop, JSObject* obj) {
     JS_SetPrivate(obj, NULL);
     if (dbobj) {
         clean_sqlite_db(dbobj);
-        free(dbobj->path); //_strdup reqires free not delete
+        free(dbobj->path); //_wcsdup reqires free not delete
         delete dbobj;
     }
 }
@@ -450,8 +447,11 @@ JSAPI_FUNC(sqlite_stmt_bind) {
     int colnum = -1;
     if (JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         colnum = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
-    else
-        colnum = sqlite3_bind_parameter_index(stmt, JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
+    else {
+        char* szText = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
+        colnum = sqlite3_bind_parameter_index(stmt, szText);
+        JS_free(cx, szText);
+	}
 
     if (colnum == 0)
         THROW_ERROR(cx, "Invalid parameter number, parameters start at 1");
