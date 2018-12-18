@@ -446,6 +446,7 @@ JSAPI_FUNC(my_sendDDE) {
     if (mode == 0) {
         wchar_t* buf = AnsiToUnicode(buffer);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, buf)));
+        delete[] buf;
 	}
     return JS_TRUE;
 }
