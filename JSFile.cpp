@@ -330,7 +330,7 @@ JSAPI_FUNC(file_read) {
 
             char* result = new char[count + 1];
             memset(result, 0, count + 1);
-            uint32 size = 0;
+            size = 0;
             if (fdata->locked)
                 size = fread(result, sizeof(char), count, fdata->fptr);
             else
