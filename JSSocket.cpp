@@ -1,5 +1,6 @@
 #include "JSSocket.h"
 #include "D2BS.h"
+#include "Helpers.h"
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -154,7 +155,9 @@ JSAPI_FUNC(socket_read) {
 
     } while (iResult > 10000);
 
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_InternString(cx, returnVal.c_str())));
+	wchar_t* wret = AnsiToUnicode(returnVal.c_str());
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_InternUCString(cx, wret)));
+    delete[] wret;
     return JS_TRUE;
 }
 

@@ -45,6 +45,7 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
         scripts[fileName] = script;
 
         delete[] fileName;
+        free(fileNameW);
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
@@ -52,6 +53,7 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
         Print(what);
         delete[] what;
         delete[] fileName;
+        free(fileNameW);
         return NULL;
     }
 }
@@ -439,10 +441,12 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
         displayName = filename + wcslen(Vars.szPath);
 
     Log(L"[%hs%hs] Code(%d) File(%s:%d) %hs\nLine: %hs", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
-
     Print(L"[\u00FFc%d%hs%hs\u00FFc0 (%d)] File(%s:%d) %hs", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
-    free(filename);
+	if (filename[0] == L'<')
+        free(filename);
+    else
+        delete[] filename;
 
     if (Vars.bQuitOnError && !JSREPORT_IS_WARNING(report->flags) && ClientState() == ClientStateInGame)
         D2CLIENT_ExitGame();
@@ -498,7 +502,7 @@ bool ExecScriptEvent(Event* evt, bool clearList) {
             argv[1] = JS_NumberValue(*(DWORD*)evt->arg2);
             argv[2] = JS_NumberValue(*(DWORD*)evt->arg3);
             argv[3] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg4)));
-            argv[4] = (STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)evt->arg5)));
+            argv[4] = (STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, (wchar_t*)evt->arg5)));
 
             for (int j = 0; j < 5; j++)
                 JS_AddValueRoot(cx, &argv[j]);

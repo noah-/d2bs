@@ -175,7 +175,6 @@ JSAPI_FUNC(my_getDialogLines) {
     JSObject* pReturnArray;
     JSObject* line;
     jsval js_text, js_selectable, js_line, js_handler, js_addr;
-    char* ansi_text;
     JSFunction* jsf_handler;
     JSObject* jso_addr;
 
@@ -186,10 +185,7 @@ JSAPI_FUNC(my_getDialogLines) {
         pReturnArray = JS_NewArrayObject(cx, 0, NULL);
         JS_AddObjectRoot(cx, &pReturnArray);
         for (i = 0; i < pTdi->numLines; ++i) {
-            ansi_text = UnicodeToAnsi(pTdi->dialogLines[i].text);
-            js_text = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ansi_text));
-            delete[] ansi_text;
-
+            js_text = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, pTdi->dialogLines[i].text));
             js_selectable = BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
 
             line = BuildObject(cx, &dialogLine_class, 0, 0, 0, 0);
@@ -672,10 +668,8 @@ JSAPI_FUNC(my_getLocaleString) {
     JS_BeginRequest(cx);
     JS_ValueToUint16(cx, JS_ARGV(cx, vp)[0], &localeId);
     wchar_t* wString = D2LANG_GetLocaleText(localeId);
-    char* szTmp = UnicodeToAnsi(wString);
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTmp)));
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wString)));
     JS_EndRequest(cx);
-    delete[] szTmp;
 
     return JS_TRUE;
 }

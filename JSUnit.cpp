@@ -212,7 +212,9 @@ JSAPI_PROP(unit_getProperty) {
     case UNIT_NAME: {
         char tmp[128] = "";
         GetUnitName(pUnit, tmp, 128);
-        vp.setString(JS_InternString(cx, tmp));
+        wchar_t* wtmp = AnsiToUnicode(tmp);
+        vp.setString(JS_InternUCString(cx, wtmp));
+        delete[] wtmp;
     } break;
     case ME_MAPID:
         vp.setInt32(*p_D2CLIENT_MapId);
@@ -407,10 +409,7 @@ JSAPI_PROP(unit_getProperty) {
             wchar_t wszfname[256] = L"";
             D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
             if (wszfname) {
-                char* tmp = UnicodeToAnsi(wszfname);
-                vp.setString(JS_InternString(cx, tmp));
-                delete[] tmp;
-                tmp = NULL;
+                vp.setString(JS_InternUCString(cx, wszfname));
             }
         }
         break;
@@ -464,11 +463,8 @@ JSAPI_PROP(unit_getProperty) {
             ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0x841EC8 - 0x400000), wBuffer, 2047);
         }
         delete cRoom;
-        char* tmp = UnicodeToAnsi(wBuffer);
-        if (tmp) {
-            vp.setString(JS_InternString(cx, tmp));
-            delete[] tmp;
-            tmp = NULL;
+        if (wcslen(wBuffer) > 0) {
+            vp.setString(JS_InternUCString(cx, wBuffer));
         }
     }
 
@@ -1399,9 +1395,7 @@ JSAPI_FUNC(unit_getSkill) {
             if (FillBaseStat("skills", wRightSkillId, "skilldesc", &row, sizeof(int)))
                 if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
                     wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
-                    char* str = UnicodeToAnsi(szName);
-                    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
-                    delete[] str;
+                    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, szName)));
                 }
         } break;
         case 1: {
@@ -1409,9 +1403,7 @@ JSAPI_FUNC(unit_getSkill) {
             if (FillBaseStat("skills", wLeftSkillId, "skilldesc", &row, sizeof(int)))
                 if (FillBaseStat("skilldesc", row, "str name", &row, sizeof(int))) {
                     wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
-                    char* str = UnicodeToAnsi(szName);
-                    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str)));
-                    delete[] str;
+                    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, szName)));
                 }
         } break;
 

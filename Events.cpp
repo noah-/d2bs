@@ -278,14 +278,14 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc) {
         evt->arg2 = new DWORD(helper->param1);
         evt->arg3 = new DWORD(helper->param2);
         evt->arg4 = _strdup(helper->name1);
-        evt->arg5 = _strdup(helper->name2);
+        evt->arg5 = _wcsdup(helper->name2);
 
         script->FireEvent(evt);
     }
     return true;
 }
 
-void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2) {
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, wchar_t* name2) {
     GameActionEventHelper helper = {mode, param1, param2, name1, name2};
     ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 5);
 }

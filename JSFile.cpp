@@ -329,7 +329,10 @@ JSAPI_FUNC(file_read) {
                 delete[] result;
                 THROW_ERROR(cx, _strerror("Read failed"));
             }
-            JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
+
+			wchar_t* wresult = AnsiToUnicode(result);
+            JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wresult)));
+            delete[] wresult;
             delete[] result;
         }
     }
@@ -342,7 +345,10 @@ JSAPI_FUNC(file_readLine) {
         const char* line = readLine(fdata->fptr, fdata->locked);
         if (!line)
             THROW_ERROR(cx, _strerror("Read failed"));
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line)));
+
+		wchar_t* wline = AnsiToUnicode(line);
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline)));
+        delete[] wline;
         delete[] line;
     }
     return JS_TRUE;
@@ -359,8 +365,11 @@ JSAPI_FUNC(file_readAllLines) {
             const char* line = readLine(fdata->fptr, fdata->locked);
             if (!line)
                 THROW_ERROR(cx, _strerror("Read failed"));
-            jsval val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
+
+			wchar_t* wline = AnsiToUnicode(line);
+            jsval val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline));
             JS_SetElement(cx, arr, i++, &val);
+            delete[] wline;
             delete[] line;
         }
         JS_EndRequest(cx);
@@ -400,8 +409,10 @@ JSAPI_FUNC(file_readAll) {
             THROW_ERROR(cx, _strerror("Read failed"));
         }
         JS_BeginRequest(cx);
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, strlen(contents))));
+        wchar_t* wcontents = AnsiToUnicode(contents);
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyN(cx, wcontents, wcslen(wcontents))));
         JS_EndRequest(cx);
+        delete[] wcontents;
         delete[] contents;
     }
     return JS_TRUE;

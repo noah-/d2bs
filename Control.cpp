@@ -14,7 +14,7 @@ Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, i
         if (!localeStr)
             return NULL;
         Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
-        delete[] localeStr;
+        free(localeStr);
         return res;
     }
 
@@ -201,8 +201,8 @@ BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
             StringToLower(cCharacter);
 
             if (wcslen(cLine) == wcslen(cCharacter) && wcsstr(cLine, cCharacter) != NULL) {
-                delete[] cLine;
-                delete[] cCharacter;
+                free(cLine);
+                free(cCharacter);
                 if (!clickControl(pControl))
                     return FALSE;
 
@@ -218,8 +218,8 @@ BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
                     return FALSE;
 
             } else {
-                delete[] cLine;
-                delete[] cCharacter;
+                free(cLine);
+                free(cCharacter);
             }
         }
         pControl = pControl->pNext;
@@ -254,10 +254,11 @@ BOOL OOG_SelectGateway(const wchar_t* szGateway, size_t strSize) {
 
         if (wcsstr(wzLine, wzGate)) {
             // gateway is correct, do nothing and return true
-            delete[] wzLine;
+            free(wzLine);
+            free(wzGate);
             return TRUE;
         } else {
-            delete[] wzLine;
+            free(wzLine);
             // gateway is NOT correct, change gateway to selected gateway if it exists
             // open the gateway select screen
             if (!clickControl(pControl))
@@ -274,32 +275,32 @@ BOOL OOG_SelectGateway(const wchar_t* szGateway, size_t strSize) {
                 while (cText) {
                     wchar_t* wzGatelist = _wcsdup(cText->wText[0]);
                     if (!wzGatelist) {
-                        delete[] wzGate;
+                        free(wzGate);
                         return FALSE;
                     }
 
                     StringToLower(wzGatelist);
                     if (wcsstr(wzGatelist, wzGate)) {
                         // chosen gateway IS in the list and matches, cleanup and break the loop
-                        delete[] wzGatelist;
-                        delete[] wzGate;
+                        free(wzGatelist);
+                        free(wzGate);
                         gatefound = true;
                         break;
                     }
-                    delete[] wzGatelist;
+                    free(wzGatelist);
                     index++;
                     cText = cText->pNext;
                 }
                 if (gatefound) {
                     // click the correct gateway using the control plus a default x and a y based on (index*24)+12
                     if (!clickControl(pControl, -1, 344 + ((index * 24) + 12))) {
-                        delete[] wzGate;
+                        free(wzGate);
                         return FALSE;
                     }
                 }
             }
 
-            delete[] wzGate;
+            free(wzGate);
 
             // OK Button, gateway select screen
             pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 281, 538, 96, 32);

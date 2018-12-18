@@ -342,11 +342,14 @@ JSAPI_FUNC(sqlite_stmt_getobject) {
             if (!JS_SetProperty(cx, obj2, colnam, &val))
                 THROW_ERROR(cx, "Failed to add column to row results");
             break;
-        case SQLITE_TEXT:
-            val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
+        case SQLITE_TEXT: {
+            wchar_t* wText = AnsiToUnicode(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)));
+            val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wText));
+            delete[] wText;
             if (!JS_SetProperty(cx, obj2, colnam, &val))
                 THROW_ERROR(cx, "Failed to add column to row results");
             break;
+		}
         case SQLITE_BLOB:
             // currently not supported
             THROW_ERROR(cx, "Blob type not supported (yet)");
@@ -397,9 +400,12 @@ JSAPI_FUNC(sqlite_stmt_colval) {
         rval = JS_NumberValue(sqlite3_column_double(stmt, i));
         JS_SET_RVAL(cx, vp, rval);
         break;
-    case SQLITE_TEXT:
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)))));
+    case SQLITE_TEXT: {
+        wchar_t* wText = AnsiToUnicode(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)));
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wText)));
+        delete[] wText;
         break;
+	}
     case SQLITE_BLOB:
         // currently not supported
         THROW_ERROR(cx, "Blob type not supported (yet)");
@@ -422,7 +428,9 @@ JSAPI_FUNC(sqlite_stmt_colname) {
         THROW_ERROR(cx, "Invalid parameter for SQLiteStatement.getColumnValue");
 
     int i = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, sqlite3_column_name(stmt, i))));
+    wchar_t* wname = AnsiToUnicode(sqlite3_column_name(stmt, i));
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wname)));
+    delete[] wname;
     return JS_TRUE;
 }
 
@@ -554,9 +562,12 @@ JSAPI_PROP(sqlite_stmt_getProperty) {
     jsval ID;
     JS_IdToValue(cx, id, &ID);
     switch (JSVAL_TO_INT(ID)) {
-    case SQLITE_STMT_SQL:
-        vp.setString(JS_NewStringCopyZ(cx, sqlite3_sql(stmtobj->stmt)));
+    case SQLITE_STMT_SQL: {
+        wchar_t* wText = AnsiToUnicode(sqlite3_sql(stmtobj->stmt));
+        vp.setString(JS_NewUCStringCopyZ(cx, wText));
+        delete[] wText;
         break;
+	}
     case SQLITE_STMT_READY:
         vp.setBoolean(stmtobj->canGet);
         break;

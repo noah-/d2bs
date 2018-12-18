@@ -8,7 +8,7 @@ void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
 void CopyDataEvent(DWORD dwMode, wchar_t* lpszMsg);
 void GameMsgEvent(char* lpszMsg);
-void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2);
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, wchar_t* name2);
 bool WhisperEvent(char* lpszNick, wchar_t* lpszMsg);
 bool KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 void PlayerAssignEvent(DWORD dwUnitId);
@@ -49,7 +49,8 @@ struct KeyEventHelper {
 struct GameActionEventHelper {
     BYTE mode;
     DWORD param1, param2;
-    char *name1, *name2;
+    char* name1;
+    wchar_t* name2;
 };
 
 struct SingleArgHelper {

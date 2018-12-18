@@ -350,8 +350,10 @@ JSAPI_FUNC(my_paste) {
     HANDLE foo = GetClipboardData(CF_TEXT);
     CloseClipboard();
     LPVOID lptstr = GlobalLock(foo);
-    (char*)lptstr;
-    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)lptstr)));
+ //   (char*)lptstr;
+    wchar_t* cpy = AnsiToUnicode((const char*)lptstr);
+    JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, cpy)));
+    delete[] cpy;
     return JS_TRUE;
 }
 JSAPI_FUNC(my_sendCopyData) {
@@ -441,9 +443,10 @@ JSAPI_FUNC(my_sendDDE) {
     if (!result)
         THROW_ERROR(cx, "DDE Failed! Check the log for the error message.");
 
-    if (mode == 0)
-        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer)));
-
+    if (mode == 0) {
+        wchar_t* buf = AnsiToUnicode(buffer);
+        JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, buf)));
+	}
     return JS_TRUE;
 }
 

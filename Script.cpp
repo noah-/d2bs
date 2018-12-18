@@ -12,32 +12,6 @@
 
 using namespace std;
 
-/*Script::Script(const char* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
-    : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
-      threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
-    InitializeCriticalSection(&lock);
-    // moved the runtime initilization to thread start
-    LastGC = 0;
-    hasActiveCX = false;
-    eventSignal = CreateEvent(nullptr, true, false, nullptr);
-
-    if (scriptState == Command && strlen(file) < 1) {
-        fileName = wstring(L"Command Line");
-    } else {
-        if (_access(file, 0) != 0)
-            throw std::exception("File not found");
-
-        char* tmpName = _strdup(file);
-        if (!tmpName)
-            throw std::exception("Could not dup filename");
-
-        _strlwr_s(tmpName, strlen(file) + 1);
-        fileName = wstring(AnsiToUnicode(tmpName));
-        replace(fileName.begin(), fileName.end(), '/', '\\');
-        free(tmpName);
-    }
-}*/
-
 Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructuredCloneBuffer** argv)
     : context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
       threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv) {
@@ -51,8 +25,7 @@ Script::Script(const wchar_t* file, ScriptState state, uint argc, JSAutoStructur
         fileName = wstring(L"Command Line");
     } else {
         if (_waccess(file, 0) != 0) {
-            wchar_t* asdf = const_cast<wchar_t*>(file);
-            DEBUG_LOG(asdf);
+            DEBUG_LOG(file);
 
             throw std::exception("File not found");
         }
@@ -102,17 +75,15 @@ DWORD Script::GetThreadId(void) {
 }
 
 void Script::RunCommand(const wchar_t* command) {
-    RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-    wchar_t* cmdcpy = _wcsdup(command);
-
-    rcs->script = this;
-    rcs->command = cmdcpy;
+    //RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
+    //rcs->script = this;
+    //rcs->command = _wcsdup(command);
 
     if (isAborted) { // this should never happen -bob
-        RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
+        //RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
 
-        rcs->script = this;
-        rcs->command = _wcsdup(L"delay(1000000);");
+        //rcs->script = this;
+        //rcs->command = _wcsdup(L"delay(1000000);");
 
         Log(L"Console Aborted HELP!");
         // HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);
@@ -122,7 +93,7 @@ void Script::RunCommand(const wchar_t* command) {
     evt->owner = this;
     evt->argc = argc;
     evt->name = _strdup("Command");
-    evt->arg1 = cmdcpy;
+    evt->arg1 = _wcsdup(command);
     EnterCriticalSection(&Vars.cEventSection);
     evt->owner->EventList.push_front(evt);
     LeaveCriticalSection(&Vars.cEventSection);

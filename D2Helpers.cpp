@@ -31,10 +31,10 @@ void Log(wchar_t* szFormat, ...) {
 void LogNoFormat(const wchar_t* szString) {
     time_t tTime;
     time(&tTime);
-    wchar_t szTime[128] = L"";
+    char szTime[128] ="";
     struct tm time;
     localtime_s(&time, &tTime);
-    wcsftime(szTime, sizeof(szTime), L"%x %X", &time);
+    strftime(szTime, sizeof(szTime), "%x %X", &time);
 
     wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
     swprintf_s(path, _MAX_PATH + _MAX_FNAME, L"%sd2bs.log", Vars.szPath);
@@ -44,7 +44,9 @@ void LogNoFormat(const wchar_t* szString) {
 #else
     FILE* log = _wfsopen(path, L"a+", _SH_DENYNO);
 #endif
-    fwprintf(log, L"[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
+    char* sString = UnicodeToAnsi(szString);
+    fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), sString);
+    delete[] sString;
 #ifndef DEBUG
     fflush(log);
     fclose(log);

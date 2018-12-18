@@ -86,6 +86,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize) {
     char name1[16] = "", name2[28] = "";
     strcpy_s(name1, 16, (char*)pPacket + 8);
     strcpy_s(name2, 16, (char*)pPacket + 24);
+    wchar_t* wname2 = NULL;
 
     char* tables[3] = {"", "monstats", "objects"};
     char* columns[3] = {"", "NameStr", "Name"};
@@ -97,10 +98,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize) {
         if (param2 == UNIT_MONSTER || param2 == UNIT_OBJECT) {
             WORD localeId;
             FillBaseStat(tables[param2], param1, columns[param2], &localeId, sizeof(WORD));
-            wchar_t* str = D2LANG_GetLocaleText(localeId);
-            char* str2 = UnicodeToAnsi(str);
-            strcpy_s(name2, 28, str2);
-            delete[] str2;
+            wname2 = D2LANG_GetLocaleText(localeId);
         }
         break;
     case 0x07: // player relation
@@ -120,7 +118,13 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize) {
             strcpy_s(name1, 16, "You");
         break;
     }
-    GameActionEvent(mode, param1, param2, name1, name2);
+
+	if (!wname2) {
+        wname2 = AnsiToUnicode(name2, CP_ACP);
+        GameActionEvent(mode, param1, param2, name1, wname2);
+        delete[] wname2;
+	} else 
+		GameActionEvent(mode, param1, param2, name1, wname2);
 
     return TRUE;
 }

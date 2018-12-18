@@ -43,7 +43,7 @@ const char* readLine(FILE* fptr, bool locking) {
         if (c != '\r' && c != '\n' && !feof(fptr))
             buffer.append(1, c);
     } while (!feof(fptr) && c != '\n');
-    return _strdup(buffer.c_str());
+    return buffer.c_str();
 }
 
 bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool locking) {
