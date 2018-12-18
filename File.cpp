@@ -28,10 +28,10 @@
 
 using namespace std;
 
-const char* readLine(FILE* fptr, bool locking) {
+char* readLine(FILE* fptr, bool locking) {
     if (feof(fptr))
         return NULL;
-    string buffer;
+    stringstream buffer = stringstream();
     char c = 0;
     // grab all the characters in this line
     do {
@@ -41,7 +41,7 @@ const char* readLine(FILE* fptr, bool locking) {
             c = (char)_fgetc_nolock(fptr);
         // append the new character unless it's a carriage return
         if (c != '\r' && c != '\n' && !feof(fptr))
-            buffer.append(1, c);
+            buffer << c;
     } while (!feof(fptr) && c != '\n');
     return _strdup(buffer.c_str());
 }

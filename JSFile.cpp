@@ -342,14 +342,14 @@ JSAPI_FUNC(file_read) {
 JSAPI_FUNC(file_readLine) {
     FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
     if (fdata && fdata->fptr) {
-        const char* line = readLine(fdata->fptr, fdata->locked);
+        char* line = readLine(fdata->fptr, fdata->locked);
         if (!line)
             THROW_ERROR(cx, _strerror("Read failed"));
 
 		wchar_t* wline = AnsiToUnicode(line);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline)));
         delete[] wline;
-        delete[] line;
+        free(line);
     }
     return JS_TRUE;
 }
@@ -362,7 +362,7 @@ JSAPI_FUNC(file_readAllLines) {
         int i = 0;
         JS_BeginRequest(cx);
         while (!feof(fdata->fptr)) {
-            const char* line = readLine(fdata->fptr, fdata->locked);
+            char* line = readLine(fdata->fptr, fdata->locked);
             if (!line)
                 THROW_ERROR(cx, _strerror("Read failed"));
 
@@ -370,7 +370,7 @@ JSAPI_FUNC(file_readAllLines) {
             jsval val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline));
             JS_SetElement(cx, arr, i++, &val);
             delete[] wline;
-            delete[] line;
+            free(line);
         }
         JS_EndRequest(cx);
     }
@@ -460,7 +460,7 @@ JSAPI_FUNC(file_seek) {
                 // semi-ugly hack to seek to the specified line
                 // if I were unlazy I wouldn't be allocating/deallocating all this memory, but for now it's ok
                 while (bytes--)
-                    delete[] readLine(fdata->fptr, fdata->locked);
+                    free(readLine(fdata->fptr, fdata->locked));
             }
         } else
             THROW_ERROR(cx, "Not enough parameters");
