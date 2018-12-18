@@ -170,9 +170,13 @@ JSAPI_FUNC(filetools_readText) {
         THROW_ERROR(cx, _strerror("Read failed"));
     }
 
+	int offset = 0;
+	if (contents[0] == 0xEF && contents[1] == 0xBB && contents[2] == 0xBF) { // skip BOM
+		offset = 3;
+	}
     // Convert to JSVAL cleanup and return
     JS_BeginRequest(cx);
-    wchar_t* wcontents = AnsiToUnicode(contents);
+    wchar_t* wcontents = AnsiToUnicode(contents + offset);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyN(cx, wcontents, wcslen(wcontents))));
     JS_EndRequest(cx);
     delete[] wcontents;

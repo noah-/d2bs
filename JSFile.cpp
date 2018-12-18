@@ -311,6 +311,17 @@ JSAPI_FUNC(file_read) {
                 JS_EndRequest(cx);
             }
         } else {
+            uint size = 0;
+            int offset = 0;
+            bool begin = false;
+
+            if (fdata->locked)
+                size = ftell(fdata->fptr);
+            else
+                size = _ftell_nolock(fdata->fptr);
+
+            if (size == 0)
+                begin = true;
             // text mode
             if (fdata->locked)
                 fflush(fdata->fptr);
@@ -330,7 +341,10 @@ JSAPI_FUNC(file_read) {
                 THROW_ERROR(cx, _strerror("Read failed"));
             }
 
-			wchar_t* wresult = AnsiToUnicode(result);
+            if (begin && result[0] == 0xEF && result[1] == 0xBB && result[2] == 0xBF) { // skip BOM
+                offset = 3;
+            }
+			wchar_t* wresult = AnsiToUnicode(result + offset);
             JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wresult)));
             delete[] wresult;
             delete[] result;
@@ -342,11 +356,27 @@ JSAPI_FUNC(file_read) {
 JSAPI_FUNC(file_readLine) {
     FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
     if (fdata && fdata->fptr) {
+        uint size = 0;
+        int offset = 0;
+        bool begin = false;
+
+        if (fdata->locked)
+            size = ftell(fdata->fptr);
+        else
+            size = _ftell_nolock(fdata->fptr);
+
+        if (size == 0)
+            begin = true;
+
         char* line = readLine(fdata->fptr, fdata->locked);
         if (!line)
             THROW_ERROR(cx, _strerror("Read failed"));
 
-		wchar_t* wline = AnsiToUnicode(line);
+        if (begin && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) { // skip BOM
+            offset = 3;
+        }
+
+		wchar_t* wline = AnsiToUnicode(line + offset);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline)));
         delete[] wline;
         free(line);
@@ -362,11 +392,27 @@ JSAPI_FUNC(file_readAllLines) {
         int i = 0;
         JS_BeginRequest(cx);
         while (!feof(fdata->fptr)) {
+            uint size = 0;
+            int offset = 0;
+            bool begin = false;
+
+            if (fdata->locked)
+                size = ftell(fdata->fptr);
+            else
+                size = _ftell_nolock(fdata->fptr);
+
+            if (size == 0)
+                begin = true;
+
             char* line = readLine(fdata->fptr, fdata->locked);
             if (!line)
                 THROW_ERROR(cx, _strerror("Read failed"));
 
-			wchar_t* wline = AnsiToUnicode(line);
+			if (begin && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) { // skip BOM
+                offset = 3;
+            }
+
+			wchar_t* wline = AnsiToUnicode(line + offset);
             jsval val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline));
             JS_SetElement(cx, arr, i++, &val);
             delete[] wline;
@@ -380,12 +426,25 @@ JSAPI_FUNC(file_readAllLines) {
 JSAPI_FUNC(file_readAll) {
     FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, JS_THIS_OBJECT(cx, vp), &file_class, NULL);
     if (fdata && fdata->fptr) {
+        uint size = 0;
+        int offset = 0;
+        bool begin = false;
+
+        if (fdata->locked)
+            size = ftell(fdata->fptr);
+        else
+            size = _ftell_nolock(fdata->fptr);
+
+		if (size == 0) {
+            begin = true;
+		}
+
         if (fdata->locked)
             fseek(fdata->fptr, 0, SEEK_END);
         else
             _fseek_nolock(fdata->fptr, 0, SEEK_END);
 
-        uint size = 0;
+        size = 0;
         if (fdata->locked)
             size = ftell(fdata->fptr);
         else
@@ -409,7 +468,10 @@ JSAPI_FUNC(file_readAll) {
             THROW_ERROR(cx, _strerror("Read failed"));
         }
         JS_BeginRequest(cx);
-        wchar_t* wcontents = AnsiToUnicode(contents);
+        if (begin && contents[0] == 0xEF && contents[1] == 0xBB && contents[2] == 0xBF) { // skip BOM
+            offset = 3;
+        }
+        wchar_t* wcontents = AnsiToUnicode(contents + offset);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyN(cx, wcontents, wcslen(wcontents))));
         JS_EndRequest(cx);
         delete[] wcontents;
