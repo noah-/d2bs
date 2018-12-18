@@ -341,7 +341,7 @@ JSAPI_FUNC(file_read) {
                 THROW_ERROR(cx, _strerror("Read failed"));
             }
 
-            if (begin && result[0] == 0xEF && result[1] == 0xBB && result[2] == 0xBF) { // skip BOM
+            if (begin && size > 2 && result[0] == (char)0xEF && result[1] == (char)0xBB && result[2] == (char)0xBF) { // skip BOM
                 offset = 3;
             }
 			wchar_t* wresult = AnsiToUnicode(result + offset);
@@ -372,7 +372,7 @@ JSAPI_FUNC(file_readLine) {
         if (!line)
             THROW_ERROR(cx, _strerror("Read failed"));
 
-        if (begin && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) { // skip BOM
+        if (begin && strlen(line) > 2 && line[0] == (char)0xEF && line[1] == (char)0xBB && line[2] == (char)0xBF) { // skip BOM
             offset = 3;
         }
 
@@ -408,9 +408,9 @@ JSAPI_FUNC(file_readAllLines) {
             if (!line)
                 THROW_ERROR(cx, _strerror("Read failed"));
 
-			if (begin && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) { // skip BOM
-                offset = 3;
-            }
+			if (begin && strlen(line) > 2 && line[0] == (char)0xEF && line[1] == (char)0xBB && line[2] == (char)0xBF) { // skip BOM
+				offset = 3;
+			}
 
 			wchar_t* wline = AnsiToUnicode(line + offset);
             jsval val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline));
@@ -468,7 +468,7 @@ JSAPI_FUNC(file_readAll) {
             THROW_ERROR(cx, _strerror("Read failed"));
         }
         JS_BeginRequest(cx);
-        if (begin && contents[0] == 0xEF && contents[1] == 0xBB && contents[2] == 0xBF) { // skip BOM
+        if (begin && count > 2 && contents[0] == (char)0xEF && contents[1] == (char)0xBB && contents[2] == (char)0xBF) { // skip BOM
             offset = 3;
         }
         wchar_t* wcontents = AnsiToUnicode(contents + offset);

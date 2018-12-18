@@ -171,9 +171,10 @@ JSAPI_FUNC(filetools_readText) {
     }
 
 	int offset = 0;
-	if (contents[0] == 0xEF && contents[1] == 0xBB && contents[2] == 0xBF) { // skip BOM
+    if (readCount > 2 && contents[0] == (char)0xEF && contents[1] == (char)0xBB && contents[2] == (char)0xBF) { // skip BOM
 		offset = 3;
 	}
+
     // Convert to JSVAL cleanup and return
     JS_BeginRequest(cx);
     wchar_t* wcontents = AnsiToUnicode(contents + offset);
