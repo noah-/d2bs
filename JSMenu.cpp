@@ -13,10 +13,7 @@ JSAPI_FUNC(my_login) {
         return JS_TRUE;
 
     const wchar_t* profile = NULL;
-
     char* error;
-
-    Profile* prof;
 
     if (!JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
         if (Vars.szProfile != NULL) {
@@ -33,13 +30,13 @@ JSAPI_FUNC(my_login) {
     if (!Profile::ProfileExists(profile))
         THROW_ERROR(cx, "Profile does not exist!");
 
-    prof = new Profile(profile);
-
-    delete[] profile;
-
-    if (prof->login(&error) != 0)
+    Profile* prof = new Profile(profile);
+    if (prof->login(&error) != 0) {
+        delete prof;
         THROW_ERROR(cx, error);
+    }
 
+    delete prof;
     return JS_TRUE;
 }
 
