@@ -10,7 +10,7 @@
 #include "AutoRoot.h"
 #include "Script.h"
 
-typedef std::map<std::string, Script*> ScriptMap;
+typedef std::map<std::wstring, Script*> ScriptMap;
 
 typedef bool(__fastcall* ScriptCallback)(Script*, void*, uint);
 

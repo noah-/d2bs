@@ -32,28 +32,23 @@ Script* ScriptEngine::CompileFile(const wchar_t* file, ScriptState state, uint a
     if (GetState() != Running)
         return NULL;
 
-    wchar_t* fileNameW = _wcsdup(file);
-    _wcslwr_s(fileNameW, wcslen(file) + 1);
-
-    char* fileName = UnicodeToAnsi(fileNameW);
+    wchar_t* fileName = _wcsdup(file);
+    _wcslwr_s(fileName, wcslen(file) + 1);
 
     try {
         if (scripts.count(fileName))
             scripts[fileName]->Stop();
 
-        Script* script = new Script(fileNameW, state, argc, argv);
+        Script* script = new Script(fileName, state, argc, argv);
         scripts[fileName] = script;
-
-        delete[] fileName;
-        free(fileNameW);
+        free(fileName);
         return script;
     } catch (std::exception e) {
         LeaveCriticalSection(&lock);
         wchar_t* what = AnsiToUnicode(e.what());
         Print(what);
         delete[] what;
-        delete[] fileName;
-        free(fileNameW);
+        free(fileName);
         return NULL;
     }
 }
@@ -76,7 +71,7 @@ void ScriptEngine::RunCommand(const wchar_t* command) {
 void ScriptEngine::DisposeScript(Script* script) {
     LockScriptList("DisposeScript");
 
-    char* nFilename = UnicodeToAnsi(script->GetFilename());
+    const wchar_t* nFilename = script->GetFilename();
 
     if (scripts.count(nFilename))
         scripts.erase(nFilename);
@@ -133,7 +128,7 @@ BOOL ScriptEngine::Startup(void) {
         } else {
             console = new Script(L"", Command);
         }
-        scripts["console"] = console;
+        scripts[L"console"] = console;
         console->BeginThread(ScriptThread);
         state = Running;
         // LeaveCriticalSection(&lock);
