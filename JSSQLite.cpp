@@ -80,9 +80,12 @@ EMPTY_CTOR(sqlite_stmt)
 JSAPI_FUNC(sqlite_ctor) {
     if (argc > 0 && !JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         THROW_ERROR(cx, "Invalid parameters in SQLite constructor");
-    wchar_t* path = L":memory:";
+    wchar_t* path;
+
     if (argc > 0)
         path = _wcsdup(JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0])));
+    else
+        path = _wcsdup(L":memory:");
 
     // if the path is not a special placeholder (:memory:, et. al.), sandbox it
     if (path[0] != ':') {
@@ -90,9 +93,9 @@ JSAPI_FUNC(sqlite_ctor) {
             THROW_ERROR(cx, "Invalid characters in database name");
 
         wchar_t* tmp = new wchar_t[_MAX_PATH + _MAX_FNAME];
-        wprintf_s(tmp, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, path);
-        path = _wcsdup(tmp);
-        delete[] tmp;
+        swprintf_s(tmp, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, path);
+        free(path);
+        path = tmp;
     }
 
     bool autoOpen = true;
@@ -111,11 +114,7 @@ JSAPI_FUNC(sqlite_ctor) {
     SqliteDB* dbobj = new SqliteDB; // leaked?
     dbobj->db = db;
     dbobj->open = autoOpen;
-    dbobj->path = _wcsdup(path);
-
-    // if the path is not a special placeholder, it needs to be freed
-    if (path[0] != ':')
-        free(path);
+    dbobj->path = path;
 
     JSObject* jsdb = BuildObject(cx, &sqlite_db, sqlite_methods, sqlite_props, dbobj);
     if (!jsdb) {
