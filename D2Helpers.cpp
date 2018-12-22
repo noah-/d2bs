@@ -31,7 +31,7 @@ void Log(wchar_t* szFormat, ...) {
 void LogNoFormat(const wchar_t* szString) {
     time_t tTime;
     time(&tTime);
-    char szTime[128] ="";
+    char szTime[128] = "";
     struct tm time;
     localtime_s(&time, &tTime);
     strftime(szTime, sizeof(szTime), "%x %X", &time);

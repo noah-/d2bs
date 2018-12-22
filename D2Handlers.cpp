@@ -373,7 +373,7 @@ void FlushPrint() {
 
         if (Vars.bUseGamePrint && ClientState() == ClientStateInGame) {
             while (getline(ss, temp)) {
-                SplitLines(temp.c_str(), Console::MaxWidth() - 100, ' ', lines);
+                SplitLines(temp.c_str(), Console::MaxWidth() - 100, L' ', lines);
                 Console::AddLine(temp);
             }
 

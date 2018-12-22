@@ -70,7 +70,7 @@ mapPoints = Matrix<CollisionFlag>(height, width, LevelMap::Avoid);
 RoomList addedRooms;
 UnitAny* player = GetPlayerUnit();
 AddRoom(level->pRoom2First, addedRooms, player);
-
+
 FillGaps();
 ThickenWalls();
 DrillExits();

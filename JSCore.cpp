@@ -350,7 +350,7 @@ JSAPI_FUNC(my_paste) {
     HANDLE foo = GetClipboardData(CF_TEXT);
     CloseClipboard();
     LPVOID lptstr = GlobalLock(foo);
- //   (char*)lptstr;
+    //   (char*)lptstr;
     wchar_t* cpy = AnsiToUnicode((const char*)lptstr);
     JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, cpy)));
     delete[] cpy;
@@ -447,7 +447,7 @@ JSAPI_FUNC(my_sendDDE) {
         wchar_t* buf = AnsiToUnicode(buffer);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, buf)));
         delete[] buf;
-	}
+    }
     return JS_TRUE;
 }
 

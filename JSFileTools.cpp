@@ -170,10 +170,10 @@ JSAPI_FUNC(filetools_readText) {
         THROW_ERROR(cx, _strerror("Read failed"));
     }
 
-	int offset = 0;
+    int offset = 0;
     if (readCount > 2 && contents[0] == (char)0xEF && contents[1] == (char)0xBB && contents[2] == (char)0xBF) { // skip BOM
-		offset = 3;
-	}
+        offset = 3;
+    }
 
     // Convert to JSVAL cleanup and return
     JS_BeginRequest(cx);

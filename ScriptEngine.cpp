@@ -438,7 +438,7 @@ void reportError(JSContext* cx, const char* message, JSErrorReport* report) {
     Log(L"[%hs%hs] Code(%d) File(%s:%d) %hs\nLine: %hs", strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
     Print(L"[\u00FFc%d%hs%hs\u00FFc0 (%d)] File(%s:%d) %hs", (warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
-	if (filename[0] == L'<')
+    if (filename[0] == L'<')
         free(filename);
     else
         delete[] filename;

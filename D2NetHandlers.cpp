@@ -119,12 +119,12 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize) {
         break;
     }
 
-	if (!wname2) {
+    if (!wname2) {
         wname2 = AnsiToUnicode(name2, CP_ACP);
         GameActionEvent(mode, param1, param2, name1, wname2);
         delete[] wname2;
-	} else 
-		GameActionEvent(mode, param1, param2, name1, wname2);
+    } else
+        GameActionEvent(mode, param1, param2, name1, wname2);
 
     return TRUE;
 }

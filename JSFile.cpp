@@ -344,7 +344,7 @@ JSAPI_FUNC(file_read) {
             if (begin && size > 2 && result[0] == (char)0xEF && result[1] == (char)0xBB && result[2] == (char)0xBF) { // skip BOM
                 offset = 3;
             }
-			wchar_t* wresult = AnsiToUnicode(result + offset);
+            wchar_t* wresult = AnsiToUnicode(result + offset);
             JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wresult)));
             delete[] wresult;
             delete[] result;
@@ -376,7 +376,7 @@ JSAPI_FUNC(file_readLine) {
             offset = 3;
         }
 
-		wchar_t* wline = AnsiToUnicode(line + offset);
+        wchar_t* wline = AnsiToUnicode(line + offset);
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline)));
         delete[] wline;
         free(line);
@@ -408,11 +408,11 @@ JSAPI_FUNC(file_readAllLines) {
             if (!line)
                 THROW_ERROR(cx, _strerror("Read failed"));
 
-			if (begin && strlen(line) > 2 && line[0] == (char)0xEF && line[1] == (char)0xBB && line[2] == (char)0xBF) { // skip BOM
-				offset = 3;
-			}
+            if (begin && strlen(line) > 2 && line[0] == (char)0xEF && line[1] == (char)0xBB && line[2] == (char)0xBF) { // skip BOM
+                offset = 3;
+            }
 
-			wchar_t* wline = AnsiToUnicode(line + offset);
+            wchar_t* wline = AnsiToUnicode(line + offset);
             jsval val = STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wline));
             JS_SetElement(cx, arr, i++, &val);
             delete[] wline;
@@ -435,9 +435,9 @@ JSAPI_FUNC(file_readAll) {
         else
             size = _ftell_nolock(fdata->fptr);
 
-		if (size == 0) {
+        if (size == 0) {
             begin = true;
-		}
+        }
 
         if (fdata->locked)
             fseek(fdata->fptr, 0, SEEK_END);

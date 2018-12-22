@@ -75,15 +75,15 @@ DWORD Script::GetThreadId(void) {
 }
 
 void Script::RunCommand(const wchar_t* command) {
-    //RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
-    //rcs->script = this;
-    //rcs->command = _wcsdup(command);
+    // RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
+    // rcs->script = this;
+    // rcs->command = _wcsdup(command);
 
     if (isAborted) { // this should never happen -bob
-        //RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
+        // RUNCOMMANDSTRUCT* rcs = new RUNCOMMANDSTRUCT;
 
-        //rcs->script = this;
-        //rcs->command = _wcsdup(L"delay(1000000);");
+        // rcs->script = this;
+        // rcs->command = _wcsdup(L"delay(1000000);");
 
         Log(L"Console Aborted HELP!");
         // HANDLE hwnd = CreateThread(NULL, 0, RunCommandThread, (void*) rcs, 0, NULL);

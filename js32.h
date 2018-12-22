@@ -103,7 +103,7 @@ class JSAutoRoot {
 #define CLASS_CTOR(name) JSBool name##_ctor(JSContext* cx, uint argc, jsval* vp)
 
 //#define EMPTY_CTOR(name) JSBool name##_ctor (JSContext* cx, uint argc, jsval* vp) { return THROW_ERROR(cx, #name " is not constructable."); }
-//   #define EMPTY_CTOR(name) \
+//    #define EMPTY_CTOR(name) \
 //JSBool name##_ctor (JSContext *cx, JSObject* obj, uint argc, jsval *argv, jsval *rval) { \
 //	THROW_ERROR(cx, "Invalid Operation"); }
 

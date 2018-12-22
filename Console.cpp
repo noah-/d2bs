@@ -101,7 +101,7 @@ void Console::ScrollDown(void) {
 void Console::AddLine(std::wstring line) {
     EnterCriticalSection(&Vars.cConsoleSection);
     std::list<std::wstring> buf;
-    SplitLines(line, Console::MaxWidth(), ' ', buf);
+    SplitLines(line, Console::MaxWidth(), L' ', buf);
     for (std::list<std::wstring>::iterator it2 = buf.begin(); it2 != buf.end(); it2++) {
         history.push_back(*it2);
     }
@@ -218,7 +218,7 @@ void Console::Draw(void) {
         if (IsEnabled()) {
             std::wstring cmdstr = cmd.str();
             if (cmdstr.length() > 0) {
-                SplitLines(cmdstr, Console::MaxWidth(), ' ', cmdsplit);
+                SplitLines(cmdstr, Console::MaxWidth(), L' ', cmdsplit);
                 cmdsize = CalculateTextLen(cmdsplit.back().c_str(), Vars.dwConsoleFont).x;
                 cmdlines += cmdsplit.size() - 1;
             }

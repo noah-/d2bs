@@ -348,7 +348,7 @@ JSAPI_FUNC(sqlite_stmt_getobject) {
             if (!JS_SetProperty(cx, obj2, colnam, &val))
                 THROW_ERROR(cx, "Failed to add column to row results");
             break;
-		}
+        }
         case SQLITE_BLOB:
             // currently not supported
             THROW_ERROR(cx, "Blob type not supported (yet)");
@@ -404,7 +404,7 @@ JSAPI_FUNC(sqlite_stmt_colval) {
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewUCStringCopyZ(cx, wText)));
         delete[] wText;
         break;
-	}
+    }
     case SQLITE_BLOB:
         // currently not supported
         THROW_ERROR(cx, "Blob type not supported (yet)");
@@ -458,7 +458,7 @@ JSAPI_FUNC(sqlite_stmt_bind) {
         char* szText = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         colnum = sqlite3_bind_parameter_index(stmt, szText);
         JS_free(cx, szText);
-	}
+    }
 
     if (colnum == 0)
         THROW_ERROR(cx, "Invalid parameter number, parameters start at 1");
@@ -566,7 +566,7 @@ JSAPI_PROP(sqlite_stmt_getProperty) {
         vp.setString(JS_NewUCStringCopyZ(cx, wText));
         delete[] wText;
         break;
-	}
+    }
     case SQLITE_STMT_READY:
         vp.setBoolean(stmtobj->canGet);
         break;

@@ -58,10 +58,7 @@ JSAPI_PROP(unit_getProperty) {
         // JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);
         break;
     case ME_PROFILE:
-        nProfile = UnicodeToAnsi(Vars.szProfile);
-        vp.setString(JS_NewStringCopyZ(cx, nProfile));
-        delete[] nProfile;
-        // vp.setString(JS_NewStringCopyZ(cx, Vars.szProfile));
+        vp.setString(JS_NewUCStringCopyZ(cx, Vars.szProfile));
         break;
     case ME_GAMEREADY:
         vp.setBoolean(GameReady());
@@ -143,9 +140,7 @@ JSAPI_PROP(unit_getProperty) {
     case OOG_WINDOWTITLE: {
         wchar_t szTitle[256];
         GetWindowTextW(D2GFX_GetHwnd(), szTitle, 256);
-        char* title = UnicodeToAnsi(szTitle);
-        vp.setString(JS_NewStringCopyZ(cx, title));
-        delete[] title;
+        vp.setString(JS_NewUCStringCopyZ(cx, szTitle));
     } break;
     case ME_PING:
         vp.setInt32(*p_D2CLIENT_Ping);
@@ -584,14 +579,15 @@ JSAPI_FUNC(unit_getUnit) {
     uint32 nClassId = (uint32)-1;
     uint32 nMode = (uint32)-1;
     uint32 nUnitId = (uint32)-1;
-    char* szName;
+    char* szName = "";
 
+    JS_BeginRequest(cx);
     if (argc > 0 && JSVAL_IS_INT(JS_ARGV(cx, vp)[0]))
         nType = JSVAL_TO_INT(JS_ARGV(cx, vp)[0]);
 
     if (argc > 1 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[1]))
         szName = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[1]));
-    JS_BeginRequest(cx);
+
     if (argc > 1 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[1]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[1]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[1], &nClassId);
 
@@ -601,6 +597,7 @@ JSAPI_FUNC(unit_getUnit) {
     if (argc > 3 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[3]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[3]))
         JS_ValueToECMAUint32(cx, JS_ARGV(cx, vp)[3], &nUnitId);
     JS_EndRequest(cx);
+
     UnitAny* pUnit = NULL;
 
     if (nType == 100)
@@ -709,7 +706,7 @@ JSAPI_FUNC(unit_getNext) {
             // set current object to null breaks the unit_finilize cleanup cycle
             /*JSObject* obj = JS_THIS_OBJECT(cx, vp);
             //JS_ClearScope(cx, obj);
-            
+            
 
 
 
