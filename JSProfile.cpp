@@ -122,24 +122,16 @@ JSAPI_PROP(profile_getProperty) {
         vp.setInt32(prof->type);
         break;
     case PROFILE_IP:
-        nStr = UnicodeToAnsi(prof->ip);
-        vp.setString(JS_NewStringCopyZ(cx, nStr));
-        delete[] nStr;
+        vp.setString(JS_NewUCStringCopyZ(cx, prof->ip));
         break;
     case PROFILE_USERNAME:
-        nStr = UnicodeToAnsi(prof->username);
-        vp.setString(JS_NewStringCopyZ(cx, nStr));
-        delete[] nStr;
+        vp.setString(JS_NewUCStringCopyZ(cx, prof->username));
         break;
     case PROFILE_GATEWAY:
-        nStr = UnicodeToAnsi(prof->gateway);
-        vp.setString(JS_NewStringCopyZ(cx, nStr));
-        delete[] nStr;
+        vp.setString(JS_NewUCStringCopyZ(cx, prof->gateway));
         break;
     case PROFILE_CHARACTER:
-        nStr = UnicodeToAnsi(prof->charname);
-        vp.setString(JS_NewStringCopyZ(cx, nStr));
-        delete[] nStr;
+        vp.setString(JS_NewUCStringCopyZ(cx, prof->charname));
         break;
     case PROFILE_DIFFICULTY:
         vp.setInt32(prof->diff);
