@@ -46,9 +46,7 @@ JSAPI_PROP(control_getProperty) {
     switch (JSID_TO_INT(id)) {
     case CONTROL_TEXT:
         if (ctrl->dwIsCloaked != 33) {
-            char* tmp = UnicodeToAnsi((ctrl->dwType == 6 ? ctrl->wText2 : ctrl->wText));
-            vp.setString(JS_InternString(cx, tmp));
-            delete[] tmp;
+            vp.setString(JS_InternUCString(cx, ctrl->dwType == 6 ? ctrl->wText2 : ctrl->wText));
         }
         break;
     case CONTROL_X:

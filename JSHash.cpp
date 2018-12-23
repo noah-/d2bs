@@ -80,9 +80,7 @@ JSAPI_FUNC(my_md5_file) {
     wchar_t path[_MAX_FNAME + _MAX_PATH];
     swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, file);
 
-    char* p = UnicodeToAnsi(path);
-    char* result = md5_file(p);
-    delete[] p;
+    char* result = md5_file(path);
     if (result && result[0])
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
     delete[] result;
@@ -100,9 +98,7 @@ JSAPI_FUNC(my_sha1_file) {
     wchar_t path[_MAX_FNAME + _MAX_PATH];
     swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, file);
 
-    char* p = UnicodeToAnsi(path);
-    char* result = sha1_file(p);
-    delete[] p;
+    char* result = sha1_file(path);
     if (result && result[0])
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
     delete[] result;
@@ -120,9 +116,7 @@ JSAPI_FUNC(my_sha256_file) {
     wchar_t path[_MAX_FNAME + _MAX_PATH];
     swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, file);
 
-    char* p = UnicodeToAnsi(path);
-    char* result = sha256_file(p);
-    delete[] p;
+    char* result = sha256_file(path);
     if (result && result[0])
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
     delete[] result;
@@ -140,9 +134,7 @@ JSAPI_FUNC(my_sha384_file) {
     wchar_t path[_MAX_FNAME + _MAX_PATH];
     swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, file);
 
-    char* p = UnicodeToAnsi(path);
-    char* result = sha384_file(p);
-    delete[] p;
+    char* result = sha384_file(path);
     if (result && result[0])
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
     delete[] result;
@@ -160,9 +152,7 @@ JSAPI_FUNC(my_sha512_file) {
     wchar_t path[_MAX_FNAME + _MAX_PATH];
     swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, file);
 
-    char* p = UnicodeToAnsi(path);
-    char* result = sha512_file(p);
-    delete[] p;
+    char* result = sha512_file(path);
     if (result && result[0])
         JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result)));
     delete[] result;

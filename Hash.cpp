@@ -54,7 +54,7 @@ char* HashString(char* dataIn, ALG_ID algo) {
     return szBuffer1;
 }
 
-char* HashFile(char* file, ALG_ID algo) {
+char* HashFile(wchar_t* file, ALG_ID algo) {
     // set up the crypto environment
     HCRYPTPROV provider;
     HCRYPTHASH hash;
@@ -69,7 +69,7 @@ char* HashFile(char* file, ALG_ID algo) {
     // now we have a working crypto environment, let's encrypt
     // open the file
     FILE* fp = NULL;
-    fopen_s(&fp, file, "r");
+    _wfopen_s(&fp, file, L"r");
     if (!fp)
         return NULL;
 
@@ -141,18 +141,18 @@ char* sha512(char* str) {
     return HashString(str, CALG_SHA_512);
 }
 
-char* md5_file(char* file) {
+char* md5_file(wchar_t* file) {
     return HashFile(file, CALG_MD5);
 }
-char* sha1_file(char* file) {
+char* sha1_file(wchar_t* file) {
     return HashFile(file, CALG_SHA1);
 }
-char* sha256_file(char* file) {
+char* sha256_file(wchar_t* file) {
     return HashFile(file, CALG_SHA_256);
 }
-char* sha384_file(char* file) {
+char* sha384_file(wchar_t* file) {
     return HashFile(file, CALG_SHA_384);
 }
-char* sha512_file(char* file) {
+char* sha512_file(wchar_t* file) {
     return HashFile(file, CALG_SHA_512);
 }
