@@ -123,7 +123,7 @@ BOOL ScriptEngine::Startup(void) {
         LockScriptList("startup - enter");
         if (wcslen(Vars.szConsole) > 0) {
             wchar_t file[_MAX_FNAME + _MAX_PATH];
-            swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%s\\%s", Vars.szScriptPath, Vars.szConsole);
+            swprintf_s(file, _countof(file), L"%s\\%s", Vars.szScriptPath, Vars.szConsole);
             console = new Script(file, Command);
         } else {
             console = new Script(L"", Command);

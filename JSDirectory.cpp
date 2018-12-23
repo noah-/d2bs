@@ -84,7 +84,7 @@ JSAPI_FUNC(dir_getFiles) {
 
     long hFile;
     wchar_t path[_MAX_PATH], oldpath[_MAX_PATH];
-    swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, d->name);
+    swprintf_s(path, _MAX_PATH, L"%s\\%s", Vars.szScriptPath, d->name);
 
     if (!_wgetcwd(oldpath, _MAX_PATH)) {
         Log(L"Error getting current working directory. (%s, %s)", L"JSDirectory.cpp", L"dir_getFiles");
@@ -132,7 +132,7 @@ JSAPI_FUNC(dir_getFolders) {
 
     long hFile;
     wchar_t path[_MAX_PATH], oldpath[_MAX_PATH];
-    swprintf_s(path, _MAX_PATH, L"%ls\\%ls", Vars.szScriptPath, d->name);
+    swprintf_s(path, _MAX_PATH, L"%s\\%s", Vars.szScriptPath, d->name);
 
     if (!_wgetcwd(oldpath, _MAX_PATH)) {
         Log(L"Error getting current working directory. (%s, %s)", L"JSDirectory.cpp", L"dir_getFolders");

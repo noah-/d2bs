@@ -13,17 +13,17 @@ void Profile::init(const wchar_t* profileName) {
     if (profileName[0] == L'\0')
         throw "Can't open empty profile name.";
 
-    swprintf_s(file, _MAX_FNAME + MAX_PATH, L"%sd2bs.ini", Vars.szPath);
+    swprintf_s(file, _countof(file), L"%sd2bs.ini", Vars.szPath);
 
-    GetPrivateProfileStringW(profileName, L"mode", L"single", mode, sizeof(mode), file);
-    GetPrivateProfileStringW(profileName, L"character", L"ERROR", charname, sizeof(charname), file);
-    GetPrivateProfileStringW(profileName, L"spdifficulty", L"0", difficulty, sizeof(difficulty), file);
-    GetPrivateProfileStringW(profileName, L"username", L"ERROR", username, sizeof(username), file);
-    GetPrivateProfileStringW(profileName, L"password", L"ERROR", password, sizeof(password), file);
-    GetPrivateProfileStringW(profileName, L"gateway", L"ERROR", gateway, sizeof(gateway), file);
+    GetPrivateProfileStringW(profileName, L"mode", L"single", mode, _countof(mode), file);
+    GetPrivateProfileStringW(profileName, L"character", L"ERROR", charname, _countof(charname), file);
+    GetPrivateProfileStringW(profileName, L"spdifficulty", L"0", difficulty, _countof(difficulty), file);
+    GetPrivateProfileStringW(profileName, L"username", L"ERROR", username, _countof(username), file);
+    GetPrivateProfileStringW(profileName, L"password", L"ERROR", password, _countof(password), file);
+    GetPrivateProfileStringW(profileName, L"gateway", L"ERROR", gateway, _countof(gateway), file);
 
-    GetPrivateProfileStringW(L"settings", L"MaxLoginTime", L"5", _maxLoginTime, sizeof(maxLoginTime), file);
-    GetPrivateProfileStringW(L"settings", L"MaxCharSelectTime", L"5", _maxCharTime, sizeof(maxCharTime), file);
+    GetPrivateProfileStringW(L"settings", L"MaxLoginTime", L"5", _maxLoginTime, _countof(_maxLoginTime), file);
+    GetPrivateProfileStringW(L"settings", L"MaxCharSelectTime", L"5", _maxCharTime, _countof(_maxCharTime), file);
 
     maxLoginTime = abs(_wtoi(_maxLoginTime) * 1000);
     maxCharTime = abs(_wtoi(_maxCharTime) * 1000);
@@ -58,7 +58,7 @@ void Profile::init(const wchar_t* profileName) {
 
 bool Profile::ProfileExists(const wchar_t* profile) {
     wchar_t file[_MAX_FNAME + _MAX_PATH], profiles[65535] = L"";
-    swprintf_s(file, _MAX_FNAME + _MAX_PATH, L"%sd2bs.ini", Vars.szPath);
+    swprintf_s(file, _countof(file), L"%sd2bs.ini", Vars.szPath);
 
     int count = GetPrivateProfileStringW(NULL, NULL, NULL, profiles, 65535, file);
     if (count > 0) {
@@ -68,23 +68,6 @@ bool Profile::ProfileExists(const wchar_t* profile) {
                 return true;
 
             i += wcslen(profiles + i) + 1;
-        }
-    }
-    return false;
-}
-
-bool Profile::ProfileExists(const char* profile) {
-    char file[_MAX_FNAME + _MAX_PATH], profiles[65535] = "";
-    sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
-
-    int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
-    if (count > 0) {
-        int i = 0;
-        while (i < count) {
-            if (_strcmpi(profiles + i, profile) == 0)
-                return true;
-
-            i += strlen(profiles + i) + 1;
         }
     }
     return false;

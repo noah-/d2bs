@@ -71,7 +71,7 @@ const char* GetUnitName(UnitAny* pUnit, char* szTmp, size_t bufSize) {
     }
     if (pUnit->dwType == UNIT_ITEM) {
         wchar_t wBuffer[256] = L"";
-        D2CLIENT_GetItemName(pUnit, wBuffer, sizeof(wBuffer));
+        D2CLIENT_GetItemName(pUnit, wBuffer, _countof(wBuffer));
         char* szBuffer = UnicodeToAnsi(wBuffer);
         if (strchr(szBuffer, '\n'))
             *strchr(szBuffer, '\n') = 0x00;
@@ -529,7 +529,7 @@ CellFile* LoadCellFile(const wchar_t* lpszPath, DWORD bMPQ) {
     if (bMPQ == 3) {
         // Check in our directory first
         wchar_t path[_MAX_FNAME + _MAX_PATH];
-        swprintf_s(path, sizeof(path), L"%s\\%s", Vars.szScriptPath, lpszPath);
+        swprintf_s(path, _countof(path), L"%s\\%s", Vars.szScriptPath, lpszPath);
 
         HANDLE hFile = OpenFileRead(path);
 

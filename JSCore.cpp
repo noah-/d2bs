@@ -186,7 +186,7 @@ JSAPI_FUNC(my_load) {
     if (scriptState == Command)
         scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%ls\\%ls", Vars.szScriptPath, file);
+    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, file);
     StringReplace(buf, L'/', L'\\', _MAX_PATH + _MAX_FNAME);
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
@@ -280,7 +280,7 @@ JSAPI_FUNC(my_isIncluded) {
     }
 
     wchar_t path[_MAX_FNAME + _MAX_PATH];
-    swprintf_s(path, _MAX_FNAME + _MAX_PATH, L"%ls\\libs\\%ls", Vars.szScriptPath, file);
+    swprintf_s(path, _countof(path), L"%s\\libs\\%s", Vars.szScriptPath, file);
     Script* script = (Script*)JS_GetContextPrivate(cx);
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->IsIncluded(path)));
     return JS_TRUE;

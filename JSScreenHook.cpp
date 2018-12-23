@@ -629,7 +629,7 @@ JSAPI_FUNC(image_ctor) {
         hover = JS_ARGV(cx, vp)[7];
 
     if (isValidPath(path))
-        swprintf_s(path, sizeof(path), L"%s", szText);
+        swprintf_s(path, _countof(path), L"%s", szText);
     else
         THROW_ERROR(cx, "Invalid image file path");
 
