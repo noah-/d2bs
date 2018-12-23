@@ -80,7 +80,11 @@ CLASS_CTOR(profile) {
         THROW_ERROR(cx, ex);
     }
 
-    JS_SetPrivate(cx, JS_THIS_OBJECT(cx, vp), prof);
+	JSObject* obj = BuildObject(cx, &profile_class, profile_methods, profile_props);
+    if (!obj)
+        THROW_ERROR(cx, "Failed to create profile object");
+    JS_SetPrivate(cx, obj, prof);
+    JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
 
     return JS_TRUE;
 }

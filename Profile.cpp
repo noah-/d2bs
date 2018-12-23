@@ -51,7 +51,6 @@ void Profile::init(const wchar_t* profileName) {
         type = PROFILETYPE_TCPIP_HOST;
         break;
     case 'j':
-        wcsncpy_s(ip, L"localhost", (size_t)wcslen(L"localhost"));
         type = PROFILETYPE_TCPIP_JOIN;
         break;
     }

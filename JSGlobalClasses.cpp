@@ -164,6 +164,7 @@ JSClassSpec global_classes[] = {
     {&line_class, 0, line_ctor, 0, line_methods, line_props, NULL, NULL},
     {&text_class, 0, text_ctor, 0, text_methods, text_props, NULL, NULL},
     {&image_class, 0, image_ctor, 0, image_methods, image_props, NULL, NULL},
+    {&profile_class, 0, profile_ctor, 0, profile_methods, profile_props, NULL, NULL},
     {0}
 
 };
