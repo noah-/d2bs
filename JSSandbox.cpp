@@ -192,7 +192,7 @@ JSAPI_FUNC(sandbox_include) {
         const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         if (file && wcslen(file) <= _MAX_FNAME && box) {
             wchar_t buf[_MAX_PATH + _MAX_FNAME];
-            swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
+            swprintf_s(buf, _countof(buf), L"%s\\libs\\%s", Vars.szScriptPath, file);
             if (box->list.count(std::wstring(file)) == -1) {
                 JSScript* tmp = JS_CompileFile(box->context, box->innerObj, buf);
                 if (tmp) {
@@ -218,7 +218,7 @@ JSAPI_FUNC(sandbox_isIncluded) {
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]) && box) {
         const wchar_t* file = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
         wchar_t buf[_MAX_PATH + _MAX_FNAME];
-        swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
+        swprintf_s(buf, _countof(buf), L"%s\\libs\\%s", Vars.szScriptPath, file);
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(!!box->list.count(std::wstring(buf))));
     } else
         THROW_ERROR(cx, "Invalid parameter, file expected");

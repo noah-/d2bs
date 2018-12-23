@@ -303,15 +303,19 @@ bool __fastcall PacketEventCallback(Script* script, void* argv, uint argc) {
         evt->arg4 = new DWORD(false);
         memcpy(evt->arg1, helper->pPacket, helper->dwSize);
 
-        ResetEvent(Vars.eventSignal);
-        script->FireEvent(evt);
-        static DWORD result;
-        ReleaseGameLock();
-        result = WaitForSingleObject(Vars.eventSignal, 500);
-        TakeGameLock();
+        if (GetCurrentThreadId() == evt->owner->threadId)
+            ExecScriptEvent(evt, false);
+        else {
+            ResetEvent(Vars.eventSignal);
+            script->FireEvent(evt);
+            static DWORD result;
+            ReleaseGameLock();
+            result = WaitForSingleObject(Vars.eventSignal, 500);
+            TakeGameLock();
 
-        if (result == WAIT_TIMEOUT)
-            return false;
+            if (result == WAIT_TIMEOUT)
+                return false;
+        }
 
         bool retval = (*(DWORD*)evt->arg4);
         free(evt->name);

@@ -37,7 +37,7 @@ void LogNoFormat(const wchar_t* szString) {
     strftime(szTime, sizeof(szTime), "%x %X", &time);
 
     wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
-    swprintf_s(path, _MAX_PATH + _MAX_FNAME, L"%sd2bs.log", Vars.szPath);
+    swprintf_s(path, _countof(path), L"%sd2bs.log", Vars.szPath);
 
 #ifdef DEBUG
     FILE* log = stderr;

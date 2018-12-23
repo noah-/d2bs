@@ -92,7 +92,7 @@ JSAPI_FUNC(sqlite_ctor) {
         if (!isValidPath(path))
             THROW_ERROR(cx, "Invalid characters in database name");
 
-        wchar_t* tmp = new wchar_t[_MAX_PATH + _MAX_FNAME];
+        wchar_t* tmp = (wchar_t*)malloc(sizeof(wchar_t) * (_MAX_PATH + _MAX_FNAME));
         swprintf_s(tmp, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, path);
         free(path);
         path = tmp;

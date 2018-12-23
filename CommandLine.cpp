@@ -79,9 +79,9 @@ VOID ParseCommandLine(LPWSTR Command) {
         }
         sLine* sl = new sLine;
         sl->isBool = CLine[x].isBool;
-        wcscpy_s(sl->Param, sizeof(sl->Param), CLine[x].Param);
+        wcscpy_s(sl->Param, _countof(sl->Param), CLine[x].Param);
         if (!sl->isBool)
-            wcscpy_s(sl->szText, sizeof(sl->szText), szText);
+            wcscpy_s(sl->szText, _countof(sl->szText), szText);
 
         aCommand.Add(sl);
     }

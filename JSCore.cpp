@@ -181,13 +181,13 @@ JSAPI_FUNC(my_load) {
         return JS_FALSE;
     }
 
-    wchar_t buf[_MAX_PATH + _MAX_FNAME];
     ScriptState scriptState = script->GetState();
     if (scriptState == Command)
         scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\%s", Vars.szScriptPath, file);
-    StringReplace(buf, L'/', L'\\', _MAX_PATH + _MAX_FNAME);
+    wchar_t buf[_MAX_PATH + _MAX_FNAME];
+    swprintf_s(buf, _countof(buf), L"%s\\%s", Vars.szScriptPath, file);
+    StringReplace(buf, L'/', L'\\', _countof(buf));
 
     JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
     for (uint i = 1; i < argc; i++) {
@@ -226,7 +226,7 @@ JSAPI_FUNC(my_include) {
     }
 
     wchar_t buf[_MAX_PATH + _MAX_FNAME];
-    swprintf_s(buf, _MAX_PATH + _MAX_FNAME, L"%s\\libs\\%s", Vars.szScriptPath, file);
+    swprintf_s(buf, _countof(buf), L"%s\\libs\\%s", Vars.szScriptPath, file);
 
     if (_waccess(buf, 0) == 0)
         JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(script->Include(buf)));

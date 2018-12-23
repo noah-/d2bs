@@ -333,10 +333,10 @@ HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindow
     WCHAR szClassName[200] = L"CNAME";
 
     if (wcslen(Vars.szTitle) > 1)
-        wcscpy_s(szWindowName, sizeof(szWindowName), Vars.szTitle);
+        wcscpy_s(szWindowName, _countof(szWindowName), Vars.szTitle);
 
     WCHAR* wClassName = AnsiToUnicode(lpClassName);
-    wcscpy_s(szClassName, sizeof(szClassName), wClassName);
+    wcscpy_s(szClassName, _countof(szClassName), wClassName);
     delete[] wClassName;
 
     return CreateWindowExW(dwExStyle, szClassName, szWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);

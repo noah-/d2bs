@@ -50,8 +50,8 @@ JSAPI_FUNC(my_selectChar) {
     if (!Profile::ProfileExists(profile))
         THROW_ERROR(cx, "Invalid profile specified");
     wchar_t charname[24], file[_MAX_FNAME + MAX_PATH];
-    swprintf_s(file, sizeof(file), L"%sd2bs.ini", Vars.szPath);
-    GetPrivateProfileStringW(profile, L"character", L"ERROR", charname, sizeof(charname), file);
+    swprintf_s(file, _countof(file), L"%sd2bs.ini", Vars.szPath);
+    GetPrivateProfileStringW(profile, L"character", L"ERROR", charname, _countof(file), file);
 
     JS_SET_RVAL(cx, vp, BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname)));
 
@@ -139,10 +139,10 @@ JSAPI_FUNC(my_addProfile) {
 
     wchar_t file[_MAX_FNAME + _MAX_PATH];
 
-    swprintf_s(file, sizeof(file), L"%sd2bs.ini", Vars.szPath);
+    swprintf_s(file, _countof(file), L"%sd2bs.ini", Vars.szPath);
     if (!Profile::ProfileExists(*args[0])) {
         wchar_t settings[600] = L"";
-        swprintf_s(settings, sizeof(settings), L"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
+        swprintf_s(settings, _countof(settings), L"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t", mode, gateway, username, password,
                    charname, spdifficulty);
 
         StringReplace(settings, '\t', '\0', 600);

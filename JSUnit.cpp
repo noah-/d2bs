@@ -402,7 +402,7 @@ JSAPI_PROP(unit_getProperty) {
     case ITEM_FNAME:
         if (pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
             wchar_t wszfname[256] = L"";
-            D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
+            D2CLIENT_GetItemName(pUnit, wszfname, _countof(wszfname));
             if (wszfname) {
                 vp.setString(JS_InternUCString(cx, wszfname));
             }
@@ -706,7 +706,8 @@ JSAPI_FUNC(unit_getNext) {
             // set current object to null breaks the unit_finilize cleanup cycle
             /*JSObject* obj = JS_THIS_OBJECT(cx, vp);
             //JS_ClearScope(cx, obj);
-            
+
+
 
 
 
@@ -1797,8 +1798,10 @@ JSAPI_FUNC(unit_getItem) {
     char szName[128] = "";
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0])) {
-        char* szText = JS_EncodeStringToUTF8(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
-        strcpy_s(szName, sizeof(szName), szText);
+        const wchar_t* szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        char* euc = UnicodeToAnsi(szText, CP_ACP);
+        strcpy_s(szName, sizeof(szName), euc);
+        delete[] euc;
     }
 
     if (argc > 0 && JSVAL_IS_NUMBER(JS_ARGV(cx, vp)[0]) && !JSVAL_IS_NULL(JS_ARGV(cx, vp)[0]))
