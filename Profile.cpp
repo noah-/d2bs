@@ -30,7 +30,7 @@ void Profile::init(const wchar_t* profileName) {
 
     tmp = _wtoi(difficulty);
 
-    if (tmp < 0 || tmp > 2)
+    if (tmp < 0 || tmp > 3)
         throw "Invalid difficulty.";
 
     diff = (char)tmp;
@@ -179,6 +179,13 @@ DWORD Profile::login(char** error) {
                 // hell button
                 if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)))
                     errorMsg = "Failed to click the 'Hell Difficulty' button?";
+                break;
+            case 3:
+				// highest available
+                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)) &&
+                    !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 340, 272, 35)) &&
+                    !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 297, 272, 35)))
+                    errorMsg = "Failed to click ANY difficulty button?";
                 break;
             default:
                 errorMsg = "Invalid single player difficulty level specified!";
