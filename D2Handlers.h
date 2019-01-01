@@ -13,6 +13,7 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize);
 DWORD __fastcall GamePacketSent(BYTE* pPacket, DWORD dwSize);
 void __fastcall GameResetFrames(UnitAny* pOwner);
 void GameDrawOOG(void);
+void SetMaxDiff(void);
 void __stdcall AddUnit(UnitAny* lpUnit);
 void __stdcall RemoveUnit(UnitAny* lpUnit);
 void __fastcall WhisperHandler(char* szAcc, char* szText);
@@ -25,10 +26,12 @@ VOID __fastcall ClassicSTUB();
 VOID __fastcall LodSTUB();
 void FailToJoin();
 HMODULE __stdcall Multi(LPSTR Class, LPSTR Window);
-HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
-HANDLE __stdcall CacheFix(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+HANDLE __stdcall Windowname(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu,
+                            HINSTANCE hInstance, LPVOID lpParam);
+HANDLE __stdcall CacheFix(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition,
+                          DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 BOOL __fastcall RealmPacketRecv(BYTE* pPacket, DWORD dwSize);
 BOOL __fastcall ChatPacketRecv(BYTE* pPacket, int len);
-LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS *ExceptionInfo);
+LONG WINAPI MyUnhandledExceptionFilter(_In_ struct _EXCEPTION_POINTERS* ExceptionInfo);
 void FogException();
-char __fastcall ErrorReportLaunch(const char *crash_file, int a2);
+char __fastcall ErrorReportLaunch(const char* crash_file, int a2);

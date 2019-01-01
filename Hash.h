@@ -1,5 +1,5 @@
 #pragma once
-#pragma comment (lib, "Crypt32")
+#pragma comment(lib, "Crypt32")
 
 #include <windows.h>
 #include <wincrypt.h>

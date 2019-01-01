@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <assert.h>
 #include "ActMap.h"
 #include "D2Structs.h"
@@ -116,7 +116,7 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 	}
 	if(!this->act || !this->act->pMisc || !this->act->pRoom1)
 	{
-			Print("�c1ActMap Level Not Loaded");
+			Print("пїЅc1ActMap Level Not Loaded");
 			return ActMap::Avoid;
 	}
 	if(!currLevel)
@@ -384,12 +384,12 @@ void ActMap::FindRoomLinkageExits(ExitArray& exits) const
 	
 			if (overlappingX < 0 || overlappingY < 0)
 			{
-				// Print("�c1d2bs�c3ActMap::GetExits�c0 adjecent room is out of reach - it's not even touching local room in corner!");
+				// Print("пїЅc1d2bsпїЅc3ActMap::GetExitsпїЅc0 adjecent room is out of reach - it's not even touching local room in corner!");
 				continue;
 			}
 			if (overlappingX > 0 && overlappingY > 0)
 			{
-				// Print("�c1d2bs�c3ActMap::GetExits�c0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				// Print("пїЅc1d2bsпїЅc3ActMap::GetExitsпїЅc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
 				continue;             
 			}
 			if (overlappingX < 3 && overlappingY < 3)
@@ -564,6 +564,19 @@ bool ActMap::OneSpaceHasFlag(int flag, const Point& point, bool abs) const
 	return ((val & flag) == flag);
 }
 
+int ActMap::SpaceGetData(const Point& point, bool abs) const
+{
+	if(!abs) 
+		return SpaceGetData(RelativeToAbs(point), true);
+
+	int val = GetMapData(point, abs)
+		    | GetMapData(Point(point.first - 1, point.second), abs)
+			| GetMapData(Point(point.first + 1, point.second), abs)
+			| GetMapData(Point(point.first, point.second - 1), abs)
+			| GetMapData(Point(point.first, point.second + 1), abs);
+	return val;
+}
+
 bool ActMap::SpaceHasFlag(int flag, const Point& point, bool abs) const
 {
 	if(!abs) 
@@ -575,6 +588,23 @@ bool ActMap::SpaceHasFlag(int flag, const Point& point, bool abs) const
 			| GetMapData(Point(point.first, point.second - 1), abs)
 			| GetMapData(Point(point.first, point.second + 1), abs);
 	return ((val & flag) == flag);
+}
+
+int ActMap::SpaceGetDataWide(int flag, const Point& point, bool abs) const
+{
+	if(!abs) 
+		return SpaceGetDataWide(flag, RelativeToAbs(point), true);
+
+	int val = GetMapData(point, abs)
+            /*| GetMapData(Point(point.first - 2, point.second - 2), abs)
+			| GetMapData(Point(point.first + 2, point.second + 2), abs)
+			| GetMapData(Point(point.first + 2, point.second - 2), abs)
+			| GetMapData(Point(point.first - 2, point.second + 2), abs)*/
+		    | GetMapData(Point(point.first - 2, point.second), abs)
+			| GetMapData(Point(point.first + 2, point.second), abs)
+			| GetMapData(Point(point.first, point.second - 2), abs)
+			| GetMapData(Point(point.first, point.second + 2), abs);
+	return val;
 }
 
 bool ActMap::PathHasFlag(int flag, const PointList& points, bool abs) const

@@ -21,9 +21,10 @@ public:
 	inline void Reduce(PointList const & in, PointList& out, bool abs) { out = in; }
 	// accept only walkable nodes
 	inline bool Reject(Point const & pt, bool abs) {
-		return map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
+        return checkFlag(map->SpaceGetData(pt, abs));
+		/*return map->SpaceHasFlag(ActMap::Avoid, pt, abs) ||
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
+			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);*/
 	}
 	void GetOpenNodes(Point const & center, PointList& out, Point const & endpoint)
 	{
@@ -52,6 +53,7 @@ public:
 					if(!Reject(ptN, abs)) {
 						pt.first = ptN.first;
 						pt.second = ptN.second;
+                        return;
 					}
 				}
 			}

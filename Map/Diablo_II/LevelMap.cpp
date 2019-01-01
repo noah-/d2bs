@@ -505,12 +505,12 @@ void LevelMap::FindRoomLinkageExits(ExitArray& exits, RoomList& added) const
 	
 			if (overlappingX < 0 || overlappingY < 0)
 			{
-				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 adjecent room is out of reach - it's not even touching local room in corner!");
+				// Print("Ã¿c1d2bsÃ¿c3LevelMap::GetExitsÃ¿c0 adjecent room is out of reach - it's not even touching local room in corner!");
 				continue;
 			}
 			if (overlappingX > 0 && overlappingY > 0)
 			{
-				// Print("ÿc1d2bsÿc3LevelMap::GetExitsÿc0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
+				// Print("Ã¿c1d2bsÃ¿c3LevelMap::GetExitsÃ¿c0 WTF local and adjecent rooms are overlapping (they share some points)!!!");
 				continue;             
 			}
 			if (overlappingX < 3 && overlappingY < 3)

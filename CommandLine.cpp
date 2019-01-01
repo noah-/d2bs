@@ -26,95 +26,71 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 CArrayEx<sLine*, sLine*> aCommand;
 
-//Commands.
-sLine CLine[] = {
-	{"-c0",0},
-	{"-c1",0},
-	{"-c2",0},
-	{"-e0",0},
-	{"-e1",0},
-	{"-e2",0},
-	{"-title",0},
-	{"-mpq",0},
-	{"-profile", 0},
-	{"-handle", 0},
-	{"-multi", 0},
-	{"-sleepy", 0},
-	{"-cachefix",0}
-};
+// Commands.
+sLine CLine[] = {{L"-d2c", 0}, {L"-d2x", 0}, {L"-title", 0}, {L"-mpq", 0}, {L"-profile", 0}, {L"-handle", 0}, {L"-multi", 0}, {L"-sleepy", 0}, {L"-cachefix", 0}};
 
-DWORD ParseStringForText(LPSTR Source,LPSTR text)
-{
-	CHAR BUF[4059];
-	memset(BUF,0x00,4059);
+DWORD ParseStringForText(LPWSTR Source, LPWSTR text) {
+    WCHAR BUF[4059];
+    memset(BUF, 0x00, 4059);
 
-	for(unsigned int x = 0; x < strlen(Source); x++)
-	{
-		if(strlen(text) + x > strlen(Source))
-			break;
+    for (unsigned int x = 0; x < wcslen(Source); x++) {
+        if (wcslen(text) + x > wcslen(Source))
+            break;
 
-		for(unsigned int y = 0; y < strlen(text); y++)
-		{
-			INT cC = Source[x+y];
-			memcpy(BUF+strlen(BUF),(LPSTR)&cC,sizeof(cC));
-		}
-		if(!_strcmpi(BUF,text))
-			return x;
+        for (unsigned int y = 0; y < wcslen(text); y++) {
+            INT cC = Source[x + y];
+            memcpy(BUF + wcslen(BUF), (LPWSTR)&cC, sizeof(cC));
+        }
+        if (!_wcsicmp(BUF, text))
+            return x;
 
-		memset(BUF,0x00,4059);
-	}
-	return -1;
+        memset(BUF, 0x00, 4059);
+    }
+    return -1;
 }
 
+VOID ParseCommandLine(LPWSTR Command) {
+    for (int x = 0; x < ArraySize(CLine); x++) {
+        DWORD id = ParseStringForText(Command, CLine[x].Param);
+        if (id == -1)
+            continue;
 
-VOID ParseCommandLine(LPSTR Command)
-{
-	for(int x = 0; x < ArraySize(CLine); x++)
-	{
-		DWORD id = ParseStringForText(Command,CLine[x].Param);
-		if(id == -1)
-			continue;
+        WCHAR szText[200];
+        BOOL bStart = false;
 
-		CHAR szText[100];
-		BOOL bStart = false;
+        memset(szText, 0x00, 100);
 
-		memset(szText,0x00,100);
+        if (!CLine[x].isBool) {
+            for (unsigned int y = (id + (wcslen(CLine[x].Param))); y < wcslen(Command); y++) {
+                if (Command[y] == L'"')
+                    if (bStart) {
+                        bStart = false;
+                        break;
+                    } else {
+                        bStart = true;
+                        y++;
+                    }
 
-		if(!CLine[x].isBool)
-		{
-			for(unsigned int y = (id+(strlen(CLine[x].Param))); y < strlen(Command); y++)
-			{
-				if(Command[y] == '"')
-					if(bStart){
-						bStart = false;
-						break;
-					}
-					else{
-						bStart = true;
-						y++;
-					}
+                int byt = Command[y];
 
-					int byt = Command[y];
+                if (bStart)
+                    memcpy(szText + wcslen(szText), (LPWSTR)&byt, sizeof(byt));
+            }
+        }
+        sLine* sl = new sLine;
+        sl->isBool = CLine[x].isBool;
+        wcscpy_s(sl->Param, sizeof(sl->Param), CLine[x].Param);
+        if (!sl->isBool)
+            wcscpy_s(sl->szText, sizeof(sl->szText), szText);
 
-				if(bStart)
-					memcpy(szText+strlen(szText),(LPSTR)&byt,sizeof(byt));
-			}
-		}
-		sLine *sl = new sLine;
-		sl->isBool = CLine[x].isBool;
-		strcpy_s(sl->Param,sizeof(sl->Param),CLine[x].Param);
-		if(!sl->isBool)
-			strcpy_s(sl->szText,sizeof(sl->szText),szText);
-
-		aCommand.Add(sl);
-	}
+        aCommand.Add(sl);
+    }
 }
 
-sLine *GetCommand(LPSTR Param)
-{
-	for(int x = 0; x < aCommand.GetSize(); x++)
-		if(!_strcmpi(aCommand[x]->Param,Param))
-			return aCommand[x];
+sLine* GetCommand(LPWSTR Param) {
+    for (int x = 0; x < aCommand.GetSize(); x++)
+        if (!_wcsicmp(aCommand[x]->Param, Param))
+            return aCommand[x];
 
-	return 0;
+    return 0;
 }

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "PathReducer.h"
 #include "../Path.h"
 #include "../../Diablo_II/ActMap.h"
@@ -164,14 +163,15 @@ public:
 
 	bool Reject(Point const & pt, bool abs)
 	{
-		return map->SpaceHasFlag(ActMap::Avoid, pt, abs)     ||
+        return checkFlag(map->SpaceGetData(pt, abs));
+		/*return map->SpaceHasFlag(ActMap::Avoid, pt, abs)     ||
 			   map->SpaceHasFlag(ActMap::BlockWalk, pt, abs) ||
-			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);
+			   map->SpaceHasFlag(ActMap::BlockPlayer, pt, abs);*/
 	}
 
 	void GetOpenNodes(Point const & center, PointList& out, Point const & endpoint)
 	{
-		for(int i = 1; i >= -1; i--)
+		/*for(int i = 1; i >= -1; i--)
 		{
 			for(int j = 1; j >= -1; j--)
 			{
@@ -179,34 +179,69 @@ public:
 					continue;
 				out.push_back(Point(center.first+i, center.second+j));
 			}
-		}		
+		}*/
+        out.push_back(Point(center.first + 1, center.second + 1));
+        out.push_back(Point(center.first + 1, center.second));
+        out.push_back(Point(center.first + 1, center.second - 1));
+        out.push_back(Point(center.first, center.second + 1));
+        out.push_back(Point(center.first, center.second - 1));
+        out.push_back(Point(center.first - 1, center.second + 1));
+        out.push_back(Point(center.first - 1, center.second));
+        out.push_back(Point(center.first - 1, center.second - 1));
 	}
 
 	int GetPenalty(Point const & pt, bool abs)
 	{
-		return map->SpaceHasFlag(ActMap::Object, pt, abs) ? 60 : (map->SpaceHasFlag(ActMap::ClosedDoor, pt, abs) ? 80 : 0);
+        if (checkFlag(map->SpaceGetDataWide(ActMap::BlockWalk, pt, abs))) {
+            return 50;
+        }
+
+        int data = map->SpaceGetData(pt, abs);
+
+        if (data & ActMap::Object == ActMap::Object) {
+            return 60;
+        }
+
+        if (data & ActMap::ClosedDoor == ActMap::ClosedDoor) {
+            return 80;
+        }
+
+        return 0;;
+		//return map->SpaceHasFlagWide(ActMap::BlockWalk, pt, abs) ? 50 : (data & ActMap::Object == ActMap::Object) ? 60 : (map->SpaceHasFlag(ActMap::ClosedDoor, pt, abs) ? 80 : 0));
 	}
 
-	void MutatePoint(Point & pt, bool abs)
+	void MutatePoint(Point & pt, bool absv)
 	{
 		bool mutated = false;
 		// find the nearest walkable space
-		if(Reject(pt, abs))
+        int area[7][7];
+
+		for(int i = -3; i <= 3; i++)
 		{
-			for(int i = -2; !mutated && i <= 2; i++)
+			for(int j = -3; j <= 3; j++)
 			{
-				for(int j = -2; !mutated && j <= 2; j++)
-				{
-					if(i == 0 && j == 0)
-						continue;
-					Point ptN(pt.first+i, pt.second+j);
-					if(!Reject(ptN, abs))
-					{
-						pt.first = ptN.first;
-						pt.second = ptN.second;
-						mutated = true;
-					}
-				}
+				if(i == 0 && j == 0 || (abs(i) + abs(j)) == 6)
+					continue;
+				Point ptN(pt.first+i, pt.second+j);
+                area[3+i][3+j] = map->GetMapData(ptN, absv);
+			}
+		}
+
+		for(int i = -2; i <= 2; i++)
+		{
+			for(int j = -2; j <= 2; j++)
+			{
+				if (i == 0 && j == 0 || (abs(i + j)) == 1)
+					continue;
+
+                if (!checkFlag(area[3+i][3+j] | area[3+i+1][3+j] | area[3+i-1][3+j] | area[3+i][3+j+1] | area[3+i][3+j-1])) {
+                    pt.first += i;
+			        pt.second += j;
+			        mutated = true;
+                    return;
+                } else {
+                    j++;
+                }
 			}
 		}
 	}

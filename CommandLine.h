@@ -19,15 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <ArrayEx.h>
 
-
-struct sLine{
-	CHAR Param[200];
-	BOOL isBool;
-	CHAR szText[300];
+struct sLine {
+    WCHAR Param[400];
+    BOOL isBool;
+    WCHAR szText[600];
 };
 
-void ParseCommandLine(LPSTR Command);
-sLine *GetCommand(LPSTR Param);
+void ParseCommandLine(LPWSTR Command);
+sLine* GetCommand(LPWSTR Param);
 
 extern CArrayEx<sLine*, sLine*> aCommand;
 

@@ -25,12 +25,14 @@ inline int __fastcall DiagonalShortcut(Point const & start, Point const & end)
 	int ydist = std::abs(start.second-end.second);
 	return ((xdist > ydist) ? 14*ydist + 10*(xdist-ydist) : 14*xdist + 10*(ydist-xdist));
 }
+
 inline int __fastcall Chebyshev(Point const & start, Point const & end)
 {
 	int xdist = (start.first-end.first);
 	int ydist = (start.second-end.second);
 	return (xdist > ydist ? xdist : ydist);
 }
+
 inline int __fastcall Euclidean(Point const & start, Point const & end)
 {
 	double dx = (double)(end.first - start.first);
@@ -41,7 +43,16 @@ inline int __fastcall Euclidean(Point const & start, Point const & end)
 	
 }
 
-inline int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end) { return DiagonalShortcut(point, end); }
+inline bool __fastcall checkFlag(int flag)
+{
+    // avoid is a bitwise superset of the other flags, don't need this check
+    return (/*((ActMap::Avoid & flag) == ActMap::Avoid) |*/ (((ActMap::BlockWalk|ActMap::BlockPlayer) & flag) > 0));
+}
+
+inline int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end) 
+{
+    return DiagonalShortcut(point, end); 
+}
 
 #pragma warning ( disable: 4512 )
 
@@ -110,7 +121,7 @@ private:
 				map->AllowCritSpace();
 				ticks=GetTickCount();
 			}
-			if (!GameReady() || startLvl != D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
+			if (!GameReady() || startLvl != player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo){
 				Log("Pather lvl change while pathing");
 				return;
 			}
@@ -128,7 +139,7 @@ private:
 				Point point = newNodes.back();
 				newNodes.pop_back();
 				
-				if (reducer->Reject(point, abs) && point != end)
+				if (point != end && reducer->Reject(point, abs))
 				{
 					closed.insert(point);				
 					continue;

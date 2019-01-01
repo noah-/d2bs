@@ -47,5 +47,4 @@ JSAPI_FUNC(my_getPlayerFlag);
 JSAPI_FUNC(my_moveNPC);
 JSAPI_FUNC(my_revealLevel);
 
-
 #endif

@@ -1,0 +1,10 @@
+BasedOnStyle: llvm
+Language: Cpp
+SortIncludes: false
+IndentWidth: 4
+ColumnLimit: 170
+AllowShortFunctionsOnASingleLine: None
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+

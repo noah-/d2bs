@@ -140,8 +140,9 @@ public:
 	bool IsValidPoint(const Point& point, bool abs = true) const;
 	
 	void GetExits(ExitArray&) const;
-	
+	int SpaceGetData(const Point& point, bool abs) const;
 	bool SpaceHasFlag(int flag, const Point& point, bool abs = true) const;
+    int SpaceGetDataWide(int flag, const Point& point, bool abs) const;
 	bool OneSpaceHasFlag(int flag, const Point& point, bool abs = true) const;
 	bool PathHasFlag(int flag, const PointList& points, bool abs = true) const;
 
