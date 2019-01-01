@@ -42,6 +42,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
 
         ParseCommandLine(GetCommandLineW());
         sLine* command = NULL;
+        Vars.bUseRawCDKey = 0;
 
         if (command = GetCommand(L"-title")) {
             int len = wcslen((wchar_t*)command->szText);

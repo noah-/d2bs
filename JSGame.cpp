@@ -1412,7 +1412,8 @@ JSAPI_FUNC(my_getInteractedNPC) {
 }
 
 JSAPI_FUNC(my_takeScreenshot) {
-    D2WIN_TakeScreenshot();
+    Vars.bTakeScreenshot = true;
+
     return JS_TRUE;
 }
 JSAPI_FUNC(my_moveNPC) {

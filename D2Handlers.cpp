@@ -30,7 +30,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     sLine* command;
     bool beginStarter = true;
     bool bInGame = false;
-    Vars.bUseRawCDKey = 0;
+
     InitSettings();
     if (InitHooks()) {
         Log(L"D2BS Engine startup complete. %s", D2BS_VERSION);
@@ -403,6 +403,11 @@ void GameDraw(void) {
         DrawLogo();
         Console::Draw();
     }
+	if (Vars.bTakeScreenshot)
+	{
+        Vars.bTakeScreenshot = false;
+        D2WIN_TakeScreenshot();
+	}
     if (Vars.SectionCount) {
         if (Vars.bGameLoopEntered)
             LeaveCriticalSection(&Vars.cGameLoopSection);
@@ -421,6 +426,10 @@ void GameDrawOOG(void) {
         Genhook::DrawAll(OOG);
         DrawLogo();
         Console::Draw();
+    }
+    if (Vars.bTakeScreenshot) {
+        Vars.bTakeScreenshot = false;
+        D2WIN_TakeScreenshot();
     }
     Sleep(10);
 }

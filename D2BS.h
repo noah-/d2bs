@@ -7,7 +7,7 @@
 #define XP_WIN
 #endif
 
-#define D2BS_VERSION L"1.5.1879U"
+#define D2BS_VERSION L"1.6.100U"
 
 #include <windows.h>
 #include <vector>
@@ -52,6 +52,7 @@ struct Variables {
 
     DWORD dwMaxGameTime;
     DWORD dwGameTimeout;
+    BOOL bTakeScreenshot;
     BOOL bQuitOnError;
     BOOL bQuitOnHostile;
     BOOL bStartAtMenu;
