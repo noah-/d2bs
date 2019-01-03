@@ -193,8 +193,6 @@ bool InitHooks(void) {
         i++;
     }
 
-    D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
-    Vars.dwLocale = *p_D2CLIENT_Lang;
     return true;
 }
 
