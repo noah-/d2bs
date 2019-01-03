@@ -30,13 +30,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     sLine* command;
     bool beginStarter = true;
     bool bInGame = false;
-    Vars.bUseRawCDKey = 0;
+
     InitSettings();
     if (InitHooks()) {
         Log("D2BS Engine startup complete. %ls", D2BS_VERSION);
         Print("ÿc2D2BSÿc0 :: Engine startup complete!");
-        D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
-        Vars.dwLocale = *p_D2CLIENT_Lang;
     } else {
         Log("D2BS Engine startup failed.");
         Print("ÿc2D2BSÿc0 :: Engine startup failed!");
@@ -156,6 +154,13 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize) {
     case 0xAE:
         Log("Warden activity detected! Terminating Diablo to ensure your safety:)");
         TerminateProcess(GetCurrentProcess(), 0);
+        break;
+    case 0x02:
+        if (Vars.dwLocale == -1) {
+            D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
+            D2CLIENT_SetUIState(UI_CHAT_CONSOLE, TRUE);
+            Vars.dwLocale = *p_D2CLIENT_Lang;
+		}
         break;
     case 0x15:
         return !GamePacketEvent(pPacket, dwSize) && ReassignPlayerHandler(pPacket, dwSize);
