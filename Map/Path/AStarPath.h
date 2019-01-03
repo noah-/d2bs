@@ -64,7 +64,7 @@ struct NodeComparer {
     }
 };
 
-template <class Allocator = std::allocator<Node>> class AStarPath : public Path {
+template <class Allocator = std::allocator<Node>> class AStarPath : public MapPath {
   private:
     Allocator alloc;
 
