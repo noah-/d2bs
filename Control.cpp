@@ -184,6 +184,7 @@ BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
 
     Control* pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 178, 72, 93);
     ControlText* cText;
+    int count = 0;
 
     while (pControl != NULL) {
         if (pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
@@ -195,6 +196,7 @@ BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
             if (!cText->wText[0])
                 return FALSE;
 
+            count++;
             wchar_t* cLine = _wcsdup(cText->wText[0]);
             wchar_t* cCharacter = _wcsdup(szCharacter);
             StringToLower(cLine);
@@ -220,6 +222,26 @@ BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
             } else {
                 free(cLine);
                 free(cCharacter);
+            }
+
+            if (count == 8 || count == 16) {
+                pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 457, 72, 93);
+                if (pControl && clickControl(pControl)) {
+                    SendKeyPress(WM_KEYDOWN, 0x28, 0);
+                    Sleep(100);
+                    SendKeyPress(WM_KEYDOWN, 0x28, 0);
+                    Sleep(100);
+                    SendKeyPress(WM_KEYDOWN, 0x28, 0);
+                    Sleep(100);
+                    SendKeyPress(WM_KEYDOWN, 0x28, 0);
+                    Sleep(100);
+                    SendKeyPress(WM_KEYUP, 0x28, 0);
+                    Sleep(100);
+
+                    pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 178, 72, 93);
+                    if (pControl)
+                        continue;
+                }
             }
         }
         pControl = pControl->pNext;
