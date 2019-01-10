@@ -18,6 +18,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <shlwapi.h>
 #include <stdio.h>
 #include <time.h>
+#include "D2Helpers.h"
+#include "D2BS.h"
 #include "Offset.h"
 #include "File.h"
 #include "CommandLine.h"
@@ -49,6 +51,16 @@ DWORD ParseStringForText(LPWSTR Source, LPWSTR text) {
     return -1;
 }
 
+VOID CopyCommandLine(LPWSTR Command) {
+	//Log(L"Command original: %s", Command);
+	memcpy(Vars.szConsoleCopy, Command, sizeof(wchar_t) * wcslen(Command));
+	//Log(L"Command copy: %s", Vars.szConsoleCopy);
+	Vars.bConsoleCopied = true;
+	LPWSTR szCheat = L"C:\\Program Files (x86)\\Diablo II\\Game.exe -w";
+	memcpy(Command, szCheat, sizeof(typeid(szCheat)) * wcslen(szCheat));
+	//Log(L"Command overwriten: %s", Command);
+}
+
 VOID ParseCommandLine(LPWSTR Command) {
     for (int x = 0; x < ArraySize(CLine); x++) {
         DWORD id = ParseStringForText(Command, CLine[x].Param);
@@ -58,7 +70,7 @@ VOID ParseCommandLine(LPWSTR Command) {
         WCHAR szText[200];
         BOOL bStart = false;
 
-        memset(szText, 0x00, 100);
+        memset(szText, 0x00, 200);
 
         if (!CLine[x].isBool) {
             for (unsigned int y = (id + (wcslen(CLine[x].Param))); y < wcslen(Command); y++) {

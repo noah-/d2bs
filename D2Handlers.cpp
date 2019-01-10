@@ -40,8 +40,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
         Print(L"\u00FFc2D2BS\u00FFc0 :: Engine startup failed!");
         return FALSE;
     }
-
-    ParseCommandLine(GetCommandLineW());
+	
+	if (!Vars.bConsoleCopied) {
+		CopyCommandLine(GetCommandLineW());
+	}
+	
+    ParseCommandLine(Vars.szConsoleCopy);
 
     command = GetCommand(L"-handle");
 

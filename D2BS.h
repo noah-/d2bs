@@ -82,6 +82,8 @@ struct Variables {
     wchar_t szProfile[256];
     wchar_t szStarter[_MAX_FNAME];
     wchar_t szConsole[_MAX_FNAME];
+    wchar_t szConsoleCopy[_MAX_FNAME];
+	BOOL bConsoleCopied;
     wchar_t szDefault[_MAX_FNAME];
     char szClassic[30];
     char szLod[30];

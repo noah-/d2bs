@@ -39,8 +39,13 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
             wcscat_s(Vars.szPath, MAX_PATH, L"\\");
             Vars.bLoadedWithCGuard = FALSE;
         }
-
-        ParseCommandLine(GetCommandLineW());
+		
+		if (!Vars.bConsoleCopied) {
+			CopyCommandLine(GetCommandLineW());
+		}
+		
+		ParseCommandLine(Vars.szConsoleCopy);
+		
         sLine* command = NULL;
         Vars.bUseRawCDKey = 0;
 

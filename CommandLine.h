@@ -25,6 +25,7 @@ struct sLine {
     WCHAR szText[600];
 };
 
+void CopyCommandLine(LPWSTR Command);
 void ParseCommandLine(LPWSTR Command);
 sLine* GetCommand(LPWSTR Param);
 
