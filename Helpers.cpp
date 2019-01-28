@@ -9,6 +9,8 @@
 #include "Helpers.h"
 #include "DbgHelp.h"
 #include "Profile.h"
+#include "StackWalker.h"
+#include <tlhelp32.h>
 
 wchar_t* AnsiToUnicode(const char* str, UINT codepage) {
     wchar_t* buf = NULL;
@@ -357,7 +359,7 @@ char* DllLoadAddrStrs() {
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    //Log("Stack Walk: %s", debug.c_str());
 
     EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
     CONTEXT* ctx = ptrs->ContextRecord;
@@ -469,18 +471,68 @@ int __cdecl _purecall(void)
 {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    //Log("Stack Walk: %s", debug.c_str());
     return 0;
+}
+
+class MyStackWalker : public StackWalker {
+  public:
+    MyStackWalker() : StackWalker() {
+    }
+
+  protected:
+    virtual void OnOutput(LPCSTR szText) {
+        Log("%s", szText);
+    }
+};
+
+std::vector<DWORD> GetThreadIds() {
+    std::vector<DWORD> threadIds;
+
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, GetCurrentProcessId());
+
+    if (hSnapshot != INVALID_HANDLE_VALUE) {
+        THREADENTRY32 threadEntry;
+        threadEntry.dwSize = sizeof(THREADENTRY32);
+
+        if (Thread32First(hSnapshot, &threadEntry)) {
+            do {
+                if (threadEntry.th32OwnerProcessID == GetCurrentProcessId())
+                    threadIds.push_back(threadEntry.th32ThreadID);
+
+            } while (Thread32Next(hSnapshot, &threadEntry));
+        }
+    }
+    CloseHandle(hSnapshot);
+
+    return threadIds;
 }
 
 bool GetStackWalk(std::string &outWalk)
 {
+    std::vector<DWORD> threadIds = GetThreadIds();
+
+	MyStackWalker sw;
+    for (std::vector<DWORD>::iterator it = threadIds.begin(); it != threadIds.end(); ++it) {
+        HANDLE hThread = OpenThread(THREAD_GET_CONTEXT, false, *it);
+
+        if (hThread == INVALID_HANDLE_VALUE)
+            return false;
+
+		Log("Stack Walk Thread:%d", *it);
+        sw.ShowCallstack(hThread);
+	}
+
+	Log("Stack Walk Thread:%d", GetCurrentThreadId);
+	sw.ShowCallstack();
+
+	return true;
     // Set up the symbol options so that we can gather information from the current
     // executable's PDB files, as well as the Microsoft symbol servers.  We also want
     // to undecorate the symbol names we're returned.  If you want, you can add other
     // symbol servers or paths via a semi-colon separated list in SymInitialized.
     ::SymSetOptions( SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES | SYMOPT_UNDNAME );
-    if (!::SymInitialize( ::GetCurrentProcess(), "http://msdl.microsoft.com/download/symbols", TRUE )) return false;
+    ::SymInitialize(::GetCurrentProcess(), "http://msdl.microsoft.com/download/symbols", TRUE);
  
     // Capture up to 25 stack frames from the current call stack.  We're going to
     // skip the first stack frame returned because that's the GetStackWalk function
@@ -505,7 +557,7 @@ bool GetStackWalk(std::string &outWalk)
         }
     }
  
-        ::SymCleanup( ::GetCurrentProcess() );
+    ::SymCleanup( ::GetCurrentProcess() );
  
     return true;
 }

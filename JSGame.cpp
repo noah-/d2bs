@@ -1015,6 +1015,7 @@ JSAPI_FUNC(my_getWaypoint) {
 }
 
 JSAPI_FUNC(my_quitGame) {
+    JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     if (ClientState() != ClientStateMenu)
         D2CLIENT_ExitGame();
 
@@ -1026,6 +1027,7 @@ JSAPI_FUNC(my_quitGame) {
 }
 
 JSAPI_FUNC(my_quit) {
+    JS_SET_RVAL(cx, vp, JSVAL_FALSE);
     Vars.bQuitting = true;
     if (ClientState() != ClientStateMenu)
         D2CLIENT_ExitGame();

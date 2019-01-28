@@ -154,7 +154,7 @@ bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc) {
         evt->argc = argc;
         evt->name = _strdup("scriptmsg");
         evt->arg1 = new DWORD(argc);
-        evt->argv = new JSAutoStructuredCloneBuffer*;
+        evt->argv = new JSAutoStructuredCloneBuffer*[argc];
         for (uint i = 0; i < argc; i++) {
             evt->argv[i] = new JSAutoStructuredCloneBuffer;
             evt->argv[i]->write(helper->cx, helper->argv[i]);
@@ -303,15 +303,19 @@ bool __fastcall PacketEventCallback(Script* script, void* argv, uint argc) {
         evt->arg4 = new DWORD(false);
         memcpy(evt->arg1, helper->pPacket, helper->dwSize);
 
-        ResetEvent(Vars.eventSignal);
-        script->FireEvent(evt);
-        static DWORD result;
-        ReleaseGameLock();
-        result = WaitForSingleObject(Vars.eventSignal, 500);
-        TakeGameLock();
+		if (GetCurrentThreadId() == evt->owner->threadId)
+            ExecScriptEvent(evt, false);
+        else {
+			ResetEvent(Vars.eventSignal);
+			script->FireEvent(evt);
+			static DWORD result;
+			ReleaseGameLock();
+			result = WaitForSingleObject(Vars.eventSignal, 500);
+			TakeGameLock();
 
-        if (result == WAIT_TIMEOUT)
-            return false;
+			if (result == WAIT_TIMEOUT)
+				return false;
+		}
 
         bool retval = (*(DWORD*)evt->arg4);
         free(evt->name);

@@ -194,7 +194,7 @@ JSAPI_FUNC(my_load) {
     sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
     StringReplace(buf, '/', '\\', _MAX_PATH + _MAX_FNAME);
 
-    JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
+    JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*[argc - 1];
     for (uint i = 1; i < argc; i++) {
         autoBuffer[i - 1] = new JSAutoStructuredCloneBuffer;
         autoBuffer[i - 1]->write(cx, JS_ARGV(cx, vp)[i]);

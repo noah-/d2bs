@@ -123,7 +123,7 @@ bool Script::BeginThread(LPTHREAD_START_ROUTINE ThreadFunc) {
 void Script::Run(void) {
     try {
         runtime = JS_NewRuntime(Vars.dwMemUsage, JS_NO_HELPER_THREADS);
-
+        JS_SetNativeStackQuota(runtime, (size_t)50000);
         // JS_SetRuntimeThread(runtime);
         JS_SetContextCallback(runtime, contextCallback);
 

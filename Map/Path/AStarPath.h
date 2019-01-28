@@ -71,7 +71,7 @@ struct NodeComparer {
 };
 
 template <class Allocator = std::allocator<Node> >
-class AStarPath : public Path
+class AStarPath : public MapPath
 {
 private:
 	Allocator alloc;

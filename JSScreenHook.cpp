@@ -3,6 +3,7 @@
 #include "ScreenHook.h"
 #include "Script.h"
 #include "File.h"
+#include "Helpers.h"
 using namespace std;
 
 void hook_finalize(JSFreeOp* fop, JSObject* obj) {
@@ -460,7 +461,7 @@ JSAPI_FUNC(text_ctor) {
     const wchar_t* szText = L"";
 
     if (argc > 0 && JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
-        szText = JS_GetStringCharsZ(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0]));
+        szText = AnsiToUnicode(JS_EncodeString(cx, JS_ValueToString(cx, JS_ARGV(cx, vp)[0])));
     if (!szText)
         return JS_TRUE;
     if (argc > 1 && JSVAL_IS_INT(JS_ARGV(cx, vp)[1]))
@@ -481,10 +482,12 @@ JSAPI_FUNC(text_ctor) {
         hover = JS_ARGV(cx, vp)[8];
 
     JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props);
-    if (!hook)
+    if (!hook) {
+        delete[] szText;
         THROW_ERROR(cx, "Failed to create text object");
-
+    }
     TextHook* pTextHook = new TextHook(script, hook, szText, x, y, font, color, automap, align, state);
+    delete[] szText;
 
     if (!pTextHook)
         THROW_ERROR(cx, "Failed to create texthook");
@@ -518,9 +521,11 @@ JSAPI_PROP(text_getProperty) {
     case TEXT_FONT:
         vp.setInt32(pTextHook->GetFont());
         break;
-    case TEXT_TEXT:
-        vp.setString(JS_NewUCStringCopyZ(cx, pTextHook->GetText()));
-        break;
+    case TEXT_TEXT: {
+        char* utf8Txt = UnicodeToAnsi(pTextHook->GetText());
+        vp.setString(JS_NewStringCopyZ(cx, utf8Txt));
+        delete[] utf8Txt;
+    } break;
     case TEXT_ALIGN:
         vp.setInt32(pTextHook->GetAlign());
         break;
@@ -566,10 +571,13 @@ JSAPI_STRICT_PROP(text_setProperty) {
         break;
     case TEXT_TEXT:
         if (vp.isString()) {
-            const wchar_t* pText = JS_GetStringCharsZ(cx, vp.toString());
+            char* pText = JS_EncodeString(cx, vp.toString());
             if (!pText)
                 return JS_TRUE;
-            pTextHook->SetText(pText);
+
+            wchar_t* wpText = AnsiToUnicode(pText);
+            pTextHook->SetText(wpText);
+            delete[] wpText;
         }
         break;
     case TEXT_ALIGN:

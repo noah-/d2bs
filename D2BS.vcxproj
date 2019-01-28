@@ -278,6 +278,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
       <SmallerTypeCheck Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</SmallerTypeCheck>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Level3</WarningLevel>
     </ClCompile>
+    <ClCompile Include="StackWalker.cpp" />
     <ClCompile Include="stringhash.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="Core.cpp" />
@@ -351,6 +352,7 @@ XCOPY "$(ProjectDir)resources" "$(OutDir)release-pkg"
     <ClInclude Include="Offset.h" />
     <ClInclude Include="Profile.h" />
     <ClInclude Include="sqlite3.h" />
+    <ClInclude Include="StackWalker.h" />
     <ClInclude Include="stringhash.h" />
     <ClInclude Include="SyncObj.h" />
     <ClInclude Include="TimedAlloc.h" />

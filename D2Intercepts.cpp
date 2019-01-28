@@ -374,7 +374,7 @@ int WINAPI MessageBoxA(__in_opt HWND hWnd, __in_opt LPCSTR lpText, __in_opt LPCS
 int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    //Log("Stack Walk: %s", debug.c_str());
     char* dllAddrs;
     Log("Error message box, caption: \"%s\", message:\n%s\n%s", lpCaption, lpText, dllAddrs = DllLoadAddrStrs());
     free(dllAddrs);
@@ -418,7 +418,7 @@ void FogException() {
 char __fastcall ErrorReportLaunch(const char* crash_file, int a2) {
     std::string debug;
     GetStackWalk(debug);
-    Log("Stack Walk: %s", debug.c_str());
+    //Log("Stack Walk: %s", debug.c_str());
     Log("Crash File: %s\n", crash_file);
     exit(0);
 }
