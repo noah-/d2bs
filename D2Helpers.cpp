@@ -39,6 +39,11 @@ void LogNoFormat(const wchar_t* szString) {
     wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
     swprintf_s(path, _countof(path), L"%sd2bs.log", Vars.szPath);
 
+	int len = wcslen(szString);
+    if (szString && szString[len - 1] == L'\n') {
+        *(wchar_t*)szString[len - 1] = 0;
+	}
+
 #ifdef DEBUG
     FILE* log = stderr;
 #else

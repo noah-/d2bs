@@ -189,7 +189,7 @@ JSAPI_FUNC(my_load) {
     swprintf_s(buf, _countof(buf), L"%s\\%s", Vars.szScriptPath, file);
     StringReplace(buf, L'/', L'\\', _countof(buf));
 
-    JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*;
+    JSAutoStructuredCloneBuffer** autoBuffer = new JSAutoStructuredCloneBuffer*[argc - 1];
     for (uint i = 1; i < argc; i++) {
         autoBuffer[i - 1] = new JSAutoStructuredCloneBuffer;
         autoBuffer[i - 1]->write(cx, JS_ARGV(cx, vp)[i]);

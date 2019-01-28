@@ -22,7 +22,11 @@
 using namespace std;
 
 bool __fastcall UpdatePlayerGid(Script* script, void*, uint) {
-    script->UpdatePlayerGid();
+    if (wcscmp(script->GetShortFilename(), Vars.szDefault) == 0) {
+        script->Stop(true, true);
+    } else {
+        script->UpdatePlayerGid();
+    }
     return true;
 }
 

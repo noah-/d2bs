@@ -187,11 +187,11 @@ class WalkPathReducer : public PathReducer {
 
         int data = map->SpaceGetData(pt, abs);
 
-        if (data & ActMap::Object == ActMap::Object) {
+        if ((data & ActMap::Object) == ActMap::Object) {
             return 60;
         }
 
-        if (data & ActMap::ClosedDoor == ActMap::ClosedDoor) {
+        if ((data & ActMap::ClosedDoor) == ActMap::ClosedDoor) {
             return 80;
         }
 

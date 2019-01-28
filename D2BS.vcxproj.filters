@@ -201,6 +201,7 @@
     <ClCompile Include="JSSocket.cpp">
       <Filter>Spidermonkey Engine\Core\JS</Filter>
     </ClCompile>
+    <ClCompile Include="StackWalker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2BS.h">
@@ -462,6 +463,7 @@
     <ClInclude Include="JSSocket.h">
       <Filter>Spidermonkey Engine\Core\API</Filter>
     </ClInclude>
+    <ClInclude Include="StackWalker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\jsproto.tbl">
