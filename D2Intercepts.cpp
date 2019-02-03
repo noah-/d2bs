@@ -94,7 +94,7 @@ UnitAny* GetSelectedUnit_Intercept(void) {
         if (Vars.dwSelectedUnitId) {
             UnitAny* pUnit = D2CLIENT_FindUnit(Vars.dwSelectedUnitId, Vars.dwSelectedUnitType);
 
-            return pUnit;
+            return pUnit ? pUnit : NULL;
         }
 
         return NULL;
