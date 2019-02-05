@@ -152,13 +152,6 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize) {
         Log(L"Warden activity detected! Terminating Diablo to ensure your safety :)");
         TerminateProcess(GetCurrentProcess(), 0);
         break;
-    case 0x02:
-        if (Vars.dwLocale == -1) {
-            D2CLIENT_SetUIState(UI_CHAT_CONSOLE, FALSE);
-            D2CLIENT_SetUIState(UI_CHAT_CONSOLE, TRUE);
-            Vars.dwLocale = *p_D2CLIENT_Lang;
-        }
-        break;
     case 0x15:
         return !GamePacketEvent(pPacket, dwSize) && ReassignPlayerHandler(pPacket, dwSize);
     case 0x26:

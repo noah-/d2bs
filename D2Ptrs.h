@@ -129,6 +129,8 @@ enum {
 
     FUNCPTR(D2CLIENT, TestPvpFlag, DWORD __fastcall, (DWORD dwUnitId1, DWORD dwUnitId2, DWORD dwFlag), 0xDC440) // Updated 1.14d //004DC440-BASE
 
+    FUNCPTR(D2CLIENT, GetGameLanguageCode, DWORD __fastcall, (), 0x125150)  // New 1.14d //00525150-BASE
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Client Globals
     ////////////////////////////////////////////////////////////////////////////////////////////////
