@@ -118,7 +118,6 @@ BOOL Startup(void) {
     Vars.bNeedShutdown = TRUE;
     Vars.bChangedAct = FALSE;
     Vars.bGameLoopEntered = FALSE;
-    Vars.dwLocale = -1;
     Vars.SectionCount = 0;
 
     // MessageBox(NULL, "qwe", "qwe", MB_OK);

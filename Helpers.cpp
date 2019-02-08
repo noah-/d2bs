@@ -195,6 +195,8 @@ bool InitHooks(void) {
         i++;
     }
 
+    *p_D2CLIENT_Lang = D2CLIENT_GetGameLanguageCode();
+    Vars.dwLocale = *p_D2CLIENT_Lang;
     return true;
 }
 
