@@ -407,11 +407,10 @@ void GameDraw(void) {
         DrawLogo();
         Console::Draw();
     }
-	if (Vars.bTakeScreenshot)
-	{
+    if (Vars.bTakeScreenshot) {
         Vars.bTakeScreenshot = false;
         D2WIN_TakeScreenshot();
-	}
+    }
     if (Vars.SectionCount) {
         if (Vars.bGameLoopEntered)
             LeaveCriticalSection(&Vars.cGameLoopSection);

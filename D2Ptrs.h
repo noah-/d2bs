@@ -129,7 +129,7 @@ enum {
 
     FUNCPTR(D2CLIENT, TestPvpFlag, DWORD __fastcall, (DWORD dwUnitId1, DWORD dwUnitId2, DWORD dwFlag), 0xDC440) // Updated 1.14d //004DC440-BASE
 
-    FUNCPTR(D2CLIENT, GetGameLanguageCode, DWORD __fastcall, (), 0x125150)  // New 1.14d //00525150-BASE
+    FUNCPTR(D2CLIENT, GetGameLanguageCode, DWORD __fastcall, (), 0x125150) // New 1.14d //00525150-BASE
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Client Globals
@@ -310,7 +310,7 @@ enum {
     FUNCPTR(D2COMMON, GetRoomFromUnit, Room1* __stdcall, (UnitAny * ptUnit), 0x220BB0)                                     // Updated 1.14d //00620BB0-BASE
     FUNCPTR(D2COMMON, GetTargetUnitType, Path* __stdcall, (Path * pPath), 0x773C0)
 
-    FUNCPTR(D2COMMON, GetSkillLevel, INT __stdcall, (UnitAny * pUnit, Skill* pSkill, BOOL bTotal), 0x2442A0) // Updated 1.14d //006442A0-BASE
+        FUNCPTR(D2COMMON, GetSkillLevel, INT __stdcall, (UnitAny * pUnit, Skill* pSkill, BOOL bTotal), 0x2442A0) // Updated 1.14d //006442A0-BASE
 
     FUNCPTR(D2COMMON, GetItemLevelRequirement, DWORD __stdcall, (UnitAny * pItem, UnitAny* pPlayer), 0x22BA60) // Updated 1.14d //0062BA60-BASE
 

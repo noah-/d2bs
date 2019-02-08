@@ -507,7 +507,7 @@ class MyStackWalker : public StackWalker {
 
   protected:
     virtual void OnOutput(LPCSTR szText) {
-		Log(L"%hs", szText);
+        Log(L"%hs", szText);
     }
 };
 
@@ -533,23 +533,21 @@ std::vector<DWORD> GetThreadIds() {
     return threadIds;
 }
 
-void ResumeProcess()
-{
+void ResumeProcess() {
     std::vector<DWORD> threadIds = GetThreadIds();
 
     for (std::vector<DWORD>::iterator it = threadIds.begin(); it != threadIds.end(); ++it) {
-        HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, *it);
-		ResumeThread(hThread);
-		CloseHandle(hThread);
+        HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, *it);
+        ResumeThread(hThread);
+        CloseHandle(hThread);
     }
 }
 
-bool GetStackWalk()
-{
+bool GetStackWalk() {
     std::vector<DWORD> threadIds = GetThreadIds();
     DWORD current = GetCurrentThreadId();
 
-	MyStackWalker sw;
+    MyStackWalker sw;
     for (std::vector<DWORD>::iterator it = threadIds.begin(); it != threadIds.end(); ++it) {
         if (*it == current)
             continue;
@@ -559,12 +557,12 @@ bool GetStackWalk()
         if (hThread == INVALID_HANDLE_VALUE)
             return false;
 
-		Log(L"Stack Walk Thread: %d", *it);
+        Log(L"Stack Walk Thread: %d", *it);
         sw.ShowCallstack(hThread);
-	}
+    }
 
-	Log(L"Stack Walk Thread: %d", current);
-	sw.ShowCallstack();
+    Log(L"Stack Walk Thread: %d", current);
+    sw.ShowCallstack();
 
-	return true;
+    return true;
 }

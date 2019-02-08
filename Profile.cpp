@@ -181,7 +181,7 @@ DWORD Profile::login(char** error) {
                     errorMsg = "Failed to click the 'Hell Difficulty' button?";
                 break;
             case 3:
-				// highest available
+                // highest available
                 if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)) &&
                     !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 340, 272, 35)) &&
                     !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 297, 272, 35)))

@@ -99,10 +99,6 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
 }
 
 BOOL Startup(void) {
-    DefineOffsets();
-    InstallConditional();
-    ResumeProcess();
-
     InitializeCriticalSection(&Vars.cEventSection);
     InitializeCriticalSection(&Vars.cRoomSection);
     InitializeCriticalSection(&Vars.cMiscSection);
@@ -126,7 +122,9 @@ BOOL Startup(void) {
 
     // MessageBox(NULL, "qwe", "qwe", MB_OK);
     Genhook::Initialize();
+    DefineOffsets();
     InstallPatches();
+    InstallConditional();
     CreateDdeServer();
 
     if ((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == NULL)
