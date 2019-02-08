@@ -5,7 +5,7 @@
 
 #include "Script.h"
 
-bool GetStackWalk(std::string& outWalk);
+bool GetStackWalk();
 wchar_t* AnsiToUnicode(const char* str, UINT codepage = CP_UTF8);
 char* UnicodeToAnsi(const wchar_t* str, UINT codepage = CP_UTF8);
 void StringToLower(char* p);
@@ -20,6 +20,7 @@ bool ExecCommand(const wchar_t* command);
 bool StartScript(const wchar_t* script, ScriptState state);
 void Reload(void);
 bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand);
+void ResumeProcess();
 
 void GameJoined(void);
 void MenuEntered(bool beginStarter);
