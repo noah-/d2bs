@@ -547,7 +547,7 @@ void ResumeProcess() {
 
 void InitCommandLine() {
     wchar_t* line = GetCommandLineW();
-    memcpy(Vars.szCommandLine, line, min(256, sizeof(wchar_t) * wcslen(line)));
+    memcpy(Vars.szCommandLine, line, min(sizeof(Vars.szCommandLine), sizeof(wchar_t) * wcslen(line)));
     LPWSTR cline = L"C:\\Program Files (x86)\\Diablo II\\Game.exe -w";
     memcpy(line, cline, sizeof(LPWSTR) * wcslen(cline));
 }
