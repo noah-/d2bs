@@ -1063,22 +1063,11 @@ BOOL StackWalker::ShowCallstack(HANDLE                    hThread,
     // See: https://stackwalker.codeplex.com/discussions/446958
 //#if _WIN32_WINNT <= 0x0501
     // If we need to support XP, we need to use the "old way", because "GetThreadId" is not available!
-//    if (hThread == GetCurrentThread())
+    if (hThread == GetCurrentThread())
 //#else
-    bool check = false;
-    const TCHAR* k32 = _T("kernel32.dll");
-    HMODULE k = LoadLibrary(k32);
-	
-	if (GetProcAddress(k, "GetThreadId")) {
-      check = (GetThreadId(hThread) == GetCurrentThreadId());
-    } else {
-      check = (hThread == GetCurrentThread());
-    }
-
 //    if (GetThreadId(hThread) == GetCurrentThreadId())
 //#endif
-    if (check)
-	{
+    {
       GET_CURRENT_CONTEXT_STACKWALKER_CODEPLEX(c, USED_CONTEXT_FLAGS);
     }
     else
