@@ -14,6 +14,7 @@ JSAPI_FUNC(my_load);
 JSAPI_FUNC(my_include);
 JSAPI_FUNC(my_isIncluded);
 JSAPI_FUNC(my_stop);
+JSAPI_FUNC(my_stacktrace);
 JSAPI_FUNC(my_beep);
 JSAPI_FUNC(my_copy);
 JSAPI_FUNC(my_paste);

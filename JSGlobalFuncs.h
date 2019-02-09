@@ -41,18 +41,19 @@ static JSFunctionSpec global_funcs[] = {
     JS_FN("clearTimeout", my_clearInterval, 1, FUNCTION_FLAGS), JS_FN("setInterval", my_setInterval, 0, FUNCTION_FLAGS),
     JS_FN("clearInterval", my_clearInterval, 1, FUNCTION_FLAGS), JS_FN("delay", my_delay, 1, FUNCTION_FLAGS), JS_FN("load", my_load, 1, FUNCTION_FLAGS),
     JS_FN("isIncluded", my_isIncluded, 1, FUNCTION_FLAGS), JS_FN("include", my_include, 1, FUNCTION_FLAGS), JS_FN("stop", my_stop, 0, FUNCTION_FLAGS),
-    JS_FN("rand", my_rand, 0, FUNCTION_FLAGS), JS_FN("copy", my_copy, 0, FUNCTION_FLAGS), JS_FN("paste", my_paste, 0, FUNCTION_FLAGS),
-    JS_FN("sendCopyData", my_sendCopyData, 4, FUNCTION_FLAGS), JS_FN("sendDDE", my_sendDDE, 0, FUNCTION_FLAGS), JS_FN("keystate", my_keystate, 0, FUNCTION_FLAGS),
-    JS_FN("addEventListener", my_addEventListener, 2, FUNCTION_FLAGS), JS_FN("removeEventListener", my_removeEventListener, 2, FUNCTION_FLAGS),
-    JS_FN("clearEvent", my_clearEvent, 1, FUNCTION_FLAGS), JS_FN("clearAllEvents", my_clearAllEvents, 0, FUNCTION_FLAGS),
-    JS_FN("js_strict", my_js_strict, 0, FUNCTION_FLAGS), JS_FN("version", my_version, 0, FUNCTION_FLAGS), JS_FN("scriptBroadcast", my_scriptBroadcast, 1, FUNCTION_FLAGS),
-    JS_FN("sqlite_version", my_sqlite_version, 0, FUNCTION_FLAGS), JS_FN("sqlite_memusage", my_sqlite_memusage, 0, FUNCTION_FLAGS),
-    JS_FN("dopen", my_openDir, 1, FUNCTION_FLAGS), JS_FN("debugLog", my_debugLog, 1, FUNCTION_FLAGS), JS_FN("showConsole", my_showConsole, 0, FUNCTION_FLAGS),
-    JS_FN("hideConsole", my_hideConsole, 0, FUNCTION_FLAGS), JS_FN("handler", my_handler, 0, FUNCTION_FLAGS),
+    JS_FN("stacktrace", my_stacktrace, 0, FUNCTION_FLAGS), JS_FN("rand", my_rand, 0, FUNCTION_FLAGS), JS_FN("copy", my_copy, 0, FUNCTION_FLAGS),
+    JS_FN("paste", my_paste, 0, FUNCTION_FLAGS), JS_FN("sendCopyData", my_sendCopyData, 4, FUNCTION_FLAGS), JS_FN("sendDDE", my_sendDDE, 0, FUNCTION_FLAGS),
+    JS_FN("keystate", my_keystate, 0, FUNCTION_FLAGS), JS_FN("addEventListener", my_addEventListener, 2, FUNCTION_FLAGS),
+    JS_FN("removeEventListener", my_removeEventListener, 2, FUNCTION_FLAGS), JS_FN("clearEvent", my_clearEvent, 1, FUNCTION_FLAGS),
+    JS_FN("clearAllEvents", my_clearAllEvents, 0, FUNCTION_FLAGS), JS_FN("js_strict", my_js_strict, 0, FUNCTION_FLAGS), JS_FN("version", my_version, 0, FUNCTION_FLAGS),
+    JS_FN("scriptBroadcast", my_scriptBroadcast, 1, FUNCTION_FLAGS), JS_FN("sqlite_version", my_sqlite_version, 0, FUNCTION_FLAGS),
+    JS_FN("sqlite_memusage", my_sqlite_memusage, 0, FUNCTION_FLAGS), JS_FN("dopen", my_openDir, 1, FUNCTION_FLAGS), JS_FN("debugLog", my_debugLog, 1, FUNCTION_FLAGS),
+    JS_FN("showConsole", my_showConsole, 0, FUNCTION_FLAGS), JS_FN("hideConsole", my_hideConsole, 0, FUNCTION_FLAGS), JS_FN("handler", my_handler, 0, FUNCTION_FLAGS),
 
     // out of game functions
     JS_FN("login", my_login, 1, FUNCTION_FLAGS),
-    //	JS_FN("createCharacter",		my_createCharacter,		4, FUNCTION_FLAGS), // this function is not finished
+    // JS_FN("createCharacter", my_createCharacter, 4, FUNCTION_FLAGS),
+    // this function is not finished
     JS_FN("selectCharacter", my_selectChar, 1, FUNCTION_FLAGS), JS_FN("createGame", my_createGame, 3, FUNCTION_FLAGS), JS_FN("joinGame", my_joinGame, 2, FUNCTION_FLAGS),
     JS_FN("addProfile", my_addProfile, 6, FUNCTION_FLAGS), JS_FN("getLocation", my_getOOGLocation, 0, FUNCTION_FLAGS), JS_FN("loadMpq", my_loadMpq, 1, FUNCTION_FLAGS),
 

@@ -246,6 +246,12 @@ JSAPI_FUNC(my_stop) {
     return JS_FALSE;
 }
 
+JSAPI_FUNC(my_stacktrace) {
+    JS_SET_RVAL(cx, vp, JSVAL_TRUE);
+    GetStackWalk();
+    return JS_TRUE;
+}
+
 JSAPI_FUNC(my_beep) {
     jsint nBeepId = NULL;
 
