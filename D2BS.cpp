@@ -40,7 +40,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
             Vars.bLoadedWithCGuard = FALSE;
         }
 
-        ParseCommandLine(GetCommandLineW());
+		InitCommandLine();
+        ParseCommandLine(Vars.szCommandLine);
         sLine* command = NULL;
         Vars.bUseRawCDKey = 0;
 

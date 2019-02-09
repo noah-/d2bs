@@ -159,6 +159,8 @@ void InitSettings(void) {
 bool InitHooks(void) {
     int i = 0;
     while (!Vars.bActive) {
+        Sleep(50);
+
         if (i >= 300) {
             MessageBox(0, "Failed to set hooks, exiting!", "D2BS", 0);
             return false;
@@ -191,7 +193,7 @@ bool InitHooks(void) {
             if (ClientState() == ClientStateMenu && Vars.bStartAtMenu)
                 clickControl(*p_D2WIN_FirstControl);
         }
-        Sleep(50);
+
         i++;
     }
 
@@ -541,6 +543,13 @@ void ResumeProcess() {
         ResumeThread(hThread);
         CloseHandle(hThread);
     }
+}
+
+void InitCommandLine() {
+    wchar_t* line = GetCommandLineW();
+    memcpy(Vars.szCommandLine, line, min(256, sizeof(wchar_t) * wcslen(line)));
+    LPWSTR cline = L"C:\\Program Files (x86)\\Diablo II\\Game.exe -w";
+    memcpy(line, cline, sizeof(LPWSTR) * wcslen(cline));
 }
 
 bool GetStackWalk() {

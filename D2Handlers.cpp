@@ -36,6 +36,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
     bool bInGame = false;
 
     InitSettings();
+
     if (InitHooks()) {
         Log(L"D2BS Engine startup complete. %s", D2BS_VERSION);
         Print(L"\u00FFc2D2BS\u00FFc0 :: Engine startup complete!");
@@ -45,7 +46,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam) {
         return FALSE;
     }
 
-    ParseCommandLine(GetCommandLineW());
+    ParseCommandLine(Vars.szCommandLine);
 
     command = GetCommand(L"-handle");
 

@@ -21,6 +21,7 @@ bool StartScript(const wchar_t* script, ScriptState state);
 void Reload(void);
 bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand);
 void ResumeProcess();
+void InitCommandLine();
 
 void GameJoined(void);
 void MenuEntered(bool beginStarter);

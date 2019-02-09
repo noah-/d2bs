@@ -7,7 +7,7 @@
 #define XP_WIN
 #endif
 
-#define D2BS_VERSION L"1.6.1U"
+#define D2BS_VERSION L"1.6.2U"
 
 #include <windows.h>
 #include <vector>
@@ -86,6 +86,7 @@ struct Variables {
     char szClassic[30];
     char szLod[30];
     wchar_t szTitle[256];
+    wchar_t szCommandLine[256];
 
     WNDPROC oldWNDPROC;
     HHOOK hMouseHook;
