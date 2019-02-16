@@ -330,6 +330,8 @@ OOG_Location OOG_GetLocation(void) {
             return OOG_LOST_CONNECTION; // 17 lost connection
         else if (findControl(CONTROL_TEXTBOX, 5347, -1, 268, 320, 264, 120))
             return OOG_DISCONNECTED; // 14  Disconnected
+        else if (findControl(6, (const wchar_t*)NULL, -1, 265, 206, 272, 35))
+            return OOG_UNABLE_TO_CONNECT_TCPIP;
         else
             return OOG_CHARACTER_CREATE_ALREADY_EXISTS;                 // 30 Character Create - Dupe Name
     } else if (findControl(CONTROL_BUTTON, 5103, -1, 351, 337, 96, 32)) // 5103 = CANCEL

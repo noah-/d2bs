@@ -117,6 +117,7 @@ enum OOG_Location {
     OOG_ENTER_IP_ADDRESS,
     OOG_CHARACTER_SELECT_NO_CHARS,
     OOG_CHARACTER_SELECT_CHANGE_REALM,
+    OOG_UNABLE_TO_CONNECT_TCPIP
 };
 //////////////////////////////////////////////////////////////////////
 // PVP Flags

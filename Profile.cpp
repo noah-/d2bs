@@ -229,6 +229,9 @@ DWORD Profile::login(char** error) {
                 errorMsg = "Could not get the IP address from the profile in the d2bs.ini file.";
 
             break;
+        case OOG_UNABLE_TO_CONNECT_TCPIP:
+            errorMsg = "Failed to join Host IP Address";
+            break;
         case OOG_MAIN_MENU_CONNECTING:
         case OOG_CHARACTER_SELECT_PLEASE_WAIT:
         case OOG_PLEASE_WAIT:
