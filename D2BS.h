@@ -70,6 +70,7 @@ struct Variables {
     BOOL bCacheFix;
     BOOL bMulti;
     BOOL bSleepy;
+    BOOL bReduceFTJ;
     int dwMemUsage;
     int dwConsoleFont;
     HANDLE eventSignal;

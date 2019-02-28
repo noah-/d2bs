@@ -12,6 +12,7 @@ typedef struct PatchHook_t {
     DWORD dwAddr;
     DWORD dwFunc;
     DWORD dwLen;
+    BOOL* enabled;
     BYTE* bOldCode;
 } PatchHook;
 

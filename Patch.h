@@ -3,6 +3,7 @@
 #include "Offset.h"
 #include "D2Intercepts.h"
 #include "D2Handlers.h"
+#include "D2BS.h"
 
 PatchHook Patches[] = {
     {PatchCall, GetDllOffset("D2Client.dll", 0x7C89D), (DWORD)GameInput_Intercept, 5},          // Updated 1.14d //0047C89D-BASE
@@ -44,13 +45,13 @@ PatchHook Patches[] = {
 };
 
 PatchHook Conditional[] = {
-    {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x12366C), (DWORD)ClassicSTUB, 5}, // Updated 1.14d //0052366C-BASE
-    {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x123958), (DWORD)LodSTUB, 5},     // Updated 1.14d //00523958-BASE
-    {PatchCall, GetDllOffset("D2CLIENT.DLL", 0x4EF28), (DWORD)FailToJoin, 6},  // FTJ Reducer
-    {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5623), (DWORD)Multi, 6},
-    {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5831), (DWORD)Windowname, 6},
-    {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x11944E), (DWORD)CacheFix, 6},
-    {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x119434), (DWORD)CacheFix, 6},
-    {PatchBytes, GetDllOffset("D2CLIENT.DLL", 0x51C31), (WORD)0x9090, 2}, // Sleep
-    {PatchBytes, GetDllOffset("D2Win.DLL", 0xFA66F), (BYTE)0xEB, 1}       // OOG Sleep
+    {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x12366C), (DWORD)ClassicSTUB, 5, &Vars.bUseRawCDKey}, // Updated 1.14d //0052366C-BASE
+    {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x123958), (DWORD)LodSTUB, 5, &Vars.bUseRawCDKey},     // Updated 1.14d //00523958-BASE
+    {PatchCall, GetDllOffset("D2CLIENT.DLL", 0x4EF28), (DWORD)FailToJoin, 6, &Vars.bReduceFTJ},  // FTJ Reducer
+    {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5623), (DWORD)Multi, 6, &Vars.bMulti},
+    {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5831), (DWORD)Windowname, 6, &Vars.bMulti},
+    {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x11944E), (DWORD)CacheFix, 6, &Vars.bCacheFix},
+    {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x119434), (DWORD)CacheFix, 6, &Vars.bCacheFix},
+    {PatchBytes, GetDllOffset("D2CLIENT.DLL", 0x51C31), (WORD)0x9090, 2, &Vars.bSleepy}, // Sleep
+    {PatchBytes, GetDllOffset("D2Win.DLL", 0xFA66F), (BYTE)0xEB, 1, &Vars.bSleepy}       // OOG Sleep
 };

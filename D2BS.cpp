@@ -43,7 +43,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
 		InitCommandLine();
         ParseCommandLine(Vars.szCommandLine);
         sLine* command = NULL;
-        Vars.bUseRawCDKey = 0;
+        Vars.bUseRawCDKey = FALSE;
 
         if (command = GetCommand(L"-title")) {
             int len = wcslen((wchar_t*)command->szText);
@@ -51,16 +51,19 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
         }
 
         if (GetCommand(L"-sleepy"))
-            Vars.bSleepy = 1;
+            Vars.bSleepy = TRUE;
 
         if (GetCommand(L"-cachefix"))
-            Vars.bCacheFix = 1;
+            Vars.bCacheFix = TRUE;
 
         if (GetCommand(L"-multi"))
             Vars.bMulti = TRUE;
 
+		if (GetCommand(L"-ftj"))
+			Vars.bReduceFTJ = TRUE;
+
         if (command = GetCommand(L"-d2c")) {
-            Vars.bUseRawCDKey = 1;
+            Vars.bUseRawCDKey = TRUE;
             const char* keys = UnicodeToAnsi(command->szText);
             strncat_s(Vars.szClassic, keys, strlen(keys));
             delete[] keys;
