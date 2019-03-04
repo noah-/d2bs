@@ -389,111 +389,41 @@ char* DllLoadAddrStrs() {
 }
 
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs) {
-    GetStackWalk();
+	GetStackWalk();
 
     EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
     CONTEXT* ctx = ptrs->ContextRecord;
     DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
 
-    wchar_t path[_MAX_PATH + _MAX_FNAME] = L"";
-    swprintf_s(path, _countof(path), L"%s\\D2BS.bin", Vars.szPath);
-
-    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId());
-    HANDLE hThread = GetCurrentThread();
-    CONTEXT context = *ctx;
-
-    unsigned int i;
     int len;
     char* szString;
     char* dllAddrs;
 
-    SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_FAIL_CRITICAL_ERRORS | SYMOPT_NO_PROMPTS | SYMOPT_DEFERRED_LOADS);
-    SymInitializeW(hProcess, Vars.szPath, TRUE);
-    SymLoadModuleExW(hProcess, NULL, path, NULL, base, 0, NULL, 0);
-
-    STACKFRAME64 stack;
-    stack.AddrPC.Offset = context.Eip;
-    stack.AddrPC.Mode = AddrModeFlat;
-    stack.AddrStack.Offset = context.Esp;
-    stack.AddrStack.Mode = AddrModeFlat;
-    stack.AddrFrame.Offset = context.Ebp;
-    stack.AddrFrame.Mode = AddrModeFlat;
-
-    std::string trace;
-
-    for (i = 0; i < 64; i++) {
-        if (!StackWalk64(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &stack, &context, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL))
-            break;
-
-        // infinite loop
-        if (stack.AddrReturn.Offset == stack.AddrPC.Offset)
-            break;
-        // jump to 0
-        if (stack.AddrPC.Offset == 0)
-            break;
-
-        SYMBOL_INFO* sym = GetSymFromAddr(hProcess, stack.AddrPC.Offset);
-
-        if (sym) {
-            char msg[1024];
-            ULONG64 base2 = (sym->Address - sym->ModBase);
-
-            IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, stack.AddrPC.Offset);
-            if (line)
-                sprintf_s(msg, 1024, "\t%s+0x%08x, File: %s line %d\n", sym->Name, base2, strrchr(line->FileName, '\\') + 1, line->LineNumber);
-            else
-                sprintf_s(msg, 1024, "\t%s+0x%08x\n", sym->Name, base2);
-
-            trace.append(msg);
-            delete line;
-        } else {
-            char addr[100];
-            sprintf_s(addr, sizeof(addr), "\t0x%08x\n", stack.AddrFrame.Offset);
-            trace.append(addr);
-        }
-
-        delete[](char*) sym;
-    }
-
-    SYMBOL_INFO* sym = GetSymFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
-
-    IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
-
-    len = _scprintf("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+    len = _scprintf("EXCEPTION!\n*** 0x%08x at 0x%08x\n"
                     "D2BS loaded at: 0x%08x\n"
                     "Registers:\n"
                     "\tEIP: 0x%08x, ESP: 0x%08x\n"
                     "\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
-                    "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
-                    "Stack Trace:\n%s\nEnd of stack trace.",
-                    rec->ExceptionCode, rec->ExceptionAddress, sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\') + 1 : "Unknown",
-                    line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax,
-                    ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
-    dllAddrs = DllLoadAddrStrs();
+                    "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n",
+                    rec->ExceptionCode, rec->ExceptionAddress, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax,
+                    ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags);
 
     szString = new char[len + 1];
     sprintf_s(szString, len + 1,
-              "EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+              "EXCEPTION!\n*** 0x%08x at 0x%08x\n"
               "D2BS loaded at: 0x%08x\n"
               "Registers:\n"
               "\tEIP: 0x%08x, ESP: 0x%08x\n"
               "\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
-              "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
-              "Stack Trace:\n%s\nEnd of stack trace.",
-              rec->ExceptionCode, rec->ExceptionAddress, sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\') + 1 : "Unknown",
-              line != NULL ? line->LineNumber : 0, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax, ctx->Ebx,
-              ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags, trace.c_str());
+              "\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n",
+              rec->ExceptionCode, rec->ExceptionAddress, base, ctx->Eip, ctx->Esp, ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs, ctx->Eax, ctx->Ebx,
+              ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags);
 
+	dllAddrs = DllLoadAddrStrs();
     Log(L"%hs\n%hs", szString, dllAddrs);
 
     free(dllAddrs);
-
     delete[] szString;
-    delete[](char*) sym;
-    delete line;
-
-    SymCleanup(hProcess);
-
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
