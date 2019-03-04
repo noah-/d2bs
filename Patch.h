@@ -47,7 +47,7 @@ PatchHook Patches[] = {
 PatchHook Conditional[] = {
     {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x12366C), (DWORD)ClassicSTUB, 5, &Vars.bUseRawCDKey}, // Updated 1.14d //0052366C-BASE
     {PatchJmp, GetDllOffset("BNCLIENT.DLL", 0x123958), (DWORD)LodSTUB, 5, &Vars.bUseRawCDKey},     // Updated 1.14d //00523958-BASE
-    {PatchCall, GetDllOffset("D2CLIENT.DLL", 0x4EF28), (DWORD)FailToJoin, 6, &Vars.bReduceFTJ},  // FTJ Reducer
+    {PatchCall, GetDllOffset("D2CLIENT.DLL", 0x4EF28), (DWORD)FailToJoin, 6, &Vars.bReduceFTJ},    // FTJ Reducer
     {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5623), (DWORD)Multi, 6, &Vars.bMulti},
     {PatchCall, GetDllOffset("D2Gfx.DLL", 0xF5831), (DWORD)Windowname, 6, &Vars.bMulti},
     {PatchCall, GetDllOffset("BNCLIENT.DLL", 0x11944E), (DWORD)CacheFix, 6, &Vars.bCacheFix},

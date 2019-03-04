@@ -40,7 +40,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
             Vars.bLoadedWithCGuard = FALSE;
         }
 
-		InitCommandLine();
+        InitCommandLine();
         ParseCommandLine(Vars.szCommandLine);
         sLine* command = NULL;
         Vars.bUseRawCDKey = FALSE;
@@ -59,8 +59,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
         if (GetCommand(L"-multi"))
             Vars.bMulti = TRUE;
 
-		if (GetCommand(L"-ftj"))
-			Vars.bReduceFTJ = TRUE;
+        if (GetCommand(L"-ftj"))
+            Vars.bReduceFTJ = TRUE;
 
         if (command = GetCommand(L"-d2c")) {
             Vars.bUseRawCDKey = TRUE;
