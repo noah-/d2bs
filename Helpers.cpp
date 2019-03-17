@@ -283,16 +283,16 @@ bool ProcessCommand(const wchar_t* command, bool unprocessedIsCommand) {
         result = true;
     }
 #if DEBUG
-    else if (_strcmpi(argv, "crash") == 0) {
+    else if (_wcsicmp(argv, L"crash") == 0) {
         DWORD zero = 0;
         double value = 1 / zero;
-        Print("%d", value);
-    } else if (_strcmpi(argv, "profile") == 0) {
-        const char* profile = command + 8;
+        Print(L"%d", value);
+    } else if (_wcsicmp(argv, L"profile") == 0) {
+        const wchar_t* profile = command + 8;
         if (SwitchToProfile(profile))
-            Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+            Print(L"ÿc2D2BSÿc0 :: Switched to profile %s", profile);
         else
-            Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+            Print(L"ÿc2D2BSÿc0 :: Profile %s not found", profile);
         result = true;
     }
 #endif

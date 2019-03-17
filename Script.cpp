@@ -432,12 +432,12 @@ void Script::FireEvent(Event* evt) {
 #ifdef DEBUG
 typedef struct tagTHREADNAME_INFO {
     DWORD dwType;     // must be 0x1000
-    LPCSTR szName;    // pointer to name (in user addr space)
+    LPCWSTR szName;    // pointer to name (in user addr space)
     DWORD dwThreadID; // thread ID (-1=caller thread)
     DWORD dwFlags;    // reserved for future use, must be zero
 } THREADNAME_INFO;
 
-void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName) {
+void SetThreadName(DWORD dwThreadID, LPCWSTR szThreadName) {
     THREADNAME_INFO info;
     info.dwType = 0x1000;
     info.szName = szThreadName;
