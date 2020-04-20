@@ -79,6 +79,7 @@ struct Variables {
     HWND hHandle;
 
     wchar_t szPath[_MAX_PATH];
+    wchar_t szLogPath[_MAX_PATH];
     wchar_t szScriptPath[_MAX_PATH];
     wchar_t szProfile[256];
     wchar_t szStarter[_MAX_FNAME];
