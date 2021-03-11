@@ -1633,6 +1633,22 @@ JSAPI_FUNC(unit_getParent) {
 
             JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
         }
+    } else if (pUnit->dwType == UNIT_MISSILE) {
+        auto* pmyUnit = new myUnit;
+        if (!pmyUnit) return JS_TRUE;
+
+        UnitAny* pOwner = D2COMMON_GetMissileOwnerUnit(pUnit);
+        if (!pOwner) return JS_TRUE;
+
+        pmyUnit->_dwPrivateType = PRIVATE_UNIT;
+        pmyUnit->dwUnitId = pOwner->dwUnitId;
+        pmyUnit->dwClassId = pOwner->dwTxtFileNo;
+        pmyUnit->dwMode = pOwner->dwMode;
+        pmyUnit->dwType = pOwner->dwType;
+        pmyUnit->szName[0] = NULL;
+
+        JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+        JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(jsunit));
     }
 
     return JS_TRUE;
