@@ -341,7 +341,7 @@ enum {
     FUNCPTR(D2COMMON, GetItemPalette, int __stdcall, (UnitAny * pPlayer, UnitAny* pItem, BYTE* pColor, int nTransType),
             0x22C100) // Updated 1.14d //0062C100-BASE
 
-    FUNCPTR(D2COMMON, GetMissileOwnerUnit, UnitAny * __fastcall, (UnitAny *pMissile),0x639D0) // 0x4639D0-BASE
+    FUNCPTR(D2COMMON, GetMissileOwnerUnit, UnitAny * __fastcall, (UnitAny *pMissile), 0x639D0) // 0x4639D0-BASE
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // D2Common Globals
     ////////////////////////////////////////////////////////////////////////////////////////////////
