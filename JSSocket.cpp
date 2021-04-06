@@ -77,6 +77,9 @@ JSAPI_FUNC(socket_open) {
     if (JSVAL_IS_STRING(JS_ARGV(cx, vp)[0]))
         hostName = JS_EncodeStringToUTF8(cx, JSVAL_TO_STRING(JS_ARGV(cx, vp)[0]));
 
+    if (!strstr(Vars.szHosts, hostName))
+        THROW_ERROR(cx, "Invalid hostname specified");
+
     if (JS_ValueToInt32(cx, JS_ARGV(cx, vp)[1], &port) == JS_FALSE)
         THROW_ERROR(cx, "Could not convert parameter 2");
 

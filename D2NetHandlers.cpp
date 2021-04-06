@@ -13,7 +13,7 @@
 
 using namespace std;
 
-Variables Vars;
+Variables Vars = {};
 
 DWORD ReassignPlayerHandler(BYTE* pPacket, DWORD dwSize) {
     if (*(LPDWORD)&pPacket[2] == D2CLIENT_GetPlayerUnit()->dwUnitId)

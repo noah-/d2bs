@@ -52,8 +52,9 @@ void RemovePatches() {
 
 void InstallConditional() {
     for (int x = 0; x < ArraySize(Conditional); x++) {
-        if (Conditional[x].enabled == NULL || *Conditional[x].enabled != TRUE)
+        if (Conditional[x].enabled == NULL || *Conditional[x].enabled != TRUE) {
             continue;
+        }
         Conditional[x].bOldCode = new BYTE[Conditional[x].dwLen];
         ::ReadProcessMemory(GetCurrentProcess(), (void*)Conditional[x].dwAddr, Conditional[x].bOldCode, Conditional[x].dwLen, NULL);
         Conditional[x].pFunc(Conditional[x].dwAddr, Conditional[x].dwFunc, Conditional[x].dwLen);

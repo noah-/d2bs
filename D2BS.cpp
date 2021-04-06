@@ -44,6 +44,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved) {
         CreateDirectoryW(Vars.szLogPath, NULL);
         InitCommandLine();
         ParseCommandLine(Vars.szCommandLine);
+        InitSettings();
         sLine* command = NULL;
         Vars.bUseRawCDKey = FALSE;
 

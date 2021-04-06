@@ -152,7 +152,7 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit) {
     *p_D2CLIENT_MouseX = 0;
     *p_D2CLIENT_MouseY = 0;
 
-    if (pUnit && pUnit != D2CLIENT_GetPlayerUnit() /* && D2CLIENT_UnitTestSelect(pUnit, 0, 0, 0)*/) {
+    if (pUnit && pUnit != D2CLIENT_GetPlayerUnit() /* && D2CLIENT_FindUnit(pUnit->dwUnitId, pUnit->dwType) && D2CLIENT_UnitTestSelect(pUnit, 0, 0, 0)*/) {
         Vars.dwSelectedUnitId = pUnit->dwUnitId;
         Vars.dwSelectedUnitType = pUnit->dwType;
 

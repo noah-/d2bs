@@ -163,33 +163,37 @@ DWORD Profile::login(char** error) {
                     errorMsg = "Failed to click the 'Log in' button?";
             timeout++;
             break;
-        case OOG_DIFFICULTY:
-            switch (diff) {
-            case 0:
-                // normal button
-                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 297, 272, 35)))
-                    errorMsg = "Failed to click the 'Normal Difficulty' button?";
-                break;
-            case 1:
-                // nightmare button
-                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 340, 272, 35)))
-                    errorMsg = "Failed to click the 'Nightmare Difficulty' button?";
-                break;
-            case 2:
-                // hell button
-                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)))
-                    errorMsg = "Failed to click the 'Hell Difficulty' button?";
-                break;
-            case 3:
-                // highest available
-                if (!clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 383, 272, 35)) &&
-                    !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 340, 272, 35)) &&
-                    !clickControl(findControl(6, (const wchar_t*)NULL, -1, 264, 297, 272, 35)))
+        case OOG_DIFFICULTY: 
+            {
+                Control *normal = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 297, 272, 35),
+                        *nightmare = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 340, 272, 35),
+                        *hell = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 264, 383, 272, 35);
+
+                switch (diff) {
+                case 0: // normal button
+                    if (normal->dwDisabled != 0x0d || !clickControl(normal))
+                        errorMsg = "Failed to click the 'Normal Difficulty' button?";
+                    break;
+                case 1: // nightmare button
+                    if (nightmare->dwDisabled != 0x0d || !clickControl(nightmare))
+                        errorMsg = "Failed to click the 'Nightmare Difficulty' button?";
+                    break;
+                case 2: // hell button
+                    if (hell->dwDisabled != 0x0d || !clickControl(hell))
+                        errorMsg = "Failed to click the 'Hell Difficulty' button?";
+                    break;
+                case 3: // hardest difficulty available
+                    if ((hell->dwDisabled == 0x0d && clickControl(hell)) || 
+                        (nightmare->dwDisabled == 0x0d && clickControl(nightmare)) ||
+                        (normal->dwDisabled == 0x0d && clickControl(normal))) {
+                        break;
+                    }
                     errorMsg = "Failed to click ANY difficulty button?";
-                break;
-            default:
-                errorMsg = "Invalid single player difficulty level specified!";
-                break;
+                    break;
+                default:
+                    errorMsg = "Invalid single player difficulty level specified!";
+                    break;
+                }
             }
         case OOG_OTHER_MULTIPLAYER:
             // Open Battle.net

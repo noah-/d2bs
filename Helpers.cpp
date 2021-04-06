@@ -105,9 +105,9 @@ bool SwitchToProfile(const wchar_t* profile) {
 }
 
 void InitSettings(void) {
-    wchar_t fname[_MAX_FNAME + _MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], debug[6],
-        quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6],
-        enableUnsupported[6], forwardMessageBox[6], consoleFont[6];
+    wchar_t fname[_MAX_FNAME + _MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME], defaultConsole[_MAX_FNAME], hosts[256],
+        debug[6], quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6], startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6],
+        logConsole[6], enableUnsupported[6], forwardMessageBox[6], consoleFont[6];
 
     swprintf_s(fname, _countof(fname), L"%sd2bs.ini", Vars.szPath);
 
@@ -115,6 +115,7 @@ void InitSettings(void) {
     GetPrivateProfileStringW(L"settings", L"DefaultConsoleScript", L"", defaultConsole, _MAX_FNAME, fname);
     GetPrivateProfileStringW(L"settings", L"DefaultGameScript", L"default.dbj", defaultGame, _MAX_FNAME, fname);
     GetPrivateProfileStringW(L"settings", L"DefaultStarterScript", L"starter.dbj", defaultStarter, _MAX_FNAME, fname);
+    GetPrivateProfileStringW(L"settings", L"Hosts", L"", hosts, 256, fname);
     GetPrivateProfileStringW(L"settings", L"MaxGameTime", L"0", maxGameTime, 6, fname);
     GetPrivateProfileStringW(L"settings", L"Debug", L"false", debug, 6, fname);
     GetPrivateProfileStringW(L"settings", L"QuitOnHostile", L"false", quitOnHostile, 6, fname);
@@ -133,6 +134,10 @@ void InitSettings(void) {
     wcscpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
     wcscpy_s(Vars.szConsole, _MAX_FNAME, defaultConsole);
     wcscpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
+
+    char* szHosts = UnicodeToAnsi(hosts);
+    strcpy_s(Vars.szHosts, 256, szHosts);
+    delete[] szHosts;
 
     Vars.dwGameTime = GetTickCount();
     Vars.dwMaxGameTime = abs(_wtoi(maxGameTime) * 1000);
