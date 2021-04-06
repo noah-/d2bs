@@ -499,11 +499,13 @@ int ActMap::SpaceGetDataWide(const Point& point, bool abs) const {
 
     int val = GetMapData(point, abs)
               /*| GetMapData(Point(point.first - 2, point.second - 2), abs)
-                          | GetMapData(Point(point.first + 2, point.second + 2), abs)
-                          | GetMapData(Point(point.first + 2, point.second - 2), abs)
-                          | GetMapData(Point(point.first - 2, point.second + 2), abs)*/
-              | GetMapData(Point(point.first - 2, point.second), abs) | GetMapData(Point(point.first + 2, point.second), abs) |
-              GetMapData(Point(point.first, point.second - 2), abs) | GetMapData(Point(point.first, point.second + 2), abs);
+                | GetMapData(Point(point.first + 2, point.second + 2), abs)
+                | GetMapData(Point(point.first + 2, point.second - 2), abs)
+                | GetMapData(Point(point.first - 2, point.second + 2), abs)*/
+              | GetMapData(Point(point.first - 2, point.second), abs) 
+              | GetMapData(Point(point.first + 2, point.second), abs) 
+              | GetMapData(Point(point.first, point.second - 2), abs) 
+              | GetMapData(Point(point.first, point.second + 2), abs);
     return val;
 }
 

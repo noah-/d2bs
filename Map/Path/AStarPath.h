@@ -36,6 +36,12 @@ inline int __fastcall Euclidean(Point const& start, Point const& end) {
     return sqrt(dx + dy) * 10;
 }
 
+inline int __fastcall Slope(Point const& start, Point const& end) {
+    double dx = (double)(end.first - start.first);
+    double dy = (double)(end.second - start.second);
+    return dy/dx;
+}
+
 inline bool __fastcall checkFlag(int flag) {
     // avoid is a bitwise superset of the other flags, don't need this check
     return (/*((ActMap::Avoid & flag) == ActMap::Avoid) |*/ (((ActMap::BlockWalk | ActMap::BlockPlayer) & flag) > 0));

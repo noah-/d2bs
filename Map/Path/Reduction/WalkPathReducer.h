@@ -96,8 +96,45 @@ class WalkPathReducer : public PathReducer {
     }
     */
 
+/*function getDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function getSlope(a, b) {
+    return (a.y - b.y) / (a.x - b.x);
+}*/
     void Reduce(PointList const& in, PointList& out, bool abs) {
-        PointList::const_iterator it = in.begin(), end = in.end();
+        if (in.size() < 2) {
+            out = in;
+            return;
+        }
+
+        PointList::const_iterator it = in.begin();
+
+        bool init = true;
+        int slope = 0;
+        Point next;
+        Point last;
+        Point first;
+        first = *it;
+
+        for (; *it != in.back(); it++) {
+            next = *it;
+            int slope_next = Slope(first, next);
+            if (init || slope_next != slope) {
+                init = false;
+                out.push_back(first);
+                last = first;
+                slope = slope_next;
+            } else if (Euclidean(last, next) >= range) {
+                out.push_back(first);
+                last = first;
+            }
+            first = next;
+        }
+
+        out.push_back(in.back());
+        /*PointList::const_iterator it = in.begin(), end = in.end();
         out.push_back(*it);
         Point lineStartStep;
         Point lineStartPoint;

@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -53,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,0
- PRODUCTVERSION 1,4,0,0
+ FILEVERSION 1,6,4,0
+ PRODUCTVERSION 1,6,4,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "D2BS Team"
             VALUE "FileDescription", "Diablo II Botting System"
-            VALUE "FileVersion", "1, 4, 0, 0"
+            VALUE "FileVersion", "1.6.4.0"
             VALUE "InternalName", "D2BS"
             VALUE "LegalCopyright", "Copyright (C) 2010"
             VALUE "OriginalFilename", "D2BS.dll"
             VALUE "ProductName", "Diablo II Botting System"
-            VALUE "ProductVersion", "1, 4, 0, 0"
+            VALUE "ProductVersion", "1.6.4.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -85,7 +83,7 @@ BEGIN
     END
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
